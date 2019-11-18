@@ -71,22 +71,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'smallboard.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/2.2/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'smallboard',
-        'USER': 'sushi',
-        'PASSWORD': 'password',
-        'HOST': 'localhost',
-        'PORT': '',
-    }
-}
-
-
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
 
@@ -129,3 +113,14 @@ STATICFILES_STORAGE = 'whitenoise.django.CompressedManifestStaticFilesStorage'
 # Configure Django App for Heroku.
 import django_heroku
 django_heroku.settings(locals())
+
+import dj_database_url
+
+import dotenv
+dotenv_file = os.path.join(BASE_DIR, ".env")
+if os.path.isfile(dotenv_file):
+    dotenv.load_dotenv(dotenv_file)
+
+DATABASES = {}
+DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)
+del DATABASES['default']['OPTIONS']['sslmode']

@@ -7,7 +7,6 @@ def index(request):
     context = {
         'puzzles': puzzles
     }
-    print(puzzles)
     return render(request, 'index.html', context)
 
 
