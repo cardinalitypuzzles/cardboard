@@ -2,5 +2,24 @@
 
 {% block page_content %}
 <h1>Puzzle Index</h1>
+<table class="table">
+    <thead>
+        <tr>
+          <th scope="col">Title</th>
+          <th scope="col">Status</th>
+          <th scope="col">Sheet</th>
+          <th scope="col">Slack</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for p in puzzles %}
+            <th scope="row"><a href="{% url 'puzzle_page' p.pk %}" class="btn btn-primary">{{ p.name }}</a></th>
+            <td>{{ p.status }}</td>
+            <td><a href="{{ p.sheet }}" class="btn btn-primary">Link</a></td>
+            <td><a href="{{ p.channel }}" class="btn btn-primary">Link</a></td>
+        {% endfor %}
+    </tbody>
+</table>
+
 {% endblock %}
 
