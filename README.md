@@ -32,7 +32,7 @@ Once you've set up the new virtual environment, activate it and install Small Bo
 
 ```
 source venv_smallboard/bin/activate
-pip install -r requirements.txt
+(venv_smallboard)$ pip install -r requirements.txt
 ```
 
 If you encounter issues during dependency installation, make sure you've installed the `python3-dev` package (and not just `python3`).
@@ -82,7 +82,7 @@ Once this is set up, you'll need to run a one-time database migration to set up 
 source venv_smallboard/bin/activate
 
 # from smallboard/ root directory
-python manage.py migrate
+(venv_smallboard)$ python manage.py migrate
 ```
 
 
@@ -91,7 +91,7 @@ python manage.py migrate
 Once the Python environment and database are set up and running, you can run Small Board locally using
 
 ```
-python manage.py runserver
+(venv_smallboard)$ python manage.py runserver
 ```
 
 You can view the app in your browser at [http://127.0.0.1:8000/].
