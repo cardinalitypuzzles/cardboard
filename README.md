@@ -94,7 +94,7 @@ Once the Python environment and database are set up and running, you can run Sma
 (venv_smallboard)$ python manage.py runserver
 ```
 
-You can view the app in your browser at [http://127.0.0.1:8000/].
+You can view the app in your browser at [http://127.0.0.1:8000/](http://127.0.0.1:8000/).
 
 
 ### Deployment to Heroku
