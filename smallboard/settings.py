@@ -112,6 +112,7 @@ STATIC_URL = '/static/'
 STATICFILES_STORAGE = 'whitenoise.django.CompressedManifestStaticFilesStorage'
 
 # User login
+AUTH_USER_MODEL = 'accounts.Puzzler'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 

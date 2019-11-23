@@ -1,3 +1,14 @@
 from django.contrib import admin
+from django.contrib.auth import get_user_model
+from django.contrib.auth.admin import UserAdmin
 
-# Register your models here.
+from .forms import PuzzlerCreationForm, PuzzlerChangeForm
+from .models import Puzzler
+
+class PuzzlerAdmin(UserAdmin):
+    add_form = PuzzlerCreationForm
+    form = PuzzlerChangeForm
+    model = Puzzler
+    list_display = ['email', 'username',]
+
+admin.site.register(Puzzler, PuzzlerAdmin)
