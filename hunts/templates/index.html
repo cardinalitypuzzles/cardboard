@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block page_content %}
+<h1>Hunt Index</h1>
+
+<div class="row">
+    <div class="col-md-6">
+        <h2>Active</h2>
+        <ul>
+            {% for h in active_hunts %}
+                <li><a href="{% url 'all_puzzles' h.pk %}">{{ h.name }}</a></li>
+            {% endfor %}
+        </ul>
+
+        <h2>Finished</h2>
+        <ul>
+            {% for h in finished_hunts %}
+                <li><a href="{% url 'all_puzzles' h.pk %}">{{ h.name }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="col-md-6">
+        <h2>Add New Hunt</h2>
+        <form action="/hunts/" method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                {{ form.name }}
+            </div>
+            <div class="form-group">
+                {{ form.url }}
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

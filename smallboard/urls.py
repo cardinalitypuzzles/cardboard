@@ -22,5 +22,6 @@ urlpatterns = [
     path('accounts/', include('accounts.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
     path('puzzles/', include('puzzles.urls')),
-    path('', lambda r: HttpResponseRedirect('puzzles/')),
+    path('hunts/', include('hunts.urls')),
+    path('', lambda r: HttpResponseRedirect('hunts/')),
 ]

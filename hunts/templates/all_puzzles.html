@@ -1,11 +1,13 @@
 {% extends "base.html" %}
 
 {% block page_content %}
-<h1>Puzzle Index</h1>
-<table class="table">
+<h1>{{ hunt_name }} - All Puzzles</h1>
+
+<table class="table-condensed">
     <thead>
         <tr>
           <th scope="col">Puzzle</th>
+          <th scope="col">Link</th>
           <th scope="col">Status</th>
           <th scope="col">Sheet</th>
           <th scope="col">Slack</th>
@@ -14,6 +16,7 @@
     <tbody>
         {% for p in puzzles %}
             <th scope="row"><a href="{% url 'puzzle_page' p.pk %}" class="btn btn-primary">{{ p.name }}</a></th>
+            <td scope="row"><a href="{{ p.url }}" class="btn btn-primary">Link</a></td>
             <td>{{ p.status }}</td>
             <td><a href="{{ p.sheet }}" class="btn btn-primary">Link</a></td>
             <td><a href="{{ p.channel }}" class="btn btn-primary">Link</a></td>
