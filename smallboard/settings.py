@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'puzzles',
+    'accounts'
 ]
 
 MIDDLEWARE = [
@@ -109,6 +110,10 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATICFILES_STORAGE = 'whitenoise.django.CompressedManifestStaticFilesStorage'
+
+# User login
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
 
 # Configure Django App for Heroku.
 import django_heroku

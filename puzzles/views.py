@@ -1,7 +1,9 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from puzzles.models import Puzzle
+from django.contrib.auth.decorators import login_required
 
 
+@login_required(login_url='/accounts/login/')
 def index(request):
     puzzles = Puzzle.objects.all()
     context = {
@@ -10,6 +12,7 @@ def index(request):
     return render(request, 'index.html', context)
 
 
+@login_required(login_url='/accounts/login/')
 def puzzle_page(request, pk):
     puzzle = Puzzle.objects.get(pk=pk)
     context = {

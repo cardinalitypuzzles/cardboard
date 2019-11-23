@@ -19,6 +19,8 @@ from django.http import HttpResponseRedirect
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('accounts/', include('accounts.urls')),
+    path('accounts/', include('django.contrib.auth.urls')),
     path('puzzles/', include('puzzles.urls')),
     path('', lambda r: HttpResponseRedirect('puzzles/')),
 ]
