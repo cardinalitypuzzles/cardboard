@@ -6,6 +6,8 @@ from django.contrib.auth.decorators import login_required
 
 @login_required(login_url='/accounts/login/')
 def index(request):
+    form = HuntForm()
+
     if request.method == 'POST':
         form = HuntForm(request.POST)
         if form.is_valid():
@@ -26,9 +28,12 @@ def index(request):
 
 @login_required(login_url='/accounts/login/')
 def all_puzzles(request, pk):
-    hunt = Hunt.objects.get(pk=pk)
-    context = {
-        'hunt_name': hunt.name,
-        'puzzles': hunt.puzzles.all()
-    }
-    return render(request, 'all_puzzles.html', context)
+    if Hunt.objects.filter(pk=pk).exists():
+        hunt = Hunt.objects.get(pk=pk)
+        context = {
+            'hunt_name': hunt.name,
+            'puzzles': hunt.puzzles.all()
+        }
+        return render(request, 'all_puzzles.html', context)
+    else:
+        return index(request)

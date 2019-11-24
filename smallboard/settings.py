@@ -131,3 +131,5 @@ if os.path.isfile(dotenv_file):
 
 DATABASES = {}
 DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=False)
+
+ACTIVE_HUNT_ID = 1

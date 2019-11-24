@@ -16,6 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.http import HttpResponseRedirect
+from django.conf import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -23,5 +24,5 @@ urlpatterns = [
     path('accounts/', include('django.contrib.auth.urls')),
     path('puzzles/', include('puzzles.urls')),
     path('hunts/', include('hunts.urls')),
-    path('', lambda r: HttpResponseRedirect('hunts/')),
+    path('', lambda r: HttpResponseRedirect('hunts/{}/'.format(settings.ACTIVE_HUNT_ID))),
 ]
