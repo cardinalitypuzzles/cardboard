@@ -119,7 +119,7 @@ You can view the app in your browser at [http://127.0.0.1:8000/]().
 
 ### Deployment to Heroku
 
-Deploying the app to Heroku just requires pushing the code to the Heroku Git server. You need to be added as a collaborator for the Heroku app first. Please message one of the collaborators on this project to be added.
+Though our development repo is this GitHub repo ([cardinalitypuzzles/smallboard](https://github.com/cardinalitypuzzles/smallboard)), to deploy to Heroku, you need to push the latest code to the Heroku Git server. To do so, you need to be added as a collaborator for the Heroku app first. Please message one of the collaborators on this project to be added.
 
 Once you've been added as a collaborator for the smallboard Heroku app, you can deploy changes by following [this guide](https://devcenter.heroku.com/articles/git). Install Git and the Heroku CLI. Then run
 
@@ -133,3 +133,5 @@ After this, you can deploy changes by running
 ```
 git push heroku master
 ```
+
+We encourage you to keep the `origin` remote as our GitHub repo and make it the default for `git push`s, and use `git push heroku master` to push to the Heroku Git servers when you are ready to deploy changes to production.
