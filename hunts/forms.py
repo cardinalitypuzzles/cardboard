@@ -8,4 +8,9 @@ class HuntForm(forms.Form):
             "placeholder": "Name of Hunt"
         })
     )
-    url = forms.URLField()
+    url = forms.URLField(
+        widget=forms.TextInput(attrs={
+            "class": "form-control",
+            "placeholder": "URL"
+        })
+    )
