@@ -3,7 +3,7 @@ import googleapiclient.discovery
 from .forms import HuntForm
 from .models import Hunt
 from puzzles.forms import PuzzleForm
-from puzzles.models import Puzzle
+from puzzles.models import Puzzle, MetaPuzzle
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
@@ -71,12 +71,20 @@ def all_puzzles(request, pk):
             if not sheets_url:
                 sheets_url = puzzle_url
 
-            puzzle = Puzzle(
-                name=name,
-                url=puzzle_url,
-                sheet=sheets_url,
-                hunt=hunt,
-            )
+            if form.cleaned_data["is_meta"]:
+                puzzle = MetaPuzzle(
+                    name=name,
+                    url=puzzle_url,
+                    sheet=sheets_url,
+                    hunt=hunt,
+                )
+            else:
+                puzzle = Puzzle(
+                    name=name,
+                    url=puzzle_url,
+                    sheet=sheets_url,
+                    hunt=hunt,
+                )
             puzzle.save()
 
     context = {
