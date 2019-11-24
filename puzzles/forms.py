@@ -8,4 +8,9 @@ class PuzzleForm(forms.Form):
             "placeholder": "Name of Puzzle"
         })
     )
-    url = forms.URLField()
+    url = forms.URLField(
+        widget=forms.TextInput(attrs={
+            "class": "form-control",
+            "placeholder": "URL"
+        })
+    )

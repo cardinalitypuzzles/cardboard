@@ -13,11 +13,10 @@
     </div>
 </div>
 
-<table class="table-sm">
+<table class="table-sm table-striped">
     <thead>
         <tr>
             <th scope="col">Puzzle</th>
-            <th scope="col">Link</th>
             <th scope="col">Status</th>
             <th scope="col">Sheet</th>
             <th scope="col">Slack</th>
@@ -25,15 +24,13 @@
     </thead>
     <tbody>
             {% for p in puzzles %}
-                <th scope="row"><a href="{% url 'puzzle_page' p.pk %}" class="btn btn-primary">{{ p.name }}</a></th>
-                <td scope="row"><a href="{{ p.url }}" class="btn btn-primary">Link</a></td>
+                <th scope="row"><a href="{{ p.url }}">{{ p.name }}</a></th>
                 <td>{{ p.status }}</td>
-                <td><a href="{{ p.sheet }}" class="btn btn-primary">Link</a></td>
-                <td><a href="{{ p.channel }}" class="btn btn-primary">Link</a></td>
+                <td><a href="{{ p.sheet }}">Link</a></td>
+                <td><a href="{{ p.channel }}">Link</a></td>
             {% endfor %}
     </tbody>
 </table>
-
 
 <div class="modal fade" id="addpuzzle" tabindex="-1" role="dialog" aria-labelledby="addtitle" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -44,15 +41,24 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body">
-                ...
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary">Add</button>
-            </div>
+            <form action="/hunts/{{ hunt_pk }}/" method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="form-group">
+                        {{ form.name }}
+                    </div>
+                    <div class="form-group">
+                        {{ form.url }}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
+
 {% endblock %}
 
