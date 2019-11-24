@@ -1,23 +1,35 @@
 from django import template
-from puzzles.models import Puzzle
+from puzzles.models import Puzzle, MetaPuzzle
 from puzzles.forms import StatusForm
 
 register = template.Library()
 
 @register.inclusion_tag('puzzles_table.html')
 def get_table(puzzles, request):
-    cls = []
-    for p in puzzles:
+    answers = []
+    table_class = []
+    badge = []
+
+    for (i, p) in enumerate(puzzles):
+        answers.append(p.answer if p.answer else "")
+
         if p.status == Puzzle.PENDING:
-            cls.append("table-warning")
+            table_class.append("table-warning")
         elif p.status == Puzzle.SOLVED:
-            cls.append("table-success")
+            table_class.append("table-success")
         elif p.status == Puzzle.STUCK:
-            cls.append("table-danger")
+            table_class.append("table-danger")
         else:
-            cls.append("")
+            table_class.append("")
+
+
+        if MetaPuzzle.objects.filter(pk=p.pk).exists():
+            badge.append("META")
+        else:
+            badge.append("")
+
 
     status_forms = [StatusForm(initial={'status': p.status}) for p in puzzles]
-    return {'rows': zip(puzzles, cls, status_forms)}
+    return {'rows': zip(puzzles, answers, table_class, badge, status_forms)}
 
 
