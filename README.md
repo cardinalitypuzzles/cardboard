@@ -23,7 +23,6 @@ We recommend setting up an isolated virtual environment where you install the de
 ```
 # install Python 3, venv, and Postgres packages
 sudo apt-get install python3-dev python3-venv libpq-dev
-
 # create a new virtual environment
 python3 -m venv venv_smallboard
 ```
