@@ -49,7 +49,7 @@ sudo apt-get install postgresql
 As of 11/23/2019, postgresql doesn't work out of the box. You'll need to add the following 2 config files to the right places:
 
 ```
-sudo -u postgres touch /var/lib/postgresql/10/main/postgresq1.conf
+sudo -u postgres touch /var/lib/postgresql/10/main/postgresql.conf
 sudo -u postgres cp missing_postgres_configs/pg_hba.conf /var/lib/postgresql/10/main/pg_hba.conf
 ```
 
