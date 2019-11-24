@@ -136,3 +136,6 @@ smallboard*.json
 
 # Testing
 test*.py
+
+# Backup files
+*.bak
