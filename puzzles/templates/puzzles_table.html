@@ -1,4 +1,4 @@
-<table class="table table-sm">
+<table class="table table-sm" id="puzzles">
     <thead>
         <tr>
             <th scope="col">Puzzle</th>
@@ -15,7 +15,7 @@
                 <th scope="row">
                     <a href="{{ p.url }}">{{ p.name }}</a> <span class="badge badge-dark">{{ badge }}</span>
                 </th>
-                <td><p class="text-monospace">{{ ans }}</p></td>
+                <td><p class="text-monospace">{{ ans.upper }}</p></td>
                 <td>
                     <form method="post", action="/puzzles/update_status/{{ p.pk }}/" class="form-inline">
                         {% csrf_token %}
@@ -41,5 +41,17 @@
             {% endfor %}
     </tbody>
 </table>
+
+<script type="text/javascript">
+$(document).ready(function() {
+    $('#puzzles').DataTable( {
+        "paging": false,
+        "info": false,
+        "columnDefs": [
+            { "orderable": false, "targets": [2, 3, 4, 5] }
+        ]
+    } );
+});
+</script>
 
 

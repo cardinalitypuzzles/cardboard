@@ -8,7 +8,7 @@
     </div>
 </div>
 
-<table class="table table-sm">
+<table class="table table-sm" id="queue">
     <thead>
         <tr>
             <th scope="col">Time</th>
@@ -22,7 +22,7 @@
             <tr>
                 <th>{{ ans.created_on }}</th>
                 <td>{{ ans.puzzle.name }}</td>
-                <td><p class="text-monospace">{{ ans.text }}</p></td>
+                <td><p class="text-monospace">{{ ans.text.upper }}</p></td>
                 <td>
                     <form action="/answers/queue/{{ hunt_pk }}/{{ ans.id }}" method="post" class="form-inline">
                         {% csrf_token %}
@@ -36,7 +36,17 @@
     </tbody>
 </table>
 
-
+<script type="text/javascript">
+$(document).ready(function() {
+    $('#queue').DataTable( {
+        "paging": true,
+        "info": true,
+        "columnDefs": [
+            { "orderable": false, "targets": [3] }
+        ]
+    } );
+});
+</script>
 
 
 {% endblock %}
