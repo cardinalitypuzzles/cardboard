@@ -24,10 +24,12 @@
     </thead>
     <tbody>
             {% for p in puzzles %}
+            <tr>
                 <th scope="row"><a href="{{ p.url }}">{{ p.name }}</a></th>
                 <td>{{ p.status }}</td>
                 <td><a href="{{ p.sheet }}">Link</a></td>
                 <td><a href="{{ p.channel }}">Link</a></td>
+            </tr>
             {% endfor %}
     </tbody>
 </table>
