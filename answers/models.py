@@ -5,7 +5,7 @@ class Answer(models.Model):
     puzzle = models.ForeignKey('puzzles.Puzzle', on_delete=models.CASCADE, related_name="guesses")
     created_on = models.DateTimeField(auto_now_add=True)
     # for partial answers
-    response = ""
+    response = models.TextField(default="")
 
     NEW = 'NEW'
     SUBMITTED = 'SUBMITTED'

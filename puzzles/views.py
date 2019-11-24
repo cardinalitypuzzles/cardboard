@@ -1,7 +1,9 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from .models import Puzzle
-from puzzles.forms import StatusForm
+from .forms import StatusForm
+from answers.models import Answer
+from answers.forms import AnswerForm
 from django.http import HttpResponseRedirect
 
 @login_required(login_url='/accounts/login/')
@@ -20,4 +22,20 @@ def update_status(request, pk):
         form = StatusForm(request.POST, instance=Puzzle.objects.get(pk=pk))
         if form.is_valid():
             form.save()
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+
+@login_required(login_url='/accounts/login/')
+def guess(request, pk):
+    print("guessing!")
+    if request.method == 'POST':
+        form = AnswerForm(request.POST)
+        puzzle = Puzzle.objects.get(pk=pk)
+
+        if form.is_valid() and puzzle.status != Puzzle.SOLVED:
+            answer = Answer(text=form.cleaned_data["text"], puzzle=puzzle)
+            puzzle.status = Puzzle.PENDING
+            answer.save()
+            puzzle.save()
+
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))

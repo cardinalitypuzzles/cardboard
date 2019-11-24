@@ -6,6 +6,7 @@
             <th scope="col">Status</th>
             <th scope="col">Sheet</th>
             <th scope="col">Slack</th>
+            <th scope="col"></th>
         </tr>
     </thead>
     <tbody>
@@ -25,7 +26,20 @@
                 </td>
                 <td><a href="{{ p.sheet }}">Link</a></td>
                 <td><a href="{{ p.channel }}">Link</a></td>
+                <td>
+                    {% if p.status != "SOLVED" %}
+                       <form action="/puzzles/guess/{{ p.id }}/" method="post" class="form-inline">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            {{ guess_form.text }}
+                            <button type="submit" class="btn btn-outline-primary btn-sm">Submit</button>
+                        </div>
+                    </form>
+                     {% endif %}
+                </td>
             </tr>
             {% endfor %}
     </tbody>
 </table>
+
+
