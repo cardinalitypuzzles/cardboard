@@ -17,7 +17,7 @@
                 </th>
                 <td><p class="text-monospace">{{ ans }}</p></td>
                 <td>
-                    <form method="post", action="/puzzles/update_status/{{ p.pk }}/">
+                    <form method="post", action="/puzzles/update_status/{{ p.pk }}/" class="form-inline">
                         {% csrf_token %}
                         <div class="form-group">
                             {{ form.status }}
