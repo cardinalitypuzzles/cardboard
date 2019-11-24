@@ -86,6 +86,20 @@ source venv_smallboard/bin/activate
 ```
 
 
+#### Automated Google Sheets creation in Google Drive
+
+For automated Google Sheets creation locally, please contact a Collaborator to share the Google Drive API private key with you. You can then add it to your `.env` file:
+
+```
+...
+GOOGLE_DRIVE_API_PRIVATE_KEY=...
+```
+
+When a puzzle is created, a Google Sheet is created that is a copy of a template with some useful formulas added. The sheet is created in the cardinalitypuzzles@gmail.com Google Drive by default. You need to have access to the Google Drive folder to view it. Please message a Collaborator if you don't.
+
+These Google Drive and Sheets related settings can be found in [smallboard/settings.py](smallboard/settings.py).
+
+
 #### Local deployment
 
 Once the Python environment and database are set up and running, you can run Small Board locally using
