@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load puzzle_extras %}
+{% load answer_extras %}
 
 {% block page_content %}
 
@@ -20,7 +21,7 @@
     </thead>
     <tbody>
             {% for ans, form in rows%}
-            <tr>
+            <tr class="{% answer_class ans %}">
                 <th>{{ ans.created_on }}</th>
                 <td>{% get_title ans.puzzle%}</td>
                 <td><p class="text-monospace">{{ ans.text.upper }}</p></td>

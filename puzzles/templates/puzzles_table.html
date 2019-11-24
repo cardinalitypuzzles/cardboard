@@ -12,12 +12,12 @@
         </tr>
     </thead>
     <tbody>
-            {% for p, ans, class, form in rows %}
-            <tr class="{{ class }}">
+            {% for p, form in rows %}
+            <tr class="{% puzzle_class p %}">
                 <th scope="row">
                     {% get_title p %}
                 </th>
-                <td><p class="text-monospace">{{ ans.upper }}</p></td>
+                <td><p class="text-monospace">{{ p.answer.upper }}</p></td>
                 <td>
                     <form method="post", action="/puzzles/update_status/{{ p.pk }}/" class="form-inline">
                         {% csrf_token %}
