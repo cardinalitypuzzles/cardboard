@@ -9,17 +9,17 @@ class Puzzle(models.Model):
     channel = models.URLField()
     notes = models.TextField(default="")
 
-    NEW = 'NEW'
+    SOLVING = ''
+    PENDING = 'PENDING'
     SOLVED = 'SOLVED'
     STUCK = 'STUCK'
-    STATUS_CHOICES = [NEW, SOLVED, STUCK]
+    STATUS_CHOICES = [SOLVING, PENDING, SOLVED, STUCK]
 
     status = models.CharField(
         max_length=10,
         choices=[(status, status) for status in STATUS_CHOICES],
-        default=NEW)
+        default=SOLVING)
     answer = None
-
 
 class MetaPuzzle(Puzzle):
     feeder = models.ManyToManyField('Puzzle', related_name='feeders')

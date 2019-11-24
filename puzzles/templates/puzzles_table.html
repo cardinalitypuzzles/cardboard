@@ -8,8 +8,8 @@
         </tr>
     </thead>
     <tbody>
-            {% for p in puzzles %}
-            <tr>
+            {% for p, cls in puzzles_with_class %}
+            <tr class="{{ cls }}">
                 <th scope="row"><a href="{{ p.url }}">{{ p.name }}</a></th>
                 <td>{{ p.status }}</td>
                 <td><a href="{{ p.sheet }}">Link</a></td>

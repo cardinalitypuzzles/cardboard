@@ -14,4 +14,4 @@ class PuzzleForm(forms.Form):
             "placeholder": "URL"
         })
     )
-    is_meta = forms.BooleanField()
+    is_meta = forms.BooleanField(required=False)
