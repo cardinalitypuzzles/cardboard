@@ -8,10 +8,17 @@
         </tr>
     </thead>
     <tbody>
-            {% for p, cls in puzzles_with_class %}
+            {% for p, cls, form in rows %}
             <tr class="{{ cls }}">
                 <th scope="row"><a href="{{ p.url }}">{{ p.name }}</a></th>
-                <td>{{ p.status }}</td>
+                <td>
+                    <form method="post", action="/puzzles/update_status/{{ p.pk }}/">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            {{ form.status }}
+                        </div>
+                    </form>
+                </td>
                 <td><a href="{{ p.sheet }}">Link</a></td>
                 <td><a href="{{ p.channel }}">Link</a></td>
             </tr>

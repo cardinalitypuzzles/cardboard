@@ -1,4 +1,5 @@
 from django import forms
+from .models import Puzzle
 
 class PuzzleForm(forms.Form):
     name = forms.CharField(
@@ -15,3 +16,14 @@ class PuzzleForm(forms.Form):
         })
     )
     is_meta = forms.BooleanField(required=False)
+
+
+class StatusForm(forms.ModelForm):
+
+    class Meta:
+        model = Puzzle
+        fields = ["status"]
+
+    status = forms.ChoiceField(
+        choices=[(status, status) for status in Puzzle.STATUS_CHOICES],
+        widget=forms.Select(attrs={"onChange":'this.form.submit();'}))

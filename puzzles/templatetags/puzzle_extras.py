@@ -1,10 +1,11 @@
 from django import template
 from puzzles.models import Puzzle
+from puzzles.forms import StatusForm
 
 register = template.Library()
 
 @register.inclusion_tag('puzzles_table.html')
-def get_table(puzzles):
+def get_table(puzzles, request):
     cls = []
     for p in puzzles:
         if p.status == Puzzle.PENDING:
@@ -16,4 +17,7 @@ def get_table(puzzles):
         else:
             cls.append("")
 
-    return {'puzzles_with_class': zip(puzzles, cls)}
+    status_forms = [StatusForm(initial={'status': p.status}) for p in puzzles]
+    return {'rows': zip(puzzles, cls, status_forms)}
+
+
