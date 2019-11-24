@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block page_content %}
+
+<div class="row justify-content-between">
+    <div class="col-10">
+        <h1>{{ hunt_name }} - Answer Queue</h1>
+    </div>
+</div>
+
+<table class="table table-sm">
+    <thead>
+        <tr>
+            <th scope="col">Time</th>
+            <th scope="col">Puzzle</th>
+            <th scope="col">Answer</th>
+            <th scope="col">Status</th>
+        </tr>
+    </thead>
+    <tbody>
+            {% for ans, form in rows%}
+            <tr>
+                <th>{{ ans.created_on }}</th>
+                <td>{{ ans.puzzle.name }}</td>
+                <td><p class="text-monospace">{{ ans.text }}</p></td>
+                <td>
+                    <form action="/answers/queue/{{ hunt_pk }}/{{ ans.id }}" method="post" class="form-inline">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            {{ form.status }}
+                        </div>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+    </tbody>
+</table>
+
+
+
+
+{% endblock %}

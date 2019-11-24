@@ -18,22 +18,19 @@ class Answer(models.Model):
         choices=[(status, status) for status in STATUS_CHOICES],
         default=NEW)
 
+    def test(self):
+        return "test"
 
+    def set_status(self, status):
+        self._status = status
+        if status == Answer.CORRECT:
+            self.puzzle.set_answer(self.text)
+        else:
+            self.puzzle.clear_answer()
+        self.save()
 
-    def set_submitted(self):
-        self._status = SUBMITTED
+    def get_status(self):
+        return self._status
 
-
-    def set_incorrect(self, response=""):
-        self._status = INCORRECT
-        # if an answer was incorrectly marked as correct
-        if self.puzzle.answer == self.text:
-            self.puzzle.answer = None
-        self.response = response
-
-
-    def set_correct(self):
-        self._status = CORRECT
-        self.puzzle.answer = text
 
 

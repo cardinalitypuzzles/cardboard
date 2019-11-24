@@ -19,7 +19,17 @@ class Puzzle(models.Model):
         max_length=10,
         choices=[(status, status) for status in STATUS_CHOICES],
         default=SOLVING)
-    answer = None
+    answer = models.CharField(max_length=128)
+
+    def set_answer(self, answer):
+        self.answer = answer
+        self.status = Puzzle.SOLVED
+        self.save()
+
+    def clear_answer(self):
+        self.answer = ""
+        self.status = Puzzle.SOLVING
+        self.save()
 
 class MetaPuzzle(Puzzle):
     feeder = models.ManyToManyField('Puzzle', related_name='feeders')

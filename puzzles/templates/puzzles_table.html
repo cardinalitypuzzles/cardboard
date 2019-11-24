@@ -1,4 +1,4 @@
-<table class="table">
+<table class="table table-sm">
     <thead>
         <tr>
             <th scope="col">Puzzle</th>
@@ -15,7 +15,7 @@
                 <th scope="row">
                     <a href="{{ p.url }}">{{ p.name }}</a> <span class="badge badge-dark">{{ badge }}</span>
                 </th>
-                <td>{{ ans }}</td>
+                <td><p class="text-monospace">{{ ans }}</p></td>
                 <td>
                     <form method="post", action="/puzzles/update_status/{{ p.pk }}/">
                         {% csrf_token %}

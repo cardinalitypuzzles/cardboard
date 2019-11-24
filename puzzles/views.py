@@ -27,7 +27,6 @@ def update_status(request, pk):
 
 @login_required(login_url='/accounts/login/')
 def guess(request, pk):
-    print("guessing!")
     if request.method == 'POST':
         form = AnswerForm(request.POST)
         puzzle = Puzzle.objects.get(pk=pk)
