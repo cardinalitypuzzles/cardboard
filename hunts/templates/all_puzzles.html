@@ -1,5 +1,8 @@
 {% extends "base.html" %}
 
+{% load puzzle_extras %}
+
+
 {% block page_content %}
 
 <div class="row justify-content-between">
@@ -13,26 +16,8 @@
     </div>
 </div>
 
-<table class="table-sm table-striped">
-    <thead>
-        <tr>
-            <th scope="col">Puzzle</th>
-            <th scope="col">Status</th>
-            <th scope="col">Sheet</th>
-            <th scope="col">Slack</th>
-        </tr>
-    </thead>
-    <tbody>
-            {% for p in puzzles %}
-            <tr>
-                <th scope="row"><a href="{{ p.url }}">{{ p.name }}</a></th>
-                <td>{{ p.status }}</td>
-                <td><a href="{{ p.sheet }}">Link</a></td>
-                <td><a href="{{ p.channel }}">Link</a></td>
-            </tr>
-            {% endfor %}
-    </tbody>
-</table>
+{% get_table puzzles %}
+
 
 <div class="modal fade" id="addpuzzle" tabindex="-1" role="dialog" aria-labelledby="addtitle" aria-hidden="true">
     <div class="modal-dialog" role="document">
