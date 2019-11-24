@@ -1,3 +1,5 @@
+{% load puzzle_extras %}
+
 <table class="table table-sm" id="puzzles">
     <thead>
         <tr>
@@ -10,10 +12,10 @@
         </tr>
     </thead>
     <tbody>
-            {% for p, ans, class, badge, form in rows %}
+            {% for p, ans, class, form in rows %}
             <tr class="{{ class }}">
                 <th scope="row">
-                    <a href="{{ p.url }}">{{ p.name }}</a> <span class="badge badge-dark">{{ badge }}</span>
+                    {% get_title p %}
                 </th>
                 <td><p class="text-monospace">{{ ans.upper }}</p></td>
                 <td>

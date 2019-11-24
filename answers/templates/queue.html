@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load puzzle_extras %}
 
 {% block page_content %}
 
@@ -21,7 +22,7 @@
             {% for ans, form in rows%}
             <tr>
                 <th>{{ ans.created_on }}</th>
-                <td>{{ ans.puzzle.name }}</td>
+                <td>{% get_title ans.puzzle%}</td>
                 <td><p class="text-monospace">{{ ans.text.upper }}</p></td>
                 <td>
                     <form action="/answers/queue/{{ hunt_pk }}/{{ ans.id }}" method="post" class="form-inline">

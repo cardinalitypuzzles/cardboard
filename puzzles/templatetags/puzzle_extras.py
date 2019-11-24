@@ -24,10 +24,6 @@ def get_table(puzzles, request):
             table_class.append("")
 
 
-        if MetaPuzzle.objects.filter(pk=p.pk).exists():
-            badge.append("META")
-        else:
-            badge.append("")
 
     status_forms = [StatusForm(initial={'status': p.status}) for p in puzzles]
     for (i, p) in enumerate(puzzles):
@@ -35,6 +31,14 @@ def get_table(puzzles, request):
             status_forms[i].fields["status"].disabled = True
 
     answer_form = AnswerForm()
-    return {'rows': zip(puzzles, answers, table_class, badge, status_forms), 'guess_form': answer_form}
+    return {'rows': zip(puzzles, answers, table_class, status_forms), 'guess_form': answer_form}
+
+
+@register.inclusion_tag('title.html')
+def get_title(puzzle):
+    badge = ''
+    if MetaPuzzle.objects.filter(pk=puzzle.pk).exists():
+        badge = 'META'
+    return {'puzzle': puzzle, 'badge': badge}
 
 
