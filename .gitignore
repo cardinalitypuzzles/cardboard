@@ -105,7 +105,7 @@ celerybeat.pid
 .env
 .venv
 env/
-venv/
+venv*/
 ENV/
 env.bak/
 venv.bak/
@@ -131,7 +131,8 @@ dmypy.json
 # Sublime
 *.sublime*
 
-# service account credentials file
+# credentials files
+credentials.json
 smallboard*.json
 
 # Testing
@@ -139,6 +140,3 @@ test*.py
 
 # Backup files
 *.bak
-
-# Smallboard
-venv_smallboard/
