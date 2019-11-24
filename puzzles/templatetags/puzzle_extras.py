@@ -1,4 +1,5 @@
 from django import template
+from puzzles.models import Puzzle
 
 register = template.Library()
 
