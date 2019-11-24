@@ -130,3 +130,12 @@ dmypy.json
 
 # Sublime
 *.sublime*
+
+# service account credentials file
+smallboard*.json
+
+# Testing
+test*.py
+
+# Backup files
+*.bak

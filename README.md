@@ -21,8 +21,8 @@ git clone git@github.com:cardinalitypuzzles/smallboard.git
 We recommend setting up an isolated virtual environment where you install the dependencies. You can set one up by following [this guide](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/#creating-a-virtual-environment). Here are the steps for Ubuntu:
 
 ```
-# install Python 3 and venv packages if needed
-sudo apt-get install python3-dev python3-venv
+# install Python 3, venv, and Postgres packages
+sudo apt-get install python3-dev python3-venv libpq-dev
 
 # create a new virtual environment
 python3 -m venv venv_smallboard
@@ -84,6 +84,20 @@ source venv_smallboard/bin/activate
 # from smallboard/ root directory
 (venv_smallboard)$ python manage.py migrate
 ```
+
+
+#### Automated Google Sheets creation in Google Drive
+
+For automated Google Sheets creation locally, please contact a Collaborator to share the Google Drive API private key with you. You can then add it to your `.env` file:
+
+```
+...
+GOOGLE_DRIVE_API_PRIVATE_KEY=...
+```
+
+When a puzzle is created, a Google Sheet is created that is a copy of a template with some useful formulas added. The sheet is created in the cardinalitypuzzles@gmail.com Google Drive by default. You need to have access to the Google Drive folder to view it. Please message a Collaborator if you don't.
+
+These Google Drive and Sheets related settings can be found in [smallboard/settings.py](smallboard/settings.py).
 
 
 #### Local deployment

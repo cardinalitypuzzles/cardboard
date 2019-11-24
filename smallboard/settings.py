@@ -133,3 +133,22 @@ DATABASES = {}
 DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=False)
 
 ACTIVE_HUNT_ID = 1
+
+# Google Drive API
+if not 'GOOGLE_DRIVE_API_PRIVATE_KEY' in os.environ:
+    print('WARNING: No Google Drive API key found in environment. Automatic sheets creation disabled.')
+else:
+    GOOGLE_DRIVE_API_AUTHN_INFO = {
+      "type": "service_account",
+      "project_id": "smallboard-test-260001",
+      "private_key_id": "ca6bf4b1c0db884c0a0cf490839c375f63dab3af",
+      "private_key": os.environ['GOOGLE_DRIVE_API_PRIVATE_KEY'].replace('\\n', '\n'),
+      "client_email": "smallboard-test@smallboard-test-260001.iam.gserviceaccount.com",
+      "client_id": "108658192634408271921",
+      "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+      "token_uri": "https://oauth2.googleapis.com/token",
+      "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+      "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/smallboard-test%40smallboard-test-260001.iam.gserviceaccount.com"
+    }
+    GOOGLE_DRIVE_PERMISSIONS_SCOPES = ['https://www.googleapis.com/auth/drive']
+    GOOGLE_SHEETS_TEMPLATE_FILE_ID = '1pujWcdXfwWsnn3w6WpqZGGXisfmZflEcWqSwJkhkmpA'
