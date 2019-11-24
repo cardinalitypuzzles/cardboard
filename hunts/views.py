@@ -46,6 +46,7 @@ def all_puzzles(request, pk):
             puzzle.save()
 
     context = {
+        'request': request,
         'hunt_name': hunt.name,
         'hunt_pk': pk,
         'puzzles': hunt.puzzles.all(),

@@ -9,7 +9,7 @@ class Puzzle(models.Model):
     channel = models.URLField()
     notes = models.TextField(default="")
 
-    SOLVING = ''
+    SOLVING = 'SOLVING'
     PENDING = 'PENDING'
     SOLVED = 'SOLVED'
     STUCK = 'STUCK'
