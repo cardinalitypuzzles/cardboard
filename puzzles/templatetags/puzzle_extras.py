@@ -1,6 +1,7 @@
 from django import template
 from puzzles.models import Puzzle, MetaPuzzle
 from puzzles.forms import StatusForm
+from answers.forms import AnswerForm
 
 register = template.Library()
 
@@ -28,8 +29,12 @@ def get_table(puzzles, request):
         else:
             badge.append("")
 
-
     status_forms = [StatusForm(initial={'status': p.status}) for p in puzzles]
-    return {'rows': zip(puzzles, answers, table_class, badge, status_forms)}
+    for (i, p) in enumerate(puzzles):
+        if p.status in [Puzzle.SOLVED, Puzzle.PENDING]:
+            status_forms[i].fields["status"].disabled = True
+
+    answer_form = AnswerForm()
+    return {'rows': zip(puzzles, answers, table_class, badge, status_forms), 'guess_form': answer_form}
 
 
