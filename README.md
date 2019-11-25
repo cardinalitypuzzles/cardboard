@@ -106,6 +106,17 @@ When a puzzle is created, a Google Sheet is created that is a copy of a template
 These Google Drive and Sheets related settings can be found in [smallboard/settings.py](smallboard/settings.py).
 
 
+#### Slack Integration
+
+For automated Slack channel creation and join links, please contact a
+Collaborator to share the API token. You can then add it to your `.env` file:
+
+```
+...
+SLACK_API_TOKEN=...
+```
+
+
 #### Local deployment
 
 Once the Python environment and database are set up and running, you can run Small Board locally using
