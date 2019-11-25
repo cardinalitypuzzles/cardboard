@@ -10,9 +10,9 @@ from google.oauth2 import service_account
 
 from .forms import HuntForm
 from .models import Hunt
-from .slack_client import SlackClient
 from puzzles.forms import PuzzleForm
 from puzzles.models import Puzzle, MetaPuzzle
+from slack.slack_client import SlackClient
 
 @login_required(login_url='/accounts/login/')
 def index(request):
