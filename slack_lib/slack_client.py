@@ -6,7 +6,7 @@ class SlackClient:
     This is a wrapper class around the existing slack web client that allows for
     sending messages, creating channels, and joining channels.
     '''
-    def __init__(self, token=os.environ["SLACK_API_TOKEN"],
+    def __init__(self, token=os.environ.get("SLACK_API_TOKEN", None),
                  root_channel_name="small-board"):
         self._slack_token = token
         self._web_client = slack.WebClient(token=self._slack_token)
