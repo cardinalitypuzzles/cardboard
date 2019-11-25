@@ -9,10 +9,11 @@
             <th scope="col">Sheet</th>
             <th scope="col">Slack</th>
             <th scope="col"></th>
+            <th scope="col"></th>
         </tr>
     </thead>
     <tbody>
-            {% for p, form in rows %}
+            {% for p, status_form, meta_form in rows %}
             <tr class="{% puzzle_class p %}">
                 <th scope="row">
                     {% get_title p %}
@@ -22,7 +23,7 @@
                     <form method="post", action="/puzzles/update_status/{{ p.pk }}/" class="form-inline">
                         {% csrf_token %}
                         <div class="form-group">
-                            {{ form.status }}
+                            {{ status_form.status }}
                         </div>
                     </form>
                 </td>
@@ -39,6 +40,35 @@
                     </form>
                      {% endif %}
                 </td>
+                <td>
+                    <button type="button" class="btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#meta-{{ p.pk }}">
+                        assign meta
+                    </button>
+                    <div class="modal fade" id="meta-{{ p.pk }}" tabindex="-1" role="dialog" aria-labelledby="metatitle-{{ p.pk }}" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="metatitle-{{ p.pk }}">Assign Meta</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <form method="post" action="/puzzles/meta/{{ p.pk }}/">
+                                    {% csrf_token %}
+                                    <div class="modal-body">
+                                        <div class="form-group">
+                                            {{ meta_form.meta_select }}
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                        <button type="submit" class="btn btn-primary">Assign</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </td>
             </tr>
             {% endfor %}
     </tbody>
@@ -50,10 +80,11 @@ $(document).ready(function() {
         "paging": false,
         "info": false,
         "columnDefs": [
-            { "orderable": false, "targets": [2, 3, 4, 5] }
+            { "orderable": false, "targets": [2, 3, 4, 5, 6] }
         ]
     } );
 });
+
 </script>
 
 

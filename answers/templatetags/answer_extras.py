@@ -1,4 +1,5 @@
 from django import template
+from django.template.defaultfilters import stringfilter
 from answers.models import Answer
 
 register = template.Library()
@@ -14,3 +15,8 @@ def answer_class(answer):
         return "table-danger"
     else:
         return ""
+
+@register.filter
+@stringfilter
+def strip(value):
+    return value.replace(" ", "")
