@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
@@ -13,10 +13,7 @@ class AnswerView(LoginRequiredMixin, View):
     redirect_field_name = 'next'
 
     def get(self, request, hunk_pk):
-        if not Hunt.objects.filter(pk=hunk_pk).exists():
-            return index(request)
-
-        hunt = Hunt.objects.get(pk=hunk_pk)
+        hunt = get_object_or_404(Hunt, pk=hunk_pk)
         answers = Answer.objects.filter(puzzle__hunt__pk=hunk_pk).order_by('-created_on')
         forms = [UpdateAnswerStatusForm(initial={'status': ans.get_status()}) for ans in answers]
 
@@ -31,7 +28,7 @@ class AnswerView(LoginRequiredMixin, View):
         form = UpdateAnswerStatusForm(request.POST)
 
         if form.is_valid():
-            answer = Answer.objects.get(pk=answer_pk)
+            answer = get_object_or_404(Answer, pk=answer_pk)
             answer.set_status(form.cleaned_data["status"])
 
         return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))

@@ -4,7 +4,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.views import View
 from google.oauth2 import service_account
 
@@ -66,7 +66,7 @@ class HuntView(LoginRequiredMixin, View):
         if not Hunt.objects.filter(pk=pk).exists():
             return index(request)
 
-        hunt = Hunt.objects.get(pk=pk)
+        hunt = get_object_or_404(Hunt, pk=pk)
         form = PuzzleForm()
         context = {
             'request': request,
@@ -78,7 +78,7 @@ class HuntView(LoginRequiredMixin, View):
         return render(request, 'all_puzzles.html', context)
 
     def post(self, request, pk):
-        hunt = Hunt.objects.get(pk=pk)
+        hunt = get_object_or_404(Hunt, pk=pk)
         form = PuzzleForm(request.POST)
         if form.is_valid():
             name = form.cleaned_data["name"]
