@@ -7,12 +7,8 @@ from answers.forms import AnswerForm
 from django.http import HttpResponseRedirect
 
 @login_required(login_url='/accounts/login/')
-def puzzle_page(request, pk):
-    puzzle = get_object_or_404(Puzzle, pk=pk)
-    context = {
-        'puzzle': puzzle
-    }
-    return render(request, 'puzzle_page.html', context)
+def index(request, pk):
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/hunts/{}'.format(pk)))
 
 
 @login_required(login_url='/accounts/login/')
