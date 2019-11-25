@@ -11,7 +11,8 @@ class Answer(models.Model):
     SUBMITTED = 'SUBMITTED'
     CORRECT = 'CORRECT'
     INCORRECT = 'INCORRECT'
-    STATUS_CHOICES = [NEW, SUBMITTED, CORRECT, INCORRECT]
+    PARTIAL = 'PARTIAL'
+    STATUS_CHOICES = [NEW, SUBMITTED, CORRECT, INCORRECT, PARTIAL]
 
     _status = models.CharField(
         max_length=10,

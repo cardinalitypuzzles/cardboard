@@ -13,6 +13,8 @@ def answer_class(answer):
         return "table-success"
     elif status == Answer.INCORRECT:
         return "table-danger"
+    elif status == Answer.PARTIAL:
+        return "table-warning"
     else:
         return ""
 
