@@ -20,7 +20,6 @@ def get_table(puzzles, request):
     }
     return context
 
-
 @register.inclusion_tag('title.html')
 def get_title(puzzle):
     badge = ''
