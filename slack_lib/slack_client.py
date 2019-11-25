@@ -2,11 +2,17 @@ import os
 import slack
 
 class SlackClient:
-    slack_token = os.environ["SLACK_API_TOKEN"]
-    client = slack.WebClient(token=slack_token)
-    root_channel_name = "small-board"
+    def __init__(self, token=os.environ["SLACK_API_TOKEN"],
+                 root_channel_name="small-board"):
+        self.slack_token = os.environ["SLACK_API_TOKEN"]
+        self.client = slack.WebClient(token=self.slack_token)
+        self.root_channel_name = root_channel_name
+
 
     def send_message(self, channel_name, message):
+        '''
+        Sends message to channel_name.
+        '''
         self.client.chat_postMessage(channel=channel_name, text=message)
 
 
@@ -34,7 +40,10 @@ class SlackClient:
                 raise NameError('Slack channel name already exists.')
             raise e
 
-    # Given channel_id, create channel join link.
+
     @staticmethod
     def create_join_link(channel_id):
+        '''
+        Given channel_id, create channel join link.
+        '''
         return "https://slack.com/app_redirect?channel=" + channel_id
