@@ -1,9 +1,9 @@
 from django.db import models
 
 class Puzzle(models.Model):
-    name = models.CharField(max_length=128)
+    name = models.CharField(max_length=128, unique=True)
     hunt = models.ForeignKey('hunts.Hunt', on_delete=models.CASCADE, related_name='puzzles')
-    url = models.URLField()
+    url = models.URLField(unique=True)
 
     sheet = models.URLField()
     channel = models.URLField()
@@ -32,4 +32,4 @@ class Puzzle(models.Model):
         self.save()
 
 class MetaPuzzle(Puzzle):
-    feeder = models.ManyToManyField('Puzzle', related_name='feeders')
+    feeders = models.ManyToManyField('Puzzle', related_name='metas')

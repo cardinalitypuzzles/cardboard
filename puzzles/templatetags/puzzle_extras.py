@@ -1,6 +1,6 @@
 from django import template
 from puzzles.models import Puzzle, MetaPuzzle
-from puzzles.forms import StatusForm
+from puzzles.forms import StatusForm, MetaPuzzleForm
 from answers.forms import AnswerForm
 
 register = template.Library()
@@ -12,8 +12,12 @@ def get_table(puzzles, request):
         if p.status in [Puzzle.SOLVED, Puzzle.PENDING]:
             status_forms[i].fields["status"].disabled = True
 
-    answer_form = AnswerForm()
-    return {'rows': zip(puzzles, status_forms), 'guess_form': answer_form}
+    context = {
+        'rows': zip(puzzles, status_forms),
+        'guess_form': AnswerForm(),
+        'meta_form': MetaPuzzleForm()
+    }
+    return context
 
 
 @register.inclusion_tag('title.html')

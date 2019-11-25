@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from .models import Puzzle
-from .forms import StatusForm
+from .forms import StatusForm, MetaPuzzleForm
 from answers.models import Answer
 from answers.forms import AnswerForm
 from django.http import HttpResponseRedirect
@@ -36,5 +36,17 @@ def guess(request, pk):
             puzzle.status = Puzzle.PENDING
             answer.save()
             puzzle.save()
+
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+
+@login_required(login_url='/accounts/login/')
+def set_metas(request, pk):
+    if request.method == 'POST':
+        form = MetaPuzzleForm(request.POST)
+        if form.is_valid():
+            puzzle = Puzzle.objects.get(pk=pk)
+            metas = form.cleaned_data["meta_select"]
+            puzzle.metas.set(metas)
 
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
