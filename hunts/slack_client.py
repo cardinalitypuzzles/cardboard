@@ -13,7 +13,7 @@ class SlackClient:
 
     def create_channel(self, puzzle_name):
         '''
-        Returns the assigned channel name if able to create a channel.
+        Returns the assigned channel id if able to create a channel.
         Otherwise, raises an exception.
         '''
         try:
@@ -23,12 +23,19 @@ class SlackClient:
                                                    validate=False)
             if response["ok"]:
                 assigned_channel_name = response["channel"]["name"]
+                channel_id = response["channel"]["id"]
+                print(response)
                 self.send_message(self.root_channel_name, "Channel " +
                                   assigned_channel_name +
                                   " created for puzzle titled " + puzzle_name
                                   + "!")
-                return assigned_channel_name
+                return channel_id
         except SlackApiError as e:
             if (e.response['error'] == 'name_taken'):
                 raise NameError('Slack channel name already exists.')
             raise e
+
+    # Given channel_id, create channel join link.
+    @staticmethod
+    def create_join_link(channel_id):
+        return "https://slack.com/app_redirect?channel=" + channel_id
