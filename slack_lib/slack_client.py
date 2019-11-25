@@ -45,6 +45,14 @@ class SlackClient:
             raise e
 
 
+    def join_channel(self, channel_name):
+        '''
+        Joins channel with given name. Assumes channel_name is valid and
+        exists.
+        '''
+        self._web_client.channels_join(channel=channel_name)
+
+
     @staticmethod
     def create_join_link(channel_id):
         '''
