@@ -12,10 +12,11 @@ def get_table(puzzles, request):
         if p.status in [Puzzle.SOLVED, Puzzle.PENDING]:
             status_forms[i].fields["status"].disabled = True
 
+    meta_forms = [MetaPuzzleForm(initial={'meta_select': p.metas.all()}) for p in puzzles]
+
     context = {
-        'rows': zip(puzzles, status_forms),
+        'rows': zip(puzzles, status_forms, meta_forms),
         'guess_form': AnswerForm(),
-        'meta_form': MetaPuzzleForm()
     }
     return context
 
