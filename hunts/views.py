@@ -2,6 +2,7 @@ import googleapiclient.discovery
 
 from .forms import HuntForm
 from .models import Hunt
+from .slack_client import SlackClient
 from puzzles.forms import PuzzleForm
 from puzzles.models import Puzzle, MetaPuzzle
 from django.conf import settings
@@ -68,6 +69,9 @@ def all_puzzles(request, pk):
             name = form.cleaned_data["name"]
             puzzle_url = form.cleaned_data["url"]
             sheets_url = create_google_sheets(name)
+            # TODO(asdfryan): Don't create SlackClient every time we need it.
+            slack_client = SlackClient()
+            slack_client.create_channel(name)
             if not sheets_url:
                 sheets_url = puzzle_url
 
