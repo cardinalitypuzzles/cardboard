@@ -86,7 +86,7 @@ class HuntView(LoginRequiredMixin, View):
             sheets_url = create_google_sheets(name)
             # TODO(asdfryan): Don't create SlackClient every time we need it.
             slack_client = SlackClient()
-            slack_client.create_channel(name)
+            channel_name = slack_client.create_channel(name)
             if not sheets_url:
                 sheets_url = puzzle_url
 
