@@ -8,8 +8,8 @@ class SlackClient:
     '''
     def __init__(self, token=os.environ["SLACK_API_TOKEN"],
                  root_channel_name="small-board"):
-        self.slack_token = os.environ["SLACK_API_TOKEN"]
-        self.client = slack.WebClient(token=self.slack_token)
+        self._slack_token = token
+        self._web_client = slack.WebClient(token=self._slack_token)
         self.root_channel_name = root_channel_name
 
 
@@ -17,7 +17,7 @@ class SlackClient:
         '''
         Sends message to channel_name.
         '''
-        self.client.chat_postMessage(channel=channel_name, text=message)
+        self._web_client.chat_postMessage(channel=channel_name, text=message)
 
 
     def create_channel(self, puzzle_name):
@@ -28,7 +28,7 @@ class SlackClient:
         try:
             # By setting validate=False, the client will automatically clean up
             # special characters and make it fit under 80 characters.
-            response = self.client.channels_create(name=puzzle_name,
+            response = self._web_client.channels_create(name=puzzle_name,
                                                    validate=False)
             if response["ok"]:
                 assigned_channel_name = response["channel"]["name"]
