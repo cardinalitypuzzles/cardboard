@@ -141,5 +141,9 @@ test*.py
 # Backup files
 *.bak
 
+# vim .swp files
+*.swp
+
 # Smallboard
 staticfiles/
+logfile
