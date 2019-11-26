@@ -6,7 +6,7 @@ class Puzzle(models.Model):
     url = models.URLField(unique=True)
 
     sheet = models.URLField()
-    channel = models.URLField()
+    channel = models.CharField(max_length=128, unique=True)
     notes = models.TextField(default="")
 
     SOLVING = 'SOLVING'

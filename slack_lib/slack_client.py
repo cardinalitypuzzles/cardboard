@@ -51,11 +51,3 @@ class SlackClient:
         exists.
         '''
         self._web_client.channels_join(channel=channel_name)
-
-
-    @staticmethod
-    def create_join_link(channel_id):
-        '''
-        Given channel_id, create channel join link.
-        '''
-        return "https://slack.com/app_redirect?channel=" + channel_id

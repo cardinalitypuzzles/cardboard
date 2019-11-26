@@ -28,7 +28,7 @@
                     </form>
                 </td>
                 <td><a href="{{ p.sheet }}">Link</a></td>
-                <td><a href="{{ p.channel }}">Link</a></td>
+                <td><a href="https://slack.com/app_redirect?channel={{ p.channel }}">Link</a></td>
                 <td>
                     {% if p.status != "SOLVED" %}
                        <form action="/puzzles/guess/{{ p.id }}/" method="post" class="form-inline">

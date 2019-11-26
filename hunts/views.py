@@ -87,7 +87,6 @@ class HuntView(LoginRequiredMixin, View):
             # TODO(asdfryan): Don't create SlackClient every time we need it.
             slack_client = SlackClient()
             channel_id = slack_client.create_channel(name)
-            channel_url = SlackClient.create_join_link(channel_id)
             if not sheets_url:
                 sheets_url = puzzle_url
 
@@ -96,7 +95,7 @@ class HuntView(LoginRequiredMixin, View):
                     name=name,
                     url=puzzle_url,
                     sheet=sheets_url,
-                    channel=channel_url,
+                    channel=channel_id,
                     hunt=hunt,
                 )
             else:
@@ -104,7 +103,7 @@ class HuntView(LoginRequiredMixin, View):
                     name=name,
                     url=puzzle_url,
                     sheet=sheets_url,
-                    channel=channel_url,
+                    channel=channel_id,
                     hunt=hunt,
                 )
             puzzle.save()
