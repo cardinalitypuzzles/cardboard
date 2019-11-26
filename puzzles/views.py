@@ -48,19 +48,20 @@ def slack_guess(request):
         if slack_message.get('token') != os.environ.get("SLACK_VERIFICATION_TOKEN"):
             return HttpResponseForbidden()
 
-        answer = slack_message.get('text')
+        answer_text = slack_message.get('text')
         channel_id = slack_message.get('channel_id')
         puzzle = Puzzle.objects.get(channel=channel_id)
         print("puzzle: " + str(puzzle))
         if puzzle.status == Puzzle.SOLVED:
             return HttpResponse("Puzzle is already solved!")
-
-        answer = Answer(text=answer, puzzle=puzzle)
+        if Answer.objects.filter(channel=channel_id):
+            return HttpResponse("The answer " + answer_text + "has already been submitted.")
+        answer = Answer(text=answer_text, puzzle=puzzle)
         puzzle.status = Puzzle.PENDING
         answer.save()
         puzzle.save()
 
-    return HttpResponse("Answer " + answer + " has been submitted!")
+    return HttpResponse("Answer " + answer_text + " has been submitted!")
 
 
 @login_required(login_url='/accounts/login/')
