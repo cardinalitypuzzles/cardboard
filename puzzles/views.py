@@ -60,7 +60,7 @@ def slack_guess(request):
         answer.save()
         puzzle.save()
 
-    return HttpResponse()
+    return HttpResponse("Answer " + answer + " has been submitted!")
 
 
 @login_required(login_url='/accounts/login/')
