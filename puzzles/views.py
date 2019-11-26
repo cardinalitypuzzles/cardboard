@@ -4,6 +4,8 @@ from .models import Puzzle
 from .forms import StatusForm, MetaPuzzleForm
 from answers.models import Answer
 from answers.forms import AnswerForm
+from django.http import HttpResponse
+from django.http import HttpResponseForbidden
 from django.http import HttpResponseRedirect
 
 @login_required(login_url='/accounts/login/')
@@ -33,6 +35,15 @@ def guess(request, pk):
             puzzle.save()
 
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+def slack_guess(request):
+    if request.method == 'POST':
+        print("request: " + request)
+        slack_message = request.data
+
+        if slack_message.get('token') != os.environ.get("SLACK_API_TOKEN"):
+            return HttpResponseForbidden()
+    return HttpResponse(status=200)
 
 
 @login_required(login_url='/accounts/login/')
