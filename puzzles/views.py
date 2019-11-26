@@ -1,3 +1,5 @@
+import os
+
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import Puzzle
@@ -43,10 +45,22 @@ def slack_guess(request):
     if request.method == 'POST':
         print("request data: " + str(request.POST))
         slack_message = request.POST
-
-        if slack_message.get('token') != os.environ.get("SLACK_API_TOKEN"):
+        if slack_message.get('token') != os.environ.get("SLACK_VERIFICATION_TOKEN"):
             return HttpResponseForbidden()
-    return HttpResponse(status=200)
+
+        answer = slack_message.get('text')
+        channel_id = slack_message.get('channel_id')
+        puzzle = Puzzle.objects.get(channel=channel_id)
+        print("puzzle: " + str(puzzle))
+        if puzzle.status == Puzzle.SOLVED:
+            return HttpResponse("Puzzle is already solved!")
+
+        answer = Answer(text=answer, puzzle=puzzle)
+        puzzle.status = Puzzle.PENDING
+        answer.save()
+        puzzle.save()
+
+    return HttpResponse()
 
 
 @login_required(login_url='/accounts/login/')
