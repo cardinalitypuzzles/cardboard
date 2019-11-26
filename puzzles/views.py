@@ -7,6 +7,8 @@ from answers.forms import AnswerForm
 from django.http import HttpResponse
 from django.http import HttpResponseForbidden
 from django.http import HttpResponseRedirect
+from django.views.decorators.csrf import csrf_exempt
+
 
 @login_required(login_url='/accounts/login/')
 def index(request, pk):
