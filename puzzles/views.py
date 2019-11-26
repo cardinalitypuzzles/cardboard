@@ -41,9 +41,8 @@ def guess(request, pk):
 @csrf_exempt
 def slack_guess(request):
     if request.method == 'POST':
-        print("request: " + str(request))
-        print("request body: " + request.body)
-        slack_message = request.data
+        print("request data: " + str(request.POST))
+        slack_message = request.POST
 
         if slack_message.get('token') != os.environ.get("SLACK_API_TOKEN"):
             return HttpResponseForbidden()
