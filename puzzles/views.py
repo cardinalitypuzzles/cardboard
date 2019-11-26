@@ -54,7 +54,7 @@ def slack_guess(request):
         print("puzzle: " + str(puzzle))
         if puzzle.status == Puzzle.SOLVED:
             return HttpResponse("Puzzle is already solved!")
-        if Answer.objects.filter(channel=channel_id):
+        if Answer.objects.filter(puzzle=puzzle).filter(text=answer_text):
             return HttpResponse("The answer " + answer_text + "has already been submitted.")
         answer = Answer(text=answer_text, puzzle=puzzle)
         puzzle.status = Puzzle.PENDING
