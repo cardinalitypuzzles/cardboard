@@ -92,30 +92,35 @@ source venv_smallboard/bin/activate
 ```
 
 
-#### Automated Google Sheets creation in Google Drive
+#### Sheets and Slack API Tokens
 
-For automated Google Sheets creation locally, please contact a Collaborator to share the Google Drive API private key with you. You can then add it to your `.env` file:
+This app interacts with the Google and Slack APIs that each have various private
+tokens that need to be in the .env file. You can contact a Collaborator to share
+these with you. The necessary tokens are listed below:
+
 
 ```
-...
 GOOGLE_DRIVE_API_PRIVATE_KEY=...
+SLACK_API_TOKEN=...
+SLACK_VERIFICATION_TOKEN=...
 ```
+
+#### Google Sheets Integration
 
 When a puzzle is created, a Google Sheet is created that is a copy of a template with some useful formulas added. The sheet is created in the cardinalitypuzzles@gmail.com Google Drive by default. You need to have access to the Google Drive folder to view it. Please message a Collaborator if you don't.
 
 These Google Drive and Sheets related settings can be found in [smallboard/settings.py](smallboard/settings.py).
 
-
 #### Slack Integration
 
-For automated Slack channel creation and join links, please contact a
-Collaborator to share the API token. You can then add it to your `.env` file:
+This app interacts with a slack workspace in the following ways:
+1) Channel creation upon puzzle creation
+2) A '/answer' command on slack that inputs answers into the big board
 
-```
-...
-SLACK_API_TOKEN=...
-```
+When running locally, only 1) will work since the /answer command sends a direct
+POST request to the heroku deployment.
 
+You can contact a Collaborator to be added to the relevant slack workspace(s).
 
 #### Local deployment
 
