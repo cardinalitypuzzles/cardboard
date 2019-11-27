@@ -6,6 +6,7 @@ from .models import Puzzle
 from .forms import StatusForm, MetaPuzzleForm
 from answers.models import Answer
 from answers.forms import AnswerForm
+from django.contrib import messages
 from django.http import HttpResponse
 from django.http import HttpResponseForbidden
 from django.http import HttpResponseRedirect
@@ -31,12 +32,15 @@ def guess(request, pk):
     if request.method == 'POST':
         form = AnswerForm(request.POST)
         puzzle = get_object_or_404(Puzzle, pk=pk)
-
+        
         if form.is_valid() and puzzle.status != Puzzle.SOLVED:
-            answer = Answer(text=form.cleaned_data["text"], puzzle=puzzle)
-            puzzle.status = Puzzle.PENDING
-            answer.save()
-            puzzle.save()
+            answer_text = form.cleaned_data["text"]
+            # If answer has already been added to the queue
+            if not Answer.objects.filter(puzzle=puzzle).filter(text=answer_text):
+                answer = Answer(text=form.cleaned_data["text"], puzzle=puzzle)
+                puzzle.status = Puzzle.PENDING
+                answer.save()
+                puzzle.save()
 
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
