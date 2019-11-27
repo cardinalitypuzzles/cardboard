@@ -54,7 +54,7 @@ class SlackClient:
         if not self._enabled:
             return
 
-        self._web_client.chat_postMessage(channel=channel_name, text=message)
+        self._web_client.chat_postMessage(channel=channel, text=message)
 
 
     def create_channel(self, puzzle_name):
