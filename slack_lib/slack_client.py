@@ -1,6 +1,9 @@
 import os
 import slack
 
+from slack.errors import SlackApiError
+
+
 class SlackClient:
     '''
     This is a wrapper class around the existing slack web client that allows for
