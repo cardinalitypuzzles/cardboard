@@ -21,7 +21,7 @@ class SlackClient:
         return SlackClient.__instance
 
 
-    def __init__(self, root_channel_name="small-board"):
+    def __init__(self, announcement_channel_name="announcements"):
         ''' Private constructor. '''
         if SlackClient.__instance != None:
             raise Exception("SlackClient is a singleton and should not be "
@@ -31,7 +31,7 @@ class SlackClient:
         else:
             self._slack_token = os.environ.get("SLACK_API_TOKEN", None)
             self._web_client = slack.WebClient(token=self._slack_token)
-            self.root_channel_name = root_channel_name
+            self.announcement_channel_name = announcement_channel_name
             SlackClient.__instance = self
 
 
@@ -56,7 +56,7 @@ class SlackClient:
                 assigned_channel_name = response["channel"]["name"]
                 channel_id = response["channel"]["id"]
                 print(response)
-                self.send_message(self.root_channel_name, "Channel " +
+                self.send_message(self.announcement_channel_name, "Channel " +
                                   assigned_channel_name +
                                   " created for puzzle titled " + puzzle_name
                                   + "!")
