@@ -35,11 +35,19 @@ class SlackClient:
             SlackClient.__instance = self
 
 
-    def send_message(self, channel_name, message):
+    def announce(self, message):
         '''
-        Sends message to channel_name.
+        Sends message (str) to the announcement channel.
         '''
-        self._web_client.chat_postMessage(channel=channel_name, text=message)
+        self.send_message(self.announcement_channel_name, message)
+
+
+    def send_message(self, channel, message):
+        '''
+        Sends message (str) to specified channel (str). 
+        channel can be the name of the channel or the channel id.
+        '''
+        self._web_client.chat_postMessage(channel=channel, text=message)
 
 
     def create_channel(self, puzzle_name):
@@ -71,5 +79,8 @@ class SlackClient:
         '''
         Joins channel with given name. Assumes channel_name is valid and
         exists.
+
+        Unlike send_message, the channel_name should be the name of the channel
+        and not a channel ID.
         '''
         self._web_client.channels_join(channel=channel_name)
