@@ -10,7 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
+import logging
 import os
+
+logger = logging.getLogger(__name__)
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -137,7 +140,7 @@ ACTIVE_HUNT_ID = 1
 
 # Google Drive API
 if not 'GOOGLE_DRIVE_API_PRIVATE_KEY' in os.environ:
-    print('WARNING: No Google Drive API key found in environment. Automatic sheets creation disabled.')
+    logger.warn('No Google Drive API key found in environment. Automatic sheets creation disabled.')
 else:
     GOOGLE_DRIVE_API_AUTHN_INFO = {
       "type": "service_account",
@@ -153,3 +156,8 @@ else:
     }
     GOOGLE_DRIVE_PERMISSIONS_SCOPES = ['https://www.googleapis.com/auth/drive']
     GOOGLE_SHEETS_TEMPLATE_FILE_ID = '1pujWcdXfwWsnn3w6WpqZGGXisfmZflEcWqSwJkhkmpA'
+
+# Slack API
+SLACK_API_TOKEN = os.environ.get("SLACK_API_TOKEN", None)
+if not SLACK_API_TOKEN:
+    logger.warn('No SLACK_API_TOKEN environment variable set. All Slack operations will be no-ops.')

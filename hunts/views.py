@@ -83,11 +83,15 @@ class HuntView(LoginRequiredMixin, View):
         if form.is_valid():
             name = form.cleaned_data["name"]
             puzzle_url = form.cleaned_data["url"]
+
             sheets_url = create_google_sheets(name)
-            slack_client = SlackClient.getInstance()
-            channel_id = slack_client.create_channel(name)
             if not sheets_url:
                 sheets_url = puzzle_url
+
+            slack_client = SlackClient.getInstance()
+            channel_id = slack_client.create_channel(name)
+            if not channel_id:
+                channel_id = name
 
             if form.cleaned_data["is_meta"]:
                 puzzle = MetaPuzzle(

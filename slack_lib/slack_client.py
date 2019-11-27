@@ -1,7 +1,7 @@
 import os
 import slack
 
-from slack.errors import SlackApiError
+from django.conf import settings
 
 
 class SlackClient:
@@ -29,16 +29,23 @@ class SlackClient:
                             "SlackClient.getInstance() to access it.")
 
         else:
-            self._slack_token = os.environ.get("SLACK_API_TOKEN", None)
-            self._web_client = slack.WebClient(token=self._slack_token)
-            self.announcement_channel_name = announcement_channel_name
-            SlackClient.__instance = self
+            token = settings.SLACK_API_TOKEN
+            if token:
+                self._enabled = True
+                self._web_client = slack.WebClient(token=token)
+                self.announcement_channel_name = announcement_channel_name
+            else:
+                self._enabled = False
 
+            SlackClient.__instance = self
 
     def send_message(self, channel_name, message):
         '''
         Sends message to channel_name.
         '''
+        if not self._enabled:
+            return
+
         self._web_client.chat_postMessage(channel=channel_name, text=message)
 
 
@@ -47,6 +54,9 @@ class SlackClient:
         Returns the assigned channel id if able to create a channel.
         Otherwise, raises an exception.
         '''
+        if not self._enabled:
+            return None
+
         try:
             # By setting validate=False, the client will automatically clean up
             # special characters and make it fit under 80 characters.
@@ -72,4 +82,7 @@ class SlackClient:
         Joins channel with given name. Assumes channel_name is valid and
         exists.
         '''
+        if not self._enabled:
+            return
+
         self._web_client.channels_join(channel=channel_name)
