@@ -8,12 +8,31 @@ class SlackClient:
     '''
     This is a wrapper class around the existing slack web client that allows for
     sending messages, creating channels, and joining channels.
+
+    This is a singleton class.
     '''
-    def __init__(self, token=os.environ.get("SLACK_API_TOKEN", None),
-                 root_channel_name="small-board"):
-        self._slack_token = token
-        self._web_client = slack.WebClient(token=self._slack_token)
-        self.root_channel_name = root_channel_name
+    __instance = None
+
+    @staticmethod
+    def getInstance():
+        ''' Static access method. '''
+        if SlackClient.__instance == None:
+            SlackClient()
+        return SlackClient.__instance
+
+
+    def __init__(self, root_channel_name="small-board"):
+        ''' Private constructor. '''
+        if SlackClient.__instance != None:
+            raise Exception("SlackClient is a singleton and should not be "
+                            "constructed multiple times. Use "
+                            "SlackClient.getInstance() to access it.")
+
+        else:
+            self._slack_token = os.environ.get("SLACK_API_TOKEN", None)
+            self._web_client = slack.WebClient(token=self._slack_token)
+            self.root_channel_name = root_channel_name
+            SlackClient.__instance = self
 
 
     def send_message(self, channel_name, message):
