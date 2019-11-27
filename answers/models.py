@@ -1,5 +1,7 @@
 from django.db import models
 
+from slack_lib.slack_client import SlackClient
+
 class Answer(models.Model):
     text = models.CharField(max_length=128)
     puzzle = models.ForeignKey('puzzles.Puzzle', on_delete=models.CASCADE, related_name="guesses")
@@ -22,8 +24,26 @@ class Answer(models.Model):
     def test(self):
         return "test"
 
+    def __update_slack(self, text, status):
+        slack_client = SlackClient.getInstance()
+        puzzle_channel = self.puzzle.channel
+        if status == Answer.PARTIAL:
+            slack_client.send_message(puzzle_channel,
+                                      "%s is PARTIALLY CORRECT!" %
+                                      text.upper())
+        elif status == Answer.INCORRECT or status == Answer.CORRECT:
+            slack_client.send_message(puzzle_channel, "%s is %s!" %
+                                                      (text.upper(), status))
+
+        if status == Answer.CORRECT:
+            slack_client.announce("%s has been solved with the answer: "
+                                   "\'%s\' Hurray!" % 
+                                  (self.puzzle.name, text.upper()))
+
+
     def set_status(self, status):
         self._status = status
+        self.__update_slack(self.text, status)
         if status == Answer.CORRECT:
             self.puzzle.set_answer(self.text)
         else:
