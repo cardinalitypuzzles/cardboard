@@ -6,7 +6,6 @@ from .models import Puzzle
 from .forms import StatusForm, MetaPuzzleForm
 from answers.models import Answer
 from answers.forms import AnswerForm
-from django.contrib import messages
 from django.http import HttpResponse
 from django.http import HttpResponseForbidden
 from django.http import HttpResponseRedirect
