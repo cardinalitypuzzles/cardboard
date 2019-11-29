@@ -101,9 +101,15 @@ these with you. The necessary tokens are listed below:
 
 ```
 GOOGLE_DRIVE_API_PRIVATE_KEY=...
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET=...
 SLACK_API_TOKEN=...
 SLACK_VERIFICATION_TOKEN=...
 ```
+
+#### Google OAuth2 login integration
+
+The app uses Google OAuth2 to authenticate users. If the `SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET` environment variable isn't set, the app will fall back to a "Signup" flow where users can create their own username and password. Even with Google OAuth2 enabled, you can still create superusers using `python manage.py createsuperuser`. The OAuth2 settings are configured at https://console.developers.google.com/apis/credentials?project=smallboard-test-260001.
+
 
 #### Google Sheets Integration
 
