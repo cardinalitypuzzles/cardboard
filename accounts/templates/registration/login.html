@@ -2,9 +2,13 @@
 
 {% block page_content %}
 <h2>Login</h2>
+{% if is_google_auth_enabled %}
+<a class="nav-link" href="{% url 'social:begin' 'google-oauth2' %}">Login</a>
+{% else %}
 <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
     <button type="submit">Login</button>
 </form>
+{% endif %}
 {% endblock %}

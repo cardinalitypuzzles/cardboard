@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     'puzzles',
     'accounts',
     'hunts',
-    'answers'
+    'answers',
+    'social_django',
 ]
 
 MIDDLEWARE = [
@@ -70,6 +71,9 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'social_django.context_processors.backends',
+                'social_django.context_processors.login_redirect',
+                'smallboard.context_processors.google_auth',
             ],
         },
     },
@@ -161,3 +165,17 @@ else:
 SLACK_API_TOKEN = os.environ.get("SLACK_API_TOKEN", None)
 if not SLACK_API_TOKEN:
     logger.warn('No SLACK_API_TOKEN environment variable set. All Slack operations will be no-ops.')
+
+AUTHENTICATION_BACKENDS = [
+    'social_core.backends.google.GoogleOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+SOCIAL_AUTH_URL_NAMESPACE = 'social'
+
+# smallboard client id
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '1059136102866-hlifpp6736kpk2v2di16i1ftnf6ofkfg.apps.googleusercontent.com'
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.environ.get('SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET', None)
+if not SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET:
+    logger.warn('No SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET environment variable set. Google login will be disabled.')
