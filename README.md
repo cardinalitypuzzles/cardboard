@@ -110,6 +110,8 @@ SLACK_VERIFICATION_TOKEN=...
 
 The app uses Google OAuth2 to authenticate users. If the `SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET` environment variable isn't set, the app will fall back to a "Signup" flow where users can create their own username and password. Even with Google OAuth2 enabled, you can still create superusers using `python manage.py createsuperuser`. The OAuth2 settings are configured at https://console.developers.google.com/apis/credentials?project=smallboard-test-260001.
 
+You should be able to use Google OAuth2 locally as well, since the OAuth2 settings above include http://localhost:8000/complete/google-oauth2/ as one of the authorized redirect URLs.
+
 
 #### Google Sheets Integration
 
