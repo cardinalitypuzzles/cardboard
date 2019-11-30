@@ -92,30 +92,65 @@ source venv_smallboard/bin/activate
 ```
 
 
-#### Sheets and Slack API Tokens
+#### <a name='env'>Local `.env` file: credentials, API Tokens, configuration</a>
 
-This app interacts with the Google and Slack APIs that each have various private
-tokens that need to be in the .env file. You can contact a Collaborator to share
-these with you. The necessary tokens are listed below:
+This app uses various secrets including Google and Slack API tokens that need to be present in the environment. Locally, you can put these in the `.env` file. In the production Heroku deployment, they're set as Config Vars at https://dashboard.heroku.com/apps/smallboard/settings. For most of these configs, you can just use the production settings. The ones you probably want to change are `DATABASE_URL`, `DJANGO_SECRET_KEY`, and `DEBUG`. You can contact a Collaborator to give you access to the Heroku Small Board settings or to share their `.env` file with you. The environment variables used by Small Board are listed below:
 
 
 ```
+# for connecting to the database (see "Setting up a local database" section above)
+DATABASE_URL=...
+
+# for accessing Google Drive APIs
 GOOGLE_DRIVE_API_PRIVATE_KEY=...
+
+# id of the Google Drive hunt folder
+# when you go to the folder, it's the last part of the URL
+# drive.google.com/drive/folders/<HUNT_FOLDER_ID>
+# the whitelist of emails allowed access to Small Board
+# are the emails of the users who have access to this folder
+GOOGLE_DRIVE_HUNT_FOLDER_ID=...
+
+# id of the Google Spreadsheet template to be copied for
+# each puzzle. The id is in the URL when you open the spreadsheet:
+# docs.google.com/spreadsheets/d/<SHEETS_ID>/...
+# This file should in inside the hunt folder, since when
+# this template is copied, the new spreadsheet will be
+# put in the same folder as the template.
+GOOGLE_SHEETS_TEMPLATE_FILE_ID=...
+
+# for Google OAuth2 login
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET=...
+
+# for Slack integration
 SLACK_API_TOKEN=...
 SLACK_VERIFICATION_TOKEN=...
+
+# secret used by Django framework for sessions, passwords, etc.
+# rather than use the production secret key locally, you can easily generate a new one using:
+# python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
+DJANGO_SECRET_KEY=...
+
+# whether to enable debug info when errors happen
+# for dev, you probably want to set to True, but in production,
+# we should set to False
+DEBUG=...
 ```
 
 #### Google OAuth2 login integration
 
 The app uses Google OAuth2 to authenticate users. If the `SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET` environment variable isn't set, the app will fall back to a "Signup" flow where users can create their own username and password. Even with Google OAuth2 enabled, you can still create superusers using `python manage.py createsuperuser`. The OAuth2 settings are configured at https://console.developers.google.com/apis/credentials?project=smallboard-test-260001.
 
-You should be able to use Google OAuth2 locally as well, since the OAuth2 settings above include http://localhost:8000/complete/google-oauth2/ as one of the authorized redirect URLs.
+You should be able to use Google OAuth2 locally as well, since the OAuth2 settings above include `localhost` and `127.0.0.1` as authorized redirect URLs.
+
+The whitelist of allowed emails is the emails of the users who have access to `GOOGLE_DRIVE_HUNT_FOLDER_ID`. If you don't have access, please message a Collaborator to be added.
 
 
 #### Google Sheets Integration
 
-When a puzzle is created, a Google Sheet is created that is a copy of a template with some useful formulas added. The sheet is created in the cardinalitypuzzles@gmail.com Google Drive by default. You need to have access to the Google Drive folder to view it. Please message a Collaborator if you don't.
+When a puzzle is created, a Google Sheet is created that is a copy of the template specified by `GOOGLE_SHEETS_TEMPLATE_FILE_ID` (which should have some useful formulas pre-added). The copied sheet is created in the same folder as the template.
+
+You need to have access to the Google Drive folder to view it. Please message a Collaborator if you don't.
 
 These Google Drive and Sheets related settings can be found in [smallboard/settings.py](smallboard/settings.py).
 
@@ -159,3 +194,7 @@ git push heroku master
 ```
 
 We encourage you to keep the `origin` remote as our GitHub repo and make it the default for `git push`s, and use `git push heroku master` to push to the Heroku Git servers when you are ready to deploy changes to production.
+
+#### Environment variables
+
+We rely on various secrets and tokens for Google and Slack integration, etc. These are set as Config Vars at https://dashboard.heroku.com/apps/smallboard/settings. See the [Local `.env` file](#env) section above for more details.
