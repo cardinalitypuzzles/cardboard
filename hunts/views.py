@@ -1,18 +1,17 @@
-import googleapiclient.discovery
-
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.views import View
-from google.oauth2 import service_account
 
 from .forms import HuntForm
 from .models import Hunt
+from google_drive_lib.google_drive_client import GoogleDriveClient
 from puzzles.forms import PuzzleForm
 from puzzles.models import Puzzle, MetaPuzzle
 from slack_lib.slack_client import SlackClient
+
 
 @login_required(login_url='/accounts/login/')
 def index(request):
@@ -34,29 +33,6 @@ def index(request):
     }
     return render(request, 'index.html', context)
 
-
-def create_google_sheets(name):
-    if not hasattr(settings, 'GOOGLE_DRIVE_API_AUTHN_INFO'):
-        return None
-
-    credentials = service_account.Credentials.from_service_account_info(
-        settings.GOOGLE_DRIVE_API_AUTHN_INFO,
-        scopes=settings.GOOGLE_DRIVE_PERMISSIONS_SCOPES
-    )
-
-    service = googleapiclient.discovery.build('drive', 'v3', credentials=credentials)
-
-    req_body = {
-        'name': name
-    }
-    response = service.files().copy(
-        fileId=settings.GOOGLE_SHEETS_TEMPLATE_FILE_ID,
-        body=req_body,
-        fields='webViewLink',
-    ).execute()
-
-    link = response['webViewLink']
-    return link
 
 class HuntView(LoginRequiredMixin, View):
     login_url = '/accounts/login/'
@@ -84,7 +60,9 @@ class HuntView(LoginRequiredMixin, View):
             name = form.cleaned_data["name"]
             puzzle_url = form.cleaned_data["url"]
 
-            sheets_url = create_google_sheets(name)
+            google_drive_client = GoogleDriveClient.getInstance()
+            if google_drive_client:
+                sheets_url = google_drive_client.create_google_sheets(name)
             if not sheets_url:
                 sheets_url = puzzle_url
 
