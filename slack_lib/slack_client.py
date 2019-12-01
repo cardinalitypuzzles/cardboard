@@ -1,6 +1,8 @@
 import os
 import slack
 
+from puzzles.models import Puzzle
+
 from django.conf import settings
 
 
@@ -63,7 +65,7 @@ class SlackClient:
         existing channel. If necessary, a suffix may be added to the channel
         name to ensure uniqueness.
         '''
-        return __create_or_join_channel_impl(puzzle_name)
+        return self.__create_or_join_channel_impl(puzzle_name)
 
 
     def __create_or_join_channel_impl(self, puzzle_name, suffix=""):
@@ -85,7 +87,7 @@ class SlackClient:
                 return str(int(suffix) + 1)
 
         # Concatenate the puzzle name with a suffix to ensure uniqueness.
-        uncleaned_channel_name = "%s-%s" % (puzzle_name, suffix)
+        uncleaned_channel_name = "%s-%s" % (puzzle_name, suffix) if suffix else puzzle_name
         # By setting validate=False, the client will automatically clean up
         # special characters and make it fit under 80 characters.
         response = self._web_client.channels_join(name=uncleaned_channel_name,
@@ -96,7 +98,7 @@ class SlackClient:
             channel_id = response["channel"]["id"]
             # A puzzle with this channel already exists.
             if Puzzle.objects.filter(channel=channel_id):
-                return __create_or_join_channel_impl(puzzle_name,
+                return self.__create_or_join_channel_impl(puzzle_name,
                            suffix=_get_next_suffix(suffix))
             self.send_message(self.announcement_channel_name,
                               "Channel %s created for puzzle titled %s!" %
