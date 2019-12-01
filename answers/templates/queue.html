@@ -44,9 +44,10 @@ $(document).ready(function() {
         "paging": true,
         "info": true,
         "columnDefs": [
+            { "targets": [0], "type": "date" },
             { "orderable": false, "targets": [3] }
-        ]
-        "order:" [[1, "desc" ]]
+        ],
+        "order": [[ 0, "desc" ]]
     } );
 });
 </script>
