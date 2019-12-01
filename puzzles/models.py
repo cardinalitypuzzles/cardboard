@@ -1,13 +1,13 @@
 from django.db import models
 
 class Puzzle(models.Model):
-    name = models.CharField(max_length=128, unique=True)
+    name = models.CharField(max_length=80, unique=True)
     hunt = models.ForeignKey('hunts.Hunt', on_delete=models.CASCADE, related_name='puzzles')
     url = models.URLField(unique=True)
 
-    sheet = models.URLField()
-    channel = models.CharField(max_length=128, unique=True)
-    notes = models.TextField(default="")
+    sheet = models.URLField(default='')
+    channel = models.CharField(max_length=128, default='')
+    notes = models.TextField(default='')
 
     SOLVING = 'SOLVING'
     PENDING = 'PENDING'
@@ -27,7 +27,7 @@ class Puzzle(models.Model):
         self.save()
 
     def clear_answer(self):
-        self.answer = ""
+        self.answer = ''
         self.status = Puzzle.SOLVING
         self.save()
 

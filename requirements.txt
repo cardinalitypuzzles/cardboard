@@ -17,6 +17,7 @@ google-auth-oauthlib==0.4.1
 gunicorn==20.0.0
 httplib2==0.14.0
 idna==2.8
+idna-ssl==1.1.0
 multidict==4.6.1
 oauthlib==3.1.0
 psycopg2==2.8.4
@@ -34,7 +35,9 @@ slackclient==2.3.1
 social-auth-app-django==3.1.0
 social-auth-core==3.2.0
 sqlparse==0.3.0
+typing-extensions==3.7.4.1
 uritemplate==3.0.0
+url-normalize==1.4.1
 urllib3==1.25.7
 webencodings==0.5.1
 whitenoise==4.1.4

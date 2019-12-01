@@ -1,9 +1,14 @@
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib import messages
+from django.db import IntegrityError
+from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.views import View
+
+from url_normalize import url_normalize
 
 from .forms import HuntForm
 from .models import Hunt
@@ -56,38 +61,51 @@ class HuntView(LoginRequiredMixin, View):
     def post(self, request, pk):
         hunt = get_object_or_404(Hunt, pk=pk)
         form = PuzzleForm(request.POST)
+
         if form.is_valid():
             name = form.cleaned_data["name"]
-            puzzle_url = form.cleaned_data["url"]
+            puzzle_url = url_normalize(form.cleaned_data["url"])
 
-            google_drive_client = GoogleDriveClient.getInstance()
-            if google_drive_client:
-                sheets_url = google_drive_client.create_google_sheets(name)
-            if not sheets_url:
-                sheets_url = puzzle_url
-
-            slack_client = SlackClient.getInstance()
-            channel_id = slack_client.create_channel(name)
-            if not channel_id:
-                channel_id = name
-
+            puzzle_class = Puzzle
             if form.cleaned_data["is_meta"]:
-                puzzle = MetaPuzzle(
+                puzzle_class = MetaPuzzle
+
+            try:
+                (puzzle, created) = puzzle_class.objects.get_or_create(
                     name=name,
                     url=puzzle_url,
-                    sheet=sheets_url,
-                    channel=channel_id,
                     hunt=hunt,
                 )
+            except IntegrityError as e:
+                # puzzle creation may still fail if (name, puzzle_url) as a pair is unique
+                # but the fields individually are not
+                duplicates = puzzle_class.objects.filter(Q(name=name) | Q(url=puzzle_url))
+                if duplicates.exists():
+                    puzzle = duplicates.first()
+                    created = False
+                else:
+                    messages.error(request,  "Puzzle not created:\n" + e.args)
+                    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+            if created:
+                google_drive_client = GoogleDriveClient.getInstance()
+                if google_drive_client:
+                    puzzle.sheet = google_drive_client.create_google_sheets(name)
+                else:
+                    puzzle.sheet = puzzle_url
+
+                slack_client = SlackClient.getInstance()
+                puzzle.channel = slack_client.create_channel(name)
+                if not puzzle.channel:
+                    puzzle.channel = name
+                puzzle.save()
             else:
-                puzzle = Puzzle(
-                    name=name,
-                    url=puzzle_url,
-                    sheet=sheets_url,
-                    channel=channel_id,
-                    hunt=hunt,
-                )
-            puzzle.save()
+                message = "Puzzle not created: duplicate entry found\n"
+                message += "Sheet: " + puzzle.sheet + "\n"
+                message += "Slack: https://slack.com/app_redirect?channel={}".format(puzzle.channel)
+                messages.error(request, message)
+        else:
+            messages.error(request, "Puzzle not created:")
 
         return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
