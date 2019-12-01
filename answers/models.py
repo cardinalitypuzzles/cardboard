@@ -21,29 +21,33 @@ class Answer(models.Model):
         choices=[(status, status) for status in STATUS_CHOICES],
         default=NEW)
 
-    def test(self):
-        return "test"
-
-    def __update_slack(self, text, status):
+    def __update_slack_with_puzzle_status(self, status):
         slack_client = SlackClient.getInstance()
         puzzle_channel = self.puzzle.channel
         if status == Answer.PARTIAL:
             slack_client.send_message(puzzle_channel,
                                       "%s is PARTIALLY CORRECT!" %
-                                      text.upper())
+                                      self.text.upper())
         elif status == Answer.INCORRECT or status == Answer.CORRECT:
             slack_client.send_message(puzzle_channel, "%s is %s!" %
-                                                      (text.upper(), status))
+                                                      (self.text.upper(), status))
 
         if status == Answer.CORRECT:
             slack_client.announce("%s has been solved with the answer: "
                                    "\'%s\' Hurray!" % 
-                                  (self.puzzle.name, text.upper()))
+                                  (self.puzzle.name, self.text.upper()))
 
+
+    def __update_slack_with_puzzle_notes(self, notes):
+        slack_client = SlackClient.getInstance()
+        puzzle_channel = self.puzzle.channel
+        slack_client.send_message(puzzle_channel,
+                                  "The operator has added an update regarding the answer "
+                                   "\'%s\'. Note: \'%s\'" % (self.text.upper(), notes))
 
     def set_status(self, status):
         self._status = status
-        self.__update_slack(self.text, status)
+        self.__update_slack_with_puzzle_status(status)
         if status == Answer.CORRECT:
             self.puzzle.set_answer(self.text)
         else:
@@ -53,5 +57,11 @@ class Answer(models.Model):
     def get_status(self):
         return self._status
 
+    # TODO(asdfryan): Migrate response to notes.
+    def set_notes(self, notes):
+        self.response = notes
+        self.__update_slack_with_puzzle_notes(notes)
+        self.save()
 
-
+    def get_notes(self):
+        return self.response

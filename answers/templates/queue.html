@@ -17,10 +17,11 @@
             <th scope="col">Puzzle</th>
             <th scope="col">Answer</th>
             <th scope="col">Status</th>
+            <th scope="col">Notes (e.g. for Partials)</th>
         </tr>
     </thead>
     <tbody>
-            {% for ans, form in rows%}
+            {% for ans, form, notes_form in rows%}
             <tr class="{% answer_class ans %}">
                 <th>{{ ans.created_on }}</th>
                 <td>{% get_title ans.puzzle%}</td>
@@ -30,6 +31,15 @@
                         {% csrf_token %}
                         <div class="form-group">
                             {{ form.status }}
+                        </div>
+                    </form>
+                </td>
+                <td>
+                   <form action="/answers/update_note/{{ ans.id }}" method="post" class="form-inline">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            {{ notes_form.text }}
+                            <button type="submit" class="btn btn-outline-primary btn-sm">Submit</button>
                         </div>
                     </form>
                 </td>
