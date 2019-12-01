@@ -5,8 +5,8 @@ class Puzzle(models.Model):
     hunt = models.ForeignKey('hunts.Hunt', on_delete=models.CASCADE, related_name='puzzles')
     url = models.URLField(unique=True)
 
-    sheet = models.URLField(default='')
-    channel = models.CharField(max_length=128, default='')
+    sheet = models.URLField(default='', unique=True)
+    channel = models.CharField(max_length=128, default='', unique=True)
     notes = models.TextField(default='')
 
     SOLVING = 'SOLVING'
