@@ -97,7 +97,8 @@ class SlackClient:
             cleaned_channel_name = response["channel"]["name"]
             channel_id = response["channel"]["id"]
             # A puzzle with this channel already exists.
-            if Puzzle.objects.filter(channel=channel_id):
+            if Puzzle.objects.filter(channel=channel_id) or
+               MetaPuzzle.objects.filter(channel=channel_id):
                 return self.__create_or_join_channel_impl(puzzle_name,
                            suffix=_get_next_suffix(suffix))
             self.send_message(self.announcement_channel_name,
