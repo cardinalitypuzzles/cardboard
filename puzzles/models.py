@@ -31,5 +31,15 @@ class Puzzle(models.Model):
         self.status = Puzzle.SOLVING
         self.save()
 
+
+
 class MetaPuzzle(Puzzle):
     feeders = models.ManyToManyField('Puzzle', related_name='metas')
+
+
+def is_unassigned_channel(channel_id):
+    '''
+    Returns true if channel_id is not assigned to any Puzzle or MetaPuzzle object.
+    '''
+    return not (Puzzle.objects.filter(channel=channel_id) or
+                MetaPuzzle.objects.filter(channel=channel_id))
