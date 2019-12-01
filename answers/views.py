@@ -32,5 +32,3 @@ class AnswerView(LoginRequiredMixin, View):
             answer.set_status(form.cleaned_data["status"])
 
         return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
-
-
