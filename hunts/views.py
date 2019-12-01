@@ -95,7 +95,7 @@ class HuntView(LoginRequiredMixin, View):
                     puzzle.sheet = puzzle_url
 
                 slack_client = SlackClient.getInstance()
-                puzzle.channel = slack_client.create_channel(name)
+                puzzle.channel = slack_client.create_or_join_channel(name)
                 if not puzzle.channel:
                     puzzle.channel = name
                 puzzle.save()

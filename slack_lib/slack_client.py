@@ -56,33 +56,56 @@ class SlackClient:
 
         self._web_client.chat_postMessage(channel=channel, text=message)
 
-
-    def create_channel(self, puzzle_name):
+    def create_or_join_channel(self, puzzle_name):
         '''
-        Returns the assigned channel id (str) if able to create a channel.
-        Otherwise, raises an exception.
+        Returns the assigned channel_id (str) for the channel created/joined.
+        Always returns a unique channel_id which does not already belong to an
+        existing channel. If necessary, a suffix may be added to the channel
+        name to ensure uniqueness.
+        '''
+        return __create_or_join_channel_impl(puzzle_name)
+
+
+    def __create_or_join_channel_impl(self, puzzle_name, suffix=""):
+        '''
+        Implementation for create_or_join_channel.
+        This is a private member because suffix should not be exposed publicly.
         '''
         if not self._enabled:
             return None
 
-        try:
-            # By setting validate=False, the client will automatically clean up
-            # special characters and make it fit under 80 characters.
-            response = self._web_client.channels_create(name=puzzle_name,
-                                                   validate=False)
-            if response["ok"]:
-                assigned_channel_name = response["channel"]["name"]
-                channel_id = response["channel"]["id"]
-                print(response)
-                self.send_message(self.announcement_channel_name, "Channel " +
-                                  assigned_channel_name +
-                                  " created for puzzle titled " + puzzle_name
-                                  + "!")
-                return channel_id
-        except SlackApiError as e:
-            if (e.response['error'] == 'name_taken'):
-                raise NameError('Slack channel name already exists.')
-            raise e
+        def _get_next_suffix(suffix):
+            '''
+            Automatic suffix generation. Suffixes will start with empty string,
+            then -2, then -3, etc.
+            '''
+            if not suffix:
+                return "2"
+            else:
+                return str(int(suffix) + 1)
+
+        # Concatenate the puzzle name with a suffix to ensure uniqueness.
+        uncleaned_channel_name = "%s-%s" % (puzzle_name, suffix)
+        # By setting validate=False, the client will automatically clean up
+        # special characters and make it fit under 80 characters.
+        response = self._web_client.channels_join(name=uncleaned_channel_name,
+                                                  validate=False)
+
+        if response["ok"]:
+            cleaned_channel_name = response["channel"]["name"]
+            channel_id = response["channel"]["id"]
+            # A puzzle with this channel already exists.
+            if Puzzle.objects.filter(channel=channel_id):
+                return __create_or_join_channel_impl(puzzle_name,
+                           suffix=_get_next_suffix(suffix))
+            self.send_message(self.announcement_channel_name,
+                              "Channel %s created for puzzle titled %s!" %
+                              (cleaned_channel_name, puzzle_name))
+            self.send_message(cleaned_channel_name,
+                              "This channel has been registered with the "
+                              "puzzle titled %s. You may submit answers via "
+                              "the /answer command." % puzzle_name)
+            return channel_id
 
 
     def join_channel(self, channel_name):
