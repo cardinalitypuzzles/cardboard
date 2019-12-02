@@ -8,6 +8,7 @@
             <th scope="col">Status</th>
             <th scope="col">Sheet</th>
             <th scope="col">Slack</th>
+	    <th scope="col">Tags</th>
             <th scope="col"></th>
             <th scope="col"></th>
         </tr>
@@ -29,6 +30,9 @@
                 </td>
                 <td><a href="{{ p.sheet }}">Link</a></td>
                 <td><a href="https://slack.com/app_redirect?channel={{ p.channel }}">Link</a></td>
+                <td>
+                  {{ p.get_tag_names }}
+                </td>
                 <td>
                     {% if p.status != "SOLVED" %}
                        <form action="/puzzles/guess/{{ p.id }}/" method="post" class="form-inline">
@@ -86,5 +90,3 @@ $(document).ready(function() {
 });
 
 </script>
-
-

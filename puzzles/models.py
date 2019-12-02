@@ -1,4 +1,5 @@
 from django.db import models
+from taggit.managers import TaggableManager
 
 class Puzzle(models.Model):
     name = models.CharField(max_length=80, unique=True)
@@ -21,6 +22,8 @@ class Puzzle(models.Model):
         default=SOLVING)
     answer = models.CharField(max_length=128)
 
+    tags = TaggableManager()
+
     def __str__(self):
         return self.name
 
@@ -34,6 +37,8 @@ class Puzzle(models.Model):
         self.status = Puzzle.SOLVING
         self.save()
 
+    def get_tag_names(self):
+        return ', '.join(self.tags.names())
 
 
 class MetaPuzzle(Puzzle):
