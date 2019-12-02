@@ -58,6 +58,11 @@ class HuntView(LoginRequiredMixin, View):
         }
         return render(request, 'all_puzzles.html', context)
 
+    def __handle_dup_puzzle(self, request):
+        message = "A puzzle with the given name or url already exists!"
+        messages.error(request, message)
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
     def post(self, request, pk):
         hunt = get_object_or_404(Hunt, pk=pk)
         form = PuzzleForm(request.POST)
@@ -70,42 +75,37 @@ class HuntView(LoginRequiredMixin, View):
             if form.cleaned_data["is_meta"]:
                 puzzle_class = MetaPuzzle
 
+            # Early termination -- if a puzzle with given name or URL exists, don't try to create
+            # a new sheet or slack channel. This is purely an optimization to avoid dangling
+            # google sheets / slack channels.
+            already_exists = (Puzzle.objects.filter(Q(name=name) | Q(url=puzzle_url)).exists() or
+                             MetaPuzzle.objects.filter(Q(name=name) | Q(url=puzzle_url)).exists())
+            if already_exists:
+                return self.__handle_dup_puzzle(request)
+                
+            # TODO(erwaman): Add error hnadling and refactor into google drive lib.
+            google_drive_client = GoogleDriveClient.getInstance()
+            if google_drive_client:
+                sheet = google_drive_client.create_google_sheets(name)
+            else:
+                # TODO(erwaman): This should incur a warning.
+                sheet = puzzle_url
+
+            # TODO(asdfryan): Add error handling and refactor into slack lib.
+            channel_id = SlackClient.getInstance().create_or_join_channel(name)
+
             try:
-                (puzzle, created) = puzzle_class.objects.get_or_create(
+                puzzle_class.objects.create(
                     name=name,
                     url=puzzle_url,
                     hunt=hunt,
+                    sheet=sheet,
+                    channel=channel_id
                 )
             except IntegrityError as e:
-                # puzzle creation may still fail if (name, puzzle_url) as a pair is unique
-                # but the fields individually are not
-                duplicates = puzzle_class.objects.filter(Q(name=name) | Q(url=puzzle_url))
-                if duplicates.exists():
-                    puzzle = duplicates.first()
-                    created = False
-                else:
-                    messages.error(request,  "Puzzle not created:\n" + e.args)
-                    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
-
-            if created:
-                google_drive_client = GoogleDriveClient.getInstance()
-                if google_drive_client:
-                    puzzle.sheet = google_drive_client.create_google_sheets(name)
-                else:
-                    puzzle.sheet = puzzle_url
-
-                slack_client = SlackClient.getInstance()
-                puzzle.channel = slack_client.create_or_join_channel(name)
-                if not puzzle.channel:
-                    puzzle.channel = name
-                puzzle.save()
-            else:
-                message = "Puzzle not created: duplicate entry found\n"
-                message += "Sheet: " + puzzle.sheet + "\n"
-                message += "Slack: https://slack.com/app_redirect?channel={}".format(puzzle.channel)
-                messages.error(request, message)
+                return self.__handle_dup_puzzle(request)
         else:
-            messages.error(request, "Puzzle not created:")
+            messages.error(request, "Puzzle not created because the form waas invalid.")
 
         return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
