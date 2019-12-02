@@ -70,10 +70,9 @@ class HuntView(LoginRequiredMixin, View):
         if form.is_valid():
             name = form.cleaned_data["name"]
             puzzle_url = url_normalize(form.cleaned_data["url"])
+            is_meta = form.cleaned_data["is_meta"]
 
-            puzzle_class = Puzzle
-            if form.cleaned_data["is_meta"]:
-                puzzle_class = MetaPuzzle
+            puzzle_class = MetaPuzzle if is_meta else Puzzle
 
             # Early termination -- if a puzzle with given name or URL exists, don't try to create
             # a new sheet or slack channel. This is purely an optimization to avoid dangling
@@ -104,7 +103,7 @@ class HuntView(LoginRequiredMixin, View):
                     channel=channel_id
                 )
                 # Announce new puzzle is available on slack.
-                slack_client.announce_puzzle_creation(name, channel_id)
+                slack_client.announce_puzzle_creation(name, channel_id, is_meta)
             except IntegrityError as e:
                 # TODO(asdfryan): Think about cleaning up dangling sheets / slack channels.
                 # TODO(asdfryan): Think about other catchable errors.

@@ -58,15 +58,16 @@ class SlackClient:
 
         self._web_client.chat_postMessage(channel=channel, text=message)
 
-    def announce_puzzle_creation(self, puzzle_name, channel_id):
+    def announce_puzzle_creation(self, puzzle_name, channel_id, is_meta=False):
         channel_name = self.get_channel_name(channel_id)
+        puzzle_type = "MetaPuzzle" if is_meta else "Puzzle"
         self.announce(
-                      "Channel %s created for puzzle titled %s!" %
-                      (channel_name, puzzle_name))
+                      "Channel %s created for a new %s titled %s!" %
+                      (channel_name, puzzle_type, puzzle_name))
         self.send_message(channel_id, 
                       "This channel has been registered with the "
-                      "puzzle titled %s. You may submit answers via "
-                      "the /answer command." % puzzle_name)
+                      "%s titled %s. You may submit answers via "
+                      "the /answer command." % (puzzle_type, puzzle_name))
 
     def create_or_join_channel(self, puzzle_name):
         '''
