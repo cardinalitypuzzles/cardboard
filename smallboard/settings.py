@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     'hunts',
     'answers',
     'social_django',
+    'taggit',
 ]
 
 MIDDLEWARE = [
