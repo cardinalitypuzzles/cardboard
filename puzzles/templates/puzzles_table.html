@@ -80,11 +80,16 @@
 
 <script type="text/javascript">
 $(document).ready(function() {
+    $.fn.dataTableExt.ofnSearch['select-input'] = function(value) {
+        return $(value).find('select').val();
+    };
+
     $('#puzzles').DataTable( {
         "paging": false,
         "info": false,
         "columnDefs": [
-            { "orderable": false, "targets": [2, 3, 4, 5, 6] }
+            { "orderable": false, "targets": [2, 3, 4, 5, 6] },
+            { "type": "select-input", "targets": [2] }
         ]
     } );
 });
