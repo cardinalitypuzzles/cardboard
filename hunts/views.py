@@ -83,7 +83,7 @@ class HuntView(LoginRequiredMixin, View):
             if already_exists:
                 return self.__handle_dup_puzzle(request)
                 
-            # TODO(erwaman): Add error hnadling and refactor into google drive lib.
+            # TODO(erwaman): Add error handling and refactor into google drive lib.
             google_drive_client = GoogleDriveClient.getInstance()
             if google_drive_client:
                 sheet = google_drive_client.create_google_sheets(name)
@@ -102,7 +102,11 @@ class HuntView(LoginRequiredMixin, View):
                     sheet=sheet,
                     channel=channel_id
                 )
+                # TODO(asdfryan): Slack announcements should only happen after puzzle creation. instead of 
+                # in the create_or_join_channel call.
             except IntegrityError as e:
+                # TODO(asdfryan): Think about cleaning up dangling sheets / slack channels.
+                # TODO(asdfryan): Think about other catchable errors.
                 return self.__handle_dup_puzzle(request)
         else:
             messages.error(request, "Puzzle not created because the form waas invalid.")
