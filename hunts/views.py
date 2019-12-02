@@ -81,7 +81,7 @@ class HuntView(LoginRequiredMixin, View):
                              MetaPuzzle.objects.filter(Q(name=name) | Q(url=puzzle_url)).exists())
             if already_exists:
                 return self.__handle_dup_puzzle(request)
-                
+
             # TODO(erwaman): Add error handling and refactor into google drive lib.
             google_drive_client = GoogleDriveClient.getInstance()
             if google_drive_client:
@@ -93,6 +93,8 @@ class HuntView(LoginRequiredMixin, View):
             # TODO(asdfryan): Add error handling and refactor into slack lib.
             slack_client = SlackClient.getInstance()
             channel_id = slack_client.create_or_join_channel(name)
+            if channel_id is None:
+                messages.warning(request, "Slack channel not created")
 
             try:
                 puzzle_class.objects.create(
@@ -100,10 +102,11 @@ class HuntView(LoginRequiredMixin, View):
                     url=puzzle_url,
                     hunt=hunt,
                     sheet=sheet,
-                    channel=channel_id
+                    channel=channel_id if channel_id else name
                 )
                 # Announce new puzzle is available on slack.
                 slack_client.announce_puzzle_creation(name, channel_id, is_meta)
+
             except IntegrityError as e:
                 # TODO(asdfryan): Think about cleaning up dangling sheets / slack channels.
                 # TODO(asdfryan): Think about other catchable errors.
