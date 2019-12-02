@@ -58,6 +58,16 @@ class SlackClient:
 
         self._web_client.chat_postMessage(channel=channel, text=message)
 
+    def announce_puzzle_creation(self, puzzle_name, channel_id):
+        channel_name = self.get_channel_name(channel_id)
+        self.announce(
+                      "Channel %s created for puzzle titled %s!" %
+                      (channel_name, puzzle_name))
+        self.send_message(channel_id, 
+                      "This channel has been registered with the "
+                      "puzzle titled %s. You may submit answers via "
+                      "the /answer command." % puzzle_name)
+
     def create_or_join_channel(self, puzzle_name):
         '''
         Returns the assigned channel_id (str) for the channel created/joined.
@@ -100,14 +110,16 @@ class SlackClient:
             if not is_unassigned_channel(channel_id):
                 return self.__create_or_join_channel_impl(puzzle_name,
                            suffix=_get_next_suffix(suffix))
-            self.send_message(self.announcement_channel_name,
-                              "Channel %s created for puzzle titled %s!" %
-                              (cleaned_channel_name, puzzle_name))
-            self.send_message(cleaned_channel_name,
-                              "This channel has been registered with the "
-                              "puzzle titled %s. You may submit answers via "
-                              "the /answer command." % puzzle_name)
             return channel_id
+
+
+    def get_channel_name(self, channel_id):
+        '''
+        Given a channel_id (str, e.g. C1H9RESGL), returns the name of that
+        human-readable channel name.
+        '''
+        response = self._web_client.channels_info(channel=channel_id)
+        return response["channel"]["name"]
 
 
     def join_channel(self, channel_name):

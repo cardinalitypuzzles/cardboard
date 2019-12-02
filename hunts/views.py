@@ -92,7 +92,8 @@ class HuntView(LoginRequiredMixin, View):
                 sheet = puzzle_url
 
             # TODO(asdfryan): Add error handling and refactor into slack lib.
-            channel_id = SlackClient.getInstance().create_or_join_channel(name)
+            slack_client = SlackClient.getInstance()
+            channel_id = slack_client.create_or_join_channel(name)
 
             try:
                 puzzle_class.objects.create(
@@ -102,8 +103,8 @@ class HuntView(LoginRequiredMixin, View):
                     sheet=sheet,
                     channel=channel_id
                 )
-                # TODO(asdfryan): Slack announcements should only happen after puzzle creation. instead of 
-                # in the create_or_join_channel call.
+                # Announce new puzzle is available on slack.
+                slack_client.announce_puzzle_creation(name, channel_id)
             except IntegrityError as e:
                 # TODO(asdfryan): Think about cleaning up dangling sheets / slack channels.
                 # TODO(asdfryan): Think about other catchable errors.
