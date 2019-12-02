@@ -101,6 +101,8 @@ class SlackClient:
         uncleaned_channel_name = "%s-%s" % (puzzle_name, suffix) if suffix else puzzle_name
         # By setting validate=False, the client will automatically clean up
         # special characters and make it fit under 80 characters.
+        # If channel exists, it will join. Otherwise, it will create and then
+        # join.
         response = self._web_client.channels_join(name=uncleaned_channel_name,
                                                   validate=False)
 
