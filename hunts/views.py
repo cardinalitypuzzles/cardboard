@@ -105,8 +105,7 @@ class HuntView(LoginRequiredMixin, View):
                     channel=channel_id if channel_id else name
                 )
                 # Announce new puzzle is available on slack.
-                if channel_id:
-                    slack_client.announce_puzzle_creation(name, channel_id, is_meta)
+                slack_client.announce_puzzle_creation(name, channel_id, is_meta)
 
             except IntegrityError as e:
                 # TODO(asdfryan): Think about cleaning up dangling sheets / slack channels.
