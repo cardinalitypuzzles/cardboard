@@ -21,6 +21,9 @@ class Answer(models.Model):
         choices=[(status, status) for status in STATUS_CHOICES],
         default=NEW)
 
+    def __str__(self):
+        return '{}: "{}" ({})'.format(self.puzzle.name, self.text, self._status)
+
     def __update_slack_with_puzzle_status(self, status):
         slack_client = SlackClient.getInstance()
         puzzle_channel = self.puzzle.channel
@@ -34,7 +37,7 @@ class Answer(models.Model):
 
         if status == Answer.CORRECT:
             slack_client.announce("%s has been solved with the answer: "
-                                   "\'%s\' Hurray!" % 
+                                   "\'%s\' Hurray!" %
                                   (self.puzzle.name, self.text.upper()))
 
 

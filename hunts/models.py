@@ -7,3 +7,6 @@ class Hunt(models.Model):
     created_on = models.DateTimeField(auto_now_add=True)
     puzzlers = models.ManyToManyField('accounts.Puzzler', related_name='hunts')
     active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.name

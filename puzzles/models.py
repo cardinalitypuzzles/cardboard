@@ -21,6 +21,9 @@ class Puzzle(models.Model):
         default=SOLVING)
     answer = models.CharField(max_length=128)
 
+    def __str__(self):
+        return self.name
+
     def set_answer(self, answer):
         self.answer = answer
         self.status = Puzzle.SOLVED
