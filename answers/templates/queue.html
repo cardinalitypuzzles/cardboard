@@ -46,18 +46,58 @@
             </tr>
             {% endfor %}
     </tbody>
+    <tfoot>
+        <tr>
+            <th scope="col">Time</th>
+            <th scope="col" class="column_searchable">Puzzle</th>
+            <th scope="col" class="column_searchable">Answer</th>
+            <th scope="col" class="column_searchable">Status</th>
+            <th scope="col" class="column_searchable">Notes (e.g. for Partials)</th>
+        </tr>
+    </tfoot>
 </table>
 
 <script type="text/javascript">
 $(document).ready(function() {
-    $('#queue').DataTable( {
+    // For choice fields, each entry should only be searchable by the currently
+    // selected value.
+    $.fn.dataTableExt.ofnSearch['select-input'] = function(value) {
+        return $(value).find('select').val();
+    };
+
+    // For text fields, enable search based on the initial value of the field
+    // when the table was loaded.
+    $.fn.dataTableExt.ofnSearch['text-input'] = function(value) {
+        return $(value).find(':text').val();
+    };
+
+    // Add a text input for each footer cell that is column_searchable.
+    $('#queue .column_searchable').each( function () {
+        var col_name = $(this).text();
+        $(this).html( '<input type="text" placeholder="Search '+col_name+'" />' );
+    } );
+
+    var table = $('#queue').DataTable( {
         "paging": true,
         "info": true,
         "columnDefs": [
             { "targets": [0], "type": "date" },
-            { "orderable": false, "targets": [3] }
+            { "type": "select-input", "orderable": false, "targets": [3] },
+            { "type": "text-input", "orderable": false, "targets": [4] }
         ],
         "order": [[ 0, "desc" ]]
+    } );
+
+    // Apply column search.
+    table.columns().every( function () {
+        var that = this;
+        $( 'input', this.footer() ).on( 'keyup change clear', function () {
+            if ( that.search() !== this.value ) {
+                that
+                    .search( this.value )
+                    .draw();
+            }
+        } );
     } );
 });
 </script>
