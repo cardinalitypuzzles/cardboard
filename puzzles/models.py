@@ -16,7 +16,7 @@ class Puzzle(models.Model):
     STUCK = 'STUCK'
     EXTRACTION = 'EXTRACTION'
     ALL_STATUSES = [SOLVING, PENDING, SOLVED, STUCK, EXTRACTION]
-    # Users should only be able to change status to one of these 2.
+    # Users should only be able to change status to one of these 3.
     VISIBLE_STATUS_CHOICES = [SOLVING, STUCK, EXTRACTION]
 
     status = models.CharField(
