@@ -14,11 +14,14 @@ class Puzzle(models.Model):
     PENDING = 'PENDING'
     SOLVED = 'SOLVED'
     STUCK = 'STUCK'
-    STATUS_CHOICES = [SOLVING, PENDING, SOLVED, STUCK]
+    EXTRACTION = 'EXTRACTION'
+    ALL_STATUSES = [SOLVING, PENDING, SOLVED, STUCK, EXTRACTION]
+    # Users should only be able to change status to one of these 3.
+    VISIBLE_STATUS_CHOICES = [SOLVING, STUCK, EXTRACTION]
 
     status = models.CharField(
         max_length=10,
-        choices=[(status, status) for status in STATUS_CHOICES],
+        choices=[(status, status) for status in ALL_STATUSES],
         default=SOLVING)
     answer = models.CharField(max_length=128)
 

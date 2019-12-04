@@ -24,7 +24,7 @@ class StatusForm(forms.ModelForm):
         fields = ["status"]
 
     status = forms.ChoiceField(
-        choices=[(status, status) for status in Puzzle.STATUS_CHOICES],
+        choices=[(status, status) for status in Puzzle.ALL_STATUSES],
         widget=forms.Select(attrs={"onChange":'this.form.submit();', 'class': 'form-control form-control-sm'}))
 
 
