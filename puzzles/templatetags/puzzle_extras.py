@@ -11,6 +11,9 @@ def get_table(puzzles, request):
     for (i, p) in enumerate(puzzles):
         if p.status in [Puzzle.SOLVED, Puzzle.PENDING]:
             status_forms[i].fields["status"].disabled = True
+        else:
+            status_forms[i].fields["status"].choices =\
+                [(status, status) for status in Puzzle.VISIBLE_STATUS_CHOICES]
 
     meta_forms = [MetaPuzzleForm(initial={'meta_select': p.metas.all()}) for p in puzzles]
 
