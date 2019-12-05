@@ -45,6 +45,9 @@ class SlackClient:
         '''
         Sends message (str) to the announcement channel.
         '''
+        if not self._enabled:
+            return
+
         self.send_message(self.announcement_channel_name, message)
 
 
