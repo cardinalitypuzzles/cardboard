@@ -2,14 +2,17 @@ import os
 
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .models import Puzzle
-from .forms import StatusForm, MetaPuzzleForm
-from answers.models import Answer
-from answers.forms import AnswerForm
+from django.contrib import messages
 from django.http import HttpResponse
 from django.http import HttpResponseForbidden
 from django.http import HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
+
+from .models import Puzzle
+from .forms import StatusForm, MetaPuzzleForm
+from answers.models import Answer
+from answers.forms import AnswerForm
+
 
 
 @login_required(login_url='/accounts/login/')
@@ -31,15 +34,19 @@ def guess(request, pk):
     if request.method == 'POST':
         form = AnswerForm(request.POST)
         puzzle = get_object_or_404(Puzzle, pk=pk)
-        
+
         if form.is_valid() and puzzle.status != Puzzle.SOLVED:
-            answer_text = form.cleaned_data["text"]
+            answer_text = form.cleaned_data["text"].replace(' ', '').upper()
             # If answer has already been added to the queue
-            if not Answer.objects.filter(puzzle=puzzle).filter(text=answer_text):
-                answer = Answer(text=form.cleaned_data["text"], puzzle=puzzle)
+            if not Answer.objects.filter(puzzle=puzzle, text=answer_text):
+                answer = Answer(text=answer_text, puzzle=puzzle)
                 puzzle.status = Puzzle.PENDING
                 answer.save()
                 puzzle.save()
+            else:
+                messages.error(request, '"{}" has already been submitted as a guess'.format(answer_text))
+        else:
+            messages.error(request, form.errors)
 
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 

@@ -35,6 +35,8 @@ def get_title(puzzle):
 def puzzle_class(puzzle):
     if puzzle.status == Puzzle.PENDING:
         return "table-warning"
+    elif puzzle.status == Puzzle.EXTRACTION:
+        return "table-danger"
     elif puzzle.status == Puzzle.SOLVED:
         return "table-success"
     elif puzzle.status == Puzzle.STUCK:
