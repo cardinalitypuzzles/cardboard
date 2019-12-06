@@ -1,5 +1,7 @@
 from django.db import models
+from django.db.models import Q
 from taggit.managers import TaggableManager
+from answers.models import Answer
 
 class Puzzle(models.Model):
     name = models.CharField(max_length=80, unique=True)
@@ -35,9 +37,17 @@ class Puzzle(models.Model):
         self.status = Puzzle.SOLVED
         self.save()
 
-    def clear_answer(self):
+    def clear_answer(self, guess):
+        # puzzle already solved by different guess, so this current guess does not affect state
+        if self.status == Puzzle.SOLVED and self.answer != guess:
+            return
+
         self.answer = ''
-        self.status = Puzzle.SOLVING
+        if self.guesses.filter(Q(status=Answer.NEW) | Q(status=Answer.SUBMITTED)):
+            self.status = Puzzle.PENDING
+        else:
+            self.status = Puzzle.SOLVING
+
         self.save()
 
     def get_tag_names(self):

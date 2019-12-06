@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
@@ -41,8 +42,14 @@ class AnswerView(LoginRequiredMixin, View):
         status_form = UpdateAnswerStatusForm(request.POST)
 
         if status_form.is_valid():
-            answer = get_object_or_404(Answer, pk=answer_pk)
-            answer.set_status(status_form.cleaned_data["status"])
+            guess = get_object_or_404(Answer, pk=answer_pk)
+            status = status_form.cleaned_data["status"]
+            if status == Answer.CORRECT and len(guess.puzzle.answer) > 0:
+                messages.warning(request,
+                    '{} was already marked as solved with the answer "{}"\n'.format(guess.puzzle, guess.puzzle.answer) +
+                    'We won\'t stop ya, but please think twice.')
+
+            guess.set_status(status)
 
         return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
