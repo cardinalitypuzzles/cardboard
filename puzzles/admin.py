@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Puzzle 
+from .models import Puzzle
 from answers.models import Answer
 
 class AnswerInline(admin.TabularInline):

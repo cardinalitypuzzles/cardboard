@@ -1,5 +1,5 @@
 from django import forms
-from .models import Puzzle 
+from .models import Puzzle
 
 class PuzzleForm(forms.Form):
     name = forms.CharField(

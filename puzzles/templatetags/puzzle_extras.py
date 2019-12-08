@@ -1,5 +1,5 @@
 from django import template
-from puzzles.models import Puzzle 
+from puzzles.models import Puzzle
 from puzzles.forms import StatusForm, MetaPuzzleForm
 from answers.forms import AnswerForm
 

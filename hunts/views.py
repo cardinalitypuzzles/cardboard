@@ -14,7 +14,7 @@ from .forms import HuntForm
 from .models import Hunt
 from google_drive_lib.google_drive_client import GoogleDriveClient
 from puzzles.forms import PuzzleForm
-from puzzles.models import Puzzle 
+from puzzles.models import Puzzle
 from slack_lib.slack_client import SlackClient
 
 
