@@ -80,7 +80,7 @@ def set_metas(request, pk):
         form = MetaPuzzleForm(request.POST, instance=get_object_or_404(Puzzle, pk=pk))
         if form.is_valid():
             puzzle = get_object_or_404(Puzzle, pk=pk)
-            metas = form.cleaned_data["meta_select"]
+            metas = form.cleaned_data["metas"]
             puzzle.metas.set(metas)
 
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
