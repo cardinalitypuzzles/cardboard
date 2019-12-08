@@ -85,7 +85,7 @@
             <th scope="col">Slack</th>
             <th scope="col" class="column_searchable">Tags</th>
             <th scope="col"></th>
-            <th scope="col"></th>
+            <th scope="col" class="column_searchable">Meta</th>
         </tr>
     </tfoot>
 </table>
@@ -98,7 +98,15 @@ $(document).ready(function() {
         return $(value).find('select').val();
     };
 
-    // TODO(asdfryan): Also fix search for checklist input (i.e. meta column).
+    $.fn.dataTableExt.ofnSearch['checkbox-input'] = function(value) {
+        var search_str = "";
+        var checked = $(value).find(":checked").each( function () {
+            // The name of the meta is actually displayed in the parent DOM
+            // element.
+            search_str += $(this).parent().text();
+        } );
+        return search_str;
+    };
 
     // Add a text input for each footer cell that is column_searchable.
     $('#puzzles .column_searchable').each( function () {
@@ -112,7 +120,8 @@ $(document).ready(function() {
         "info": false,
         "columnDefs": [
             { "orderable": false, "targets": [2, 3, 4, 5, 6] },
-            { "type": "select-input", "targets": [2] }
+            { "type": "select-input", "targets": [2] },
+            { "type": "checkbox-input", "targets": [7] }
         ]
     } );
 
