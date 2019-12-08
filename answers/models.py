@@ -1,7 +1,5 @@
 from django.db import models
 
-from slack_lib.slack_client import SlackClient
-
 class Answer(models.Model):
     text = models.CharField(max_length=128)
     puzzle = models.ForeignKey('puzzles.Puzzle', on_delete=models.CASCADE, related_name="guesses")
@@ -24,34 +22,9 @@ class Answer(models.Model):
     def __str__(self):
         return '{}: "{}" ({})'.format(self.puzzle.name, self.text, self.status)
 
-    def __update_slack_with_puzzle_status(self, status):
-        slack_client = SlackClient.getInstance()
-        puzzle_channel = self.puzzle.channel
-        if status == Answer.PARTIAL:
-            slack_client.send_message(puzzle_channel,
-                                      "%s is PARTIALLY CORRECT!" %
-                                      self.text.upper())
-        elif status == Answer.INCORRECT or status == Answer.CORRECT:
-            slack_client.send_message(puzzle_channel, "%s is %s!" %
-                                                      (self.text.upper(), status))
-
-        if status == Answer.CORRECT:
-            slack_client.announce("%s has been solved with the answer: "
-                                   "\'%s\' Hurray!" %
-                                  (self.puzzle.name, self.text.upper()))
-
-
-    def __update_slack_with_puzzle_notes(self, notes):
-        slack_client = SlackClient.getInstance()
-        puzzle_channel = self.puzzle.channel
-        slack_client.send_message(puzzle_channel,
-                                  "The operator has added an update regarding the answer "
-                                   "\'%s\'. Note: \'%s\'" % (self.text.upper(), notes))
-
     def set_status(self, status):
         self.status = status
         self.save()
-        self.__update_slack_with_puzzle_status(status)
         if status == Answer.CORRECT:
             self.puzzle.set_answer(self.text)
         else:
@@ -64,7 +37,6 @@ class Answer(models.Model):
     # TODO(asdfryan): Migrate response to notes.
     def set_notes(self, notes):
         self.response = notes
-        self.__update_slack_with_puzzle_notes(notes)
         self.save()
 
     def get_notes(self):
