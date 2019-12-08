@@ -26,7 +26,7 @@ def get_table(puzzles, request):
 @register.inclusion_tag('title.html')
 def get_title(puzzle):
     badge = ''
-    if Puzzle.objects.filter(pk=puzzle.pk,is_meta=True).exists():
+    if puzzle.is_meta:
         badge = 'META'
     return {'puzzle': puzzle, 'badge': badge}
 
