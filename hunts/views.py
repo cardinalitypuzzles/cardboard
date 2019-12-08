@@ -99,6 +99,7 @@ class HuntView(LoginRequiredMixin, View):
                     url=puzzle_url,
                     hunt=hunt,
                     sheet=sheet,
+                    is_meta=is_meta,
                     channel=channel_id if channel_id else name
                 )
                 # Announce new puzzle is available on slack.
