@@ -15,7 +15,7 @@ def get_table(puzzles, request):
             status_forms[i].fields["status"].choices =\
                 [(status, status) for status in Puzzle.VISIBLE_STATUS_CHOICES]
 
-    meta_forms = [MetaPuzzleForm(initial={'meta_select': p.metas.all()}, instance=p) for p in puzzles]
+    meta_forms = [MetaPuzzleForm(initial={'metas': p.metas.all()}, instance=p) for p in puzzles]
 
     context = {
         'rows': zip(puzzles, status_forms, meta_forms),
