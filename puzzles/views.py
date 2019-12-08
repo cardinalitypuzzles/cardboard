@@ -77,7 +77,7 @@ def slack_guess(request):
 @login_required(login_url='/accounts/login/')
 def set_metas(request, pk):
     if request.method == 'POST':
-        form = MetaPuzzleForm(request.POST)
+        form = MetaPuzzleForm(request.POST, instance=get_object_or_404(Puzzle, pk=pk))
         if form.is_valid():
             puzzle = get_object_or_404(Puzzle, pk=pk)
             metas = form.cleaned_data["meta_select"]

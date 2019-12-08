@@ -32,8 +32,14 @@ class MetaChoiceField(forms.ModelMultipleChoiceField):
     def label_from_instance(self, meta):
          return meta.name
 
-class MetaPuzzleForm(forms.Form):
-    meta_select = MetaChoiceField(
+class MetaPuzzleForm(forms.ModelForm):
+    class Meta:
+        model = Puzzle
+        fields = ["metas"]
+    metas = MetaChoiceField(
         required=False,
-        queryset=Puzzle.objects.filter(is_meta=True),
+        queryset=Puzzle.objects.none(),
         widget=forms.CheckboxSelectMultiple)
+    def __init__(self, *args, **kwargs):
+        super(MetaPuzzleForm, self).__init__(*args, **kwargs)
+        self.fields['metas'].queryset = Puzzle.objects.filter(is_meta=True).exclude(pk=self.instance.pk)
