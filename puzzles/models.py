@@ -29,7 +29,7 @@ class Puzzle(models.Model):
 
     tags = TaggableManager()
 
-    metas = models.ManyToManyField('self') 
+    metas = models.ManyToManyField('self', symmetrical=False) 
 
     is_meta = models.BooleanField(default=False)
 
