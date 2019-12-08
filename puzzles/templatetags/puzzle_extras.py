@@ -1,5 +1,5 @@
 from django import template
-from puzzles.models import Puzzle, MetaPuzzle
+from puzzles.models import Puzzle
 from puzzles.forms import StatusForm, MetaPuzzleForm
 from answers.forms import AnswerForm
 
@@ -26,7 +26,7 @@ def get_table(puzzles, request):
 @register.inclusion_tag('title.html')
 def get_title(puzzle):
     badge = ''
-    if MetaPuzzle.objects.filter(pk=puzzle.pk).exists():
+    if puzzle.is_meta:
         badge = 'META'
     return {'puzzle': puzzle, 'badge': badge}
 

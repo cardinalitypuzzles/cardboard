@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Puzzle, MetaPuzzle
+from .models import Puzzle
 from answers.models import Answer
 
 class AnswerInline(admin.TabularInline):
@@ -10,10 +10,4 @@ class PuzzleAdmin(admin.ModelAdmin):
         AnswerInline,
     ]
 
-class MetaPuzzleAdmin(admin.ModelAdmin):
-    inlines = [
-        AnswerInline,
-    ]
-
 admin.site.register(Puzzle, PuzzleAdmin)
-admin.site.register(MetaPuzzle, MetaPuzzleAdmin)

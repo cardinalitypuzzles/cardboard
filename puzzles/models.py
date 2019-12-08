@@ -29,6 +29,10 @@ class Puzzle(models.Model):
 
     tags = TaggableManager()
 
+    metas = models.ManyToManyField('self') 
+
+    is_meta = models.BooleanField(default=False)
+
     def __str__(self):
         return self.name
 
@@ -54,13 +58,8 @@ class Puzzle(models.Model):
         return ', '.join(self.tags.names())
 
 
-class MetaPuzzle(Puzzle):
-    feeders = models.ManyToManyField('Puzzle', related_name='metas')
-
-
 def is_unassigned_channel(channel_id):
     '''
-    Returns true if channel_id is not assigned to any Puzzle or MetaPuzzle object.
+    Returns true if channel_id is not assigned to any Puzzle object.
     '''
-    return not (Puzzle.objects.filter(channel=channel_id) or
-                MetaPuzzle.objects.filter(channel=channel_id))
+    return not (Puzzle.objects.filter(channel=channel_id))
