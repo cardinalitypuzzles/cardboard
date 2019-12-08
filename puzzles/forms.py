@@ -1,5 +1,5 @@
 from django import forms
-from .models import Puzzle, MetaPuzzle
+from .models import Puzzle 
 
 class PuzzleForm(forms.Form):
     name = forms.CharField(
@@ -35,5 +35,5 @@ class MetaChoiceField(forms.ModelMultipleChoiceField):
 class MetaPuzzleForm(forms.Form):
     meta_select = MetaChoiceField(
         required=False,
-        queryset=MetaPuzzle.objects.all(),
+        queryset=Puzzle.objects.filter(is_meta=True),
         widget=forms.CheckboxSelectMultiple)

@@ -14,7 +14,7 @@ from .forms import HuntForm
 from .models import Hunt
 from google_drive_lib.google_drive_client import GoogleDriveClient
 from puzzles.forms import PuzzleForm
-from puzzles.models import Puzzle, MetaPuzzle
+from puzzles.models import Puzzle 
 from slack_lib.slack_client import SlackClient
 
 
@@ -72,13 +72,10 @@ class HuntView(LoginRequiredMixin, View):
             puzzle_url = url_normalize(form.cleaned_data["url"])
             is_meta = form.cleaned_data["is_meta"]
 
-            puzzle_class = MetaPuzzle if is_meta else Puzzle
-
             # Early termination -- if a puzzle with given name or URL exists, don't try to create
             # a new sheet or slack channel. This is purely an optimization to avoid dangling
             # google sheets / slack channels.
-            already_exists = (Puzzle.objects.filter(Q(name=name) | Q(url=puzzle_url)).exists() or
-                             MetaPuzzle.objects.filter(Q(name=name) | Q(url=puzzle_url)).exists())
+            already_exists = Puzzle.objects.filter(Q(name=name) | Q(url=puzzle_url)).exists()
             if already_exists:
                 return self.__handle_dup_puzzle(request)
 
@@ -97,7 +94,7 @@ class HuntView(LoginRequiredMixin, View):
                 messages.warning(request, "Slack channel not created")
 
             try:
-                puzzle_class.objects.create(
+                Puzzle.objects.create(
                     name=name,
                     url=puzzle_url,
                     hunt=hunt,
