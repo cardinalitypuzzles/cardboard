@@ -98,6 +98,8 @@ $(document).ready(function() {
         return $(value).find('select').val();
     };
 
+    // For checkbox fields, each entry should only be searchable by the
+    // currently checked values.
     $.fn.dataTableExt.ofnSearch['checkbox-input'] = function(value) {
         var search_str = "";
         var checked = $(value).find(":checked").each( function () {
