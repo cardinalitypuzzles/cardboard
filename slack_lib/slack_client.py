@@ -1,7 +1,7 @@
 import os
 import slack
 
-from puzzles.models import is_unassigned_channel
+from puzzles.models import *
 
 from django.conf import settings
 
