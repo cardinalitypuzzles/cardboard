@@ -79,12 +79,12 @@ class HuntView(LoginRequiredMixin, View):
             if already_exists:
                 return self.__handle_dup_puzzle(request)
 
-            # TODO(erwaman): Add error handling and refactor into google drive lib.
+            # TODO(erwa): Add error handling and refactor into google drive lib.
             google_drive_client = GoogleDriveClient.getInstance()
             if google_drive_client:
                 sheet = google_drive_client.create_google_sheets(name)
             else:
-                # TODO(erwaman): This should incur a warning.
+                # TODO(erwa): This should incur a warning.
                 sheet = puzzle_url
 
             # TODO(asdfryan): Add error handling and refactor into slack lib.
