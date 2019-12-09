@@ -77,6 +77,8 @@ class Puzzle(models.Model):
 
         # If previously a metapuzzle, but no longer one.
         if self.is_meta and not new_is_meta:
+            # TODO(asdfryan): Consider auto-deleting the relevant meta
+            # assignments instead of raising error.
             if (Puzzle.objects.filter(metas__id=self.pk)):
                 raise InvalidMetaPuzzleError(
                     "Metapuzzles can only be deleted or made non-meta if no "

@@ -97,6 +97,8 @@ def edit_puzzle(request, pk):
             puzzle = get_object_or_404(Puzzle, pk=pk)
             try:
                 puzzle.update_metadata(new_name, new_url, new_is_meta)
+                # TODO(asdfryan): Consider also renaming the slack channel to match the
+                # new puzzle name.
             except (DuplicatePuzzleNameError, DuplicatePuzzleUrlError, InvalidMetaPuzzleError) as e:
                messages.error(request, str(e))
 
