@@ -1,4 +1,5 @@
 from django import template
+from django.conf import settings
 from puzzles.models import Puzzle
 from puzzles.forms import StatusForm, MetaPuzzleForm, PuzzleForm
 from answers.forms import AnswerForm
@@ -22,6 +23,7 @@ def get_table(puzzles, request):
     context = {
         'rows': zip(puzzles, status_forms, meta_forms, edit_forms),
         'guess_form': AnswerForm(),
+        'slack_base_url': settings.SLACK_BASE_URL,
     }
     return context
 
