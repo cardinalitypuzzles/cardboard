@@ -183,7 +183,7 @@ else:
                     'Automatic sheets creation disabled.')
 
 # Slack API
-SLACK_BASE_URL = os.environ.get("SLACK_BASE_URL", "https://cardinality-puzzles.slack.com")
+SLACK_BASE_URL = os.environ.get("SLACK_BASE_URL", None)
 if SLACK_BASE_URL:
     SLACK_BASE_URL = SLACK_BASE_URL.rstrip('/')
 else:
