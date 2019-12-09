@@ -7,4 +7,5 @@ urlpatterns = [
     path("guess/<int:pk>/", views.guess, name="guess"),
     path("slack_guess/", views.slack_guess, name="slack_guess"),
     path("meta/<int:pk>/", views.set_metas),
+    path("edit/<int:pk>/", views.edit_puzzle),
 ]

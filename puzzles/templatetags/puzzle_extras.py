@@ -1,6 +1,6 @@
 from django import template
 from puzzles.models import Puzzle
-from puzzles.forms import StatusForm, MetaPuzzleForm
+from puzzles.forms import StatusForm, MetaPuzzleForm, PuzzleForm
 from answers.forms import AnswerForm
 
 register = template.Library()
@@ -17,8 +17,10 @@ def get_table(puzzles, request):
 
     meta_forms = [MetaPuzzleForm(initial={'metas': p.metas.all()}, instance=p) for p in puzzles]
 
+    edit_forms = [PuzzleForm(initial={'name': p.name, 'url': p.url, 'is_meta': p.is_meta}) for p in puzzles]
+
     context = {
-        'rows': zip(puzzles, status_forms, meta_forms),
+        'rows': zip(puzzles, status_forms, meta_forms, edit_forms),
         'guess_form': AnswerForm(),
     }
     return context

@@ -3,6 +3,26 @@ from django.db.models import Q
 from taggit.managers import TaggableManager
 from answers.models import Answer
 
+class PuzzleModelError(Exception):
+    '''Base class for puzzle exceptions'''
+    pass
+
+
+class DuplicatePuzzleNameError(PuzzleModelError):
+    '''Raised when there is a duplicate puzzle name is found.'''
+    pass
+
+
+class DuplicatePuzzleUrlError(PuzzleModelError):
+    '''Raised when there is a duplicate puzzle url is found.'''
+    pass
+
+class InvalidMetaPuzzleError(PuzzleModelError):
+    '''Raised when the meta status of a puzzle is invalid (i.e. cycles, dangling
+    metas).'''
+    pass
+
+
 class Puzzle(models.Model):
     name = models.CharField(max_length=80, unique=True)
     hunt = models.ForeignKey('hunts.Hunt', on_delete=models.CASCADE, related_name='puzzles')
@@ -35,6 +55,39 @@ class Puzzle(models.Model):
 
     def __str__(self):
         return self.name
+
+    def update_metadata(self, new_name, new_url, new_is_meta):
+        '''
+        Atomically updates the name/url/is_meta fields of the puzzle on valid
+        input. Inputs are invalid if:
+        * Another puzzle shares the same name or URL.
+        * If new_is_meta is set to false, and another puzzle has an assigned
+        * meta pointing to self.
+        Raises exception on invalid input.
+        '''
+        if self.name != new_name:
+            if Puzzle.objects.filter(~Q(id=self.pk), Q(name=new_name)):
+                raise DuplicatePuzzleNameError(
+                    "Name %s is already taken by another puzzle." % new_name)
+
+        if self.url != new_url:
+            if Puzzle.objects.filter(~Q(id=self.pk), Q(url=new_url)):
+                raise DuplicatePuzzleUrlError(
+                    "URL %s is already taken by another puzzle." % new_url)
+
+        # If previously a metapuzzle, but no longer one.
+        if self.is_meta and not new_is_meta:
+            if (Puzzle.objects.filter(metas__id=self.pk)):
+                raise InvalidMetaPuzzleError(
+                    "Metapuzzles can only be deleted or made non-meta if no "
+                    "other puzzles are assigned to it.")
+
+        self.name = new_name
+        self.url = new_url
+        self.is_meta = new_is_meta
+
+        self.save()
+
 
     def set_answer(self, answer):
         self.answer = answer
