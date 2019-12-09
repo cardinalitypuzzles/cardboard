@@ -189,6 +189,7 @@ if SLACK_BASE_URL:
 else:
     logger.warn('No SLACK_BASE_URL configured. Slack links will not work.')
 
+# TODO(erwa): Validate that SLACK_API_TOKEN works for SLACK_BASE_URL workspace.
 SLACK_API_TOKEN = os.environ.get("SLACK_API_TOKEN", None)
 if not SLACK_API_TOKEN:
     logger.warn('No SLACK_API_TOKEN environment variable set. All Slack operations will be no-ops.')
