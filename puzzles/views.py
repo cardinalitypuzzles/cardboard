@@ -7,9 +7,10 @@ from django.http import HttpResponse
 from django.http import HttpResponseForbidden
 from django.http import HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
+from url_normalize import url_normalize
 
-from .models import Puzzle
-from .forms import StatusForm, MetaPuzzleForm
+from .models import *
+from .forms import StatusForm, MetaPuzzleForm, PuzzleForm
 from answers.models import Answer
 from answers.forms import AnswerForm
 
@@ -84,3 +85,22 @@ def set_metas(request, pk):
             puzzle.metas.set(metas)
 
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+@login_required(login_url='/accounts/login/')
+def edit_puzzle(request, pk):
+    if request.method == 'POST':
+        form = PuzzleForm(request.POST)
+        if form.is_valid():
+            new_name = form.cleaned_data["name"]
+            new_url = url_normalize(form.cleaned_data["url"])
+            new_is_meta = form.cleaned_data["is_meta"]
+            puzzle = get_object_or_404(Puzzle, pk=pk)
+            try:
+                puzzle.update_metadata(new_name, new_url, new_is_meta)
+                # TODO(asdfryan): Consider also renaming the slack channel to match the
+                # new puzzle name.
+            except (DuplicatePuzzleNameError, DuplicatePuzzleUrlError, InvalidMetaPuzzleError) as e:
+               messages.error(request, str(e))
+
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
