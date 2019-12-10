@@ -104,3 +104,15 @@ def edit_puzzle(request, pk):
 
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
+@login_required(login_url='/accounts/login/')
+def delete_puzzle(request, pk):
+    if request.method == 'POST':
+        puzzle = get_object_or_404(Puzzle, pk=pk)
+        if puzzle.is_meta and Puzzle.objects.filter(metas__id=pk):
+            messages.error(request,
+                "Metapuzzles can only be deleted or made non-meta if no "
+                "other puzzles are assigned to it.")
+        else:
+            puzzle.delete()
+
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
