@@ -154,7 +154,9 @@ import dj_database_url
 DATABASES = {}
 DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=False)
 
-ACTIVE_HUNT_ID = 1
+ACTIVE_HUNT_ID = os.environ.get("ACTIVE_HUNT_ID", '')
+if not ACTIVE_HUNT_ID:
+    logger.warn("No ACTIVE_HUNT_ID set. Links may not work properly.")
 
 # Google Drive API
 GOOGLE_DRIVE_API_AUTHN_INFO = None
