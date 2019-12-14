@@ -1,8 +1,14 @@
 from django import template
 from django.conf import settings
-from puzzles.models import Puzzle
-from puzzles.forms import StatusForm, MetaPuzzleForm, PuzzleForm
+from puzzles.models import Puzzle, PuzzleTag
+from puzzles.forms import StatusForm, MetaPuzzleForm, PuzzleForm, TagForm
 from answers.forms import AnswerForm
+
+DEFAULT_TAGS = [
+    ('HIGH PRIORITY', PuzzleTag.RED),
+    ('LOW PRIORITY', PuzzleTag.YELLOW),
+    ('BACKSOLVED', PuzzleTag.BLUE)
+]
 
 register = template.Library()
 
@@ -20,8 +26,12 @@ def get_table(puzzles, request):
 
     edit_forms = [PuzzleForm(initial={'name': p.name, 'url': p.url, 'is_meta': p.is_meta}) for p in puzzles]
 
+    # this caches Puzzle.tags.all() for all the tag forms
+    Puzzle.objects.all().prefetch_related('tags')
+    tag_forms = [TagForm() for p in puzzles]
+
     context = {
-        'rows': zip(puzzles, status_forms, meta_forms, edit_forms),
+        'rows': zip(puzzles, status_forms, meta_forms, edit_forms, tag_forms),
         'guess_form': AnswerForm(),
         'slack_base_url': settings.SLACK_BASE_URL,
     }
@@ -47,3 +57,21 @@ def puzzle_class(puzzle):
         return "table-danger"
     else:
         return ""
+
+
+@register.inclusion_tag('show_tags.html')
+def show_tags(puzzle, tag_form, request):
+    all_tags = dict(
+        DEFAULT_TAGS +
+        [(t.name, t.color) for t in Puzzle.tags.all()]
+    )
+    current_tags = [(t.name, t.color) for t in puzzle.tags.all()]
+    suggestions = [t for t in all_tags.items() if t not in current_tags]
+
+    context = {
+        'puzzle': puzzle,
+        'current_tags': current_tags,
+        'tag_form': tag_form,
+        'suggestions': suggestions
+    }
+    return context

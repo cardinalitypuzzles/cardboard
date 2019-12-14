@@ -1,6 +1,6 @@
 {% load puzzle_extras %}
 
-<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+<script src="https://kit.fontawesome.com/cddeb3e966.js" crossorigin="anonymous"></script>
 
 <table class="table table-sm" id="puzzles" style="width:100%">
     <thead>
@@ -12,11 +12,11 @@
             <th scope="col">Slack</th>
             <th scope="col">Tags</th>
             <th scope="col"></th>
-            <th scope="col">Assigned Meta</th>
+            <th scope="col">Meta</th>
         </tr>
     </thead>
     <tbody>
-        {% for p, status_form, meta_form, edit_form in rows %}
+        {% for p, status_form, meta_form, edit_form, tag_form in rows %}
         <tr class="{% puzzle_class p %}">
             <th scope="row">
                 {% get_title p %}
@@ -92,7 +92,7 @@
             <td><a href="{{ p.sheet }}">Link</a></td>
             <td><a href="{{ slack_base_url }}/app_redirect?channel={{ p.channel }}">Link</a></td>
             <td>
-              {{ p.get_tag_names }}
+                {% show_tags p tag_form request %}
             </td>
             <td>
                 {% if p.status != "SOLVED" %}
