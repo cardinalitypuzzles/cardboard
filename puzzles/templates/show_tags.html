@@ -1,0 +1,55 @@
+{% for tag, class in current_tags %}
+    <form method="post" action="/puzzles/remove_tag/{{ puzzle.pk }}/{{tag}}">
+        {% csrf_token %}
+        <small>
+            <span class="badge badge-{{class}}">{{tag}}</span>
+            <button type="submit" class="btn btn-default" style="padding: 0px 0px;">
+                <i class="fa fa-xs fa-times"></i>
+            </button>
+        </small>
+    </form>
+{% endfor %}
+
+<button type="button" class="btn btn-default" data-toggle="modal" data-target="#addtag-{{ puzzle.pk }}" style="padding: 0px 0px;">
+    <i class="fa fa-xs fa-plus" aria-hidden="true"></i>
+</button>
+
+<div class="modal fade" id="addtag-{{ puzzle.pk }}" tabindex="-1" role="dialog" aria-labelledby="addtag-{{ puzzle.pk }}" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addtag-{{ puzzle.pk }}">Add tag to {{puzzle.name}}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                {% for tag, class in suggestions %}
+                    <form  style="display: inline;" method="post" action="/puzzles/add_tag/{{ puzzle.pk }}/">
+                        {% csrf_token %}
+                        <input type="hidden" name="name" value="{{ tag }}">
+                        <input type="hidden" name="color" value="{{ class }}">
+                        <button type="submit" class="btn btn-{{class}} btn-sm"> {{ tag }} </button>
+                    </form>
+                {% endfor %}
+
+                <button type="button" class="btn btn-info btn-sm" data-toggle="collapse" data-target="#collapseTagInput" aria-expanded="false" aria-controls="collapseTagInput"> Add New Tag.. </button>
+                <div class="collapse" id="collapseTagInput">
+                  <div class="card card-body">
+                    <form method="post" action="/puzzles/add_tag/{{ puzzle.pk }}/">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            {{ tag_form.name }}
+                            {{ tag_form.color }}
+                         <button type="submit" class="btn btn-primary btn-sm">add</button>
+                        </div>
+                    </form>
+                  </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
