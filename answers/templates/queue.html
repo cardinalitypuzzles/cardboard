@@ -23,30 +23,30 @@
         </tr>
     </thead>
     <tbody>
-            {% for ans, form, notes_form in rows%}
-            <tr class="{% answer_class ans %}">
-                <th>{{ ans.created_on }}</th>
-                <td>{% get_title ans.puzzle%}</td>
-                <td><p class="text-monospace">{{ ans.text.upper|strip }}</p></td>
-                <td>
-                    <form action="/answers/queue/{{ hunt_pk }}/{{ ans.id }}" method="post" class="form-inline">
-                        {% csrf_token %}
-                        <div class="form-group">
-                            {{ form.status }}
-                        </div>
-                    </form>
-                </td>
-                <td>
-                   <form action="/answers/update_note/{{ ans.id }}" method="post" class="form-inline">
-                        {% csrf_token %}
-                        <div class="form-group">
-                            {{ notes_form.text }}
-                            <button type="submit" class="btn btn-outline-primary btn-sm">Submit</button>
-                        </div>
-                    </form>
-                </td>
-            </tr>
-            {% endfor %}
+        {% for ans, form, notes_form in rows%}
+        <tr class="{% answer_class ans %}">
+            <th>{{ ans.created_on }}</th>
+            <td>{% get_title ans.puzzle%}</td>
+            <td><p class="text-monospace">{{ ans.text.upper|strip }}</p></td>
+            <td>
+                <form action="/answers/queue/{{ hunt_pk }}/{{ ans.id }}" method="post" class="form-inline">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        {{ form.status }}
+                    </div>
+                </form>
+            </td>
+            <td>
+               <form action="/answers/update_note/{{ ans.id }}" method="post" class="form-inline">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        {{ notes_form.text }}
+                        <button type="submit" class="btn btn-outline-primary btn-sm">Submit</button>
+                    </div>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
     </tbody>
     <tfoot>
         <tr>
