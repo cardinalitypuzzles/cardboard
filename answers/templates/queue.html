@@ -6,13 +6,13 @@
 
 <meta http-equiv="refresh" content="30">
 
-<div class="row justify-content-between">
+<div class="row justify-content-between" style="margin:10">
     <div class="col-10">
         <h1>{{ hunt_name }} - Answer Queue</h1>
     </div>
 </div>
 
-<table class="table table-sm" id="queue">
+<table class="table table-sm" id="queue" style="width:100%">
     <thead>
         <tr>
             <th scope="col">Time</th>
@@ -82,6 +82,8 @@ $(document).ready(function() {
     var table = $('#queue').DataTable( {
         "paging": true,
         "info": true,
+        "scrollX": true,
+        "scrollY": true,
         "columnDefs": [
             { "targets": [0], "type": "date" },
             { "type": "select-input", "orderable": false, "targets": [3] },
