@@ -1,7 +1,6 @@
 from django.db import models
 from django.db.models import Q
 from taggit.managers import TaggableManager
-from taggit.models import TagBase, GenericTaggedItemBase
 from answers.models import Answer
 
 class PuzzleModelError(Exception):
@@ -22,37 +21,6 @@ class InvalidMetaPuzzleError(PuzzleModelError):
     '''Raised when the meta status of a puzzle is invalid (i.e. cycles, dangling
     metas).'''
     pass
-
-
-class PuzzleTag(TagBase):
-    BLUE = "primary"
-    GRAY = "secondary"
-    GREEN = "success"
-    RED = "danger"
-    YELLOW = "warning"
-    WHITE = "light"
-    BLACK = "dark"
-    COLORS = [
-        (BLUE, "blue"),
-        (GRAY, "gray"),
-        (GREEN, "green"),
-        (RED, "red"),
-        (YELLOW, "yellow"),
-        (WHITE, "white"),
-        (BLACK, "black")
-    ]
-    color = models.CharField(
-        max_length=10,
-        choices=COLORS,
-        default=BLUE)
-
-
-class PuzzleTagThrough(GenericTaggedItemBase):
-    tag = models.ForeignKey(
-        PuzzleTag,
-        on_delete=models.CASCADE,
-        related_name="tagged_items",
-    )
 
 
 class Puzzle(models.Model):
@@ -79,9 +47,9 @@ class Puzzle(models.Model):
         default=SOLVING)
     answer = models.CharField(max_length=128)
 
-    tags = TaggableManager(through=PuzzleTagThrough)
+    tags = TaggableManager()
 
-    metas = models.ManyToManyField('self', symmetrical=False)
+    metas = models.ManyToManyField('self', symmetrical=False) 
 
     is_meta = models.BooleanField(default=False)
 
@@ -140,6 +108,9 @@ class Puzzle(models.Model):
             self.status = Puzzle.SOLVING
 
         self.save()
+
+    def get_tag_names(self):
+        return ', '.join(self.tags.names())
 
 
 def is_unassigned_channel(channel_id):
