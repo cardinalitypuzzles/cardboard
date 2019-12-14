@@ -1,4 +1,5 @@
 from django import forms
+from django.db.models import Q
 from .models import Puzzle
 
 class PuzzleForm(forms.Form):
@@ -42,4 +43,4 @@ class MetaPuzzleForm(forms.ModelForm):
         widget=forms.CheckboxSelectMultiple)
     def __init__(self, *args, **kwargs):
         super(MetaPuzzleForm, self).__init__(*args, **kwargs)
-        self.fields['metas'].queryset = Puzzle.objects.filter(is_meta=True).exclude(pk=self.instance.pk)
+        self.fields['metas'].queryset = Puzzle.objects.filter(Q(is_meta=True), Q(hunt=self.instance.hunt)).exclude(pk=self.instance.pk)
