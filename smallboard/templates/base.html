@@ -19,26 +19,26 @@
 
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'queue' %}">Answer Queue</a>
-            </li>
-        {% if user.is_authenticated %}
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'logout' %}">Logout</a>
-            </li>
-            <li class="nav-item">
-                <div class="nav-link disabled">Logged in as
-            {% if user.first_name %}
-                {{user.first_name}} {{user.last_name}}
+            {% if user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'queue' %}">Answer Queue</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+                </li>
+                <li class="nav-item">
+                    <div class="nav-link disabled">Logged in as
+                {% if user.first_name %}
+                    {{user.first_name}} {{user.last_name}}
+                {% else %}
+                    {{ user.username }}
+                {% endif %}
+                {% if user.email %}
+                    ({{user.email}})
+                {% endif %}
+                    </div>
+                </li>
             {% else %}
-                {{ user.username }}
-            {% endif %}
-            {% if user.email %}
-                ({{user.email}})
-            {% endif %}
-                </div>
-            </li>
-        {% else %}
             {% if is_google_auth_enabled %}
             <li class="nav-item">
                 <a class="nav-link" href="{% url 'social:begin' 'google-oauth2' %}">Login</a>
