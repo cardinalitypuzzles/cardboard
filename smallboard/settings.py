@@ -218,3 +218,6 @@ if google_drive_client:
     logger.info('Whitelisted emails:', SOCIAL_AUTH_GOOGLE_OAUTH2_WHITELISTED_EMAILS)
 else:
     logger.warn('Google Drive integration not set up. All emails will be accepted.')
+
+# Taggit Overrides
+TAGGIT_TAGS_FROM_STRING = 'puzzles.utils.to_tag'

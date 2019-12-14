@@ -10,7 +10,7 @@ from django.views.decorators.csrf import csrf_exempt
 from url_normalize import url_normalize
 
 from .models import *
-from .forms import StatusForm, MetaPuzzleForm, PuzzleForm
+from .forms import StatusForm, MetaPuzzleForm, PuzzleForm, TagForm
 from answers.models import Answer
 from answers.forms import AnswerForm
 
@@ -115,4 +115,32 @@ def delete_puzzle(request, pk):
         else:
             puzzle.delete()
 
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+
+@login_required(login_url='/accounts/login/')
+def add_tag(request, pk):
+    if request.method == 'POST':
+        form = TagForm(request.POST)
+        if form.is_valid():
+            puzzle = get_object_or_404(Puzzle, pk=pk)
+            (tag, _) = PuzzleTag.objects.update_or_create(
+                name=form.cleaned_data["name"],
+                defaults={'color' : form.cleaned_data["color"]}
+            )
+            puzzle.tags.add(tag)
+        else:
+            messages.error(request, form)
+
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+
+@login_required(login_url='/accounts/login/')
+def remove_tag(request, pk, tag):
+    if request.method == 'POST':
+        puzzle = get_object_or_404(Puzzle, pk=pk)
+        if puzzle.tags.filter(name=tag).exists():
+            puzzle.tags.remove(tag)
+        else:
+            messages.error(request, "Could not find tag to remove")
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))

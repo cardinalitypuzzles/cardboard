@@ -1,6 +1,6 @@
 from django import forms
 from django.db.models import Q
-from .models import Puzzle
+from .models import Puzzle, PuzzleTag
 
 class PuzzleForm(forms.Form):
     name = forms.CharField(
@@ -27,6 +27,11 @@ class StatusForm(forms.ModelForm):
     status = forms.ChoiceField(
         choices=[(status, status) for status in Puzzle.ALL_STATUSES],
         widget=forms.Select(attrs={"onChange":'this.form.submit();', 'class': 'form-control form-control-sm'}))
+
+
+class TagForm(forms.Form):
+    name = forms.CharField(max_length=128)
+    color = forms.ChoiceField(choices=PuzzleTag.COLORS)
 
 
 class MetaChoiceField(forms.ModelMultipleChoiceField):
