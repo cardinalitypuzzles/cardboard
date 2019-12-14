@@ -43,10 +43,6 @@ class HuntView(LoginRequiredMixin, View):
     login_url = '/accounts/login/'
     redirect_field_name = 'next'
 
-    def __get_sorted_puzzles(self, hunt):
-        return hunt.puzzles.all()
-
-
     def get(self, request, pk):
         if not Hunt.objects.filter(pk=pk).exists():
             return index(request)
@@ -57,7 +53,7 @@ class HuntView(LoginRequiredMixin, View):
             'request': request,
             'hunt_name': hunt.name,
             'hunt_pk': pk,
-            'puzzles': self.__get_sorted_puzzles(hunt),
+            'puzzles': hunt.puzzles.all(),
             'form': form
         }
         return render(request, 'all_puzzles.html', context)
