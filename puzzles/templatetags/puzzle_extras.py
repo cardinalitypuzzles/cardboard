@@ -52,8 +52,8 @@ def get_table(puzzles, request):
     sortkeys = generate_sortkeys(puzzles)
     sorted_puzzles = sorted(puzzles, key=lambda p: sortkeys[p.pk])
 
-    def __get_depth(puzzle):
-        return max(0, sortkeys[puzzle.pk].count('-') - 1)
+    def __get_offset(puzzle):
+        return max(0, 20 * sortkeys[puzzle.pk].count('-') - 1)
 
     status_forms = [StatusForm(initial={'status': p.status}) for p in sorted_puzzles]
     for (i, p) in enumerate(puzzles):
@@ -72,10 +72,10 @@ def get_table(puzzles, request):
     tag_forms = [TagForm() for p in sorted_puzzles]
 
     # This is used for hierarchical formatting.
-    depth = [__get_depth(p) for p in sorted_puzzles]
+    offset = [__get_offset(p) for p in sorted_puzzles]
 
     context = {
-        'rows': zip(sorted_puzzles, status_forms, meta_forms, edit_forms, tag_forms, depth),
+        'rows': zip(sorted_puzzles, status_forms, meta_forms, edit_forms, tag_forms, offset),
         'guess_form': AnswerForm(),
         'slack_base_url': settings.SLACK_BASE_URL,
     }

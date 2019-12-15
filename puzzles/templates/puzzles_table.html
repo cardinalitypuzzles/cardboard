@@ -16,16 +16,18 @@
         </tr>
     </thead>
     <tbody>
-        {% for p, status_form, meta_form, edit_form, tag_form, depth in rows %}
+        {% for p, status_form, meta_form, edit_form, tag_form, offset in rows %}
         <tr class="{% puzzle_class p %}">
             <th scope="row">
-                {% get_title p %}
-                <button type="button" class="btn btn-default" data-toggle="modal" data-target="#editpuzzle-{{ p.pk }}" style="padding: 0px 0px;">
-                    <i class="fa fa-edit" aria-hidden="true"></i>
-                </button>
-                <button type="button" class="btn btn-default" data-toggle="modal" data-target="#deletepuzzle-{{ p.pk }}" style="padding: 0px 0px;">
-                    <i class="fa fa-trash-o" aria-hidden="true"></i>
-                </button>
+                <div class="puzzle-title-content" style="margin-left:{{offset}}px">
+                    {% get_title p %}
+                    <button type="button" class="btn btn-default" data-toggle="modal" data-target="#editpuzzle-{{ p.pk }}" style="padding: 0px 0px;">
+                        <i class="fa fa-edit" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" class="btn btn-default" data-toggle="modal" data-target="#deletepuzzle-{{ p.pk }}" style="padding: 0px 0px;">
+                        <i class="fa fa-trash-o" aria-hidden="true"></i>
+                    </button>
+                </div>
                 <div class="modal fade" id="editpuzzle-{{ p.pk }}" tabindex="-1" role="dialog" aria-labelledby="edittitle-{{ p.pk }}" aria-hidden="true">
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">
