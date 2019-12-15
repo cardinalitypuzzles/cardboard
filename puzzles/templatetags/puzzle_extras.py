@@ -70,6 +70,7 @@ def show_tags(puzzle, tag_form, request):
         [(t.name, t.color) for t in Puzzle.tags.all()]
     )
     current_tags = [(t.name, t.color) for t in puzzle.tags.all()]
+    current_tags.sort(key=lambda item: (PuzzleTag.COLOR_ORDERING[item[1]], item[0]))
     suggestions = [t for t in all_tags.items() if t not in current_tags]
     suggestions.sort(key=lambda item: (PuzzleTag.COLOR_ORDERING[item[1]], item[0]))
 
