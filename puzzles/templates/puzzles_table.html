@@ -171,6 +171,15 @@ $(document).ready(function() {
         return search_str;
     };
 
+    // For tags, each entry should be searchable by existing badges.
+    $.fn.dataTableExt.ofnSearch['tag-input'] = function(value) {
+        var search_str = "";
+        var checked = $(value).find(".badge").each( function () {
+            search_str += $(this).text()
+        } );
+        return search_str;
+    };
+
     // Add a text input for each footer cell that is column_searchable.
     $('#puzzles .column_searchable').each( function () {
         var col_name = $(this).text();
@@ -188,6 +197,7 @@ $(document).ready(function() {
         "columnDefs": [
             { "orderable": false, "targets": [0, 1, 2, 3, 4, 5, 6, 7] },
             { "type": "select-input", "targets": [2] },
+            { "type": "tag-input", "targets": [5] },
             { "type": "checkbox-input", "targets": [7] },
         ]
     } );
