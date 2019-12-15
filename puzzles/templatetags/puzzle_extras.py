@@ -79,12 +79,24 @@ def get_table(puzzles, request):
     return context
 
 @register.inclusion_tag('title.html')
-def get_title(puzzle):
+def get_title(puzzle, edit_form):
     badge = ''
     if puzzle.is_meta:
         badge = 'META'
-    return {'puzzle': puzzle, 'badge': badge}
+    context = {
+        'puzzle': puzzle,
+        'badge': badge,
+        'edit_form': edit_form
+    }
+    return context
 
+@register.inclusion_tag('assign_metas.html')
+def assign_metas(puzzle, meta_form):
+    context = {
+        'puzzle': puzzle,
+        'meta_form': meta_form
+    }
+    return context
 
 
 @register.inclusion_tag('show_tags.html')
