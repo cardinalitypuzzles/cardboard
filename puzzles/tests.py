@@ -44,7 +44,7 @@ class TestPuzzle(TestCase):
         self.assertTrue(is_ancestor(meta3, meta1))
 
     def test_empty_tree(self):
-        self.assertEqual(PuzzleTree([]).get_sorted_nodes(), [])
+        self.assertEqual(PuzzleTree([]).get_sorted_node_parent_pairs(), [])
 
     def test_basic_tree(self):
         meta1 = self.create_puzzle("unit_meta1", True)
@@ -58,23 +58,34 @@ class TestPuzzle(TestCase):
 
         puzzle_dangling = self.create_puzzle("unit_puzzle_dangling")
 
-        sorted_nodes = PuzzleTree([puzzle1_1, puzzle1_2, meta1, puzzle_dangling]).get_sorted_nodes()
+        np_pairs = PuzzleTree([puzzle1_1, puzzle1_2, meta1, puzzle_dangling]).get_sorted_node_parent_pairs()
 
-        expected = ["unit_puzzle_dangling", "unit_meta1", "unit_puzzle1-2", "unit_puzzle1-1"]
-        self.assertEqual([node.puzzle.__str__() for node in sorted_nodes], expected)
+        expected = ["node: unit_puzzle_dangling parent: None",
+                    "node: unit_meta1 parent: None",
+                    "node: unit_puzzle1-2 parent: unit_meta1",
+                    "node: unit_puzzle1-1 parent: unit_meta1"]
+        self.assertEqual([pair.__str__() for pair in np_pairs], expected)
 
     def test_overlapping_metas_tree(self):
         meta1 = self.create_puzzle("unit_meta1", True)
         meta2 = self.create_puzzle("unit_meta2", True)
-        puzzle1 = self.create_puzzle("unit_puzzle1")
+        puzzle1 = self.create_puzzle("unit_puzzle1", True)
         puzzle2 = self.create_puzzle("unit_puzzle2")
 
         puzzle1.metas.add(meta1)
         puzzle1.metas.add(meta2)
         puzzle2.metas.add(meta1)
         puzzle2.metas.add(meta2)
+        puzzle2.metas.add(puzzle1)
 
-        sorted_nodes = PuzzleTree([puzzle1, puzzle2, meta1, meta2]).get_sorted_nodes()
+        np_pairs = PuzzleTree([puzzle1, puzzle2, meta1, meta2]).get_sorted_node_parent_pairs()
 
-        expected = ["unit_meta1", "unit_puzzle1", "unit_puzzle2", "unit_meta2", "unit_puzzle1", "unit_puzzle2"]
-        self.assertEqual([node.puzzle.__str__() for node in sorted_nodes], expected)
+        expected = ["node: unit_meta1 parent: None",
+                    "node: unit_puzzle2 parent: unit_meta1",
+                    "node: unit_puzzle1 parent: unit_meta1",
+                    "node: unit_puzzle2 parent: unit_puzzle1",
+                    "node: unit_meta2 parent: None",
+                    "node: unit_puzzle2 parent: unit_meta2",
+                    "node: unit_puzzle1 parent: unit_meta2",
+                    "node: unit_puzzle2 parent: unit_puzzle1"]
+        self.assertEqual([pair.__str__() for pair in np_pairs], expected)

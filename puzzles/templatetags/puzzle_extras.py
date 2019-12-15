@@ -32,9 +32,8 @@ def table_status_class(puzzle):
 
 @register.inclusion_tag('puzzles_table.html')
 def get_table(puzzles, request):
-    puzzle_tree = PuzzleTree(puzzles)
-    sorted_nodes = puzzle_tree.get_sorted_nodes()
-    sorted_puzzles = [node.puzzle for node in sorted_nodes]
+    sorted_np_pairs = PuzzleTree(puzzles).get_sorted_node_parent_pairs()
+    sorted_puzzles = [pair.node.puzzle for pair in sorted_np_pairs]
 
     status_forms = [StatusForm(initial={'status': p.status}) for p in sorted_puzzles]
     for (i, p) in enumerate(sorted_puzzles):
@@ -52,24 +51,26 @@ def get_table(puzzles, request):
     Puzzle.objects.all().prefetch_related('tags')
     tag_forms = [TagForm() for p in sorted_puzzles]
 
-    def __get_puzzle_class(sorted_nodes):
-        puzzle_class = [table_status_class(node.puzzle) for node in sorted_nodes]
+    def __get_puzzle_class(sorted_np_pairs):
+        puzzle_class = [table_status_class(pair.node.puzzle) for pair in sorted_np_pairs]
         most_recent_treegrid_id = {}
-        for i, node in enumerate(sorted_nodes):
+        for i, pair in enumerate(sorted_np_pairs):
+            node = pair.node
+            parent = pair.parent
             treegrid_id = i+1
-            most_recent_treegrid_id[sorted_nodes[i].puzzle.pk] = treegrid_id
+            most_recent_treegrid_id[node.puzzle.pk] = treegrid_id
             puzzle_class[i] += " treegrid-%i" % treegrid_id
-            if len(node.parents) > 0 and node.parents[0].puzzle != None:
-                # Most recently seen treegrid_id amongst parents
-                parent_treegrid_id = \
-                    max([most_recent_treegrid_id.get(pnode.puzzle.pk, 0) for pnode in node.parents])
+            if parent and parent.puzzle != None:
+                # Most recently seen treegrid_id for parent
+                parent_treegrid_id = most_recent_treegrid_id.get(parent.puzzle.pk, 0)
                 if parent_treegrid_id > 0:
                     puzzle_class[i] += " treegrid-parent-%i" % parent_treegrid_id
+            # If meta is solved, collapse the subtree.
             if len(node.children) > 0 and node.puzzle.is_solved():
                 puzzle_class[i] += " initial-collapsed"
         return puzzle_class
 
-    puzzle_class = __get_puzzle_class(sorted_nodes)
+    puzzle_class = __get_puzzle_class(sorted_np_pairs)
 
     context = {
         'rows': zip(sorted_puzzles, status_forms, meta_forms, edit_forms, tag_forms, puzzle_class),
