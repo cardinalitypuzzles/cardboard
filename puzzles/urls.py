@@ -10,5 +10,5 @@ urlpatterns = [
     path("edit/<int:pk>/", views.edit_puzzle),
     path("delete/<int:pk>/", views.delete_puzzle),
     path("add_tag/<int:pk>/", views.add_tag),
-    path("remove_tag/<int:pk>/<str:tag>", views.remove_tag),
+    path("remove_tag/<int:pk>/<str:tag_text>", views.remove_tag),
 ]

@@ -1,5 +1,7 @@
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models import Q
+from django.db.models.signals import pre_save, post_save, pre_delete, m2m_changed
 from taggit.managers import TaggableManager
 from taggit.models import TagBase, GenericTaggedItemBase
 from answers.models import Answer
@@ -41,10 +43,21 @@ class PuzzleTag(TagBase):
         (WHITE, "white"),
         (BLACK, "black")
     ]
+    COLOR_ORDERING = {
+        RED: 0,
+        BLACK: 1,
+        WHITE: 2,
+        GRAY: 3,
+        BLUE: 4,
+        GREEN: 5,
+        YELLOW: 6
+    }
     color = models.CharField(
         max_length=10,
         choices=COLORS,
         default=BLUE)
+    # internal flag to know when to sync meta puzzles
+    is_meta = models.BooleanField(default=False)
 
 
 class PuzzleTagThrough(GenericTaggedItemBase):
@@ -81,7 +94,7 @@ class Puzzle(models.Model):
 
     tags = TaggableManager(through=PuzzleTagThrough)
 
-    metas = models.ManyToManyField('self', symmetrical=False)
+    metas = models.ManyToManyField('self', symmetrical=False, related_name="feeders")
 
     is_meta = models.BooleanField(default=False)
 
@@ -97,6 +110,9 @@ class Puzzle(models.Model):
         * meta pointing to self.
         Raises exception on invalid input.
         '''
+        if self.name == new_name and self.url == new_url and self.is_meta == new_is_meta:
+            return
+
         if self.name != new_name:
             if Puzzle.objects.filter(~Q(id=self.pk), Q(name=new_name)):
                 raise DuplicatePuzzleNameError(
@@ -149,6 +165,63 @@ class Puzzle(models.Model):
     def has_assigned_meta(self):
         return len(self.metas.all()) > 0
 
+
+# Hooks for syncing metas and tags
+def update_tags_pre_save(sender, instance, **kwargs):
+    if instance.is_meta:
+        puzzles_needing_new_tag = []
+        if instance.pk is not None:
+            old_instance = Puzzle.objects.get(pk=instance.pk)
+            if not old_instance.is_meta:
+                puzzles_needing_new_tag = [instance]
+            elif old_instance.name != instance.name:
+                instance.tags.filter(name=old_instance.name).delete()
+                puzzles_needing_new_tag = [instance] + list(instance.feeders.all())
+
+        (new_tag, _) = PuzzleTag.objects.update_or_create(
+            name=instance.name,
+            defaults={'color' : PuzzleTag.BLACK, 'is_meta' : True},
+        )
+
+        for p in puzzles_needing_new_tag:
+            p.tags.add(new_tag)
+
+    else:
+        PuzzleTag.objects.filter(name=instance.name).filter(is_meta=True).delete()
+
+
+def update_tags_post_save(sender, instance, **kwargs):
+    # make sure puzzles that already had tag now get assigned the meta
+    # this has to happen post save, since instance has to exist first
+    if instance.is_meta:
+        puzzles_with_tag = Puzzle.objects.filter(tags__name__in=[instance.name]).exclude(name=instance.name)
+        for p in puzzles_with_tag:
+            p.metas.add(instance)
+            p.save()
+
+
+def update_tags_pre_delete(sender, instance, **kwargs):
+    if instance.is_meta:
+        PuzzleTag.objects.filter(name=instance.name).delete()
+
+
+def update_tags_m2m(sender, instance, action, reverse, model, pk_set, **kwargs):
+    if action == "post_add":
+        for pk in pk_set:
+            meta = Puzzle.objects.get(pk=pk)
+            instance.tags.add(meta.name)
+    elif action == "post_remove":
+        for pk in pk_set:
+            meta = Puzzle.objects.get(pk=pk)
+            instance.tags.remove(meta.name)
+    elif action == "post_clear":
+        instance.tags.filter(is_meta=True).exclude(name=instance.name).remove()
+
+
+pre_save.connect(update_tags_pre_save, sender=Puzzle)
+post_save.connect(update_tags_post_save, sender=Puzzle)
+pre_delete.connect(update_tags_pre_delete, sender=Puzzle)
+m2m_changed.connect(update_tags_m2m, sender=Puzzle.metas.through)
 
 def is_unassigned_channel(channel_id):
     '''
