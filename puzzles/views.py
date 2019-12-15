@@ -81,10 +81,20 @@ def slack_guess(request):
 def set_metas(request, pk):
     if request.method == 'POST':
         form = MetaPuzzleForm(request.POST, instance=get_object_or_404(Puzzle, pk=pk))
-        if form.is_valid():
-            puzzle = get_object_or_404(Puzzle, pk=pk)
-            metas = form.cleaned_data["metas"]
-            puzzle.metas.set(metas)
+        if not form.is_valid():
+            messages.error(request, form)
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+        puzzle = get_object_or_404(Puzzle, pk=pk)
+        metas = form.cleaned_data["metas"]
+        # Check if any additional meta would introduce a cycle. If so, then stop the whole transaction.
+        for meta in metas:
+            if meta not in puzzle.metas.all() and is_ancestor(puzzle, meta):
+                messages.error(request,
+                    "Transaction cancelled: unable to assign metapuzzle since doing so would introduce a meta-cycle.")
+                return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+                
+        puzzle.metas.set(metas)
 
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
@@ -124,19 +134,24 @@ def delete_puzzle(request, pk):
 def add_tag(request, pk):
     if request.method == 'POST':
         form = TagForm(request.POST)
-        if form.is_valid():
-            puzzle = get_object_or_404(Puzzle, pk=pk)
-            (tag, _) = PuzzleTag.objects.update_or_create(
-                name=form.cleaned_data["name"],
-                defaults={'color' : form.cleaned_data["color"]}
-            )
-            if tag.is_meta:
-                # the post m2m hook will add tag
-                puzzle.metas.add(Puzzle.objects.get(name=tag.name))
-            else:
-                puzzle.tags.add(tag)
-        else:
+        if not form.is_valid():
             messages.error(request, form)
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+        puzzle = get_object_or_404(Puzzle, pk=pk)
+        (tag, _) = PuzzleTag.objects.update_or_create(
+            name=form.cleaned_data["name"],
+            defaults={'color' : form.cleaned_data["color"]}
+        )
+        if tag.is_meta:
+            metapuzzle = Puzzle.objects.get(name=tag.name)
+            if is_ancestor(puzzle, metapuzzle):
+                messages.error(request,
+                    "Unable to assign metapuzzle since doing so would introduce a meta-cycle.")
+                return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+            # the post m2m hook will add tag
+            puzzle.metas.add(Puzzle.objects.get(name=tag.name))
+        else:
+            puzzle.tags.add(tag)
 
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
@@ -147,18 +162,18 @@ def remove_tag(request, pk, tag_text):
         puzzle = get_object_or_404(Puzzle, pk=pk)
         if puzzle.name == tag_text:
             messages.error(request, "You cannot remove a meta's tag from itself")
-        else:
-            try:
-                tag = puzzle.tags.get(name=tag_text)
-                if tag.is_meta:
-                    # the post m2m hook will remove tag
-                    puzzle.metas.remove(Puzzle.objects.get(name=tag_text))
-                else:
-                    puzzle.tags.remove(tag_text)
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+        try:
+            tag = puzzle.tags.get(name=tag_text)
+            if tag.is_meta:
+                # the post m2m hook will remove tag
+                puzzle.metas.remove(Puzzle.objects.get(name=tag_text))
+            else:
+                puzzle.tags.remove(tag_text)
 
-                # clear db of dangling tags
-                if not tag.tagged_items.exists():
-                    tag.delete()
-            except ObjectDoesNotExist as e:
-                messages.error(request, "Could not find the tag {} to remove".format(tag_text))
+            # clear db of dangling tags
+            if not tag.tagged_items.exists():
+                tag.delete()
+        except ObjectDoesNotExist as e:
+            messages.error(request, "Could not find the tag {} to remove".format(tag_text))
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
