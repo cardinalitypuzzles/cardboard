@@ -30,7 +30,7 @@ def update_tags_pre_save(sender, instance, **kwargs):
 
 
 @receiver(post_save, sender=Puzzle)
-def update_tags_post_save(sender, instance, **kwargs):
+def update_tags_post_save(sender, instance, created, **kwargs):
     # make sure puzzles that already had tag now get assigned the meta
     # this has to happen post save, since instance has to exist first
     if instance.is_meta:
@@ -38,6 +38,9 @@ def update_tags_post_save(sender, instance, **kwargs):
         for p in puzzles_with_tag:
             p.metas.add(instance)
             p.save()
+
+        if created:
+            instance.tags.add(PuzzleTag.objects.get(name=instance.name))
 
 
 @receiver(pre_delete, sender=Puzzle)
