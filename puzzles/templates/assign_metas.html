@@ -1,0 +1,27 @@
+<button type="button" class="btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#meta-{{ puzzle.pk }}">
+    assign meta
+</button>
+<div class="modal fade" id="meta-{{ puzzle.pk }}" tabindex="-1" role="dialog" aria-labelledby="metatitle-{{ puzzle.pk }}" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="metatitle-{{ puzzle.pk }}">Assign Meta</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post" action="/puzzles/meta/{{ puzzle.pk }}/">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="form-group">
+                        {{ meta_form.metas }}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Assign</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
