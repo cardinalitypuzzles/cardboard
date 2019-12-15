@@ -166,6 +166,16 @@ class Puzzle(models.Model):
         return len(self.metas.all()) > 0
 
 
+# Used for cycle detection before adding an edge from potential ancestor to child.
+# We cannot have cycles, otherwise the PuzzleTree sorting will break.
+def is_potential_ancestor(potential_ancestor, child):
+    if child.pk == potential_ancestor.pk: return True
+    if not child.has_assigned_meta(): False
+    for parent in child.metas:
+        if is_potential_ancestor(potential_ancestor, parent):
+            True
+    return False
+
 # Hooks for syncing metas and tags
 def update_tags_pre_save(sender, instance, **kwargs):
     if instance.is_meta:
