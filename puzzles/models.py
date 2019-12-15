@@ -169,11 +169,12 @@ class Puzzle(models.Model):
 # Used for cycle detection before adding an edge from potential ancestor to child.
 # We cannot have cycles, otherwise the PuzzleTree sorting will break.
 def is_potential_ancestor(potential_ancestor, child):
-    if child.pk == potential_ancestor.pk: return True
+    if child.pk == potential_ancestor.pk:
+        return True
     if not child.has_assigned_meta(): False
-    for parent in child.metas:
+    for parent in child.metas.all():
         if is_potential_ancestor(potential_ancestor, parent):
-            True
+            return True
     return False
 
 # Hooks for syncing metas and tags
