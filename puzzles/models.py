@@ -5,6 +5,7 @@ from django.db.models.signals import pre_save, post_save, pre_delete, m2m_change
 from taggit.managers import TaggableManager
 from taggit.models import TagBase, GenericTaggedItemBase
 from answers.models import Answer
+from .puzzle_tag import PuzzleTagThrough
 
 class PuzzleModelError(Exception):
     '''Base class for puzzle exceptions'''
@@ -24,48 +25,6 @@ class InvalidMetaPuzzleError(PuzzleModelError):
     '''Raised when the meta status of a puzzle is invalid (i.e. cycles, dangling
     metas).'''
     pass
-
-
-class PuzzleTag(TagBase):
-    BLUE = "primary"
-    GRAY = "secondary"
-    GREEN = "success"
-    RED = "danger"
-    YELLOW = "warning"
-    WHITE = "light"
-    BLACK = "dark"
-    COLORS = [
-        (BLUE, "blue"),
-        (GRAY, "gray"),
-        (GREEN, "green"),
-        (RED, "red"),
-        (YELLOW, "yellow"),
-        (WHITE, "white"),
-        (BLACK, "black")
-    ]
-    COLOR_ORDERING = {
-        RED: 0,
-        BLACK: 1,
-        WHITE: 2,
-        GRAY: 3,
-        BLUE: 4,
-        GREEN: 5,
-        YELLOW: 6
-    }
-    color = models.CharField(
-        max_length=10,
-        choices=COLORS,
-        default=BLUE)
-    # internal flag to know when to sync meta puzzles
-    is_meta = models.BooleanField(default=False)
-
-
-class PuzzleTagThrough(GenericTaggedItemBase):
-    tag = models.ForeignKey(
-        PuzzleTag,
-        on_delete=models.CASCADE,
-        related_name="tagged_items",
-    )
 
 
 class Puzzle(models.Model):

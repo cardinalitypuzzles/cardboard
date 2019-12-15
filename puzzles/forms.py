@@ -1,6 +1,7 @@
 from django import forms
 from django.db.models import Q
-from .models import Puzzle, PuzzleTag
+from .models import Puzzle
+from .puzzle_tag import PuzzleTag
 
 class PuzzleForm(forms.Form):
     name = forms.CharField(
