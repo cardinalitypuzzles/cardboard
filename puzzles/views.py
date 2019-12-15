@@ -133,7 +133,7 @@ def delete_puzzle(request, pk):
 def add_tag(request, pk):
     if request.method == 'POST':
         form = TagForm(request.POST)
-        if not form.is_valid:
+        if not form.is_valid():
             messages.error(request, form)
             return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
         puzzle = get_object_or_404(Puzzle, pk=pk)
