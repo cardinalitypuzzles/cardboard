@@ -173,7 +173,7 @@ def is_ancestor(potential_ancestor, child):
         return True
     if not child.has_assigned_meta(): False
     for parent in child.metas.all():
-        if is_potential_ancestor(potential_ancestor, parent):
+        if is_ancestor(potential_ancestor, parent):
             return True
     return False
 
