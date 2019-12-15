@@ -16,7 +16,7 @@
         </tr>
     </thead>
     <tbody>
-        {% for p, status_form, meta_form, edit_form, tag_form in rows %}
+        {% for p, status_form, meta_form, edit_form, tag_form, depth in rows %}
         <tr class="{% puzzle_class p %}">
             <th scope="row">
                 {% get_title p %}
@@ -181,10 +181,11 @@ $(document).ready(function() {
     var table = $('#puzzles').DataTable( {
         "paging": false,
         "info": false,
+        "ordering": false,
         "scrollX": true,
         "scrollY": true,
         "columnDefs": [
-            { "orderable": false, "targets": [2, 3, 4, 5, 6, 7] },
+            { "orderable": false, "targets": [0, 1, 2, 3, 4, 5, 6, 7] },
             { "type": "select-input", "targets": [2] },
             { "type": "checkbox-input", "targets": [7] },
         ]
