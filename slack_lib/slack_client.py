@@ -143,3 +143,11 @@ class SlackClient:
             return
 
         self._web_client.channels_join(channel=channel_name)
+
+
+    def get_user_email(self, user_id):
+        '''
+        Given a Slack user id, returns the email address of the user.
+        '''
+        response = self._web_client.users_info(user=user_id)
+        return response['user']['profile']['email']

@@ -2,6 +2,11 @@
     <a class="puzzle-title" href="{{ puzzle.url }}">{{ puzzle.name }}</a> <span class="badge badge-dark badge-meta">{{ badge }}</span>
 </div>
 
+{% if active_users|length > 0 %}
+<span data-toggle="tooltip" title='{{ active_users|join:", " }}'>
+    <i class="fa fa-users" aria-hidden="true"></i>
+</span>
+{% endif %}
 <button type="button" class="btn btn-default" data-toggle="modal" data-target="#editpuzzle-{{ puzzle.pk }}" style="padding: 0px 0px;">
     <i class="fa fa-edit" aria-hidden="true"></i>
 </button>

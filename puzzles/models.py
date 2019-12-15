@@ -56,6 +56,8 @@ class Puzzle(models.Model):
 
     is_meta = models.BooleanField(default=False)
 
+    active_users = models.ManyToManyField('accounts.Puzzler', related_name="active_puzzles")
+
     def __str__(self):
         return self.name
 
