@@ -64,6 +64,8 @@ def get_table(puzzles, request):
                     max([most_recent_treegrid_id.get(pnode.puzzle.pk, 0) for pnode in node.parents])
                 if parent_treegrid_id > 0:
                     puzzle_class[i] += " treegrid-parent-%i" % parent_treegrid_id
+            if len(node.children) > 0 and node.puzzle.is_solved():
+                puzzle_class[i] += " initial-collapsed"
         return puzzle_class
 
     puzzle_class = __get_puzzle_class(sorted_nodes)
