@@ -1,6 +1,7 @@
 import os
 
 from django.shortcuts import render, get_object_or_404
+from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import HttpResponse
@@ -83,6 +84,8 @@ def set_metas(request, pk):
             puzzle = get_object_or_404(Puzzle, pk=pk)
             metas = form.cleaned_data["metas"]
             puzzle.metas.set(metas)
+            for m in metas:
+                puzzle.tags.add(m.name)
 
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
@@ -129,6 +132,8 @@ def add_tag(request, pk):
                 defaults={'color' : form.cleaned_data["color"]}
             )
             puzzle.tags.add(tag)
+            if tag.is_meta:
+                puzzle.metas.add(Puzzle.objects.get(name=tag.name))
         else:
             messages.error(request, form)
 
@@ -136,11 +141,19 @@ def add_tag(request, pk):
 
 
 @login_required(login_url='/accounts/login/')
-def remove_tag(request, pk, tag):
+def remove_tag(request, pk, tag_text):
     if request.method == 'POST':
         puzzle = get_object_or_404(Puzzle, pk=pk)
-        if puzzle.tags.filter(name=tag).exists():
-            puzzle.tags.remove(tag)
+        if puzzle.name == tag_text:
+            messages.error(request, "You cannot remove a meta's tag from itself")
         else:
-            messages.error(request, "Could not find tag to remove")
+            try:
+                tag = puzzle.tags.get(name=tag_text)
+                if tag.is_meta:
+                    puzzle.metas.remove(Puzzle.objects.get(name=tag_text))
+                puzzle.tags.remove(tag_text)
+                if not tag.tagged_items.exists():
+                    tag.delete()
+            except ObjectDoesNotExist as e:
+                messages.error(request, "Could not find the tag {} to remove".format(tag_text))
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))

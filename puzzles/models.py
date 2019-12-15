@@ -1,5 +1,7 @@
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models import Q
+from django.db.models.signals import post_save, pre_delete
 from taggit.managers import TaggableManager
 from taggit.models import TagBase, GenericTaggedItemBase
 from answers.models import Answer
@@ -54,6 +56,7 @@ class PuzzleTag(TagBase):
         max_length=10,
         choices=COLORS,
         default=BLUE)
+    is_meta = models.BooleanField(default=False)
 
 
 class PuzzleTagThrough(GenericTaggedItemBase):
@@ -106,6 +109,9 @@ class Puzzle(models.Model):
         * meta pointing to self.
         Raises exception on invalid input.
         '''
+        if self.name == new_name and self.url == new_url and self.is_meta == new_is_meta:
+            return
+
         if self.name != new_name:
             if Puzzle.objects.filter(~Q(id=self.pk), Q(name=new_name)):
                 raise DuplicatePuzzleNameError(
@@ -150,6 +156,42 @@ class Puzzle(models.Model):
 
         self.save()
 
+
+def update_tags_post_save(sender, instance, **kwargs):
+    if instance.is_meta:
+        defunct_tag = instance.tags.filter(is_meta=True).exclude(name=instance.name)
+        if defunct_tag.exists():
+            defunct_tag = defunct_tag.get()
+            puzzles_needing_new_tag = list(Puzzle.objects.filter(tags__name__in=[defunct_tag.name]))
+            defunct_tag.delete()
+        else:
+            puzzles_needing_new_tag = [instance]
+
+        (new_tag, _) = PuzzleTag.objects.update_or_create(
+            name=instance.name,
+            defaults={'color' : PuzzleTag.BLACK, 'is_meta' : True},
+        )
+
+        # make sure puzzles that already had tag now get assigned the meta
+        puzzles_with_tag = Puzzle.objects.filter(tags__name__in=[instance.name]).exclude(name=instance.name)
+        for p in puzzles_with_tag:
+            p.metas.add(instance)
+            p.save()
+
+        for p in puzzles_needing_new_tag:
+            p.tags.add(new_tag)
+
+    else:
+        PuzzleTag.objects.filter(name=instance.name).filter(is_meta=True).delete()
+
+
+def update_tags_pre_delete(sender, instance, **kwargs):
+    if instance.is_meta:
+        PuzzleTag.objects.filter(name=instance.name).delete()
+
+
+post_save.connect(update_tags_post_save, sender=Puzzle)
+pre_delete.connect(update_tags_pre_delete, sender=Puzzle)
 
 def is_unassigned_channel(channel_id):
     '''
