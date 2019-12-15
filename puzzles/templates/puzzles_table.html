@@ -1,8 +1,11 @@
 {% load puzzle_extras %}
 
 <script src="https://kit.fontawesome.com/cddeb3e966.js" crossorigin="anonymous"></script>
+<script type="text/javascript" src="js/jquery.js"></script>
+<script type="text/javascript" src="js/jquery.treegrid.js"></script>
+<link rel="stylesheet" href="css/jquery.treegrid.css">
 
-<table class="table table-sm" id="puzzles" style="width:100%">
+<table class="table table-sm tree" id="puzzles" style="width:100%">
     <thead>
         <tr>
             <th scope="col">Name</th>
@@ -16,8 +19,8 @@
         </tr>
     </thead>
     <tbody>
-        {% for p, status_form, meta_form, edit_form, tag_form, offset in rows %}
-        <tr class="{% puzzle_class p %}">
+        {% for p, status_form, meta_form, edit_form, tag_form, offset, puzzle_class in rows %}
+        <tr class="{{ puzzle_class }}">
             <th scope="row">
                 <div class="puzzle-title-content" style="margin-left:{{offset}}px">
                     {% get_title p %}

@@ -46,6 +46,17 @@ def generate_sortkeys(puzzles):
 
     return sortkey_dict
 
+def table_status_class(puzzle):
+    if puzzle.status == Puzzle.PENDING:
+        return "table-warning"
+    elif puzzle.status == Puzzle.EXTRACTION:
+        return "table-danger"
+    elif puzzle.status == Puzzle.SOLVED:
+        return "table-success"
+    elif puzzle.status == Puzzle.STUCK:
+        return "table-danger"
+    else:
+        return ""
 
 @register.inclusion_tag('puzzles_table.html')
 def get_table(puzzles, request):
@@ -56,7 +67,7 @@ def get_table(puzzles, request):
         return max(0, 20 * sortkeys[puzzle.pk].count('-') - 1)
 
     status_forms = [StatusForm(initial={'status': p.status}) for p in sorted_puzzles]
-    for (i, p) in enumerate(puzzles):
+    for (i, p) in enumerate(sorted_puzzles):
         if p.status in [Puzzle.SOLVED, Puzzle.PENDING]:
             status_forms[i].fields["status"].disabled = True
         else:
@@ -74,8 +85,10 @@ def get_table(puzzles, request):
     # This is used for hierarchical formatting.
     offset = [__get_offset(p) for p in sorted_puzzles]
 
+    puzzle_class = [table_status_class(p) for p in sorted_puzzles]
+
     context = {
-        'rows': zip(sorted_puzzles, status_forms, meta_forms, edit_forms, tag_forms, offset),
+        'rows': zip(sorted_puzzles, status_forms, meta_forms, edit_forms, tag_forms, offset, puzzle_class),
         'guess_form': AnswerForm(),
         'slack_base_url': settings.SLACK_BASE_URL,
     }
@@ -88,19 +101,6 @@ def get_title(puzzle):
         badge = 'META'
     return {'puzzle': puzzle, 'badge': badge}
 
-
-@register.simple_tag
-def puzzle_class(puzzle):
-    if puzzle.status == Puzzle.PENDING:
-        return "table-warning"
-    elif puzzle.status == Puzzle.EXTRACTION:
-        return "table-danger"
-    elif puzzle.status == Puzzle.SOLVED:
-        return "table-success"
-    elif puzzle.status == Puzzle.STUCK:
-        return "table-danger"
-    else:
-        return ""
 
 
 @register.inclusion_tag('show_tags.html')
