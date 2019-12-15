@@ -5,7 +5,7 @@ from django.db.models.signals import pre_save, post_save, pre_delete, m2m_change
 from taggit.managers import TaggableManager
 from taggit.models import TagBase, GenericTaggedItemBase
 from answers.models import Answer
-from .puzzle_tag import PuzzleTagThrough
+from .puzzle_tag import PuzzleTag,PuzzleTagThrough
 
 class PuzzleModelError(Exception):
     '''Base class for puzzle exceptions'''
