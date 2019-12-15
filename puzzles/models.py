@@ -41,6 +41,15 @@ class PuzzleTag(TagBase):
         (WHITE, "white"),
         (BLACK, "black")
     ]
+    COLOR_ORDERING = {
+        RED: 0,
+        BLACK: 1,
+        WHITE: 2,
+        GRAY: 3,
+        BLUE: 4,
+        GREEN: 5,
+        YELLOW: 6
+    }
     color = models.CharField(
         max_length=10,
         choices=COLORS,

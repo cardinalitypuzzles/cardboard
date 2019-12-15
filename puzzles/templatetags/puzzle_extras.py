@@ -7,7 +7,11 @@ from answers.forms import AnswerForm
 DEFAULT_TAGS = [
     ('HIGH PRIORITY', PuzzleTag.RED),
     ('LOW PRIORITY', PuzzleTag.YELLOW),
-    ('BACKSOLVED', PuzzleTag.BLUE)
+    ('BACKSOLVED', PuzzleTag.GREEN),
+    ('WORD', PuzzleTag.WHITE),
+    ('LOGIC', PuzzleTag.WHITE),
+    ('TECHNICAL', PuzzleTag.WHITE),
+    ('SLOG', PuzzleTag.GRAY),
 ]
 
 register = template.Library()
@@ -67,6 +71,7 @@ def show_tags(puzzle, tag_form, request):
     )
     current_tags = [(t.name, t.color) for t in puzzle.tags.all()]
     suggestions = [t for t in all_tags.items() if t not in current_tags]
+    suggestions.sort(key=lambda item: (PuzzleTag.COLOR_ORDERING[item[1]], item[0]))
 
     context = {
         'puzzle': puzzle,
