@@ -63,18 +63,14 @@ class PuzzleTree:
                 print("root puzzle before: %s" % node)
                 print(id(self.root))
                 print(id(node))
-                #self.root.add_child(node)
-                for p in puzzles:
-                    node = self.puzzle_to_node[p.pk]
-                    print("ryan node %s" % node)
-                #self.root.children.append(node) # This also adds node to node.children for some reason
+                self.root.children.append(node) # This also adds node to node.children for ALL nodes for some reason
                 node.parents = [self.root]
                 print ("root puzzle after: %s" % node)
             else:
                 node.parents = [self.puzzle_to_node[meta.pk] for meta in p.metas.all()]
                 print ("nonroot puzzle before: %s" % node)
                 for parent_node in node.parents:
-                    parent_node.children.append(node)
+                    parent_node.children.append(node) # This adds node to node.children for some reason
                     print("parent puzzle after: %s" % parent_node)
                 print("nonroot puzzle after: %s" % node)
                 print("parent puzzle after: %s" % parent_node)
