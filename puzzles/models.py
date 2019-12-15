@@ -142,6 +142,14 @@ class Puzzle(models.Model):
         self.save()
 
 
+    def is_solved(self):
+        return self.status == Puzzle.SOLVED
+
+
+    def has_assigned_meta(self):
+        return len(self.metas.all()) > 0
+
+
 def is_unassigned_channel(channel_id):
     '''
     Returns true if channel_id is not assigned to any Puzzle object.
