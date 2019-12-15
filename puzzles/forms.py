@@ -32,7 +32,7 @@ class StatusForm(forms.ModelForm):
 
 class TagForm(forms.Form):
     name = forms.CharField(max_length=128)
-    color = forms.ChoiceField(choices=PuzzleTag.COLORS)
+    color = forms.ChoiceField(choices=PuzzleTag.VISIBLE_COLOR_CHOICES)
 
 
 class MetaChoiceField(forms.ModelMultipleChoiceField):
