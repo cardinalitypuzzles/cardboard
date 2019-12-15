@@ -11,6 +11,7 @@ from django.views.decorators.csrf import csrf_exempt
 from url_normalize import url_normalize
 
 from .models import *
+from .puzzle_tag import PuzzleTag
 from .forms import StatusForm, MetaPuzzleForm, PuzzleForm, TagForm
 from answers.models import Answer
 from answers.forms import AnswerForm

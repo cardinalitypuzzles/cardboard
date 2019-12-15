@@ -1,6 +1,7 @@
 from django import template
 from django.conf import settings
-from puzzles.models import Puzzle, PuzzleTag
+from puzzles.models import Puzzle
+from puzzles.puzzle_tag import PuzzleTag
 from puzzles.puzzle_tree import *
 from puzzles.forms import StatusForm, MetaPuzzleForm, PuzzleForm, TagForm
 from answers.forms import AnswerForm
