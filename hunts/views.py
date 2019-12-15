@@ -43,6 +43,7 @@ class HuntView(LoginRequiredMixin, View):
     login_url = '/accounts/login/'
     redirect_field_name = 'next'
 
+
     def get(self, request, pk):
         if not Hunt.objects.filter(pk=pk).exists():
             return index(request)

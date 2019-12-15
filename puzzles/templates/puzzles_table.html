@@ -2,7 +2,7 @@
 
 <script src="https://kit.fontawesome.com/cddeb3e966.js" crossorigin="anonymous"></script>
 
-<table class="table table-sm" id="puzzles" style="width:100%">
+<table class="table table-sm tree" id="puzzles" style="width:100%">
     <thead>
         <tr>
             <th scope="col">Name</th>
@@ -16,9 +16,9 @@
         </tr>
     </thead>
     <tbody>
-        {% for p, status_form, meta_form, edit_form, tag_form in rows %}
-        <tr class="{% puzzle_class p %}">
-            <th scope="row">
+        {% for p, status_form, meta_form, edit_form, tag_form, puzzle_class in rows %}
+        <tr class="{{ puzzle_class }}">
+            <td scope="row">
                 {% get_title p %}
                 <button type="button" class="btn btn-default" data-toggle="modal" data-target="#editpuzzle-{{ p.pk }}" style="padding: 0px 0px;">
                     <i class="fa fa-edit" aria-hidden="true"></i>
@@ -181,10 +181,11 @@ $(document).ready(function() {
     var table = $('#puzzles').DataTable( {
         "paging": false,
         "info": false,
+        "ordering": false,
         "scrollX": true,
         "scrollY": true,
         "columnDefs": [
-            { "orderable": false, "targets": [2, 3, 4, 5, 6, 7] },
+            { "orderable": false, "targets": [0, 1, 2, 3, 4, 5, 6, 7] },
             { "type": "select-input", "targets": [2] },
             { "type": "checkbox-input", "targets": [7] },
         ]
@@ -201,6 +202,9 @@ $(document).ready(function() {
             }
         } );
     } );
+
+    // Initialize treegrid.
+    $('.tree').treegrid();
 });
 
 </script>

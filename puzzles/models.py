@@ -158,8 +158,15 @@ class Puzzle(models.Model):
         self.save()
 
 
-# Hooks for syncing metas and tags
+    def is_solved(self):
+        return self.status == Puzzle.SOLVED
 
+
+    def has_assigned_meta(self):
+        return len(self.metas.all()) > 0
+
+
+# Hooks for syncing metas and tags
 def update_tags_pre_save(sender, instance, **kwargs):
     if instance.is_meta:
         puzzles_needing_new_tag = []
