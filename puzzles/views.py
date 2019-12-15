@@ -84,8 +84,6 @@ def set_metas(request, pk):
             puzzle = get_object_or_404(Puzzle, pk=pk)
             metas = form.cleaned_data["metas"]
             puzzle.metas.set(metas)
-            for m in metas:
-                puzzle.tags.add(m.name)
 
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
@@ -131,9 +129,11 @@ def add_tag(request, pk):
                 name=form.cleaned_data["name"],
                 defaults={'color' : form.cleaned_data["color"]}
             )
-            puzzle.tags.add(tag)
             if tag.is_meta:
+                # the post m2m hook will add tag
                 puzzle.metas.add(Puzzle.objects.get(name=tag.name))
+            else:
+                puzzle.tags.add(tag)
         else:
             messages.error(request, form)
 
@@ -150,8 +150,12 @@ def remove_tag(request, pk, tag_text):
             try:
                 tag = puzzle.tags.get(name=tag_text)
                 if tag.is_meta:
+                    # the post m2m hook will remove tag
                     puzzle.metas.remove(Puzzle.objects.get(name=tag_text))
-                puzzle.tags.remove(tag_text)
+                else:
+                    puzzle.tags.remove(tag_text)
+
+                # clear db of dangling tags
                 if not tag.tagged_items.exists():
                     tag.delete()
             except ObjectDoesNotExist as e:
