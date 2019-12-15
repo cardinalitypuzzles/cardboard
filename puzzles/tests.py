@@ -26,22 +26,22 @@ class TestPuzzle(TestCase):
         self._puzzles.append(puzzle)
         return puzzle
 
-    def test_is_potential_ancestor(self):
+    def test_is_ancestor(self):
         meta1 = self.create_puzzle("unit_meta1", True)
         meta2 = self.create_puzzle("unit_meta2", True)
         meta3 = self.create_puzzle("unit_meta3", True)
 
-        self.assertTrue(is_potential_ancestor(meta1, meta1))
-        self.assertFalse(is_potential_ancestor(meta1, meta2))
+        self.assertTrue(is_ancestor(meta1, meta1))
+        self.assertFalse(is_ancestor(meta1, meta2))
 
         meta1.metas.add(meta2)
         meta2.metas.add(meta3)
-        self.assertFalse(is_potential_ancestor(meta1, meta2))
-        self.assertTrue(is_potential_ancestor(meta2, meta1))
-        self.assertFalse(is_potential_ancestor(meta2, meta3))
-        self.assertTrue(is_potential_ancestor(meta3, meta2))
-        self.assertFalse(is_potential_ancestor(meta1, meta3))
-        self.assertTrue(is_potential_ancestor(meta3, meta1))
+        self.assertFalse(is_ancestor(meta1, meta2))
+        self.assertTrue(is_ancestor(meta2, meta1))
+        self.assertFalse(is_ancestor(meta2, meta3))
+        self.assertTrue(is_ancestor(meta3, meta2))
+        self.assertFalse(is_ancestor(meta1, meta3))
+        self.assertTrue(is_ancestor(meta3, meta1))
 
     def test_empty_tree(self):
         self.assertEqual(PuzzleTree([]).get_sorted_nodes(), [])
