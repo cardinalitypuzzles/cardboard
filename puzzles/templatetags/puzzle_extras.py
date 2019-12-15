@@ -53,9 +53,8 @@ def get_table(puzzles, request):
     sorted_puzzles = sorted(puzzles, key=lambda p: sortkeys[p.pk])
 
     def __get_depth(puzzle):
-        return max(0, sortkeys[puzzle.pk.count('-')] - 1)
+        return max(0, sortkeys[puzzle.pk].count('-') - 1)
 
-    depth = [__get_depth(puzzle) for p in sorted_puzzles]
     status_forms = [StatusForm(initial={'status': p.status}) for p in sorted_puzzles]
     for (i, p) in enumerate(puzzles):
         if p.status in [Puzzle.SOLVED, Puzzle.PENDING]:
@@ -71,6 +70,9 @@ def get_table(puzzles, request):
     # this caches Puzzle.tags.all() for all the tag forms
     Puzzle.objects.all().prefetch_related('tags')
     tag_forms = [TagForm() for p in sorted_puzzles]
+
+    # This is used for hierarchical formatting.
+    depth = [__get_depth(p) for p in sorted_puzzles]
 
     context = {
         'rows': zip(sorted_puzzles, status_forms, meta_forms, edit_forms, tag_forms, depth),
