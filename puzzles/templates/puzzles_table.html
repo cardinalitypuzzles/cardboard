@@ -95,6 +95,16 @@ $(document).ready(function() {
         return search_str;
     };
 
+    // Searchable string should contain the title of the puzzle, concatenated
+    // with "meta" if it is a metapuzzle (so we can filter this column by
+    // metas).
+    $.fn.dataTableExt.ofnSearch['name-input'] = function(value) {
+        var search_str = ""
+        search_str += $(value).find(".puzzle-title").text();
+        search_str += $(value).find(".badge-meta").text();
+        return search_str;
+    };
+
     // Add a text input for each footer cell that is column_searchable.
     $('#puzzles .column_searchable').each( function () {
         var col_name = $(this).text();
@@ -108,9 +118,10 @@ $(document).ready(function() {
         "ordering": false,
         "scrollX": true,
         "scrollY": true,
-        "scrollY": "500px",
+        "scrollY": "400px",
         "columnDefs": [
             { "orderable": false, "targets": [0, 1, 2, 3, 4, 5, 6, 7] },
+            { "type": "name-input", "targets": [0] },
             { "type": "select-input", "targets": [2] },
             { "type": "tag-input", "targets": [5] },
             { "type": "checkbox-input", "targets": [7] },
