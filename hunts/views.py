@@ -39,6 +39,10 @@ def index(request):
     return render(request, 'index.html', context)
 
 
+@login_required(login_url='/accounts/login/')
+def tools(request):
+    return render(request, 'tools.html')
+
 class HuntView(LoginRequiredMixin, View):
     login_url = '/accounts/login/'
     redirect_field_name = 'next'
