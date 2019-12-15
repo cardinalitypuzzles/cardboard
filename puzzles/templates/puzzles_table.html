@@ -1,9 +1,6 @@
 {% load puzzle_extras %}
 
 <script src="https://kit.fontawesome.com/cddeb3e966.js" crossorigin="anonymous"></script>
-<script type="text/javascript" src="js/jquery.js"></script>
-<script type="text/javascript" src="js/jquery.treegrid.js"></script>
-<link rel="stylesheet" href="css/jquery.treegrid.css">
 
 <table class="table table-sm tree" id="puzzles" style="width:100%">
     <thead>
@@ -19,18 +16,16 @@
         </tr>
     </thead>
     <tbody>
-        {% for p, status_form, meta_form, edit_form, tag_form, offset, puzzle_class in rows %}
+        {% for p, status_form, meta_form, edit_form, tag_form, puzzle_class in rows %}
         <tr class="{{ puzzle_class }}">
-            <th scope="row">
-                <div class="puzzle-title-content" style="margin-left:{{offset}}px">
-                    {% get_title p %}
-                    <button type="button" class="btn btn-default" data-toggle="modal" data-target="#editpuzzle-{{ p.pk }}" style="padding: 0px 0px;">
-                        <i class="fa fa-edit" aria-hidden="true"></i>
-                    </button>
-                    <button type="button" class="btn btn-default" data-toggle="modal" data-target="#deletepuzzle-{{ p.pk }}" style="padding: 0px 0px;">
-                        <i class="fa fa-trash-o" aria-hidden="true"></i>
-                    </button>
-                </div>
+            <td scope="row">
+                {% get_title p %}
+                <button type="button" class="btn btn-default" data-toggle="modal" data-target="#editpuzzle-{{ p.pk }}" style="padding: 0px 0px;">
+                    <i class="fa fa-edit" aria-hidden="true"></i>
+                </button>
+                <button type="button" class="btn btn-default" data-toggle="modal" data-target="#deletepuzzle-{{ p.pk }}" style="padding: 0px 0px;">
+                    <i class="fa fa-trash-o" aria-hidden="true"></i>
+                </button>
                 <div class="modal fade" id="editpuzzle-{{ p.pk }}" tabindex="-1" role="dialog" aria-labelledby="edittitle-{{ p.pk }}" aria-hidden="true">
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">
@@ -207,6 +202,9 @@ $(document).ready(function() {
             }
         } );
     } );
+
+    // Initialize treegrid.
+    $('.tree').treegrid();
 });
 
 </script>

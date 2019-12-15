@@ -2,12 +2,12 @@ from .models import *
 
 class PuzzleNode:
     ''' Wrapper class around a puzzle with parent and child pointers. '''
-    puzzle = None
-    parents = []
-    children = []
 
     def __init__(self, puzzle):
         self.puzzle = puzzle
+        self.parents = []
+        self.canonical_parent = None
+        self.children = []
 
     def __str__(self):
         def __root_str(node):
@@ -17,12 +17,7 @@ class PuzzleNode:
         children_str = ",".join([__root_str(node) for node in self.children])
         return "root: %s\nparents: %s\nchildren: %s" % (root_puzzle, parents_str, children_str)
 
-    def add_child(self, child):
-        if child == self:
-            print("Why is it adding to itself?")
-        self.children.append(child)
-
-    def getSortedPuzzles(self):
+    def get_sorted_nodes(self):
         output = [self]
         def __sortkey(node):
             '''
@@ -31,11 +26,8 @@ class PuzzleNode:
             '''
             return (node.puzzle.status == Puzzle.SOLVED, len(node.children) > 0)
 
-        #print ("Calling getSortedPuzzles() on puzzle %s" % self)
         for child in sorted(self.children, key=__sortkey):
-            #print ("Child %s" % child)
-
-            output.append(child.getSortedPuzzles())
+            output.extend(child.get_sorted_nodes())
 
         return output
 
@@ -60,30 +52,18 @@ class PuzzleTree:
         for p in puzzles:
             node = self.puzzle_to_node[p.pk]
             if not p.has_assigned_meta():
-                print("root puzzle before: %s" % node)
-                print(id(self.root))
-                print(id(node))
                 self.root.children.append(node) # This also adds node to node.children for ALL nodes for some reason
                 node.parents = [self.root]
-                print ("root puzzle after: %s" % node)
             else:
                 node.parents = [self.puzzle_to_node[meta.pk] for meta in p.metas.all()]
-                print ("nonroot puzzle before: %s" % node)
                 for parent_node in node.parents:
                     parent_node.children.append(node) # This adds node to node.children for some reason
-                    print("parent puzzle after: %s" % parent_node)
-                print("nonroot puzzle after: %s" % node)
-                print("parent puzzle after: %s" % parent_node)
         
-        print("Edges constructed!!!!!!")
-        for p in puzzles:
-            node = self.puzzle_to_node[p.pk]
-            print("node %s" % node)
 
-    def getSortedPuzzles(self):
+    def get_sorted_nodes(self):
         '''
         Returns a list of PuzzleNodes representing the ordering in which the puzzles should be
         displayed in the table. Note that because of multiple parent support, some nodes may be
         duplicated in the list.
         '''
-        return self.root.getSortedPuzzles()[1:]
+        return self.root.get_sorted_nodes()[1:]

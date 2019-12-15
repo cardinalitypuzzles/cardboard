@@ -1,6 +1,7 @@
 from django import template
 from django.conf import settings
 from puzzles.models import Puzzle, PuzzleTag
+from puzzles.puzzle_tree import *
 from puzzles.forms import StatusForm, MetaPuzzleForm, PuzzleForm, TagForm
 from answers.forms import AnswerForm
 
@@ -11,40 +12,6 @@ DEFAULT_TAGS = [
 ]
 
 register = template.Library()
-
-def generate_sortkeys(puzzles):
-    sortkey_dict = {}
-    # TODO(asdfryan): This will fail if there are cycles. We should add cycle detection.
-    def __get_sortkey(puzzle):
-        def __get_status_sortkey(puzzle):
-            ''' Unsolved puzzles should come before solved puzzles.'''
-            if puzzle.is_solved():
-                return "1-%s" % puzzle.pk
-            return "0-%s" % puzzle.pk
-
-        def __add_to_dict_and_return(pk, sortkey):
-            sortkey_dict[pk] = sortkey
-            print("sortkey for puzzle %s: %s" % (Puzzle.objects.get(id=pk).name, sortkey))
-            return sortkey
-
-        if puzzle.pk in sortkey_dict: return sortkey_dict[puzzle.pk]
-
-        # If non-meta and has no assigned meta, it comes first.
-        if not puzzle.is_meta and not puzzle.has_assigned_meta():
-            return __add_to_dict_and_return(puzzle.pk, __get_status_sortkey(puzzle))
-
-        # If it has an assigned meta puzzle, concatenate parent sortkey with current status sortkey.
-        if puzzle.has_assigned_meta():
-            print("metas length: %i" % len(puzzle.metas.all()))
-            return __add_to_dict_and_return(puzzle.pk,
-                "%s.%s" % (__get_sortkey(puzzle.metas.all()[0]), __get_status_sortkey(puzzle)))
-
-        return __add_to_dict_and_return(puzzle.pk, "0.%s" % __get_status_sortkey(puzzle))
-
-    for p in puzzles:
-        __get_sortkey(p)
-
-    return sortkey_dict
 
 def table_status_class(puzzle):
     if puzzle.status == Puzzle.PENDING:
@@ -60,11 +27,9 @@ def table_status_class(puzzle):
 
 @register.inclusion_tag('puzzles_table.html')
 def get_table(puzzles, request):
-    sortkeys = generate_sortkeys(puzzles)
-    sorted_puzzles = sorted(puzzles, key=lambda p: sortkeys[p.pk])
-
-    def __get_offset(puzzle):
-        return max(0, 20 * sortkeys[puzzle.pk].count('-') - 1)
+    puzzle_tree = PuzzleTree(puzzles)
+    sorted_nodes = puzzle_tree.get_sorted_nodes()
+    sorted_puzzles = [node.puzzle for node in sorted_nodes]
 
     status_forms = [StatusForm(initial={'status': p.status}) for p in sorted_puzzles]
     for (i, p) in enumerate(sorted_puzzles):
@@ -82,13 +47,25 @@ def get_table(puzzles, request):
     Puzzle.objects.all().prefetch_related('tags')
     tag_forms = [TagForm() for p in sorted_puzzles]
 
-    # This is used for hierarchical formatting.
-    offset = [__get_offset(p) for p in sorted_puzzles]
+    def __get_puzzle_class(sorted_nodes):
+        puzzle_class = [table_status_class(node.puzzle) for node in sorted_nodes]
+        most_recent_treegrid_id = {}
+        for i, node in enumerate(sorted_nodes):
+            treegrid_id = i+1
+            most_recent_treegrid_id[sorted_nodes[i].puzzle.pk] = treegrid_id
+            puzzle_class[i] += " treegrid-%i" % treegrid_id
+            if len(node.parents) > 0 and node.parents[0].puzzle != None:
+                # Most recently seen treegrid_id amongst parents
+                parent_treegrid_id = \
+                    max([most_recent_treegrid_id.get(pnode.puzzle.pk, 0) for pnode in node.parents])
+                if parent_treegrid_id > 0:
+                    puzzle_class[i] += " treegrid-parent-%i" % parent_treegrid_id
+        return puzzle_class
 
-    puzzle_class = [table_status_class(p) for p in sorted_puzzles]
+    puzzle_class = __get_puzzle_class(sorted_nodes)
 
     context = {
-        'rows': zip(sorted_puzzles, status_forms, meta_forms, edit_forms, tag_forms, offset, puzzle_class),
+        'rows': zip(sorted_puzzles, status_forms, meta_forms, edit_forms, tag_forms, puzzle_class),
         'guess_form': AnswerForm(),
         'slack_base_url': settings.SLACK_BASE_URL,
     }

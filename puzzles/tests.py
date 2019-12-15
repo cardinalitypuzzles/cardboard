@@ -27,21 +27,38 @@ class TestPuzzleTree(TestCase):
         return puzzle
 
 
-    #def test_empty(self):
-    #    self.assertEqual(PuzzleTree([]).getSortedPuzzles(), [])
+    def test_empty(self):
+        self.assertEqual(PuzzleTree([]).get_sorted_nodes(), [])
 
     def test_basic(self):
-        meta1 = self.create_puzzle("meta1", True)
-        puzzle1_1 = self.create_puzzle("puzzle1-1")
-        puzzle1_2 = self.create_puzzle("puzzle1-2")
+        meta1 = self.create_puzzle("unit_meta1", True)
+        puzzle1_1 = self.create_puzzle("unit_puzzle1-1")
+        puzzle1_2 = self.create_puzzle("unit_puzzle1-2")
 
         puzzle1_1.metas.add(meta1)
         puzzle1_2.metas.add(meta1)
 
         puzzle1_1.status = Puzzle.SOLVED
 
-        puzzle_dangling = self.create_puzzle("puzzle_dangling")
+        puzzle_dangling = self.create_puzzle("unit_puzzle_dangling")
 
-        sorted_nodes = PuzzleTree([puzzle1_1, puzzle1_2, meta1, puzzle_dangling]).getSortedPuzzles()
-        expected = ["puzzle_dangling", "meta1", "puzzle1-2", "puzzle1-1"]
+        sorted_nodes = PuzzleTree([puzzle1_1, puzzle1_2, meta1, puzzle_dangling]).get_sorted_nodes()
+
+        expected = ["unit_puzzle_dangling", "unit_meta1", "unit_puzzle1-2", "unit_puzzle1-1"]
+        self.assertEqual([node.puzzle.__str__() for node in sorted_nodes], expected)
+
+    def test_overlapping_metas(self):
+        meta1 = self.create_puzzle("unit_meta1", True)
+        meta2 = self.create_puzzle("unit_meta2", True)
+        puzzle1 = self.create_puzzle("unit_puzzle1")
+        puzzle2 = self.create_puzzle("unit_puzzle2")
+
+        puzzle1.metas.add(meta1)
+        puzzle1.metas.add(meta2)
+        puzzle2.metas.add(meta1)
+        puzzle2.metas.add(meta2)
+
+        sorted_nodes = PuzzleTree([puzzle1, puzzle2, meta1, meta2]).get_sorted_nodes()
+
+        expected = ["unit_meta1", "unit_puzzle1", "unit_puzzle2", "unit_meta2", "unit_puzzle1", "unit_puzzle2"]
         self.assertEqual([node.puzzle.__str__() for node in sorted_nodes], expected)
