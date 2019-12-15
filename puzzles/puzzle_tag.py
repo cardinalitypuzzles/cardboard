@@ -21,15 +21,8 @@ class PuzzleTag(TagBase):
     RESERVED = [GREEN, RED, YELLOW, BLACK]
     VISIBLE_COLOR_CHOICES = filter(lambda c : c[0] not in PuzzleTag.RESERVED, COLORS.items())
 
-    COLOR_ORDERING = {
-        RED: 0,
-        BLACK: 1,
-        WHITE: 2,
-        GRAY: 3,
-        BLUE: 4,
-        GREEN: 5,
-        YELLOW: 6
-    }
+    COLOR_ORDERING = {k: v for v, k in enumerate([RED, BLACK, WHITE, GRAY, BLUE, GREEN, YELLOW])}
+
     color = models.CharField(
         max_length=10,
         choices=COLORS.items(),
