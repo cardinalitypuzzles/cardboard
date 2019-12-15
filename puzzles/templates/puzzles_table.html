@@ -100,8 +100,8 @@ $(document).ready(function() {
     // metas).
     $.fn.dataTableExt.ofnSearch['name-input'] = function(value) {
         var search_str = ""
-        search_str += $(value).find("a").text();
-        search_str += $(value).find(".badge").text();
+        search_str += $(value).find(".puzzle-title").text();
+        search_str += $(value).find(".badge-meta").text();
         return search_str;
     };
 
