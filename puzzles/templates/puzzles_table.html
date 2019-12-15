@@ -182,13 +182,13 @@ $(document).ready(function() {
         return search_str;
     };
 
-    // Search by the title of the puzzle, and the term "META" if it's a
-    // metapuzzle.
+    // Searchable string should contain the title of the puzzle, concatenated
+    // with "meta" if it is a metapuzzle (so we can filter this column by
+    // metas).
     $.fn.dataTableExt.ofnSearch['name-input'] = function(value) {
         var search_str = ""
         search_str += $(value).find("a").text();
         search_str += $(value).find(".badge").text();
-        console.log(search_str);
         return search_str;
     };
 
