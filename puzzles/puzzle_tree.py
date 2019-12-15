@@ -1,12 +1,21 @@
 from .models import *
 
+class NodeParentPair:
+    def __init__(self, node, parent):
+        self.node = node
+        self.parent = parent
+
+    def __str__(self):
+        node_str = self.node.puzzle.__str__()
+        parent_str = self.parent.puzzle.__str__() if self.parent else "None"
+        return "node: %s parent: %s" % (node_str, parent_str)
+
 class PuzzleNode:
     ''' Wrapper class around a puzzle with parent and child pointers. '''
 
     def __init__(self, puzzle):
         self.puzzle = puzzle
         self.parents = []
-        self.canonical_parent = None
         self.children = []
 
     def __str__(self):
@@ -17,8 +26,16 @@ class PuzzleNode:
         children_str = ",".join([__root_str(node) for node in self.children])
         return "root: %s\nparents: %s\nchildren: %s" % (root_puzzle, parents_str, children_str)
 
-    def get_sorted_nodes(self):
-        output = [self]
+    def get_sorted_node_parent_pairs(self):
+        '''
+        Returns a sorted list of (node, pnode) tuples where:
+        * node is PuzzleNode object
+        * pnode is the parent PuzzleNode object of node (None if root).
+        The latter is necessary because nodes can have multiple parents, and
+        when sorting hierarchically, we need to know which parent subtree we're
+        currently in.
+        '''
+        output = [NodeParentPair(self, None)]
         def __sortkey(node):
             '''
             Unsolved children should come before SOLVED children.
@@ -27,7 +44,9 @@ class PuzzleNode:
             return (node.puzzle.status == Puzzle.SOLVED, len(node.children) > 0)
 
         for child in sorted(self.children, key=__sortkey):
-            output.extend(child.get_sorted_nodes())
+            sorted_subtree = child.get_sorted_node_parent_pairs()
+            sorted_subtree[0].parent = self
+            output.extend(sorted_subtree)
 
         return output
 
@@ -60,10 +79,10 @@ class PuzzleTree:
                     parent_node.children.append(node) # This adds node to node.children for some reason
         
 
-    def get_sorted_nodes(self):
+    def get_sorted_node_parent_pairs(self):
         '''
         Returns a list of PuzzleNodes representing the ordering in which the puzzles should be
         displayed in the table. Note that because of multiple parent support, some nodes may be
         duplicated in the list.
         '''
-        return self.root.get_sorted_nodes()[1:]
+        return self.root.get_sorted_node_parent_pairs()[1:]
