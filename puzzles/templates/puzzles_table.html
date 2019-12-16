@@ -1,4 +1,5 @@
 {% load puzzle_extras %}
+{% include "modals/set_meta.html" %}
 
 <script src="https://kit.fontawesome.com/cddeb3e966.js" crossorigin="anonymous"></script>
 
@@ -37,7 +38,7 @@
             </td>
             <td>
                 {% if p.status != "SOLVED" %}
-                   <form action="/puzzles/guess/{{ p.id }}/" method="post" class="form-inline">
+                   <form action="/puzzles/guess/{{ p.pk }}/" method="post" class="form-inline">
                     {% csrf_token %}
                     <div class="form-group">
                         {{ guess_form.text }}
@@ -47,7 +48,9 @@
                  {% endif %}
             </td>
             <td>
-                {% assign_metas p meta_form %}
+                <button type="button" class="meta btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#meta" data-pk="{{ p.pk }}" data-form="{{ meta_form.metas | escape}}">
+                    assign meta
+                </button>
             </td>
         </tr>
         {% endfor %}
@@ -65,6 +68,9 @@
         </tr>
     </tfoot>
 </table>
+
+
+
 
 <script type="text/javascript">
 $(document).ready(function() {

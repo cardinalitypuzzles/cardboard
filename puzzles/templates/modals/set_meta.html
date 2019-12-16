@@ -1,16 +1,13 @@
-<button type="button" class="btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#meta-{{ puzzle.pk }}">
-    assign meta
-</button>
-<div class="modal fade" id="meta-{{ puzzle.pk }}" tabindex="-1" role="dialog" aria-labelledby="metatitle-{{ puzzle.pk }}" aria-hidden="true">
+<div class="modal fade" id="meta" tabindex="-1" role="dialog" aria-labelledby="meta-title" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="metatitle-{{ puzzle.pk }}">Assign Meta</h5>
+                <h5 class="modal-title" id="meta-title">Assign Meta</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form method="post" action="/puzzles/meta/{{ puzzle.pk }}/">
+            <form method="post" action="/puzzles/meta/">
                 {% csrf_token %}
                 <div class="modal-body">
                     <div class="form-group">
@@ -25,3 +22,15 @@
         </div>
     </div>
 </div>
+
+<script type="text/javascript">
+$(function () {
+ $(".meta").click(function () {
+    var pk = $(this).data("pk");
+    var form = $(this).data("form");
+    var unescaped_form = form.replace(/&amp;/g, "&").replace(/&lt;/g,"<").replace(/&gt;/g, ">")
+    $('#meta form').attr("action", `/puzzles/meta/${pk}/`);
+    $("#meta .modal-body .form-group").html(unescaped_form);
+ })
+});
+</script>

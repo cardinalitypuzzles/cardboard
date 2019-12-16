@@ -1,5 +1,7 @@
+import cgi
 from django import template
 from django.conf import settings
+from django.template.defaultfilters import stringfilter
 from puzzles.models import Puzzle
 from puzzles.puzzle_tag import PuzzleTag
 from puzzles.puzzle_tree import *
@@ -118,3 +120,8 @@ def show_tags(puzzle, tag_form, request):
         'suggestions': suggestions
     }
     return context
+
+@register.filter(name='escape')
+@stringfilter
+def escape(html):
+    return cgi.escape(html)
