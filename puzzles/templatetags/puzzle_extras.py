@@ -1,5 +1,7 @@
+import cgi
 from django import template
 from django.conf import settings
+from django.template.defaultfilters import stringfilter
 from puzzles.models import Puzzle
 from puzzles.puzzle_tag import PuzzleTag
 from puzzles.puzzle_tree import *
@@ -43,8 +45,6 @@ def get_table(puzzles, request):
             status_forms[i].fields["status"].choices =\
                 [(status, status) for status in Puzzle.VISIBLE_STATUS_CHOICES]
 
-    meta_forms = [MetaPuzzleForm(initial={'metas': p.metas.all()}, instance=p) for p in sorted_puzzles]
-
     edit_forms = [PuzzleForm(initial={'name': p.name, 'url': p.url, 'is_meta': p.is_meta}) for p in sorted_puzzles]
 
     # this caches Puzzle.tags.all() for all the tag forms
@@ -73,7 +73,7 @@ def get_table(puzzles, request):
     puzzle_class = __get_puzzle_class(sorted_np_pairs)
 
     context = {
-        'rows': zip(sorted_puzzles, status_forms, meta_forms, edit_forms, tag_forms, puzzle_class),
+        'rows': zip(sorted_puzzles, status_forms, edit_forms, tag_forms, puzzle_class),
         'guess_form': AnswerForm(),
         'slack_base_url': settings.SLACK_BASE_URL,
     }
@@ -118,3 +118,9 @@ def show_tags(puzzle, tag_form, request):
         'suggestions': suggestions
     }
     return context
+
+@register.filter(name='escape')
+@stringfilter
+def escape(html):
+    return cgi.escape(html)
+
