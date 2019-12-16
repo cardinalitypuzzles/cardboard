@@ -1,11 +1,18 @@
 from django.test import TestCase
 
+from accounts.models import Puzzler
 from hunts.models import *
 from .models import *
 from .puzzle_tree import *
+from .puzzle_tag import *
 
 class TestPuzzle(TestCase):
+
     def setUp(self):
+        self._user = Puzzler.objects.create_user(
+            username='test', email='test@ing.com', password='testingpwd')
+        self.client.login(username='test', password='testingpwd')
+
         self._test_hunt = Hunt.objects.create(name="fake hunt", url="google.com")
         self._suffix = 0
         self._puzzles = []
@@ -13,6 +20,10 @@ class TestPuzzle(TestCase):
     def tearDown(self):
         for p in self._puzzles:
             p.delete()
+
+        for tag in PuzzleTag.objects.all():
+            tag.delete()
+
         self._test_hunt.delete()
 
     def create_puzzle(self, name, is_meta=False):
@@ -22,7 +33,7 @@ class TestPuzzle(TestCase):
         self._suffix += 1
 
         puzzle = Puzzle.objects.create(name=name, hunt=self._test_hunt, url=fake_url,
-                                       sheet=fake_sheet, channel=fake_channel)
+                                       sheet=fake_sheet, channel=fake_channel, is_meta=is_meta)
         self._puzzles.append(puzzle)
         return puzzle
 
@@ -89,3 +100,52 @@ class TestPuzzle(TestCase):
                     "node: unit_puzzle1 parent: unit_meta2",
                     "node: unit_puzzle2 parent: unit_puzzle1"]
         self.assertEqual([pair.__str__() for pair in np_pairs], expected)
+
+
+    def test_meta_creates_tag(self):
+        meta = self.create_puzzle("meta", True)
+        self.assertTrue(PuzzleTag.objects.filter(name=meta.name).exists())
+        self.assertTrue(meta.tags.filter(name=meta.name).exists())
+        tag = meta.tags.get(name=meta.name)
+        self.assertTrue(tag.is_meta)
+
+    def test_meta_affects_tags(self):
+        meta = self.create_puzzle("meta", True)
+        feeder = self.create_puzzle("feeder", False)
+
+        self.assertFalse(feeder.tags.filter(name=meta.name).exists())
+        feeder.metas.add(meta)
+        self.assertTrue(feeder.tags.filter(name=meta.name).exists())
+
+    def test_tag_affects_meta(self):
+        meta = self.create_puzzle("meta", True)
+        feeder = self.create_puzzle("feeder", False)
+
+        self.client.post("/puzzles/add_tag/{}/".format(feeder.pk),
+            {"name": meta.name, "color": "primary"})
+        self.assertTrue(feeder.metas.filter(pk=meta.pk).exists())
+
+        self.client.post("/puzzles/remove_tag/{}/{}".format(feeder.pk, meta.name))
+        self.assertFalse(feeder.metas.filter(pk=meta.pk).exists())
+
+    def test_meta_created_after_tag(self):
+        feeder = self.create_puzzle("feeder", False)
+        feeder.tags.add("Unknown Meta")
+        self.assertFalse(PuzzleTag.objects.get(name="Unknown Meta").is_meta)
+
+        meta = self.create_puzzle("Unknown Meta", True)
+        self.assertTrue(PuzzleTag.objects.get(name="Unknown Meta").is_meta)
+        self.assertTrue(feeder.metas.filter(pk=meta.pk).exists())
+
+    def test_meta_puzzle_changes_affect_tags(self):
+        meta = self.create_puzzle("oldname", True)
+        feeder = self.create_puzzle("feeder", False)
+        feeder.metas.add(meta)
+        self.assertTrue(feeder.tags.filter(name="oldname").exists())
+
+        self.client.post("/puzzles/edit/{}/".format(meta.pk),
+            {"name": "newname", "url": meta.url, "is_meta": True})
+
+        self.assertFalse(PuzzleTag.objects.filter(name="oldname").exists())
+        self.assertTrue(feeder.tags.filter(name="newname").exists())
+
