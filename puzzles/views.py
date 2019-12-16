@@ -179,3 +179,10 @@ def remove_tag(request, pk, tag_text):
     except ObjectDoesNotExist as e:
         messages.error(request, "Could not find the tag {} to remove".format(tag_text))
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+
+@login_required(login_url='/accounts/login/')
+def meta_select_form(request, pk):
+    puzzle = get_object_or_404(Puzzle, pk=pk)
+    meta_form = MetaPuzzleForm(initial={'metas': puzzle.metas.all()}, instance=puzzle)
+    return HttpResponse(meta_form.as_p())
