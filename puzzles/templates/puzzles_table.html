@@ -68,6 +68,8 @@
 
 <script type="text/javascript">
 $(document).ready(function() {
+
+    var start_ts = Date.now();
     // For choice fields, each entry should only be searchable by the currently
     // selected value.
     $.fn.dataTableExt.ofnSearch['select-input'] = function(value) {
@@ -78,7 +80,7 @@ $(document).ready(function() {
     // currently checked values.
     $.fn.dataTableExt.ofnSearch['checkbox-input'] = function(value) {
         var search_str = "";
-        var checked = $(value).find(":checked").each( function () {
+        $(value).find(":checked").each( function () {
             // The name of the meta is actually displayed in the parent DOM
             // element.
             search_str += $(this).parent().text();
@@ -89,7 +91,7 @@ $(document).ready(function() {
     // For tags, each entry should be searchable by existing badges.
     $.fn.dataTableExt.ofnSearch['tag-input'] = function(value) {
         var search_str = "";
-        var checked = $(value).find(".badge").each( function () {
+        $(value).find(".badge").each( function () {
             search_str += $(this).text()
         } );
         return search_str;
@@ -111,22 +113,23 @@ $(document).ready(function() {
         $(this).html( '<input type="text" placeholder="Search '+col_name+'" />' );
     } );
 
+    var pre_dt_init_ts = Date.now();
 
     var table = $('#puzzles').DataTable( {
         "paging": false,
         "info": false,
         "ordering": false,
-        "scrollX": true,
-        "scrollY": true,
-        "scrollY": "400px",
         "columnDefs": [
-            { "orderable": false, "targets": [0, 1, 2, 3, 4, 5, 6, 7] },
             { "type": "name-input", "targets": [0] },
             { "type": "select-input", "targets": [2] },
             { "type": "tag-input", "targets": [5] },
             { "type": "checkbox-input", "targets": [7] },
         ]
     } );
+
+    var dt_init_ts = Date.now();
+    var dt_init_ms = dt_init_ts - pre_dt_init_ts;
+    console.log("Datatable init time (ms) :" + dt_init_ms);
 
     // Apply column search.
     table.columns().every( function () {
@@ -140,9 +143,17 @@ $(document).ready(function() {
         } );
     } );
 
+    var pre_treegrid_ts = Date.now();
+
     // Initialize treegrid.
     $('.tree').treegrid();
     $('.initial-collapsed').treegrid('collapse');
+
+    var treegrid_ts = Date.now();
+    var treegrid_ms = treegrid_ts - pre_treegrid_ts;
+    var total_ms = treegrid_ts - start_ts;
+    console.log("treegrid init time (ms): " + treegrid_ms);
+    console.log("total time(ms): " + total_ms);
 });
 
 </script>
