@@ -46,7 +46,8 @@ class MetaPuzzleForm(forms.ModelForm):
     metas = MetaChoiceField(
         required=False,
         queryset=Puzzle.objects.none(),
-        widget=forms.CheckboxSelectMultiple)
+        widget=forms.CheckboxSelectMultiple,
+        label='')
     def __init__(self, *args, **kwargs):
         super(MetaPuzzleForm, self).__init__(*args, **kwargs)
         self.fields['metas'].queryset = Puzzle.objects.filter(Q(is_meta=True), Q(hunt=self.instance.hunt)).exclude(pk=self.instance.pk)
