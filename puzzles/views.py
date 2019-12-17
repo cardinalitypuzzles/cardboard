@@ -92,8 +92,8 @@ def slack_events(request):
     event = json.loads(request.body)
     token = event.get('token')
     # TODO(erwa): Move SLACK_VERIFICATION_TOKEN into settings.py
-    # if token != os.environ.get("SLACK_VERIFICATION_TOKEN"):
-        # return HttpResponseForbidden()
+    if token != os.environ.get("SLACK_VERIFICATION_TOKEN"):
+        return HttpResponseForbidden()
 
     # one time events API verification
     challenge = event.get('challenge')
