@@ -14,7 +14,6 @@ $(function () {
         "url": `/puzzles/add_tags_form/${pk}`,
         'csrfmiddlewaretoken': '{{ csrf_token }}'
 	}).done(function(data) {
-        console.log(pk)
         $("#addtag .modal-content").html(data);
     })
   })
