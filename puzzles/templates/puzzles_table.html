@@ -34,7 +34,7 @@
             <td><a href="{{ p.sheet }}">Link</a></td>
             <td><a href="{{ slack_base_url }}/app_redirect?channel={{ p.channel }}">Link</a></td>
             <td>
-                {% show_tags p request %}
+                {% show_tags p %}
             </td>
             <td>
                 {% if p.status != "SOLVED" %}

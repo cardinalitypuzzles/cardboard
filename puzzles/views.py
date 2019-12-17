@@ -13,6 +13,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from url_normalize import url_normalize
 
+from . import tag_utils
 from .models import *
 from .puzzle_tag import PuzzleTag
 from .forms import StatusForm, MetaPuzzleForm, PuzzleForm, TagForm
@@ -226,7 +227,17 @@ def remove_tag(request, pk, tag_text):
 @login_required(login_url='/accounts/login/')
 def add_tags_form(request, pk):
     puzzle = get_object_or_404(Puzzle, pk=pk)
-    context = puzzle_extras.create_tag_context(puzzle)
+    puzzle_tags = tag_utils.get_tags(puzzle)
+    all_tags = tag_utils.get_all_tags()
+
+    suggestions = [t for t in all_tags.items() if t not in puzzle_tags]
+    suggestions.sort(key=lambda item: (PuzzleTag.COLOR_ORDERING[item[1]], item[0]))
+
+    context = {
+        'puzzle': puzzle,
+        'suggestions': suggestions,
+        'tag_form': TagForm(),
+    }
     html = render_to_string('modals/tags_form.html', context, request)
     return HttpResponse(html)
 

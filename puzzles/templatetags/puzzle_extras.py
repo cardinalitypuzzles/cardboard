@@ -2,21 +2,13 @@ import cgi
 from django import template
 from django.conf import settings
 from django.template.defaultfilters import stringfilter
+from puzzles import tag_utils
 from puzzles.models import Puzzle
-from puzzles.puzzle_tag import PuzzleTag
 from puzzles.puzzle_tree import *
 from puzzles.forms import StatusForm, MetaPuzzleForm, PuzzleForm, TagForm
 from answers.forms import AnswerForm
 
-DEFAULT_TAGS = [
-    ('HIGH PRIORITY', PuzzleTag.RED),
-    ('LOW PRIORITY', PuzzleTag.YELLOW),
-    ('BACKSOLVED', PuzzleTag.GREEN),
-    ('WORD', PuzzleTag.WHITE),
-    ('LOGIC', PuzzleTag.WHITE),
-    ('TECHNICAL', PuzzleTag.WHITE),
-    ('SLOG', PuzzleTag.GRAY),
-]
+
 
 register = template.Library()
 
@@ -100,27 +92,14 @@ def assign_metas(puzzle, meta_form):
     return context
 
 
-def create_tag_context(puzzle):
-    all_tags = dict(
-        DEFAULT_TAGS +
-        [(t.name, t.color) for t in Puzzle.tags.all()]
-    )
-    current_tags = [(t.name, t.color) for t in puzzle.tags.all()]
-    current_tags.sort(key=lambda item: (PuzzleTag.COLOR_ORDERING[item[1]], item[0]))
-    suggestions = [t for t in all_tags.items() if t not in current_tags]
-    suggestions.sort(key=lambda item: (PuzzleTag.COLOR_ORDERING[item[1]], item[0]))
-
+@register.inclusion_tag('show_tags.html')
+def show_tags(puzzle):
+    puzzle_tags = tag_utils.get_tags(puzzle)
     context = {
         'puzzle': puzzle,
-        'current_tags': current_tags,
-        'tag_form': TagForm(),
-        'suggestions': suggestions
+        'current_tags': puzzle_tags,
     }
     return context
-
-@register.inclusion_tag('show_tags.html')
-def show_tags(puzzle, request):
-    return create_tag_context(puzzle)
 
 
 @register.filter(name='escape')
