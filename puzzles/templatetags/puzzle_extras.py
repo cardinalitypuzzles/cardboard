@@ -49,7 +49,6 @@ def get_table(puzzles, request):
 
     # this caches Puzzle.tags.all() for all the tag forms
     Puzzle.objects.all().prefetch_related('tags')
-    tag_forms = [TagForm() for p in sorted_puzzles]
 
     def __get_puzzle_class(sorted_np_pairs):
         puzzle_class = [table_status_class(pair.node.puzzle) for pair in sorted_np_pairs]
@@ -73,7 +72,7 @@ def get_table(puzzles, request):
     puzzle_class = __get_puzzle_class(sorted_np_pairs)
 
     context = {
-        'rows': zip(sorted_puzzles, status_forms, edit_forms, tag_forms, puzzle_class),
+        'rows': zip(sorted_puzzles, status_forms, edit_forms, puzzle_class),
         'guess_form': AnswerForm(),
         'slack_base_url': settings.SLACK_BASE_URL,
     }
@@ -101,8 +100,7 @@ def assign_metas(puzzle, meta_form):
     return context
 
 
-@register.inclusion_tag('show_tags.html')
-def show_tags(puzzle, tag_form, request):
+def create_tag_context(puzzle):
     all_tags = dict(
         DEFAULT_TAGS +
         [(t.name, t.color) for t in Puzzle.tags.all()]
@@ -115,10 +113,15 @@ def show_tags(puzzle, tag_form, request):
     context = {
         'puzzle': puzzle,
         'current_tags': current_tags,
-        'tag_form': tag_form,
+        'tag_form': TagForm(),
         'suggestions': suggestions
     }
     return context
+
+@register.inclusion_tag('show_tags.html')
+def show_tags(puzzle, request):
+    return create_tag_context(puzzle)
+
 
 @register.filter(name='escape')
 @stringfilter

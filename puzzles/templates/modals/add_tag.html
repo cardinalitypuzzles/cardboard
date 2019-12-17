@@ -1,0 +1,22 @@
+<div class="modal fade" id="addtag" tabindex="-1" role="dialog" aria-labelledby="addtag" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+  $(".addtag").click(function() {
+    var pk = $(this).data("pk");
+    $.get({
+        "url": `/puzzles/add_tags_form/${pk}`,
+        'csrfmiddlewaretoken': '{{ csrf_token }}'
+	}).done(function(data) {
+        console.log(pk)
+        $("#addtag .modal-content").html(data);
+    })
+  })
+});
+</script>
