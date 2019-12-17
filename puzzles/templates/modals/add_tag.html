@@ -11,8 +11,7 @@ $(function () {
   $(".addtag").click(function() {
     var pk = $(this).data("pk");
     $.get({
-        "url": `/puzzles/add_tags_form/${pk}`,
-        'csrfmiddlewaretoken': '{{ csrf_token }}'
+        "url": `/puzzles/add_tags_form/${pk}`
 	}).done(function(data) {
         $("#addtag .modal-content").html(data);
     })
