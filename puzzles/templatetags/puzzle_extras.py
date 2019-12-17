@@ -2,21 +2,13 @@ import cgi
 from django import template
 from django.conf import settings
 from django.template.defaultfilters import stringfilter
+from puzzles import tag_utils
 from puzzles.models import Puzzle
-from puzzles.puzzle_tag import PuzzleTag
 from puzzles.puzzle_tree import *
 from puzzles.forms import StatusForm, MetaPuzzleForm, PuzzleForm, TagForm
 from answers.forms import AnswerForm
 
-DEFAULT_TAGS = [
-    ('HIGH PRIORITY', PuzzleTag.RED),
-    ('LOW PRIORITY', PuzzleTag.YELLOW),
-    ('BACKSOLVED', PuzzleTag.GREEN),
-    ('WORD', PuzzleTag.WHITE),
-    ('LOGIC', PuzzleTag.WHITE),
-    ('TECHNICAL', PuzzleTag.WHITE),
-    ('SLOG', PuzzleTag.GRAY),
-]
+
 
 register = template.Library()
 
@@ -49,7 +41,6 @@ def get_table(puzzles, request):
 
     # this caches Puzzle.tags.all() for all the tag forms
     Puzzle.objects.all().prefetch_related('tags')
-    tag_forms = [TagForm() for p in sorted_puzzles]
 
     def __get_puzzle_class(sorted_np_pairs):
         puzzle_class = [table_status_class(pair.node.puzzle) for pair in sorted_np_pairs]
@@ -73,7 +64,7 @@ def get_table(puzzles, request):
     puzzle_class = __get_puzzle_class(sorted_np_pairs)
 
     context = {
-        'rows': zip(sorted_puzzles, status_forms, edit_forms, tag_forms, puzzle_class),
+        'rows': zip(sorted_puzzles, status_forms, edit_forms, puzzle_class),
         'guess_form': AnswerForm(),
         'slack_base_url': settings.SLACK_BASE_URL,
     }
@@ -102,23 +93,14 @@ def assign_metas(puzzle, meta_form):
 
 
 @register.inclusion_tag('show_tags.html')
-def show_tags(puzzle, tag_form, request):
-    all_tags = dict(
-        DEFAULT_TAGS +
-        [(t.name, t.color) for t in Puzzle.tags.all()]
-    )
-    current_tags = [(t.name, t.color) for t in puzzle.tags.all()]
-    current_tags.sort(key=lambda item: (PuzzleTag.COLOR_ORDERING[item[1]], item[0]))
-    suggestions = [t for t in all_tags.items() if t not in current_tags]
-    suggestions.sort(key=lambda item: (PuzzleTag.COLOR_ORDERING[item[1]], item[0]))
-
+def show_tags(puzzle):
+    puzzle_tags = tag_utils.get_tags(puzzle)
     context = {
         'puzzle': puzzle,
-        'current_tags': current_tags,
-        'tag_form': tag_form,
-        'suggestions': suggestions
+        'current_tags': puzzle_tags,
     }
     return context
+
 
 @register.filter(name='escape')
 @stringfilter

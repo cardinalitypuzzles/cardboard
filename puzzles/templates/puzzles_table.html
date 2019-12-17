@@ -1,4 +1,5 @@
 {% load puzzle_extras %}
+{% include "modals/add_tag.html" %}
 {% include "modals/set_meta.html" %}
 
 
@@ -16,7 +17,7 @@
         </tr>
     </thead>
     <tbody>
-        {% for p, status_form, edit_form, tag_form, puzzle_class in rows %}
+        {% for p, status_form, edit_form, puzzle_class in rows %}
         <tr class="{{ puzzle_class }}">
             <td scope="row">
                 {% get_title p edit_form %}
@@ -33,7 +34,7 @@
             <td><a href="{{ p.sheet }}">Link</a></td>
             <td><a href="{{ slack_base_url }}/app_redirect?channel={{ p.channel }}">Link</a></td>
             <td>
-                {% show_tags p tag_form request %}
+                {% show_tags p %}
             </td>
             <td>
                 {% if p.status != "SOLVED" %}
