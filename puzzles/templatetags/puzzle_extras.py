@@ -86,8 +86,9 @@ def get_title(puzzle, edit_form):
         badge = 'META'
     context = {
         'puzzle': puzzle,
+        'active_users': puzzle.active_users.all(),
         'badge': badge,
-        'edit_form': edit_form
+        'edit_form': edit_form,
     }
     return context
 

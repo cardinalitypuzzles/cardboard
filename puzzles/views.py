@@ -1,3 +1,4 @@
+import json
 import os
 
 from django.shortcuts import render, get_object_or_404
@@ -14,8 +15,10 @@ from url_normalize import url_normalize
 from .models import *
 from .puzzle_tag import PuzzleTag
 from .forms import StatusForm, MetaPuzzleForm, PuzzleForm, TagForm
+from accounts.models import Puzzler
 from answers.models import Answer
 from answers.forms import AnswerForm
+from slack_lib.slack_client import SlackClient
 
 
 
@@ -77,6 +80,44 @@ def slack_guess(request):
     puzzle.save()
 
     return HttpResponse("Answer " + answer_text + " has been submitted!")
+
+
+@require_POST
+@csrf_exempt
+def slack_events(request):
+    '''
+    Handles Slack member_joined_channel and member_left_channel events
+    to keep track of active users per puzzle.
+    '''
+    event = json.loads(request.body)
+    token = event.get('token')
+    # TODO(erwa): Move SLACK_VERIFICATION_TOKEN into settings.py
+    if token != os.environ.get("SLACK_VERIFICATION_TOKEN"):
+        return HttpResponseForbidden()
+
+    # one time events API verification
+    challenge = event.get('challenge')
+    if challenge:
+        return HttpResponse(challenge)
+
+    event = event.get('event')
+    print('Received Slack event:', event)
+
+    email = SlackClient.getInstance().get_user_email(event.get('user'))
+    try:
+        user = Puzzler.objects.get(email=email)
+    except Puzzler.DoesNotExist as e:
+        print('User with email', email, 'not found. Exception:', e)
+        return HttpResponse('User with email ' + email + ' not found.')
+
+    event_type = event.get('type')
+    puzzle = Puzzle.objects.get(channel=event.get('channel'))
+    if event_type == 'member_joined_channel':
+        puzzle.active_users.add(user)
+    elif event_type == 'member_left_channel':
+        puzzle.active_users.remove(user)
+
+    return HttpResponse('Processed ' + event_type + ' event')
 
 
 @require_POST
