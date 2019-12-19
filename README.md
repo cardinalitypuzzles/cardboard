@@ -37,7 +37,7 @@ source venv_smallboard/bin/activate
 If you encounter issues during dependency installation, make sure you've installed the `python3-dev` package (and not just `python3`).
 
 
-#### Setting up a local database
+#### <a name='database'>Setting up a local database</a>
 
 Django supports multiple databases but here we use Postgres as an example. For most OS distributions, you should be able to install it using your package manager, similar to:
 
@@ -69,9 +69,11 @@ sudo -u postgres psql
 # inside postgres shell
 create database smallboard;
 
-# you can customize "myuser" and "mypass" as you like
 create user myuser with encrypted password 'mypass';
 grant all privileges on database smallboard to myuser;
+
+# needed for tests
+ALTER USER myuser CREATEDB;
 ```
 
 Create a `.env` file in the `smallboard/` root directory with the database connection info:
@@ -175,6 +177,17 @@ Once the Python environment and database are set up and running, you can run Sma
 ```
 
 You can view the app in your browser at [http://127.0.0.1:8000/]().
+
+
+### Running Tests
+
+To run tests:
+
+```
+python manage.py test
+```
+
+The test environment settings are in `.env.test`. If you encounter an error `Got an error creating the test database: permission denied to create database`, make sure you run `ALTER USER myuser CREATEDB` as described above in the [Setting up a local database](database) section.
 
 
 ### Deployment to Heroku
