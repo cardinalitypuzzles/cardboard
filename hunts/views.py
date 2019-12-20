@@ -3,7 +3,6 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.db import IntegrityError
-from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.views import View
@@ -80,7 +79,7 @@ class HuntView(LoginRequiredMixin, View):
             # Early termination -- if a puzzle with given name or URL exists, don't try to create
             # a new sheet or slack channel. This is purely an optimization to avoid dangling
             # google sheets / slack channels.
-            already_exists = Puzzle.objects.filter(Q(name=name) | Q(url=puzzle_url)).exists()
+            already_exists = Puzzle.objects.filter(name=name).exists()
             if already_exists:
                 return self.__handle_dup_puzzle(request)
 

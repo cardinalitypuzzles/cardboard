@@ -15,7 +15,8 @@ class PuzzleForm(forms.Form):
         widget=forms.TextInput(attrs={
             "class": "form-control",
             "placeholder": "URL"
-        })
+        }),
+        required=False
     )
     is_meta = forms.BooleanField(required=False)
 
