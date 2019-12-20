@@ -23,10 +23,10 @@
         </tr>
     </thead>
     <tbody>
-        {% for ans, form, notes_form in rows%}
+        {% for ans, edit_form, form, notes_form in rows%}
         <tr class="{% answer_class ans %}">
             <th>{{ ans.created_on }}</th>
-            <td>{% get_title ans.puzzle%}</td>
+            <td>{% get_title ans.puzzle edit_form %}</td>
             <td><p class="text-monospace">{{ ans.text.upper|strip }}</p></td>
             <td>
                 <form action="/answers/queue/{{ hunt_pk }}/{{ ans.id }}" method="post" class="form-inline">
