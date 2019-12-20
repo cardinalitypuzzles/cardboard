@@ -35,14 +35,13 @@ class AnswerView(LoginRequiredMixin, View):
     def get(self, request, hunt_pk):
         hunt = get_object_or_404(Hunt, pk=hunt_pk)
         answers = Answer.objects.filter(puzzle__hunt__pk=hunt_pk).order_by('-created_on')
-        edit_forms = [PuzzleForm(initial={'name': ans.puzzle.name, 'url': ans.puzzle.url, 'is_meta': ans.puzzle.is_meta}) for ans in answers]
         status_forms = [UpdateAnswerStatusForm(initial={'status': ans.get_status()}) for ans in answers]
         notes_forms = [UpdateAnswerNotesForm(initial={'text': ans.get_notes()}) for ans in answers]
 
         context = {
             'hunt_pk': hunt_pk,
             'hunt_name': hunt.name,
-            'rows' : zip(answers, edit_forms, status_forms, notes_forms)
+            'rows' : zip(answers, status_forms, notes_forms)
         }
         return render(request, 'queue.html', context)
 

@@ -4,6 +4,9 @@
 
 {% block page_content %}
 
+{% include "modals/edit_puzzle.html" %}
+{% include "modals/delete_puzzle.html" %}
+
 <meta http-equiv="refresh" content="30">
 
 <div class="row justify-content-between" style="margin:10">
@@ -23,10 +26,10 @@
         </tr>
     </thead>
     <tbody>
-        {% for ans, edit_form, form, notes_form in rows%}
+        {% for ans, form, notes_form in rows%}
         <tr class="{% answer_class ans %}">
             <th>{{ ans.created_on }}</th>
-            <td>{% get_title ans.puzzle edit_form %}</td>
+            <td>{% get_title ans.puzzle %}</td>
             <td><p class="text-monospace">{{ ans.text.upper|strip }}</p></td>
             <td>
                 <form action="/answers/queue/{{ hunt_pk }}/{{ ans.id }}" method="post" class="form-inline">

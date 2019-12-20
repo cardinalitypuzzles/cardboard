@@ -1,7 +1,8 @@
 {% load puzzle_extras %}
+{% include "modals/edit_puzzle.html" %}
+{% include "modals/delete_puzzle.html" %}
 {% include "modals/add_tag.html" %}
 {% include "modals/set_meta.html" %}
-
 
 <table class="table table-sm tree" id="puzzles" style="width:100%">
     <thead>
@@ -17,10 +18,10 @@
         </tr>
     </thead>
     <tbody>
-        {% for p, status_form, edit_form, puzzle_class in rows %}
+        {% for p, status_form, puzzle_class in rows %}
         <tr class="{{ puzzle_class }}">
             <td scope="row">
-                {% get_title p edit_form %}
+                {% get_title p %}
             </td>
             <td><p class="text-monospace">{{ p.answer.upper }}</p></td>
             <td>

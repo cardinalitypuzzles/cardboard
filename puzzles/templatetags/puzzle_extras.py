@@ -37,8 +37,6 @@ def get_table(puzzles, request):
             status_forms[i].fields["status"].choices =\
                 [(status, status) for status in Puzzle.VISIBLE_STATUS_CHOICES]
 
-    edit_forms = [PuzzleForm(initial={'name': p.name, 'url': p.url, 'is_meta': p.is_meta}) for p in sorted_puzzles]
-
     # this caches Puzzle.tags.all() for all the tag forms
     Puzzle.objects.all().prefetch_related('tags')
 
@@ -64,14 +62,14 @@ def get_table(puzzles, request):
     puzzle_class = __get_puzzle_class(sorted_np_pairs)
 
     context = {
-        'rows': zip(sorted_puzzles, status_forms, edit_forms, puzzle_class),
+        'rows': zip(sorted_puzzles, status_forms, puzzle_class),
         'guess_form': AnswerForm(),
         'slack_base_url': settings.SLACK_BASE_URL,
     }
     return context
 
 @register.inclusion_tag('title.html')
-def get_title(puzzle, edit_form):
+def get_title(puzzle):
     badge = ''
     if puzzle.is_meta:
         badge = 'META'
@@ -79,7 +77,6 @@ def get_title(puzzle, edit_form):
         'puzzle': puzzle,
         'active_users': puzzle.active_users.all(),
         'badge': badge,
-        'edit_form': edit_form,
     }
     return context
 
