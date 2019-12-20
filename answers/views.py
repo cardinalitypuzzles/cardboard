@@ -9,6 +9,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.views import View
 from hunts.models import Hunt
+from puzzles.forms import PuzzleForm
 from slack_lib.slack_client import SlackClient
 
 
@@ -31,19 +32,20 @@ class AnswerView(LoginRequiredMixin, View):
     login_url = '/accounts/login/'
     redirect_field_name = 'next'
 
-    def get(self, request, hunk_pk):
-        hunt = get_object_or_404(Hunt, pk=hunk_pk)
-        answers = Answer.objects.filter(puzzle__hunt__pk=hunk_pk).order_by('-created_on')
-        forms = [UpdateAnswerStatusForm(initial={'status': ans.get_status()}) for ans in answers]
+    def get(self, request, hunt_pk):
+        hunt = get_object_or_404(Hunt, pk=hunt_pk)
+        answers = Answer.objects.filter(puzzle__hunt__pk=hunt_pk).order_by('-created_on')
+        edit_forms = [PuzzleForm(initial={'name': ans.puzzle.name, 'url': ans.puzzle.url, 'is_meta': ans.puzzle.is_meta}) for ans in answers]
+        status_forms = [UpdateAnswerStatusForm(initial={'status': ans.get_status()}) for ans in answers]
         notes_forms = [UpdateAnswerNotesForm(initial={'text': ans.get_notes()}) for ans in answers]
 
         context = {
-            'hunt_pk': hunk_pk,
+            'hunt_pk': hunt_pk,
             'hunt_name': hunt.name,
-            'rows' : zip(answers, forms, notes_forms)
+            'rows' : zip(answers, edit_forms, status_forms, notes_forms)
         }
         return render(request, 'queue.html', context)
-    
+
     @staticmethod
     def __update_slack_with_puzzle_status(answer, status):
         slack_client = SlackClient.getInstance()
@@ -62,7 +64,7 @@ class AnswerView(LoginRequiredMixin, View):
                                   (answer.puzzle.name, answer.text.upper()))
 
 
-    def post(self, request, hunk_pk, answer_pk):
+    def post(self, request, hunt_pk, answer_pk):
         status_form = UpdateAnswerStatusForm(request.POST)
 
         if status_form.is_valid():
