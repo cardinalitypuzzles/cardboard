@@ -233,10 +233,14 @@ def add_tags_form(request, pk):
     suggestions = [t for t in all_tags.items() if t not in puzzle_tags]
     suggestions.sort(key=lambda item: (PuzzleTag.COLOR_ORDERING[item[1]], item[0]))
 
+    tag_form = TagForm()
+    # For custom tags, we want to limit color choices to non-reserved colors.
+    tag_form.fields['color'].choices = PuzzleTag.VISIBLE_COLOR_CHOICES
+
     context = {
         'puzzle': puzzle,
         'suggestions': suggestions,
-        'tag_form': TagForm(),
+        'tag_form': tag_form,
     }
     html = render_to_string('modals/tags_form.html', context, request)
     return HttpResponse(html)
