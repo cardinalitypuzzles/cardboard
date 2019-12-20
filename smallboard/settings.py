@@ -13,18 +13,14 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 from distutils.util import strtobool
 from django.core.management.utils import get_random_secret_key
 
-import dotenv
 import logging
 import os
+
 
 logger = logging.getLogger(__name__)
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-dotenv_file = os.path.join(BASE_DIR, ".env")
-if os.path.isfile(dotenv_file):
-    dotenv.load_dotenv(dotenv_file)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
@@ -147,12 +143,15 @@ LOGIN_ERROR_URL = '/'
 
 # Configure Django App for Heroku.
 import django_heroku
-django_heroku.settings(locals())
+django_heroku.settings(locals(), test_runner=False)
 
 import dj_database_url
 
 DATABASES = {}
 DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=False)
+DATABASES['default']['TEST'] = {
+    'NAME': 'test_smallboard'
+}
 
 ACTIVE_HUNT_ID = os.environ.get("ACTIVE_HUNT_ID", '')
 if not ACTIVE_HUNT_ID:
