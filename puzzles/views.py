@@ -177,6 +177,7 @@ def delete_puzzle(request, pk):
 
 @require_POST
 @login_required(login_url='/accounts/login/')
+@csrf_exempt
 def add_tag(request, pk):
     form = TagForm(request.POST)
     if not form.is_valid():

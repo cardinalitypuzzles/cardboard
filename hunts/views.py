@@ -5,7 +5,9 @@ from django.contrib import messages
 from django.db import IntegrityError
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
+from django.utils.decorators import method_decorator
 from django.views import View
+from django.views.decorators.csrf import csrf_exempt
 
 from url_normalize import url_normalize
 
@@ -42,6 +44,8 @@ def index(request):
 def tools(request):
     return render(request, 'tools.html')
 
+
+@method_decorator(csrf_exempt, name='dispatch')
 class HuntView(LoginRequiredMixin, View):
     login_url = '/accounts/login/'
     redirect_field_name = 'next'
@@ -98,7 +102,7 @@ class HuntView(LoginRequiredMixin, View):
                 messages.warning(request, "Slack channel not created")
 
             try:
-                Puzzle.objects.create(
+                puzzle = Puzzle.objects.create(
                     name=name,
                     url=puzzle_url,
                     hunt=hunt,
@@ -116,5 +120,8 @@ class HuntView(LoginRequiredMixin, View):
         else:
             messages.error(request, "Puzzle not created because the form was invalid.")
 
-        return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+        response = HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+        if puzzle:
+            response.set_cookie('puzzle-pk', puzzle.id)
+        return response
 
