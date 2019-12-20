@@ -61,8 +61,10 @@ class GoogleDriveClient:
 
         permissions = response['permissions']
 
-        emails = []
+        emails = set()
         for perm in permissions:
-            emails.append(perm['emailAddress'])
+            email = perm['emailAddress']
+            emails.add(email)
+            emails.add(email.lower())
 
-        return sorted(emails)
+        return sorted(list(emails))
