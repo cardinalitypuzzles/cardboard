@@ -45,7 +45,6 @@ def tools(request):
     return render(request, 'tools.html')
 
 
-@method_decorator(csrf_exempt, name='dispatch')
 class HuntView(LoginRequiredMixin, View):
     login_url = '/accounts/login/'
     redirect_field_name = 'next'
@@ -125,3 +124,6 @@ class HuntView(LoginRequiredMixin, View):
             response.set_cookie('puzzle-pk', puzzle.id)
         return response
 
+
+if settings.DEBUG:
+    HuntView = method_decorator(csrf_exempt, name='dispatch')(HuntView)
