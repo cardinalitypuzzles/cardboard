@@ -76,8 +76,7 @@ class HuntView(LoginRequiredMixin, View):
 
         if form.is_valid():
             name = form.cleaned_data["name"]
-            if len(name) > 20:
-                name = name[:20]
+            name = Puzzle.maybe_truncate_name(name)
             puzzle_url = url_normalize(form.cleaned_data["url"])
             is_meta = form.cleaned_data["is_meta"]
 

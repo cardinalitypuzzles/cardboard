@@ -116,13 +116,18 @@ class Puzzle(models.Model):
 
         self.save()
 
-
     def is_solved(self):
         return self.status == Puzzle.SOLVED
 
-
     def has_assigned_meta(self):
         return len(self.metas.all()) > 0
+
+    @staticmethod
+    def maybe_truncate_name(name):
+        max_allowed_length = Puzzle._meta.get_field('name').max_length
+        if len(name) <= max_allowed_length
+            return name
+        return name[:max_allowed_length]
 
 
 # Used for cycle detection before adding an edge from potential ancestor to child.
