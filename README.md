@@ -163,7 +163,7 @@ DJANGO_SECRET_KEY=...
 DEBUG=...
 ```
 
-#### Google OAuth2 login integration
+#### Google OAuth2 login integration (optional)
 
 The app uses Google OAuth2 to authenticate users. If the `SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET` environment variable isn't set, the app will fall back to a "Signup" flow where users can create their own username and password. Even with Google OAuth2 enabled, you can still create superusers using `python manage.py createsuperuser`. The OAuth2 settings are configured at https://console.developers.google.com/apis/credentials?project=smallboard-test-260001.
 
@@ -172,7 +172,7 @@ You should be able to use Google OAuth2 locally as well, since the OAuth2 settin
 The whitelist of allowed emails is the emails of the users who have access to `GOOGLE_DRIVE_HUNT_FOLDER_ID`. If you don't have access, please message a Collaborator to be added.
 
 
-#### Google Sheets Integration
+#### Google Sheets Integration (optional)
 
 When a puzzle is created, a Google Sheet is created that is a copy of the template specified by `GOOGLE_SHEETS_TEMPLATE_FILE_ID` (which should have some useful formulas pre-added). The copied sheet is created in the same folder as the template.
 
@@ -180,7 +180,8 @@ You need to have access to the Google Drive folder to view it. Please message a 
 
 These Google Drive and Sheets related settings can be found in [smallboard/settings.py](smallboard/settings.py).
 
-#### Slack Integration
+
+#### Slack Integration (optional)
 
 This app interacts with a slack workspace in the following ways:
 1) Channel creation upon puzzle creation
@@ -232,6 +233,7 @@ git push heroku master
 ```
 
 We encourage you to keep the `origin` remote as our GitHub repo and make it the default for `git push`s, and use `git push heroku master` to push to the Heroku Git servers when you are ready to deploy changes to production.
+
 
 #### Environment variables
 
