@@ -102,7 +102,7 @@ The environment variables used by Small Board are listed below. The only require
 
 ```
 # for connecting to the database (see "Setting up a local database" section above)
-DATABASE_URL=...
+DATABASE_URL=postgres://myuser:mypass@localhost/smallboard
 
 # the default (active) hunt
 ACTIVE_HUNT_ID=1
