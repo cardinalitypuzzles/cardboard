@@ -125,8 +125,6 @@ class Puzzle(models.Model):
     @staticmethod
     def maybe_truncate_name(name):
         max_allowed_length = Puzzle._meta.get_field('name').max_length
-        if len(name) <= max_allowed_length
-            return name
         return name[:max_allowed_length]
 
 
