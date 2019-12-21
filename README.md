@@ -93,6 +93,25 @@ source venv_smallboard/bin/activate
 (venv_smallboard)$ python manage.py migrate
 ```
 
+#### Copying production data to local database
+
+For testing and development, it can be helpful to load the production data into your local database. You can do so as follows:
+
+```
+# download production data
+# get the postgres connection string from https://dashboard.heroku.com/apps/smallboard/settings
+heroku run pg_dump postgres://user:pass@....compute-1.amazonaws.com:5432/database > prod_db.sql
+
+# edit prod_db.sql and replace all instances of "Owner: <random_string_of_letters>" with "Owner: myuser"
+
+# delete all existing data in local database
+python manage.py flush
+
+# load production data
+# you can ignore the ERRORs
+psql postgres://myuser:mypass@localhost/smallboard < prod_db.sql
+```
+
 
 #### <a name='env'>Local `.env` file: credentials, API Tokens, configuration</a>
 
@@ -171,6 +190,7 @@ When running locally, only 1) will work since the /answer command sends a direct
 POST request to the heroku deployment.
 
 You can contact a Collaborator to be added to the relevant slack workspace(s).
+
 
 #### Local deployment
 
