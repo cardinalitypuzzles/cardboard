@@ -15,7 +15,8 @@ class PuzzleForm(forms.Form):
         widget=forms.TextInput(attrs={
             "class": "form-control",
             "placeholder": "URL"
-        })
+        }),
+        required=False
     )
     is_meta = forms.BooleanField(required=False)
 
@@ -32,12 +33,13 @@ class StatusForm(forms.ModelForm):
 
 class TagForm(forms.Form):
     name = forms.CharField(max_length=128)
-    color = forms.ChoiceField(choices=PuzzleTag.VISIBLE_COLOR_CHOICES)
+    color = forms.ChoiceField(choices=PuzzleTag.COLORS.items())
 
 
 class MetaChoiceField(forms.ModelMultipleChoiceField):
     def label_from_instance(self, meta):
          return meta.name
+
 
 class MetaPuzzleForm(forms.ModelForm):
     class Meta:

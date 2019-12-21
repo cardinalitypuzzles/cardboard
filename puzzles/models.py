@@ -1,4 +1,3 @@
-from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models import Q
 from taggit.managers import TaggableManager
@@ -29,7 +28,7 @@ class InvalidMetaPuzzleError(PuzzleModelError):
 class Puzzle(models.Model):
     name = models.CharField(max_length=80, unique=True)
     hunt = models.ForeignKey('hunts.Hunt', on_delete=models.CASCADE, related_name='puzzles')
-    url = models.URLField(unique=True)
+    url = models.URLField(blank=True)
 
     sheet = models.URLField(default='', unique=True)
     channel = models.CharField(max_length=128, default='', unique=True)

@@ -214,7 +214,7 @@ from google_drive_lib.google_drive_client import GoogleDriveClient
 google_drive_client = GoogleDriveClient.getInstance()
 if google_drive_client:
     SOCIAL_AUTH_GOOGLE_OAUTH2_WHITELISTED_EMAILS = google_drive_client.get_file_user_emails(GOOGLE_DRIVE_HUNT_FOLDER_ID)
-    print('Whitelisted emails:', SOCIAL_AUTH_GOOGLE_OAUTH2_WHITELISTED_EMAILS)
+    logger.info('Whitelisted emails: ' + str(SOCIAL_AUTH_GOOGLE_OAUTH2_WHITELISTED_EMAILS))
 else:
     logger.warn('Google Drive integration not set up. All emails will be accepted.')
 

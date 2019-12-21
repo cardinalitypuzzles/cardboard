@@ -1,27 +1,27 @@
 import json
 import os
 
-from django.shortcuts import render, get_object_or_404
-from django.template.loader import render_to_string
-from django.core.exceptions import ObjectDoesNotExist
-from django.contrib.auth.decorators import login_required
+from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
 from django.http import HttpResponseForbidden
 from django.http import HttpResponseRedirect
+from django.shortcuts import render, get_object_or_404
+from django.template.loader import render_to_string
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from url_normalize import url_normalize
 
 from . import tag_utils
+from .forms import StatusForm, MetaPuzzleForm, PuzzleForm, TagForm
 from .models import *
 from .puzzle_tag import PuzzleTag
-from .forms import StatusForm, MetaPuzzleForm, PuzzleForm, TagForm
 from accounts.models import Puzzler
-from answers.models import Answer
 from answers.forms import AnswerForm
+from answers.models import Answer
 from slack_lib.slack_client import SlackClient
-
 
 
 @login_required(login_url='/accounts/login/')
@@ -200,6 +200,9 @@ def add_tag(request, pk):
 
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
+if settings.DEBUG:
+    add_tag = csrf_exempt(add_tag)
+
 
 @require_POST
 @login_required(login_url='/accounts/login/')
@@ -233,10 +236,14 @@ def add_tags_form(request, pk):
     suggestions = [t for t in all_tags.items() if t not in puzzle_tags]
     suggestions.sort(key=lambda item: (PuzzleTag.COLOR_ORDERING[item[1]], item[0]))
 
+    tag_form = TagForm()
+    # For custom tags, we want to limit color choices to non-reserved colors.
+    tag_form.fields['color'].choices = PuzzleTag.VISIBLE_COLOR_CHOICES
+
     context = {
         'puzzle': puzzle,
         'suggestions': suggestions,
-        'tag_form': TagForm(),
+        'tag_form': tag_form,
     }
     html = render_to_string('modals/tags_form.html', context, request)
     return HttpResponse(html)

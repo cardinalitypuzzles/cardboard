@@ -3,10 +3,11 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.db import IntegrityError
-from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
+from django.utils.decorators import method_decorator
 from django.views import View
+from django.views.decorators.csrf import csrf_exempt
 
 from url_normalize import url_normalize
 
@@ -42,6 +43,7 @@ def index(request):
 @login_required(login_url='/accounts/login/')
 def tools(request):
     return render(request, 'tools.html')
+
 
 class HuntView(LoginRequiredMixin, View):
     login_url = '/accounts/login/'
@@ -82,7 +84,7 @@ class HuntView(LoginRequiredMixin, View):
             # Early termination -- if a puzzle with given name or URL exists, don't try to create
             # a new sheet or slack channel. This is purely an optimization to avoid dangling
             # google sheets / slack channels.
-            already_exists = Puzzle.objects.filter(Q(name=name) | Q(url=puzzle_url)).exists()
+            already_exists = Puzzle.objects.filter(name=name).exists()
             if already_exists:
                 return self.__handle_dup_puzzle(request)
 
@@ -101,7 +103,7 @@ class HuntView(LoginRequiredMixin, View):
                 messages.warning(request, "Slack channel not created")
 
             try:
-                Puzzle.objects.create(
+                puzzle = Puzzle.objects.create(
                     name=name,
                     url=puzzle_url,
                     hunt=hunt,
@@ -119,5 +121,11 @@ class HuntView(LoginRequiredMixin, View):
         else:
             messages.error(request, "Puzzle not created because the form was invalid.")
 
-        return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+        response = HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+        if puzzle:
+            response.set_cookie('puzzle-pk', puzzle.id)
+        return response
 
+
+if settings.DEBUG:
+    HuntView = method_decorator(csrf_exempt, name='dispatch')(HuntView)

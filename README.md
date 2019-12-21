@@ -93,15 +93,38 @@ source venv_smallboard/bin/activate
 (venv_smallboard)$ python manage.py migrate
 ```
 
+#### Copying production data to local database
+
+For testing and development, it can be helpful to load the production data into your local database. You can do so as follows:
+
+```
+# download production data
+# get the postgres connection string from https://dashboard.heroku.com/apps/smallboard/settings
+heroku run pg_dump postgres://user:pass@....compute-1.amazonaws.com:5432/database > prod_db.sql
+
+# edit prod_db.sql and replace all instances of "Owner: <random_string_of_letters>" with "Owner: myuser"
+
+# delete all existing data in local database
+python manage.py flush
+
+# load production data
+# you can ignore the ERRORs
+psql postgres://myuser:mypass@localhost/smallboard < prod_db.sql
+```
+
 
 #### <a name='env'>Local `.env` file: credentials, API Tokens, configuration</a>
 
-This app uses various secrets including Google and Slack API tokens that need to be present in the environment. Locally, you can put these in the `.env` file. In the production Heroku deployment, they're set as Config Vars at https://dashboard.heroku.com/apps/smallboard/settings. For most of these configs, you can just use the production settings. The ones you probably want to change are `DATABASE_URL`, `DJANGO_SECRET_KEY`, and `DEBUG`. You can contact a Collaborator to give you access to the Heroku Small Board settings or to share their `.env` file with you. The environment variables used by Small Board are listed below:
+This app uses various secrets including Google and Slack API tokens that need to be present in the environment. Locally, you can put these in the `.env` file. In the production Heroku deployment, they're set as Config Vars at https://dashboard.heroku.com/apps/smallboard/settings. For most of these configs, you can just use the production settings. The ones you probably want to change are `DATABASE_URL`, `DJANGO_SECRET_KEY`, and `DEBUG`. You can contact a Collaborator to give you access to the Heroku Small Board settings or to share their `.env` file with you.
 
+The environment variables used by Small Board are listed below. The only required variables are `DATABASE_URL` and `ACTIVE_HUNT_ID`.
 
 ```
 # for connecting to the database (see "Setting up a local database" section above)
-DATABASE_URL=...
+DATABASE_URL=postgres://myuser:mypass@localhost/smallboard
+
+# the default (active) hunt
+ACTIVE_HUNT_ID=1
 
 # for accessing Google Drive APIs
 GOOGLE_DRIVE_API_PRIVATE_KEY=...
@@ -140,7 +163,7 @@ DJANGO_SECRET_KEY=...
 DEBUG=...
 ```
 
-#### Google OAuth2 login integration
+#### Google OAuth2 login integration (optional)
 
 The app uses Google OAuth2 to authenticate users. If the `SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET` environment variable isn't set, the app will fall back to a "Signup" flow where users can create their own username and password. Even with Google OAuth2 enabled, you can still create superusers using `python manage.py createsuperuser`. The OAuth2 settings are configured at https://console.developers.google.com/apis/credentials?project=smallboard-test-260001.
 
@@ -149,7 +172,7 @@ You should be able to use Google OAuth2 locally as well, since the OAuth2 settin
 The whitelist of allowed emails is the emails of the users who have access to `GOOGLE_DRIVE_HUNT_FOLDER_ID`. If you don't have access, please message a Collaborator to be added.
 
 
-#### Google Sheets Integration
+#### Google Sheets Integration (optional)
 
 When a puzzle is created, a Google Sheet is created that is a copy of the template specified by `GOOGLE_SHEETS_TEMPLATE_FILE_ID` (which should have some useful formulas pre-added). The copied sheet is created in the same folder as the template.
 
@@ -157,7 +180,8 @@ You need to have access to the Google Drive folder to view it. Please message a 
 
 These Google Drive and Sheets related settings can be found in [smallboard/settings.py](smallboard/settings.py).
 
-#### Slack Integration
+
+#### Slack Integration (optional)
 
 This app interacts with a slack workspace in the following ways:
 1) Channel creation upon puzzle creation
@@ -167,6 +191,7 @@ When running locally, only 1) will work since the /answer command sends a direct
 POST request to the heroku deployment.
 
 You can contact a Collaborator to be added to the relevant slack workspace(s).
+
 
 #### Local deployment
 
@@ -208,6 +233,7 @@ git push heroku master
 ```
 
 We encourage you to keep the `origin` remote as our GitHub repo and make it the default for `git push`s, and use `git push heroku master` to push to the Heroku Git servers when you are ready to deploy changes to production.
+
 
 #### Environment variables
 
