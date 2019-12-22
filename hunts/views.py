@@ -79,7 +79,7 @@ class HuntView(LoginRequiredMixin, View):
             puzzle_url = url_normalize(form.cleaned_data["url"])
             is_meta = form.cleaned_data["is_meta"]
 
-            # Early termination -- if a puzzle with given name or URL exists, don't try to create
+            # Early termination -- if a puzzle with given name exists, don't try to create
             # a new sheet or slack channel. This is purely an optimization to avoid dangling
             # google sheets / slack channels.
             already_exists = Puzzle.objects.filter(name=name).exists()
