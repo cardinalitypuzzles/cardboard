@@ -6,6 +6,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import transaction
 from django.http import HttpResponse
 from django.http import HttpResponseForbidden
 from django.http import HttpResponseRedirect
@@ -46,17 +47,17 @@ def __sanitize_guess(guess):
 
 @require_POST
 @login_required(login_url='/accounts/login/')
+@transaction.atomic
 def guess(request, pk):
     form = AnswerForm(request.POST)
-    puzzle = get_object_or_404(Puzzle, pk=pk)
+    puzzle = get_object_or_404(Puzzle.objects.select_for_update(), pk=pk)
 
     if form.is_valid() and puzzle.status != Puzzle.SOLVED:
         answer_text = __sanitize_guess(form.cleaned_data["text"])
         # If answer has already been added to the queue
-        if not Answer.objects.filter(puzzle=puzzle, text=answer_text):
-            answer = Answer(text=answer_text, puzzle=puzzle)
+        _, created = Answer.objects.get_or_create(text=answer_text, puzzle=puzzle)
+        if created:
             puzzle.status = Puzzle.PENDING
-            answer.save()
             puzzle.save()
         else:
             messages.error(request, '"{}" has already been submitted as a guess'.format(answer_text))
