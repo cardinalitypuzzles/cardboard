@@ -1,150 +1,174 @@
 {% load puzzle_extras %}
 
-{% include "modals/edit_puzzle.html" %}
-{% include "modals/delete_puzzle.html" %}
-{% include "modals/add_tag.html" %}
-{% include "modals/set_meta.html" %}
-
-<div class="px-3 pb-3">
-    <table class="table table-sm tree" id="puzzles">
-        <thead class>
-            <tr>
-                <th scope="col">Name</th>
-                <th scope="col">Answer</th>
-                <th scope="col">Status</th>
-                <th scope="col">Sheet</th>
-                <th scope="col">Slack</th>
-                <th scope="col">Tags</th>
-                <th scope="col"></th>
-                <th scope="col">Meta</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for p, status_form, puzzle_class in rows %}
-            <tr class="{{ puzzle_class }}">
-                <td scope="row">
-                    {% get_title p %}
-                </td>
-                <td><p class="text-monospace">{{ p.answer.upper }}</p></td>
-                <td>
-                    <form method="post", action="/puzzles/update_status/{{ p.pk }}/" class="form-inline">
-                        {% csrf_token %}
-                        <div class="form-group">
-                            {{ status_form.status }}
-                        </div>
-                    </form>
-                </td>
-                <td><a href="{{ p.sheet }}" target="_blank">Link</a></td>
-                <td><a href="{{ slack_base_url }}/app_redirect?channel={{ p.channel}}" target-"_blank">Link</a></td>
-                <td>
-                    {% show_tags p %}
-                </td>
-                <td>
-                    {% if p.status != "SOLVED" %}
-                        <form action="/puzzles/guess/{{ p.pk }}/" method="post" class="form-inline">
-                        {% csrf_token %}
-                        <div class="form-group">
-                            {{ guess_form.text }}
-                        </div>
-                        <button type="submit" class="btn btn-outline-primary btn-sm">Submit</button>
-                    </form>
-                     {% endif %}
-                </td>
-                <td>
-                    <button type="button" class="meta btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#meta" data-pk="{{ p.pk }}">
-                        Assign Meta
-                    </button>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-        <tfoot>
-            <tr>
-                <th scope="col" class="column_searchable">Name</th>
-                <th scope="col" class="column_searchable">Answer</th>
-                <th scope="col" class="column_searchable">Status</th>
-                <th scope="col"></th>
-                <th scope="col"></th>
-                <th scope="col" class="column_searchable">Tags</th>
-                <th scope="col"></th>
-                <th scope="col"></th>
-            </tr>
-        </tfoot>
-    </table>
-</div>
+<table class="table table-sm tree" id="puzzles" style="width:100%">
+</table>
 
 <script type="text/javascript">
+var slack_base_url = '{{ slack_base_url }}';
+var data = [
+{% for p, tags, metas, active_users, status_form, puzzle_class in rows %}['{{p.pk}}', '{{p.name}}', '{{p.url}}', '{{p.is_meta}}', '{{active_users|join:", "}}', '{{p.answer}}', '{{p.status}}', '{{p.sheet}}', '{{p.channel}}', {{tags|safe}}, '', '{{puzzle_class}}', ],
+{% endfor %}
+];
+
 $(document).ready(function() {
-    var puzzle_table = $('#puzzles');
-    var puzzle_table_dom = puzzle_table.get(0);
+    // indices into data array
+    var pk = 0,
+        name = 1,
+        url = 2,
+        is_meta = 3,
+        active_users = 4,
+        answer = 5,
+        status = 6,
+        sheet = 7,
+        channel = 8,
+        tags = 9,
+        metas = 10,
+        puzzle_class = 11;
 
     var start_ts = Date.now();
-    // For choice fields, each entry should only be searchable by the currently
-    // selected value.
-    $.fn.dataTableExt.ofnSearch['select-input'] = function(i, j) {
-        // Row is +1 due to header row being included in the table.
-        var cell = puzzle_table_dom.rows[i + 1].cells[j];
-        return cell.querySelector('select').value;
-    };
-
-    // For tags, each entry should be searchable by existing badges.
-    $.fn.dataTableExt.ofnSearch['tag-input'] = function(i, j) {
-        var search_str = "";
-        // Row is +1 due to header row being included in the table.
-        puzzle_table_dom.rows[i + 1].cells[j].querySelectorAll(".badge")
-            .forEach( function (el) {
-                search_str += el.textContent;
-            });
-        return search_str;
-    };
-
-    // Searchable string should contain the title of the puzzle, concatenated
-    // with "meta" if it is a metapuzzle (so we can filter this column by
-    // metas).
-    $.fn.dataTableExt.ofnSearch['name-input'] = function(i, j) {
-        var search_str = "";
-        // Row is +1 due to header row being included in the table.
-        var cell = puzzle_table_dom.rows[i + 1].cells[j];
-        search_str += cell.querySelector(".puzzle-title").textContent;
-        search_str += cell.querySelector(".badge-meta").textContent;
-        return search_str;
-    };
-
-    // Add a text input for each footer cell that is column_searchable.
-    $('#puzzles .column_searchable').each( function () {
-        var col_name = $(this).text();
-        $(this).html( '<input type="text" class="form-control" placeholder="Search '+col_name+'" />' );
-    } );
-
     var pre_dt_init_ts = Date.now();
 
-    var table = puzzle_table.DataTable( {
-        "paging": true,
-        "pageLength": 25,
-        "info": false,
-        "ordering": false,
-        "columnDefs": [
-            { "type": "name-input", "targets": [0] },
-            { "type": "select-input", "targets": [2] },
-            { "type": "tag-input", "targets": [5] },
+    var table = $('#puzzles').DataTable({
+        'data': data,
+        'paging': true,
+        'pageLength': 50,
+        'ordering': false,
+        'createdRow': function(row, data, dataIndex) {
+            $(row).addClass(data[puzzle_class]);
+        },
+        'columnDefs': [
+            {
+                'visible': false,
+                'targets': [pk, url, is_meta, active_users, puzzle_class],
+            },
+
+            {'title': 'Name', 'targets': name},
+            {'title': 'Answer', 'targets': answer},
+            {'title': 'Status', 'targets': status},
+            {'title': 'Sheet', 'targets': sheet},
+            {'title': 'Slack', 'targets': channel},
+            {'title': 'Tags', 'targets': tags},
+            {'title': 'Metas', 'targets': metas},
+
+            {'width': '30%', 'targets': name},
+            {'width': '17.5%', 'targets': [answer, tags]},
+            {'width': '80px', 'targets': metas},
+            {'width': '60px', 'targets': [sheet, channel]},
+
+            {
+                'targets': name,
+                'render': function(data, type, row, meta) {
+                    if (type === 'display') {
+                        data = '<a href="' + row[url] + '">' + row[name] + '</a>';
+                        if (row[is_meta] === 'True') {
+                            data += ' <span class="badge badge-dark badge-meta">META</span>';
+                        }
+                        if (row[active_users]) {
+                            data += ` <span data-toggle="tooltip" title="${row[active_users]}">
+                                          <i class="fa fa-users" aria-hidden="true"></i>
+                                        </span>`;
+                        }
+                        data += `
+    <button type="button" class="editpuzzle btn btn-default" data-toggle="modal" data-target="#editpuzzle" data-pk="${row[pk]}" data-name="${row[name]}" data-url="${row[url]}" data-is_meta="${row[is_meta]}" style="padding: 0px 0px;">
+        <i class="fa fa-edit" aria-hidden="true"></i>
+    </button>
+    <button type="button" class="deletepuzzle btn btn-default" data-toggle="modal" data-target="#deletepuzzle" data-pk="${row[pk]}" data-name="${row[name]}" style="padding: 0px 0px;">
+        <i class="fa fa-trash-o" aria-hidden="true"></i>
+    </button>`;
+                    }
+
+                    return data;
+                },
+            },
+            {
+                'targets': answer,
+                'render': function(data, type, row, meta) {
+                    if (data) {
+                        return data;
+                    }
+                    result = `
+                    <button type="button" class="submitanswer btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#submitanswer" data-pk="${row[pk]}" data-name="${row[name]}">
+                        Submit Answer
+                    </button>`;
+                    return result;
+                }
+            },
+            {
+                'targets': status,
+                'render': function(data, type, row, meta) {
+                    result = row[status];
+                    if (row[status] !== 'PENDING' && row[status] !== 'SOLVED') {
+                        result += `
+<button type="button" class="editstatus btn btn-default" data-toggle="modal" data-target="#editstatus" data-pk="${row[pk]}" data-name="${row[name]}" data-status="${row[status]}" style="padding: 0px 0px;">
+    <i class="fa fa-edit" aria-hidden="true"></i>
+</button>`
+                    }
+                    return result;
+                }
+            },
+            {
+                'targets': sheet,
+                'render': function(data, type, row, meta) {
+                    result = '';
+                    if (data) {
+                        result = `<a href="${data}" target="_blank">Link</a>`;
+                    }
+                    return result;
+                }
+            },
+            {
+                'targets': channel,
+                'render': function(data, type, row, meta) {
+                    result = '';
+                    if (data) {
+                        result = `<a href="${slack_base_url}/app_redirect?channel=${data}" target="_blank">Link</a>`
+                    }
+                    return result;
+                }
+            },
+            {
+                'targets': tags,
+                'render': function(data, type, row, meta) {
+                    result = '';
+                    for (var i = 0; i < data.length; i++) {
+                        tag = data[i];
+                        result += `
+    <form method="post" action="/puzzles/remove_tag/${row[pk]}/${tag[0]}">
+        <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+        <small>
+            <span class="badge badge-${tag[1]}">${tag[0]}</span>
+            <button type="submit" class="btn btn-default" style="padding: 0px 0px;">
+                <i class="fa fa-xs fa-times"></i>
+            </button>
+        </small>
+    </form>`;
+                    }
+                    result += `
+<button type="button" class="addtag btn btn-default" data-toggle="modal" data-target="#addtag" data-pk="${row[pk]}" style="padding: 0px 0px;">
+    <i class="fa fa-xs fa-plus" aria-hidden="true"></i>
+</button>`
+                    return result;
+                }
+            },
+            {
+                'targets': metas,
+                'render': function(data, type, row, meta) {
+                    result = `
+                    <button type="button" class="meta btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#meta" data-pk="${row[pk]}">
+                        Assign Metas
+                    </button>`;
+
+                    return result;
+                }
+            }
         ],
-        // Manual sizing as an optimization: saves ~1s on a 300 puzzle table
-        "autoWidth": false,
-        "columns": [
-            { "width": "30%" },
-            { "width": "17.5%" },
-            { "width": "160px" },
-            { "width": "60px" },
-            { "width": "60px" },
-            { "width": "17.5%" },
-            { "width": "17.5%" },
-            { "width": "80px" },
-        ]
-    } );
+    });
 
-    // Move column search input to top.
-    $('#puzzles tfoot tr').appendTo('#puzzles thead');
+    var dt_init_ts = Date.now();
+    var dt_init_ms = dt_init_ts - pre_dt_init_ts;
+    console.log("Datatable init time (ms) :" + dt_init_ms);
 
+    var all_uncollapsed = false;
     function maybeExpandAll() {
         if ( all_uncollapsed == false ) {
             all_uncollapsed = true;
@@ -153,28 +177,8 @@ $(document).ready(function() {
     }
     table.on( 'search.dt', maybeExpandAll);
 
-
-    var dt_init_ts = Date.now();
-    var dt_init_ms = dt_init_ts - pre_dt_init_ts;
-    console.log("Datatable init time (ms) :" + dt_init_ms);
-
-    var all_uncollapsed = false;
-    // Apply column search.
-    table.columns().every( function () {
-        var that = this;
-        $( 'input', this.footer() ).on( 'keyup change clear', function () {
-            maybeExpandAll();
-            if ( that.search() !== this.value ) {
-                that
-                    .search( this.value )
-                    .draw();
-            }
-        } );
-    } );
-
-    var pre_treegrid_ts = Date.now();
-
     // Initialize treegrid.
+    var pre_treegrid_ts = Date.now();
     function initTreegrid() {
         $('.tree').treegrid({
             onCollapse: function() {
@@ -195,5 +199,11 @@ $(document).ready(function() {
     console.log("treegrid init time (ms): " + treegrid_ms);
     console.log("total time(ms): " + total_ms);
 });
-
 </script>
+
+{% include "modals/edit_puzzle.html" %}
+{% include "modals/delete_puzzle.html" %}
+{% include "modals/submit_answer.html" %}
+{% include "modals/edit_status.html" %}
+{% include "modals/add_tag.html" %}
+{% include "modals/set_meta.html" %}

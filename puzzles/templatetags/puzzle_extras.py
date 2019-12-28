@@ -29,6 +29,10 @@ def get_table(puzzles, request):
     sorted_np_pairs = PuzzleTree(puzzles).get_sorted_node_parent_pairs()
     sorted_puzzles = [pair.node.puzzle for pair in sorted_np_pairs]
 
+    tags = [tag_utils.get_tags(p) for p in sorted_puzzles]
+    metas = [list(p.metas.values('name')) for p in sorted_puzzles]
+    active_users = [p.active_users.all() for p in sorted_puzzles]
+
     status_forms = [StatusForm(initial={'status': p.status},
                                auto_id=False) for p in sorted_puzzles]
     for (i, p) in enumerate(sorted_puzzles):
@@ -60,7 +64,7 @@ def get_table(puzzles, request):
     puzzle_class = __get_puzzle_class(sorted_np_pairs)
 
     context = {
-        'rows': zip(sorted_puzzles, status_forms, puzzle_class),
+        'rows': zip(sorted_puzzles, tags, metas, active_users, status_forms, puzzle_class),
         'guess_form': AnswerForm(auto_id=False),
         'slack_base_url': settings.SLACK_BASE_URL,
     }
@@ -68,13 +72,9 @@ def get_table(puzzles, request):
 
 @register.inclusion_tag('title.html')
 def get_title(puzzle):
-    badge = ''
-    if puzzle.is_meta:
-        badge = 'META'
     context = {
         'puzzle': puzzle,
-        'active_users': puzzle.active_users.all(),
-        'badge': badge,
+        'active_users': list(puzzle.active_users.all()),
     }
     return context
 

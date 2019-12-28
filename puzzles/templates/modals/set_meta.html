@@ -24,7 +24,7 @@
 </div>
 
 <script type="text/javascript">
-$(function () {
+function initSetMeta() {
  $(".meta").click(function () {
     var pk = $(this).data("pk");
     $('#meta form').attr("action", `/puzzles/meta/${pk}/`);
@@ -33,5 +33,7 @@ $(function () {
         $("#meta .modal-body .form-group").html(data);
     })
  })
-});
+}
+initSetMeta();
+$('#puzzles').on('draw.dt', initSetMeta);
 </script>
