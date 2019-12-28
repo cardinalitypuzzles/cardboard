@@ -72,6 +72,7 @@ if settings.DEBUG:
 
 @require_POST
 @csrf_exempt
+@transaction.atomic
 def slack_guess(request):
     print("request data: " + str(request.POST))
     slack_message = request.POST
@@ -80,15 +81,15 @@ def slack_guess(request):
 
     answer_text = __sanitize_guess(slack_message.get('text'))
     channel_id = slack_message.get('channel_id')
-    puzzle = Puzzle.objects.get(channel=channel_id)
+    puzzle = get_object_or_404(Puzzle.objects.select_for_update(), channel=channel_id)
     print("puzzle: " + str(puzzle))
     if puzzle.status == Puzzle.SOLVED:
         return HttpResponse("Puzzle is already solved!")
-    if Answer.objects.filter(puzzle=puzzle).filter(text=answer_text):
+
+    answer, created = Answer.objects.get_or_create(puzzle=puzzle, text=answer_text)
+    if not created:
         return HttpResponse("The answer " + answer_text + " has already been submitted.")
-    answer = Answer(text=answer_text, puzzle=puzzle)
     puzzle.status = Puzzle.PENDING
-    answer.save()
     puzzle.save()
 
     return HttpResponse("Answer " + answer_text + " has been submitted!")
