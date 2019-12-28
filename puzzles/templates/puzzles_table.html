@@ -83,18 +83,6 @@ $(document).ready(function() {
         return $(value).find('select').val();
     };
 
-    // For checkbox fields, each entry should only be searchable by the
-    // currently checked values.
-    $.fn.dataTableExt.ofnSearch['checkbox-input'] = function(value) {
-        var search_str = "";
-        $(value).find(":checked").each( function () {
-            // The name of the meta is actually displayed in the parent DOM
-            // element.
-            search_str += $(this).parent().text();
-        } );
-        return search_str;
-    };
-
     // For tags, each entry should be searchable by existing badges.
     $.fn.dataTableExt.ofnSearch['tag-input'] = function(value) {
         var search_str = "";
@@ -130,7 +118,6 @@ $(document).ready(function() {
             { "type": "name-input", "targets": [0] },
             { "type": "select-input", "targets": [2] },
             { "type": "tag-input", "targets": [5] },
-            { "type": "checkbox-input", "targets": [7] },
         ]
     } );
 
