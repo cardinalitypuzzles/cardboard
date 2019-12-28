@@ -55,7 +55,7 @@ class HuntView(LoginRequiredMixin, View):
             return index(request)
 
         hunt = get_object_or_404(Hunt, pk=pk)
-        form = PuzzleForm()
+        form = PuzzleForm(auto_id=False)
         context = {
             'request': request,
             'hunt_name': hunt.name,

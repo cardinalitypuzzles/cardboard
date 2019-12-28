@@ -28,7 +28,8 @@ class StatusForm(forms.ModelForm):
 
     status = forms.ChoiceField(
         choices=[(status, status) for status in Puzzle.ALL_STATUSES],
-        widget=forms.Select(attrs={"onChange":'this.form.submit();', 'class': 'form-control form-control-sm'}))
+        widget=forms.Select(attrs={"onChange": "this.form.submit();",
+                                   "class": "form-control form-control-sm"}))
 
 
 class TagForm(forms.Form):

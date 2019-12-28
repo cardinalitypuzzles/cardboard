@@ -146,7 +146,7 @@ def set_metas(request, pk):
 @require_POST
 @login_required(login_url='/accounts/login/')
 def edit_puzzle(request, pk):
-    form = PuzzleForm(request.POST)
+    form = PuzzleForm(request.POST, auto_id=False)
     if form.is_valid():
         new_name = form.cleaned_data["name"]
         new_url = url_normalize(form.cleaned_data["url"])

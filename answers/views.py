@@ -35,8 +35,10 @@ class AnswerView(LoginRequiredMixin, View):
     def get(self, request, hunt_pk):
         hunt = get_object_or_404(Hunt, pk=hunt_pk)
         answers = Answer.objects.filter(puzzle__hunt__pk=hunt_pk).order_by('-created_on')
-        status_forms = [UpdateAnswerStatusForm(initial={'status': ans.get_status()}) for ans in answers]
-        notes_forms = [UpdateAnswerNotesForm(initial={'text': ans.get_notes()}) for ans in answers]
+        status_forms = [UpdateAnswerStatusForm(initial={'status': ans.get_status()},
+                                               auto_id=False) for ans in answers]
+        notes_forms = [UpdateAnswerNotesForm(initial={'text': ans.get_notes()},
+                                             auto_id=False) for ans in answers]
 
         context = {
             'hunt_pk': hunt_pk,
