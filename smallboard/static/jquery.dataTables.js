@@ -4486,7 +4486,7 @@
 		var columns = settings.aoColumns;
 		var column;
 		var i, j, ien, jen, filterData, cellData, row;
-		var fomatters = DataTable.ext.type.search;
+		var formatters = DataTable.ext.type.search;
 		var wasInvalidated = false;
 	
 		for ( i=0, ien=settings.aoData.length ; i<ien ; i++ ) {
@@ -4499,20 +4499,10 @@
 					column = columns[j];
 	
 					if ( column.bSearchable ) {
-						cellData = _fnGetCellData( settings, i, j, 'filter' );
-	
-						if ( fomatters[ column.sType ] ) {
-							cellData = fomatters[ column.sType ]( cellData );
-						}
-	
-						// Search in DataTables 1.10 is string based. In 1.11 this
-						// should be altered to also allow strict type checking.
-						if ( cellData === null ) {
-							cellData = '';
-						}
-	
-						if ( typeof cellData !== 'string' && cellData.toString ) {
-							cellData = cellData.toString();
+						if ( formatters[ column.sType ] ) {
+							cellData = formatters[ column.sType ]( i, j );
+						} else {
+							cellData = _fnGetCellData( settings, i, j, 'filter' );
 						}
 					}
 					else {
