@@ -117,7 +117,7 @@ $(document).ready(function() {
     // Add a text input for each footer cell that is column_searchable.
     $('#puzzles .column_searchable').each( function () {
         var col_name = $(this).text();
-        $(this).html( '<input type="text" placeholder="Search '+col_name+'" />' );
+        $(this).html( '<input type="text" class="form-control" placeholder="Search '+col_name+'" />' );
     } );
 
     var pre_dt_init_ts = Date.now();
