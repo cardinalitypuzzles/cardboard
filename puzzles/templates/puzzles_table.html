@@ -111,7 +111,8 @@ $(document).ready(function() {
     var pre_dt_init_ts = Date.now();
 
     var table = $('#puzzles').DataTable( {
-        "paging": false,
+        "paging": true,
+        "pageLength": 25,
         "info": false,
         "ordering": false,
         "columnDefs": [
@@ -131,6 +132,7 @@ $(document).ready(function() {
         }
     }
     table.on( 'search.dt', maybeExpandAll);
+
 
     var dt_init_ts = Date.now();
     var dt_init_ms = dt_init_ts - pre_dt_init_ts;
@@ -153,12 +155,19 @@ $(document).ready(function() {
     var pre_treegrid_ts = Date.now();
 
     // Initialize treegrid.
-    $('.tree').treegrid({
-        onCollapse: function() {
-            all_uncollapsed = false;
+    function initTreegrid() {
+        $('.tree').treegrid({
+            onCollapse: function() {
+                all_uncollapsed = false;
+            }
+        });
+        if ($('.tree').hasClass( "initial-collapsed" )) {
+            $('.initial-collapsed').treegrid('collapse');
         }
-    });
-    $('.initial-collapsed').treegrid('collapse');
+    }
+    initTreegrid();
+    // New datatable page and search should also trigger treegrid.
+    $('#puzzles').on( "draw.dt", initTreegrid);
 
     var treegrid_ts = Date.now();
     var treegrid_ms = treegrid_ts - pre_treegrid_ts;
