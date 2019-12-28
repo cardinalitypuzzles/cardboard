@@ -61,11 +61,11 @@
             <th scope="col" class="column_searchable">Name</th>
             <th scope="col" class="column_searchable">Answer</th>
             <th scope="col" class="column_searchable">Status</th>
-            <th scope="col">Sheet</th>
-            <th scope="col">Slack</th>
+            <th scope="col"></th>
+            <th scope="col"></th>
             <th scope="col" class="column_searchable">Tags</th>
             <th scope="col"></th>
-            <th scope="col" class="column_searchable">Meta</th>
+            <th scope="col"></th>
         </tr>
     </tfoot>
 </table>
@@ -81,18 +81,6 @@ $(document).ready(function() {
     // selected value.
     $.fn.dataTableExt.ofnSearch['select-input'] = function(value) {
         return $(value).find('select').val();
-    };
-
-    // For checkbox fields, each entry should only be searchable by the
-    // currently checked values.
-    $.fn.dataTableExt.ofnSearch['checkbox-input'] = function(value) {
-        var search_str = "";
-        $(value).find(":checked").each( function () {
-            // The name of the meta is actually displayed in the parent DOM
-            // element.
-            search_str += $(this).parent().text();
-        } );
-        return search_str;
     };
 
     // For tags, each entry should be searchable by existing badges.
@@ -130,18 +118,30 @@ $(document).ready(function() {
             { "type": "name-input", "targets": [0] },
             { "type": "select-input", "targets": [2] },
             { "type": "tag-input", "targets": [5] },
-            { "type": "checkbox-input", "targets": [7] },
         ]
     } );
+
+    // Move column search input to top.
+    $('#puzzles tfoot tr').appendTo('#puzzles thead');
+
+    function maybeExpandAll() {
+        if ( all_uncollapsed == false ) {
+            all_uncollapsed = true;
+            $('.tree').treegrid('expandAll');
+        }
+    }
+    table.on( 'search.dt', maybeExpandAll);
 
     var dt_init_ts = Date.now();
     var dt_init_ms = dt_init_ts - pre_dt_init_ts;
     console.log("Datatable init time (ms) :" + dt_init_ms);
 
+    var all_uncollapsed = false;
     // Apply column search.
     table.columns().every( function () {
         var that = this;
         $( 'input', this.footer() ).on( 'keyup change clear', function () {
+            maybeExpandAll();
             if ( that.search() !== this.value ) {
                 that
                     .search( this.value )
@@ -153,7 +153,11 @@ $(document).ready(function() {
     var pre_treegrid_ts = Date.now();
 
     // Initialize treegrid.
-    $('.tree').treegrid();
+    $('.tree').treegrid({
+        onCollapse: function() {
+            all_uncollapsed = false;
+        }
+    });
     $('.initial-collapsed').treegrid('collapse');
 
     var treegrid_ts = Date.now();
