@@ -104,12 +104,14 @@ heroku run pg_dump postgres://user:pass@....compute-1.amazonaws.com:5432/databas
 
 # edit prod_db.sql and replace all instances of "Owner: <random_string_of_letters>" with "Owner: myuser"
 
-# delete all existing data in local database
-python manage.py flush
+# drop all tables
+psql postgres://myuser:mypass@localhost/smallboard
+# run the following to generate the drop table commands
+SELECT  'DROP TABLE IF EXISTS "' || tablename || '" CASCADE;' FROM pg_tables WHERE tableowner = 'myuser';
+# run the drop table commands
 
 # load production data
-# you can ignore the ERRORs
-psql postgres://myuser:mypass@localhost/smallboard < prod_db.sql
+\i prod_db.sql
 ```
 
 
