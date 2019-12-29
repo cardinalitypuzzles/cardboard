@@ -38,9 +38,6 @@ def get_table(puzzles, request):
             status_forms[i].fields["status"].choices =\
                 [(status, status) for status in Puzzle.VISIBLE_STATUS_CHOICES]
 
-    # this caches Puzzle.tags.all() for all the tag forms
-    Puzzle.objects.all().prefetch_related('tags')
-
     def __get_puzzle_class(sorted_np_pairs):
         puzzle_class = [table_status_class(pair.node.puzzle) for pair in sorted_np_pairs]
         most_recent_treegrid_id = {}
