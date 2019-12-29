@@ -64,16 +64,21 @@
 
 <script type="text/javascript">
 $(document).ready(function() {
+    var queue_table = $('#queue');
+    var queue_table_dom = queue_table.get(0);
+
     // For choice fields, each entry should only be searchable by the currently
     // selected value.
-    $.fn.dataTableExt.ofnSearch['select-input'] = function(value) {
-        return $(value).find('select').val();
+    $.fn.dataTableExt.ofnSearch['select-input'] = function(i, j) {
+        var cell = queue_table_dom.rows[i].cells[j];
+        return cell.querySelector('select').value;
     };
 
     // For text fields, enable search based on the initial value of the field
     // when the table was loaded.
-    $.fn.dataTableExt.ofnSearch['text-input'] = function(value) {
-        return $(value).find(':text').val();
+    $.fn.dataTableExt.ofnSearch['text-input'] = function(i, j) {
+        var cell = queue_table_dom.rows[i].cells[j];
+        return cell.querySelector('input').value;
     };
 
     // Add a text input for each footer cell that is column_searchable.
@@ -82,7 +87,7 @@ $(document).ready(function() {
         $(this).html( '<input type="text" placeholder="Search '+col_name+'" />' );
     } );
 
-    var table = $('#queue').DataTable( {
+    var table = queue_table.DataTable( {
         "paging": true,
         "info": true,
         "scrollX": true,

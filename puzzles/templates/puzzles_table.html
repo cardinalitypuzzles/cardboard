@@ -1,4 +1,5 @@
 {% load puzzle_extras %}
+
 {% include "modals/edit_puzzle.html" %}
 {% include "modals/delete_puzzle.html" %}
 {% include "modals/add_tag.html" %}
@@ -75,30 +76,38 @@
 
 <script type="text/javascript">
 $(document).ready(function() {
+    var puzzle_table = $('#puzzles');
+    var puzzle_table_dom = puzzle_table.get(0);
 
     var start_ts = Date.now();
     // For choice fields, each entry should only be searchable by the currently
     // selected value.
-    $.fn.dataTableExt.ofnSearch['select-input'] = function(value) {
-        return $(value).find('select').val();
+    $.fn.dataTableExt.ofnSearch['select-input'] = function(i, j) {
+        // Row is +1 due to header row being included in the table.
+        var cell = puzzle_table_dom.rows[i + 1].cells[j];
+        return cell.querySelector('select').value;
     };
 
     // For tags, each entry should be searchable by existing badges.
-    $.fn.dataTableExt.ofnSearch['tag-input'] = function(value) {
+    $.fn.dataTableExt.ofnSearch['tag-input'] = function(i, j) {
         var search_str = "";
-        $(value).find(".badge").each( function () {
-            search_str += $(this).text()
-        } );
+        // Row is +1 due to header row being included in the table.
+        puzzle_table_dom.rows[i + 1].cells[j].querySelectorAll(".badge")
+            .forEach( function (el) {
+                search_str += el.textContent;
+            });
         return search_str;
     };
 
     // Searchable string should contain the title of the puzzle, concatenated
     // with "meta" if it is a metapuzzle (so we can filter this column by
     // metas).
-    $.fn.dataTableExt.ofnSearch['name-input'] = function(value) {
-        var search_str = ""
-        search_str += $(value).find(".puzzle-title").text();
-        search_str += $(value).find(".badge-meta").text();
+    $.fn.dataTableExt.ofnSearch['name-input'] = function(i, j) {
+        var search_str = "";
+        // Row is +1 due to header row being included in the table.
+        var cell = puzzle_table_dom.rows[i + 1].cells[j];
+        search_str += cell.querySelector(".puzzle-title").textContent;
+        search_str += cell.querySelector(".badge-meta").textContent;
         return search_str;
     };
 
@@ -110,7 +119,7 @@ $(document).ready(function() {
 
     var pre_dt_init_ts = Date.now();
 
-    var table = $('#puzzles').DataTable( {
+    var table = puzzle_table.DataTable( {
         "paging": true,
         "pageLength": 25,
         "info": false,
@@ -119,6 +128,18 @@ $(document).ready(function() {
             { "type": "name-input", "targets": [0] },
             { "type": "select-input", "targets": [2] },
             { "type": "tag-input", "targets": [5] },
+        ],
+        // Manual sizing as an optimization: saves ~1s on a 300 puzzle table
+        "autoWidth": false,
+        "columns": [
+            { "width": "30%" },
+            { "width": "17.5%" },
+            { "width": "160px" },
+            { "width": "60px" },
+            { "width": "60px" },
+            { "width": "17.5%" },
+            { "width": "17.5%" },
+            { "width": "80px" },
         ]
     } );
 

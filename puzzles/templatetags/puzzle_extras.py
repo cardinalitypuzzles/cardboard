@@ -29,16 +29,14 @@ def get_table(puzzles, request):
     sorted_np_pairs = PuzzleTree(puzzles).get_sorted_node_parent_pairs()
     sorted_puzzles = [pair.node.puzzle for pair in sorted_np_pairs]
 
-    status_forms = [StatusForm(initial={'status': p.status}) for p in sorted_puzzles]
+    status_forms = [StatusForm(initial={'status': p.status},
+                               auto_id=False) for p in sorted_puzzles]
     for (i, p) in enumerate(sorted_puzzles):
         if p.status in [Puzzle.SOLVED, Puzzle.PENDING]:
             status_forms[i].fields["status"].disabled = True
         else:
             status_forms[i].fields["status"].choices =\
                 [(status, status) for status in Puzzle.VISIBLE_STATUS_CHOICES]
-
-    # this caches Puzzle.tags.all() for all the tag forms
-    Puzzle.objects.all().prefetch_related('tags')
 
     def __get_puzzle_class(sorted_np_pairs):
         puzzle_class = [table_status_class(pair.node.puzzle) for pair in sorted_np_pairs]
@@ -63,7 +61,7 @@ def get_table(puzzles, request):
 
     context = {
         'rows': zip(sorted_puzzles, status_forms, puzzle_class),
-        'guess_form': AnswerForm(),
+        'guess_form': AnswerForm(auto_id=False),
         'slack_base_url': settings.SLACK_BASE_URL,
     }
     return context

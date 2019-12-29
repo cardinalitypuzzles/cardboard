@@ -55,14 +55,20 @@ class HuntView(LoginRequiredMixin, View):
             return index(request)
 
         hunt = get_object_or_404(Hunt, pk=pk)
-        form = PuzzleForm()
+        form = PuzzleForm(auto_id=False)
         context = {
             'request': request,
             'hunt_name': hunt.name,
             'hunt_pk': pk,
-            'puzzles': hunt.puzzles.all(),
+            # Prefetch related otherwise we scale the number of queries with the number of puzzles.
+            # That can be really slow with 100s of puzzles.
+            'puzzles': (hunt.puzzles.all()
+                .prefetch_related('metas')
+                .prefetch_related('active_users')
+                .prefetch_related('tags')),
             'form': form
         }
+
         return render(request, 'all_puzzles.html', context)
 
     def __handle_dup_puzzle(self, request):

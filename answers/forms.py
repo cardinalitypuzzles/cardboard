@@ -17,7 +17,8 @@ class UpdateAnswerStatusForm(forms.ModelForm):
 
     status = forms.ChoiceField(
         choices=[(status, status) for status in Answer.STATUS_CHOICES],
-        widget=forms.Select(attrs={"onChange":'this.form.submit();', 'class': 'form-control form-control-sm'}))
+        widget=forms.Select(attrs={"onChange": "this.form.submit();",
+                                   "class": "form-control form-control-sm"}))
 
 class UpdateAnswerNotesForm(forms.Form):
     text = forms.CharField(
