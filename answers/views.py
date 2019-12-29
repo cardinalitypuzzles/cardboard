@@ -8,11 +8,13 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.views import View
+from django.views.decorators.http import require_POST
 from hunts.models import Hunt
 from puzzles.forms import PuzzleForm
 from slack_lib.slack_client import SlackClient
 
 
+@require_POST
 @login_required(login_url='/accounts/login/')
 def update_note(request, answer_pk):
     notes_form = UpdateAnswerNotesForm(request.POST)

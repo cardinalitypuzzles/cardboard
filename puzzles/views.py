@@ -68,7 +68,7 @@ def slack_guess(request):
     if slack_message.get('token') != os.environ.get("SLACK_VERIFICATION_TOKEN"):
         return HttpResponseForbidden()
 
-    answer_text = slack_message.get('text')
+    answer_text = slack_message.get('text').replace(' ', '').upper()
     channel_id = slack_message.get('channel_id')
     puzzle = Puzzle.objects.get(channel=channel_id)
     print("puzzle: " + str(puzzle))
