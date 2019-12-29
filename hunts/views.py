@@ -80,6 +80,7 @@ class HuntView(LoginRequiredMixin, View):
         hunt = get_object_or_404(Hunt, pk=pk)
         form = PuzzleForm(request.POST)
 
+        puzzle = None
         if form.is_valid():
             name = form.cleaned_data["name"]
             name = Puzzle.maybe_truncate_name(name)

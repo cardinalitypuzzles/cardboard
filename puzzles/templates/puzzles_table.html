@@ -5,74 +5,73 @@
 {% include "modals/add_tag.html" %}
 {% include "modals/set_meta.html" %}
 
-<table class="table table-sm tree" id="puzzles" style="width:100%">
-    <thead>
-        <tr>
-            <th scope="col">Name</th>
-            <th scope="col">Answer</th>
-            <th scope="col">Status</th>
-            <th scope="col">Sheet</th>
-            <th scope="col">Slack</th>
-            <th scope="col">Tags</th>
-            <th scope="col"></th>
-            <th scope="col">Meta</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for p, status_form, puzzle_class in rows %}
-        <tr class="{{ puzzle_class }}">
-            <td scope="row">
-                {% get_title p %}
-            </td>
-            <td><p class="text-monospace">{{ p.answer.upper }}</p></td>
-            <td>
-                <form method="post", action="/puzzles/update_status/{{ p.pk }}/" class="form-inline">
-                    {% csrf_token %}
-                    <div class="form-group">
-                        {{ status_form.status }}
-                    </div>
-                </form>
-            </td>
-            <td><a href="{{ p.sheet }}" target="_blank">Link</a></td>
-            <td><a href="{{ slack_base_url }}/app_redirect?channel={{ p.channel}}" target-"_blank">Link</a></td>
-            <td>
-                {% show_tags p %}
-            </td>
-            <td>
-                {% if p.status != "SOLVED" %}
-                   <form action="/puzzles/guess/{{ p.pk }}/" method="post" class="form-inline">
-                    {% csrf_token %}
-                    <div class="form-group">
-                        {{ guess_form.text }}
-                    </div>
-                    <button type="submit" class="btn btn-outline-primary btn-sm">Submit</button>
-                </form>
-                 {% endif %}
-            </td>
-            <td>
-                <button type="button" class="meta btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#meta" data-pk="{{ p.pk }}">
-                    assign meta
-                </button>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-    <tfoot>
-        <tr>
-            <th scope="col" class="column_searchable">Name</th>
-            <th scope="col" class="column_searchable">Answer</th>
-            <th scope="col" class="column_searchable">Status</th>
-            <th scope="col"></th>
-            <th scope="col"></th>
-            <th scope="col" class="column_searchable">Tags</th>
-            <th scope="col"></th>
-            <th scope="col"></th>
-        </tr>
-    </tfoot>
-</table>
-
-
-
+<div class="px-3 pb-3">
+    <table class="table table-sm tree" id="puzzles">
+        <thead class>
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Answer</th>
+                <th scope="col">Status</th>
+                <th scope="col">Sheet</th>
+                <th scope="col">Slack</th>
+                <th scope="col">Tags</th>
+                <th scope="col"></th>
+                <th scope="col">Meta</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p, status_form, puzzle_class in rows %}
+            <tr class="{{ puzzle_class }}">
+                <td scope="row">
+                    {% get_title p %}
+                </td>
+                <td><p class="text-monospace">{{ p.answer.upper }}</p></td>
+                <td>
+                    <form method="post", action="/puzzles/update_status/{{ p.pk }}/" class="form-inline">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            {{ status_form.status }}
+                        </div>
+                    </form>
+                </td>
+                <td><a href="{{ p.sheet }}" target="_blank">Link</a></td>
+                <td><a href="{{ slack_base_url }}/app_redirect?channel={{ p.channel}}" target-"_blank">Link</a></td>
+                <td>
+                    {% show_tags p %}
+                </td>
+                <td>
+                    {% if p.status != "SOLVED" %}
+                        <form action="/puzzles/guess/{{ p.pk }}/" method="post" class="form-inline">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            {{ guess_form.text }}
+                        </div>
+                        <button type="submit" class="btn btn-outline-primary btn-sm">Submit</button>
+                    </form>
+                     {% endif %}
+                </td>
+                <td>
+                    <button type="button" class="meta btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#meta" data-pk="{{ p.pk }}">
+                        Assign Meta
+                    </button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <th scope="col" class="column_searchable">Name</th>
+                <th scope="col" class="column_searchable">Answer</th>
+                <th scope="col" class="column_searchable">Status</th>
+                <th scope="col"></th>
+                <th scope="col"></th>
+                <th scope="col" class="column_searchable">Tags</th>
+                <th scope="col"></th>
+                <th scope="col"></th>
+            </tr>
+        </tfoot>
+    </table>
+</div>
 
 <script type="text/javascript">
 $(document).ready(function() {
