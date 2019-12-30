@@ -54,3 +54,16 @@ def get_table(puzzles, request):
         'slack_base_url': settings.SLACK_BASE_URL,
     }
     return context
+
+
+@register.inclusion_tag('title.html')
+def get_title(puzzle):
+    badge = ''
+    if puzzle.is_meta:
+        badge = 'META'
+    context = {
+        'puzzle': puzzle,
+        'active_users': puzzle.active_users.all(),
+        'badge': badge,
+    }
+    return context
