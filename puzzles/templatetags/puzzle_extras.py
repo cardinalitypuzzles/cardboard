@@ -1,12 +1,8 @@
-import cgi
 from django import template
 from django.conf import settings
-from django.template.defaultfilters import stringfilter
 from puzzles import tag_utils
 from puzzles.models import Puzzle
-from puzzles.puzzle_tree import *
-from puzzles.forms import StatusForm, MetaPuzzleForm, PuzzleForm, TagForm
-from answers.forms import AnswerForm
+from puzzles.puzzle_tree import PuzzleTree
 
 
 register = template.Library()
