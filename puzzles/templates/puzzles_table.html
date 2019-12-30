@@ -44,6 +44,11 @@ $(document).ready(function() {
                 'targets': [pk, url, is_meta, active_users, puzzle_class],
             },
 
+            {
+                'searchable': false,
+                'targets': [pk, url, is_meta, active_users, puzzle_class, sheet, channel, metas]
+            },
+
             {'title': 'Name', 'targets': name},
             {'title': 'Answer', 'targets': answer},
             {'title': 'Status', 'targets': status},
@@ -60,32 +65,30 @@ $(document).ready(function() {
             {
                 'targets': name,
                 'render': function(data, type, row, meta) {
-                    if (type === 'display') {
-                        data = '<a href="' + row[url] + '">' + row[name] + '</a>';
-                        if (row[is_meta] === 'True') {
-                            data += ' <span class="badge badge-dark badge-meta">META</span>';
-                        }
-                        if (row[active_users]) {
-                            data += ` <span data-toggle="tooltip" title="${row[active_users]}">
-                                          <i class="fa fa-users" aria-hidden="true"></i>
-                                        </span>`;
-                        }
-                        data += `
-    <button type="button" class="editpuzzle btn btn-default" data-toggle="modal" data-target="#editpuzzle" data-pk="${row[pk]}" data-name="${row[name]}" data-url="${row[url]}" data-is_meta="${row[is_meta]}" style="padding: 0px 0px;">
-        <i class="fa fa-edit" aria-hidden="true"></i>
-    </button>
-    <button type="button" class="deletepuzzle btn btn-default" data-toggle="modal" data-target="#deletepuzzle" data-pk="${row[pk]}" data-name="${row[name]}" style="padding: 0px 0px;">
-        <i class="fa fa-trash-o" aria-hidden="true"></i>
-    </button>`;
+                    var result = '<a href="' + row[url] + '">' + row[name] + '</a>';
+                    if (row[is_meta] === 'True') {
+                        result += ' <span class="badge badge-dark badge-meta">META</span>';
                     }
+                    if (row[active_users]) {
+                        result += ` <span data-toggle="tooltip" title="${row[active_users]}">
+                                      <i class="fa fa-users" aria-hidden="true"></i>
+                                    </span>`;
+                    }
+                    result += `
+<button type="button" class="editpuzzle btn btn-default" data-toggle="modal" data-target="#editpuzzle" data-pk="${row[pk]}" data-name="${row[name]}" data-url="${row[url]}" data-is_meta="${row[is_meta]}" style="padding: 0px 0px;">
+    <i class="fa fa-edit" aria-hidden="true"></i>
+</button>
+<button type="button" class="deletepuzzle btn btn-default" data-toggle="modal" data-target="#deletepuzzle" data-pk="${row[pk]}" data-name="${row[name]}" style="padding: 0px 0px;">
+    <i class="fa fa-trash-o" aria-hidden="true"></i>
+</button>`;
 
-                    return data;
+                    return result;
                 },
             },
             {
                 'targets': answer,
                 'render': function(data, type, row, meta) {
-                    if (data) {
+                    if (data || type === 'filter') {
                         return data;
                     }
                     var result = `
