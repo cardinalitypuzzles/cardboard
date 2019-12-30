@@ -57,7 +57,6 @@ class HuntView(LoginRequiredMixin, View):
         hunt = get_object_or_404(Hunt, pk=pk)
         form = PuzzleForm(auto_id=False)
         context = {
-            'request': request,
             'hunt_name': hunt.name,
             'hunt_pk': pk,
             # Prefetch related otherwise we scale the number of queries with the number of puzzles.

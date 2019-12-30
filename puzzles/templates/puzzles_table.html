@@ -1,12 +1,14 @@
 {% load puzzle_extras %}
 
-<table class="table table-sm tree" id="puzzles" style="width:100%">
-</table>
+<div class="px-3 pb-3">
+    <table class="table table-sm tree" id="puzzles" style="width:100%">
+    </table>
+</div>
 
 <script type="text/javascript">
 var slack_base_url = '{{ slack_base_url }}';
 var data = [
-{% for p, tags, metas, active_users, status_form, puzzle_class in rows %}['{{p.pk}}', '{{p.name}}', '{{p.url}}', '{{p.is_meta}}', '{{active_users|join:", "}}', '{{p.answer}}', '{{p.status}}', '{{p.sheet}}', '{{p.channel}}', {{tags|safe}}, '', '{{puzzle_class}}', ],
+{% for p, tags, metas, active_users, puzzle_class in rows %}['{{p.pk}}', '{{p.name}}', '{{p.url}}', '{{p.is_meta}}', '{{active_users|join:", "}}', '{{p.answer}}', '{{p.status}}', '{{p.sheet}}', '{{p.channel}}', {{tags|safe}}, '', '{{puzzle_class}}', ],
 {% endfor %}
 ];
 
@@ -86,7 +88,7 @@ $(document).ready(function() {
                     if (data) {
                         return data;
                     }
-                    result = `
+                    var result = `
                     <button type="button" class="submitanswer btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#submitanswer" data-pk="${row[pk]}" data-name="${row[name]}">
                         Submit Answer
                     </button>`;
@@ -96,7 +98,7 @@ $(document).ready(function() {
             {
                 'targets': status,
                 'render': function(data, type, row, meta) {
-                    result = row[status];
+                    var result = row[status];
                     if (row[status] !== 'PENDING' && row[status] !== 'SOLVED') {
                         result += `
 <button type="button" class="editstatus btn btn-default" data-toggle="modal" data-target="#editstatus" data-pk="${row[pk]}" data-name="${row[name]}" data-status="${row[status]}" style="padding: 0px 0px;">
@@ -109,7 +111,7 @@ $(document).ready(function() {
             {
                 'targets': sheet,
                 'render': function(data, type, row, meta) {
-                    result = '';
+                    var result = '';
                     if (data) {
                         result = `<a href="${data}" target="_blank">Link</a>`;
                     }
@@ -119,7 +121,7 @@ $(document).ready(function() {
             {
                 'targets': channel,
                 'render': function(data, type, row, meta) {
-                    result = '';
+                    var result = '';
                     if (data) {
                         result = `<a href="${slack_base_url}/app_redirect?channel=${data}" target="_blank">Link</a>`
                     }
@@ -129,7 +131,7 @@ $(document).ready(function() {
             {
                 'targets': tags,
                 'render': function(data, type, row, meta) {
-                    result = '';
+                    var result = '';
                     for (var i = 0; i < data.length; i++) {
                         tag = data[i];
                         result += `
@@ -153,7 +155,7 @@ $(document).ready(function() {
             {
                 'targets': metas,
                 'render': function(data, type, row, meta) {
-                    result = `
+                    var result = `
                     <button type="button" class="meta btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#meta" data-pk="${row[pk]}">
                         Assign Metas
                     </button>`;

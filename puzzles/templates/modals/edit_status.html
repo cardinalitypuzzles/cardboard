@@ -9,12 +9,14 @@
             </div>
             <form method="post" action="/puzzles/update_status/">
                 {% csrf_token %}
-                <div class="form-group">
-                    <select name="status" class="form-control form-control-sm">
-                        <option value="SOLVING" id='SOLVING'>SOLVING</option>
-                        <option value="STUCK" id='STUCK'>STUCK</option>
-                        <option value="EXTRACTION" id='EXTRACTION'>EXTRACTION</option>
-                    </select>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <select name="status" class="form-control form-control-sm">
+                            <option value="SOLVING" id='SOLVING'>SOLVING</option>
+                            <option value="STUCK" id='STUCK'>STUCK</option>
+                            <option value="EXTRACTION" id='EXTRACTION'>EXTRACTION</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
