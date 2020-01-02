@@ -75,9 +75,9 @@ $(document).ready(function() {
         "scrollY": true,
         "columnDefs": [
             { "searchable": false, "targets": time },
-            { "targets": [time], "type": "date" },
+            { "targets": time, "type": "date" },
             { "orderable": false,
-              "targets": [status],
+              "targets": status,
               "render": function(data, type, row, meta) {
                 if (type === 'filter') {
                     var data = $.parseHTML(data);
@@ -86,7 +86,7 @@ $(document).ready(function() {
                 return data;
               },
             },
-            { "orderable": false, "targets": [notes] },
+            { "orderable": false, "targets": notes },
         ],
         "order": [[ 0, "desc" ]],
     } );
