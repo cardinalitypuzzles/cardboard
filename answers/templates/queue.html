@@ -82,13 +82,22 @@ $(document).ready(function() {
               "targets": status,
               "render": function(data, type, row, meta) {
                 if (type === 'filter') {
-                    var data = $.parseHTML(data);
+                    data = $.parseHTML(data);
                     data = data[0].querySelector('select').value;
                 }
                 return data;
               },
             },
-            { "orderable": false, "targets": notes },
+            { "orderable": false,
+              "targets": notes,
+              "render": function(data, type, row, meta) {
+                if (type === 'filter') {
+                    data = $.parseHTML(data);
+                    data = data[0].querySelector('.form-control').value;
+                }
+                return data;
+              },
+            },
         ],
         "order": [[ 0, "desc" ]],
     } );
