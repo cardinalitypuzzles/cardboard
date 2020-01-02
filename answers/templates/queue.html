@@ -24,7 +24,7 @@
             </tr>
         </thead>
         <tbody>
-            {% for ans, form, notes_form in rows%}
+            {% for ans, form, notes_form in rows %}
             <tr class="{% answer_class ans %}">
                 <th>{{ ans.created_on }}</th>
                 <td>{% get_title ans.puzzle %}</td>
@@ -77,7 +77,16 @@ $(document).ready(function() {
         "scrollY": true,
         "columnDefs": [
             { "searchable": false, "targets": time },
-            { "targets": time, "type": "date" },
+            {
+              "targets": time,
+              "type": "date",
+              "render": function(data, type, row, meta) {
+                if (type === 'sort') {
+                    data = moment(data, 'MMM D, YYYY, h:m a');
+                }
+                return data;
+              },
+            },
             { "orderable": false,
               "targets": status,
               "render": function(data, type, row, meta) {
@@ -99,7 +108,7 @@ $(document).ready(function() {
               },
             },
         ],
-        "order": [[ 0, "desc" ]],
+        //"order": [[ time, "desc" ]],
     } );
 });
 </script>
