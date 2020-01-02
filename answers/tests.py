@@ -23,6 +23,12 @@ class TestAnswers(TestCase):
     def tearDown(self):
         self._puzzle.delete()
         self._test_hunt.delete()
+        self._user.delete()
+
+
+    def test_answer_queue_page(self):
+        response = self.client.get('/answers/queue/' + str(self._test_hunt.pk))
+        self.assertEqual(response.status_code, 200)
 
 
     def test_answer_from_smallboard(self):
