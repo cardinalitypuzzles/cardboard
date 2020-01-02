@@ -4,9 +4,6 @@
 
 {% block page_content %}
 
-{% include "modals/edit_puzzle.html" %}
-{% include "modals/delete_puzzle.html" %}
-
 <meta http-equiv="refresh" content="30">
 
 <div class="row justify-content-between" style="margin:10">
@@ -64,52 +61,34 @@
 
 <script type="text/javascript">
 $(document).ready(function() {
-    var queue_table = $('#queue');
-    var queue_table_dom = queue_table.get(0);
+    // table column indices
+    var time = 0,
+        puzzle = 1,
+        answer = 2,
+        status = 3,
+        notes = 4;
 
-    // For choice fields, each entry should only be searchable by the currently
-    // selected value.
-    $.fn.dataTableExt.ofnSearch['select-input'] = function(i, j) {
-        var cell = queue_table_dom.rows[i].cells[j];
-        return cell.querySelector('select').value;
-    };
-
-    // For text fields, enable search based on the initial value of the field
-    // when the table was loaded.
-    $.fn.dataTableExt.ofnSearch['text-input'] = function(i, j) {
-        var cell = queue_table_dom.rows[i].cells[j];
-        return cell.querySelector('input').value;
-    };
-
-    // Add a text input for each footer cell that is column_searchable.
-    $('#queue .column_searchable').each( function () {
-        var col_name = $(this).text();
-        $(this).html( '<input type="text" placeholder="Search '+col_name+'" />' );
-    } );
-
-    var table = queue_table.DataTable( {
+    $('#queue').DataTable( {
         "paging": true,
         "info": true,
         "scrollX": true,
         "scrollY": true,
         "columnDefs": [
-            { "targets": [0], "type": "date" },
-            { "type": "select-input", "orderable": false, "targets": [3] },
-            { "type": "text-input", "orderable": false, "targets": [4] }
+            { "searchable": false, "targets": time },
+            { "targets": [time], "type": "date" },
+            { "orderable": false,
+              "targets": [status],
+              "render": function(data, type, row, meta) {
+                if (type === 'filter') {
+                    var data = $.parseHTML(data);
+                    data = data[0].querySelector('select').value;
+                }
+                return data;
+              },
+            },
+            { "orderable": false, "targets": [notes] },
         ],
-        "order": [[ 0, "desc" ]]
-    } );
-
-    // Apply column search.
-    table.columns().every( function () {
-        var that = this;
-        $( 'input', this.footer() ).on( 'keyup change clear', function () {
-            if ( that.search() !== this.value ) {
-                that
-                    .search( this.value )
-                    .draw();
-            }
-        } );
+        "order": [[ 0, "desc" ]],
     } );
 });
 </script>

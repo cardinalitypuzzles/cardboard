@@ -63,7 +63,6 @@ def get_title(puzzle):
         badge = 'META'
     context = {
         'puzzle': puzzle,
-        'active_users': puzzle.active_users.all(),
         'badge': badge,
     }
     return context
