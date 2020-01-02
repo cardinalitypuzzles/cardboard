@@ -25,6 +25,7 @@ jobs:
           name: Running tests
           command: |
             . venv/bin/activate
+            python3 manage.py collectstatic
             python3 manage.py test --keepdb
       - store_artifacts:
           path: test-reports/
