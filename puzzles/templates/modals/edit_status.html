@@ -12,9 +12,9 @@
                 <div class="modal-body">
                     <div class="form-group">
                         <select name="status" class="form-control form-control-sm">
-                            <option value="SOLVING" id='SOLVING'>SOLVING</option>
-                            <option value="STUCK" id='STUCK'>STUCK</option>
-                            <option value="EXTRACTION" id='EXTRACTION'>EXTRACTION</option>
+                            <option value="SOLVING">SOLVING</option>
+                            <option value="STUCK">STUCK</option>
+                            <option value="EXTRACTION">EXTRACTION</option>
                         </select>
                     </div>
                 </div>
@@ -35,7 +35,7 @@ function initEditStatus() {
     var status = $(this).data('status');
     $('#editstatus form').attr('action', `/puzzles/update_status/${pk}/`);
     $('#puzzletitle').text(name);
-    $('#' + status).attr('selected', 'selected');
+    $(`#editstatus option[value="${status}"]`).attr('selected', 'selected');
   });
 }
 initEditStatus();
