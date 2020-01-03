@@ -4,9 +4,6 @@
 
 {% block page_content %}
 
-{% include "modals/edit_puzzle.html" %}
-{% include "modals/delete_puzzle.html" %}
-
 <meta http-equiv="refresh" content="30">
 
 <div class="row justify-content-between" style="margin:10">
@@ -15,101 +12,103 @@
     </div>
 </div>
 
-<table class="table table-sm" id="queue" style="width:100%">
-    <thead>
-        <tr>
-            <th scope="col">Time</th>
-            <th scope="col">Puzzle</th>
-            <th scope="col">Answer</th>
-            <th scope="col">Status</th>
-            <th scope="col">Notes (e.g. for Partials)</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for ans, form, notes_form in rows%}
-        <tr class="{% answer_class ans %}">
-            <th>{{ ans.created_on }}</th>
-            <td>{% get_title ans.puzzle %}</td>
-            <td><p class="text-monospace">{{ ans.text.upper|strip }}</p></td>
-            <td>
-                <form action="/answers/queue/{{ hunt_pk }}/{{ ans.id }}" method="post" class="form-inline">
-                    {% csrf_token %}
-                    <div class="form-group">
-                        {{ form.status }}
-                    </div>
-                </form>
-            </td>
-            <td>
-               <form action="/answers/update_note/{{ ans.id }}" method="post" class="form-inline">
-                    {% csrf_token %}
-                    <div class="form-group">
-                        {{ notes_form.text }}
-                        <button type="submit" class="btn btn-outline-primary btn-sm">Submit</button>
-                    </div>
-                </form>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-    <tfoot>
-        <tr>
-            <th scope="col">Time</th>
-            <th scope="col" class="column_searchable">Puzzle</th>
-            <th scope="col" class="column_searchable">Answer</th>
-            <th scope="col" class="column_searchable">Status</th>
-            <th scope="col" class="column_searchable">Notes (e.g. for Partials)</th>
-        </tr>
-    </tfoot>
-</table>
+<div class="px-3 pb-3">
+    <table class="table table-sm" id="queue" style="width:100%">
+        <thead>
+            <tr>
+                <th scope="col">Time</th>
+                <th scope="col">Puzzle</th>
+                <th scope="col">Answer</th>
+                <th scope="col">Status</th>
+                <th scope="col">Notes (e.g. for Partials)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ans, form, notes_form in rows %}
+            <tr class="{% answer_class ans %}">
+                <th>{{ ans.created_on }}</th>
+                <td>{% get_title ans.puzzle %}</td>
+                <td><p class="text-monospace">{{ ans.text.upper|strip }}</p></td>
+                <td>
+                    <form action="/answers/queue/{{ hunt_pk }}/{{ ans.id }}" method="post" class="form-inline">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            {{ form.status }}
+                        </div>
+                    </form>
+                </td>
+                <td>
+                   <form action="/answers/update_note/{{ ans.id }}" method="post" class="form-inline">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            {{ notes_form.text }}
+                            <button type="submit" class="btn btn-outline-primary btn-sm">Submit</button>
+                        </div>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <th scope="col">Time</th>
+                <th scope="col" class="column_searchable">Puzzle</th>
+                <th scope="col" class="column_searchable">Answer</th>
+                <th scope="col" class="column_searchable">Status</th>
+                <th scope="col" class="column_searchable">Notes (e.g. for Partials)</th>
+            </tr>
+        </tfoot>
+    </table>
+</div>
 
 <script type="text/javascript">
 $(document).ready(function() {
-    var queue_table = $('#queue');
-    var queue_table_dom = queue_table.get(0);
+    // table column indices
+    var time = 0,
+        puzzle = 1,
+        answer = 2,
+        status = 3,
+        notes = 4;
 
-    // For choice fields, each entry should only be searchable by the currently
-    // selected value.
-    $.fn.dataTableExt.ofnSearch['select-input'] = function(i, j) {
-        var cell = queue_table_dom.rows[i].cells[j];
-        return cell.querySelector('select').value;
-    };
-
-    // For text fields, enable search based on the initial value of the field
-    // when the table was loaded.
-    $.fn.dataTableExt.ofnSearch['text-input'] = function(i, j) {
-        var cell = queue_table_dom.rows[i].cells[j];
-        return cell.querySelector('input').value;
-    };
-
-    // Add a text input for each footer cell that is column_searchable.
-    $('#queue .column_searchable').each( function () {
-        var col_name = $(this).text();
-        $(this).html( '<input type="text" placeholder="Search '+col_name+'" />' );
-    } );
-
-    var table = queue_table.DataTable( {
+    $('#queue').DataTable( {
         "paging": true,
         "info": true,
         "scrollX": true,
         "scrollY": true,
         "columnDefs": [
-            { "targets": [0], "type": "date" },
-            { "type": "select-input", "orderable": false, "targets": [3] },
-            { "type": "text-input", "orderable": false, "targets": [4] }
+            { "searchable": false, "targets": time },
+            {
+              "targets": time,
+              "type": "date",
+              "render": function(data, type, row, meta) {
+                if (type === 'sort') {
+                    data = moment(data, 'MMM D, YYYY, h:m a');
+                }
+                return data;
+              },
+            },
+            { "orderable": false,
+              "targets": status,
+              "render": function(data, type, row, meta) {
+                if (type === 'filter') {
+                    data = $.parseHTML(data);
+                    data = data[0].querySelector('select').value;
+                }
+                return data;
+              },
+            },
+            { "orderable": false,
+              "targets": notes,
+              "render": function(data, type, row, meta) {
+                if (type === 'filter') {
+                    data = $.parseHTML(data);
+                    data = data[0].querySelector('.form-control').value;
+                }
+                return data;
+              },
+            },
         ],
-        "order": [[ 0, "desc" ]]
-    } );
-
-    // Apply column search.
-    table.columns().every( function () {
-        var that = this;
-        $( 'input', this.footer() ).on( 'keyup change clear', function () {
-            if ( that.search() !== this.value ) {
-                that
-                    .search( this.value )
-                    .draw();
-            }
-        } );
+        "order": [[ time, "desc" ]],
     } );
 });
 </script>

@@ -31,7 +31,7 @@
 </div>
 
 <script type="text/javascript">
-$(function () {
+function initEditPuzzle() {
   $(".editpuzzle").click(function() {
     var pk = $(this).data("pk");
     var name = $(this).data("name");
@@ -43,8 +43,10 @@ $(function () {
     if (is_meta.toLowerCase() === 'true') {
         $('#id_is_meta').attr('checked', 'checked');
     } else {
-        $('#id_is_meta').removeAttr('checked')
+        $('#id_is_meta').removeAttr('checked');
     }
-  })
-});
+  });
+}
+initEditPuzzle();
+$('#puzzles').on('draw.dt', initEditPuzzle);
 </script>

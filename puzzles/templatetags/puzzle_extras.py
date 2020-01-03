@@ -1,13 +1,8 @@
-import cgi
 from django import template
 from django.conf import settings
-from django.template.defaultfilters import stringfilter
 from puzzles import tag_utils
 from puzzles.models import Puzzle
-from puzzles.puzzle_tree import *
-from puzzles.forms import StatusForm, MetaPuzzleForm, PuzzleForm, TagForm
-from answers.forms import AnswerForm
-
+from puzzles.puzzle_tree import PuzzleTree
 
 
 register = template.Library()
@@ -29,14 +24,9 @@ def get_table(puzzles, request):
     sorted_np_pairs = PuzzleTree(puzzles).get_sorted_node_parent_pairs()
     sorted_puzzles = [pair.node.puzzle for pair in sorted_np_pairs]
 
-    status_forms = [StatusForm(initial={'status': p.status},
-                               auto_id=False) for p in sorted_puzzles]
-    for (i, p) in enumerate(sorted_puzzles):
-        if p.status in [Puzzle.SOLVED, Puzzle.PENDING]:
-            status_forms[i].fields["status"].disabled = True
-        else:
-            status_forms[i].fields["status"].choices =\
-                [(status, status) for status in Puzzle.VISIBLE_STATUS_CHOICES]
+    tags = [tag_utils.get_tags(p) for p in sorted_puzzles]
+    metas = [list(p.metas.values('name')) for p in sorted_puzzles]
+    active_users = [p.active_users.all() for p in sorted_puzzles]
 
     def __get_puzzle_class(sorted_np_pairs):
         puzzle_class = [table_status_class(pair.node.puzzle) for pair in sorted_np_pairs]
@@ -60,11 +50,11 @@ def get_table(puzzles, request):
     puzzle_class = __get_puzzle_class(sorted_np_pairs)
 
     context = {
-        'rows': zip(sorted_puzzles, status_forms, puzzle_class),
-        'guess_form': AnswerForm(auto_id=False),
+        'rows': zip(sorted_puzzles, tags, metas, active_users, puzzle_class),
         'slack_base_url': settings.SLACK_BASE_URL,
     }
     return context
+
 
 @register.inclusion_tag('title.html')
 def get_title(puzzle):
@@ -73,32 +63,6 @@ def get_title(puzzle):
         badge = 'META'
     context = {
         'puzzle': puzzle,
-        'active_users': puzzle.active_users.all(),
         'badge': badge,
     }
     return context
-
-@register.inclusion_tag('assign_metas.html')
-def assign_metas(puzzle, meta_form):
-    context = {
-        'puzzle': puzzle,
-        'meta_form': meta_form
-    }
-    return context
-
-
-@register.inclusion_tag('show_tags.html')
-def show_tags(puzzle):
-    puzzle_tags = tag_utils.get_tags(puzzle)
-    context = {
-        'puzzle': puzzle,
-        'current_tags': puzzle_tags,
-    }
-    return context
-
-
-@register.filter(name='escape')
-@stringfilter
-def escape(html):
-    return cgi.escape(html)
-
