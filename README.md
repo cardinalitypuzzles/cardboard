@@ -1,5 +1,7 @@
 ## Small Board
 
+For an overview of how to use Small Board and its features, see the [user guide](user-guide.md).
+
 For instructions on how to set up an existing deployment for a new hunt, see this [new hunt setup guide](new-hunt-setup.md).
 
 For development instructions, see below.
