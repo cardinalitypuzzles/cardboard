@@ -17,7 +17,7 @@ The default status of a new puzzle is SOLVING. When an answer is submitted, the 
 
 Users can also tag puzzles as belonging to one or more metas, mark puzzles as high priority or low priority, logic or word puzzles, backsolved, or create new tags.
 
-<img src='https://user-images.githubusercontent.com/544734/71759748-cfc8f780-2e7f-11ea-948d-1d0f32593089.png' width='200'>
+<img src='https://user-images.githubusercontent.com/544734/71759748-cfc8f780-2e7f-11ea-948d-1d0f32593089.png' width='300'>
 
 
 ### Login
@@ -33,7 +33,7 @@ then you should contact an admin and ask them to add you to the Google Drive hun
 
 Any user can add a new puzzle by using the blue "Add New Puzzle" button in the top right.
 
-![add-puzzle](https://user-images.githubusercontent.com/544734/71759777-3cdc8d00-2e80-11ea-9d49-48de77370976.png)
+<img src='https://user-images.githubusercontent.com/544734/71759777-3cdc8d00-2e80-11ea-9d49-48de77370976.png' width='300'>
 
 You must specify a name but the URL is optional. If you know the puzzle is a meta puzzle, you can check the "Meta?" checkbox. In case you made a mistake or realize a puzzle is a meta later on, you can always go back and edit a puzzle by pressing the pencil icon next to the puzzle name.
 
