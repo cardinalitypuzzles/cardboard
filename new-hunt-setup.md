@@ -32,3 +32,8 @@ SLACK_BASE_URL=https://<your-slack-workspace>.slack.com
 ```
 
 You should be able to login to your Small Board deployment, create a new hunt, and start adding puzzles. In case the hunt id of the newly created hunt is not `1`, update `ACTIVE_HUNT_ID` to the new hunt id (check the database).
+
+
+### Giving a new user access to Small Board
+
+The authorized users for a Small Board deployment are the Google users who have access to the Google Drive folder for the hunt (configured by the `GOOGLE_DRIVE_HUNT_FOLDER_ID` variable). To give a new user access, share the Google Drive folder with that user, and then restart Small Board using `heroku restart`.
