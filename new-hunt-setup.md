@@ -31,7 +31,7 @@ You should also have created a Slack workspace for the puzzlehunt. If you are re
 SLACK_BASE_URL=https://<your-slack-workspace>.slack.com
 ```
 
-You should be able to login to your Small Board deployment, create a new hunt, and start adding puzzles. In case the hunt id of the newly created hunt is not `1`, update `ACTIVE_HUNT_ID` to the new hunt id (check the database).
+You should now be able to login to your Small Board deployment, create a new hunt, and start adding puzzles. In case the hunt id of the newly created hunt is not `1`, update `ACTIVE_HUNT_ID` to the new hunt id (check the database).
 
 
 ### Giving a new user access to Small Board
