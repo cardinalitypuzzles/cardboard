@@ -37,3 +37,11 @@ You should now be able to login to your Small Board deployment, create a new hun
 ### Giving a new user access to Small Board
 
 The authorized users for a Small Board deployment are the Google users who have access to the Google Drive folder for the hunt (configured by the `GOOGLE_DRIVE_HUNT_FOLDER_ID` variable). To give a new user access, share the Google Drive folder with that user, and then restart Small Board using `heroku restart`.
+
+
+### Other Configuration
+
+Some other things you may want to tweak before hunt include:
+
+* Setting `DEBUG=False`
+* Increasing the number or tier of the dynos in your Heroku deployment
