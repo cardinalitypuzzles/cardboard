@@ -17,7 +17,7 @@ The default status of a new puzzle is SOLVING. When an answer is submitted, the 
 
 Users can also tag puzzles as belonging to one or more metas, mark puzzles as high priority or low priority, logic or word puzzles, backsolved, or create new tags.
 
-![add-tag](https://user-images.githubusercontent.com/544734/71759748-cfc8f780-2e7f-11ea-948d-1d0f32593089.png)
+<img src='https://user-images.githubusercontent.com/544734/71759748-cfc8f780-2e7f-11ea-948d-1d0f32593089.png' width='200'>
 
 
 ### Login
@@ -39,10 +39,19 @@ You must specify a name but the URL is optional. If you know the puzzle is a met
 
 In case you need to delete a puzzle (perhaps you accidentally created a duplicate), you can do so using the trash icon next to a puzzle name.
 
-- searching for puzzles
+
+### Searching
+
+As a hunt progresses, the number of puzzles can get quite large (especially for a hunt like the MIT Mystery Hunt). To make things more manageable, you can use the "Search" box in the top-right to filter puzzles. The search matches puzzle name, answer, status, or tags. For example, the following shows filtering to just the puzzles that need extraction:
+
+![extraction](https://user-images.githubusercontent.com/544734/71759824-38fd3a80-2e81-11ea-8670-d0a1039f6502.png)
+
+
 
 - answer submission and verification
 
 - metas and tags
 
 - Slack integration
+
+- tools and references
