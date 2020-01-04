@@ -38,6 +38,8 @@ You should now be able to login to your Small Board deployment, create a new hun
 
 The authorized users for a Small Board deployment are the Google users who have access to the Google Drive folder for the hunt (configured by the `GOOGLE_DRIVE_HUNT_FOLDER_ID` variable). To give a new user access, share the Google Drive folder with that user, and then restart Small Board using `heroku restart`.
 
+The new user should also be invited to the Slack workspace in order to access the puzzle Slack channels.
+
 
 ### Other Configuration
 
