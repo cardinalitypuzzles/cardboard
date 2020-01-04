@@ -1,3 +1,10 @@
+## Small Board
+
+For instructions on how to set up an existing deployment for a new hunt, see this [new hunt setup guide](new-hunt-setup.md).
+
+For development instructions, see below.
+
+
 ### Getting started
 
 To set up Small Board locally, you need:
