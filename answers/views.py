@@ -48,7 +48,7 @@ def __answer_class(answer):
 @login_required(login_url='/accounts/login/')
 def answers(request, hunt_pk):
     hunt = get_object_or_404(Hunt, pk=hunt_pk)
-    answer_objects = Answer.objects.filter(puzzle__hunt__pk=hunt_pk).order_by('-created_on')
+    answer_objects = Answer.objects.filter(puzzle__hunt__pk=hunt_pk).prefetch_related('puzzle').order_by('-created_on')
 
     result = {
         "data": [
