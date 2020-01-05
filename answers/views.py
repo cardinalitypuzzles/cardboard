@@ -5,10 +5,10 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.views import View
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_GET, require_POST
 from hunts.models import Hunt
 from puzzles.forms import PuzzleForm
 from slack_lib.slack_client import SlackClient
@@ -30,22 +30,48 @@ def update_note(request, answer_pk):
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
 
+def __answer_class(answer):
+    status = answer.get_status()
+    if status == Answer.SUBMITTED:
+        return "table-warning"
+    elif status == Answer.CORRECT:
+        return "table-success"
+    elif status == Answer.INCORRECT:
+        return "table-danger"
+    elif status == Answer.PARTIAL:
+        return "table-warning"
+    else:
+        return ""
+
+
+@require_GET
+@login_required(login_url='/accounts/login/')
+def answers(request, hunt_pk):
+    hunt = get_object_or_404(Hunt, pk=hunt_pk)
+    answer_objects = Answer.objects.filter(puzzle__hunt__pk=hunt_pk).order_by('-created_on')
+
+    result = {
+        "data": [
+            [
+                __answer_class(answer), answer.created_on, answer.puzzle.name,
+                answer.puzzle.url, answer.puzzle.is_meta, answer.text,
+                answer.status, answer.id, answer.response,
+            ]
+            for answer in answer_objects
+        ]
+    }
+    return JsonResponse(result)
+
+
 class AnswerView(LoginRequiredMixin, View):
     login_url = '/accounts/login/'
     redirect_field_name = 'next'
 
     def get(self, request, hunt_pk):
         hunt = get_object_or_404(Hunt, pk=hunt_pk)
-        answers = Answer.objects.filter(puzzle__hunt__pk=hunt_pk).order_by('-created_on')
-        status_forms = [UpdateAnswerStatusForm(initial={'status': ans.get_status()},
-                                               auto_id=False) for ans in answers]
-        notes_forms = [UpdateAnswerNotesForm(initial={'text': ans.get_notes()},
-                                             auto_id=False) for ans in answers]
-
         context = {
             'hunt_pk': hunt_pk,
             'hunt_name': hunt.name,
-            'rows' : zip(answers, status_forms, notes_forms)
         }
         return render(request, 'queue.html', context)
 
@@ -82,5 +108,3 @@ class AnswerView(LoginRequiredMixin, View):
             self.__update_slack_with_puzzle_status(guess, status)
 
         return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
-
-

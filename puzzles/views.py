@@ -60,6 +60,10 @@ def guess(request, pk):
 
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
+if settings.DEBUG:
+    guess = csrf_exempt(guess)
+
+
 @require_POST
 @csrf_exempt
 def slack_guess(request):
