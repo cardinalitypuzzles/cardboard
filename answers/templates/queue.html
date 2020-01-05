@@ -2,8 +2,6 @@
 
 {% block page_content %}
 
-<meta http-equiv="refresh" content="30">
-
 <div class="row justify-content-between" style="margin:10">
     <div class="col-10">
         <h1>{{ hunt_name }} - Answer Queue</h1>
@@ -30,7 +28,7 @@ $(document).ready(function() {
 
     let statuses = ['NEW', 'SUBMITTED', 'CORRECT', 'INCORRECT', 'PARTIAL',];
 
-    $('#queue').DataTable( {
+    let table = $('#queue').DataTable( {
         "ajax": "/answers/queue/{{hunt_pk}}/answers",
         "paging": true,
         "pageLength": 50,
@@ -41,6 +39,9 @@ $(document).ready(function() {
         "ordering": false,
         "createdRow": function(row, data, dataIndex) {
             $(row).addClass(data[answer_class]);
+        },
+        "initComplete": function(settings, json) {
+            initUpdateStatus(json['data'][0][id]);
         },
         "columnDefs": [
             {
@@ -85,12 +86,9 @@ $(document).ready(function() {
                     let result = data;
                     if (type === 'display') {
                         result = `
-    <form action="/answers/queue/{{ hunt_pk }}/${row[id]}" method="post" class="form-inline">
-        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
         <div class="form-group">
-            <select name="status" onChange="this.form.submit();" class="form-control form-control-sm">
+            <select name="status" class="form-control form-control-sm" id="answer-status-${row[id]}" data-id="${row[id]}">
     `;
-
                         for (const status of statuses) {
                             result += '<option value="' + status + '"';
                             if (status === data) {
@@ -101,8 +99,7 @@ $(document).ready(function() {
 
                         result += `
             </select>
-        </div>
-    </form>`;
+        </div>`;
                     }
                     return result;
                 },
@@ -127,6 +124,38 @@ $(document).ready(function() {
             },
         ],
     } );
+
+    function initUpdateStatus(maxId) {
+        for (let i = 0; i <= maxId; i++) {
+            $(`#answer-status-${i}`).change(function() {
+                $.ajax('/answers/queue/{{hunt_pk}}/' + $(this).data('id'), {
+                    'data': {
+                        'csrfmiddlewaretoken': '{{csrf_token}}',
+                        'status': $(this).val()
+                    },
+                    'method': 'POST',
+                    'success': function(response) {
+                        reload();
+                    },
+                    'error': function(response) {
+                        console.log('Got error response when updating answer:', response);
+                        reload();
+                    }
+                });
+            });
+        }
+    }
+
+    function reload() {
+        table.ajax.reload(function(response) {
+            // first element has max id
+            initUpdateStatus(response['data'][0][id]);
+        }, false /* resetPaging */);
+    }
+
+    setInterval(function() {
+        reload();
+    }, 10000);
 });
 </script>
 {% endblock %}

@@ -14,6 +14,10 @@ from hunts.models import Hunt
 from puzzles.forms import PuzzleForm
 from slack_lib.slack_client import SlackClient
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 @require_POST
 @login_required(login_url='/accounts/login/')
@@ -99,6 +103,7 @@ class AnswerView(LoginRequiredMixin, View):
     def post(self, request, hunt_pk, answer_pk):
         status_form = UpdateAnswerStatusForm(request.POST)
 
+        status_code = 200
         if status_form.is_valid():
             guess = get_object_or_404(Answer.objects.select_for_update(), pk=answer_pk)
             status = status_form.cleaned_data["status"]
@@ -109,5 +114,8 @@ class AnswerView(LoginRequiredMixin, View):
 
             guess.set_status(status)
             self.__update_slack_with_puzzle_status(guess, status)
+        else:
+            logger.warn('invalid form for answer ' + str(answer_pk) + ' and hunt ' + str(hunt_pk))
+            status_code = 400
 
-        return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+        return JsonResponse({}, status=status_code)
