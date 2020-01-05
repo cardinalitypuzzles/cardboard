@@ -123,10 +123,14 @@ def slack_events(request):
 
     event_type = event.get('type')
     puzzle = Puzzle.objects.get(channel=event.get('channel'))
-    if event_type == 'member_joined_channel':
-        puzzle.active_users.add(user)
-    elif event_type == 'member_left_channel':
-        puzzle.active_users.remove(user)
+
+    # we ignore the case where puzzle is accidentally marked as solved
+    # and user joins/leaves during this time
+    if puzzle.status != Puzzle.SOLVED:
+        if event_type == 'member_joined_channel':
+            puzzle.active_users.add(user)
+        elif event_type == 'member_left_channel':
+            puzzle.active_users.remove(user)
 
     return HttpResponse('Processed ' + event_type + ' event')
 

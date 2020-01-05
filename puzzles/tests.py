@@ -1,3 +1,6 @@
+import json
+from unittest.mock import patch
+
 from django.test import TestCase
 
 from accounts.models import Puzzler
@@ -5,7 +8,7 @@ from hunts.models import Hunt
 from .models import Puzzle, is_ancestor
 from .puzzle_tree import PuzzleTree
 from .puzzle_tag import PuzzleTag
-
+from slack_lib.slack_client import SlackClient
 
 class TestPuzzle(TestCase):
 
@@ -149,3 +152,41 @@ class TestPuzzle(TestCase):
 
         self.assertFalse(PuzzleTag.objects.filter(name="oldname").exists())
         self.assertTrue(feeder.tags.filter(name="newname").exists())
+
+    @patch.object(SlackClient, "getInstance")
+    def test_slack_events(self, slack_get_instance):
+        slack_get_instance.return_value.get_user_email.return_value = self._user.email
+
+        puzzle = self.create_puzzle("puzzle", False)
+        self.assertEqual(list(puzzle.active_users.all()), [])
+
+        # joining
+        join_json = {
+            "event": {"type": "member_joined_channel", "channel": puzzle.channel},
+            "user": "1",
+        }
+        self.client.post("/puzzles/slack_events/",
+            json.dumps(join_json),
+            content_type="application/json")
+        self.assertEqual(list(puzzle.active_users.all()), [self._user])
+
+        # leaving
+        leave_json = {
+            "event": {"type": "member_left_channel", "channel": puzzle.channel},
+            "user": "1",
+        }
+        self.client.post("/puzzles/slack_events/",
+            json.dumps(leave_json),
+            content_type="application/json")
+        self.assertEqual(list(puzzle.active_users.all()), [])
+
+        # leaving after puzzle solved
+        self.client.post("/puzzles/slack_events/",
+            json.dumps(join_json),
+            content_type="application/json")
+        puzzle.set_answer("answer")
+        self.client.post("/puzzles/slack_events/",
+            json.dumps(leave_json),
+            content_type="application/json")
+        self.assertEqual(list(puzzle.active_users.all()), [self._user])
+        
