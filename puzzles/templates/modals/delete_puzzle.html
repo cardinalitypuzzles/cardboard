@@ -22,12 +22,14 @@
 </div>
 
 <script type="text/javascript">
-$(function () {
+function initDeletePuzzle() {
   $(".deletepuzzle").click(function() {
     var pk = $(this).data("pk");
     var name = $(this).data("name");
     $('#deletepuzzle form').attr('action', `/puzzles/delete/${pk}/`);
     $('#deletetitle').text(`Delete ${name}`);
   })
-});
+}
+initDeletePuzzle();
+$('#puzzles').on('draw.dt', initDeletePuzzle);
 </script>

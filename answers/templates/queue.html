@@ -1,11 +1,6 @@
 {% extends "base.html" %}
-{% load puzzle_extras %}
-{% load answer_extras %}
 
 {% block page_content %}
-
-{% include "modals/edit_puzzle.html" %}
-{% include "modals/delete_puzzle.html" %}
 
 <meta http-equiv="refresh" content="30">
 
@@ -15,101 +10,122 @@
     </div>
 </div>
 
-<table class="table table-sm" id="queue" style="width:100%">
-    <thead>
-        <tr>
-            <th scope="col">Time</th>
-            <th scope="col">Puzzle</th>
-            <th scope="col">Answer</th>
-            <th scope="col">Status</th>
-            <th scope="col">Notes (e.g. for Partials)</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for ans, form, notes_form in rows%}
-        <tr class="{% answer_class ans %}">
-            <th>{{ ans.created_on }}</th>
-            <td>{% get_title ans.puzzle %}</td>
-            <td><p class="text-monospace">{{ ans.text.upper|strip }}</p></td>
-            <td>
-                <form action="/answers/queue/{{ hunt_pk }}/{{ ans.id }}" method="post" class="form-inline">
-                    {% csrf_token %}
-                    <div class="form-group">
-                        {{ form.status }}
-                    </div>
-                </form>
-            </td>
-            <td>
-               <form action="/answers/update_note/{{ ans.id }}" method="post" class="form-inline">
-                    {% csrf_token %}
-                    <div class="form-group">
-                        {{ notes_form.text }}
-                        <button type="submit" class="btn btn-outline-primary btn-sm">Submit</button>
-                    </div>
-                </form>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-    <tfoot>
-        <tr>
-            <th scope="col">Time</th>
-            <th scope="col" class="column_searchable">Puzzle</th>
-            <th scope="col" class="column_searchable">Answer</th>
-            <th scope="col" class="column_searchable">Status</th>
-            <th scope="col" class="column_searchable">Notes (e.g. for Partials)</th>
-        </tr>
-    </tfoot>
-</table>
+<div class="px-3 pb-3">
+    <table class="table table-sm" id="queue" style="width:100%">
+    </table>
+</div>
 
 <script type="text/javascript">
 $(document).ready(function() {
-    var queue_table = $('#queue');
-    var queue_table_dom = queue_table.get(0);
+    // table column indices
+    let answer_class = 0,
+        time = 1,
+        puzzle_name = 2,
+        puzzle_url = 3,
+        puzzle_is_meta = 4,
+        guess = 5,
+        answer_status = 6,
+        id = 7,
+        notes = 8;
 
-    // For choice fields, each entry should only be searchable by the currently
-    // selected value.
-    $.fn.dataTableExt.ofnSearch['select-input'] = function(i, j) {
-        var cell = queue_table_dom.rows[i].cells[j];
-        return cell.querySelector('select').value;
-    };
+    let statuses = ['NEW', 'SUBMITTED', 'CORRECT', 'INCORRECT', 'PARTIAL',];
 
-    // For text fields, enable search based on the initial value of the field
-    // when the table was loaded.
-    $.fn.dataTableExt.ofnSearch['text-input'] = function(i, j) {
-        var cell = queue_table_dom.rows[i].cells[j];
-        return cell.querySelector('input').value;
-    };
-
-    // Add a text input for each footer cell that is column_searchable.
-    $('#queue .column_searchable').each( function () {
-        var col_name = $(this).text();
-        $(this).html( '<input type="text" placeholder="Search '+col_name+'" />' );
-    } );
-
-    var table = queue_table.DataTable( {
+    $('#queue').DataTable( {
+        "ajax": "/answers/queue/{{hunt_pk}}/answers",
         "paging": true,
+        "pageLength": 50,
         "info": true,
         "scrollX": true,
         "scrollY": true,
+        "order": [[ time, "desc" ]],
+        "ordering": false,
+        "createdRow": function(row, data, dataIndex) {
+            $(row).addClass(data[answer_class]);
+        },
         "columnDefs": [
-            { "targets": [0], "type": "date" },
-            { "type": "select-input", "orderable": false, "targets": [3] },
-            { "type": "text-input", "orderable": false, "targets": [4] }
-        ],
-        "order": [[ 0, "desc" ]]
-    } );
+            {
+                'visible': false,
+                'targets': [answer_class, id, puzzle_url, puzzle_is_meta],
+            },
+            {
+                'searchable': false,
+                'targets': [answer_class, id, time, puzzle_url, puzzle_is_meta],
+            },
+            {'title': 'Time', 'targets': time},
+            {'title': 'Puzzle', 'targets': puzzle_name},
+            {'title': 'Answer', 'targets': guess},
+            {'title': 'Status', 'targets': answer_status},
+            {'title': 'Notes', 'targets': notes},
 
-    // Apply column search.
-    table.columns().every( function () {
-        var that = this;
-        $( 'input', this.footer() ).on( 'keyup change clear', function () {
-            if ( that.search() !== this.value ) {
-                that
-                    .search( this.value )
-                    .draw();
-            }
-        } );
+            {
+                'targets': time,
+                'render': function(data, type, row, meta) {
+                    return moment(data).format('MMM D, YYYY, h:m a');
+                },
+            },
+            {
+                'targets': puzzle_name,
+                'render': function(data, type, row, meta) {
+                    let result = '<a href="' + row[puzzle_url] + '">' + row[puzzle_name] + '</a>';
+                    if (row[puzzle_is_meta]) {
+                        result += ' <span class="badge badge-dark badge-meta">META</span>';
+                    }
+                    return result;
+                },
+            },
+            {
+                'targets': guess,
+                'render': function(data, type, row, meta) {
+                    return `<p class="text-monospace">${data}</p>`
+                },
+            },
+            {
+                'targets': answer_status,
+                'render': function(data, type, row, meta) {
+                    let result = data;
+                    if (type === 'display') {
+                        result = `
+    <form action="/answers/queue/{{ hunt_pk }}/${row[id]}" method="post" class="form-inline">
+        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+        <div class="form-group">
+            <select name="status" onChange="this.form.submit();" class="form-control form-control-sm">
+    `;
+
+                        for (const status of statuses) {
+                            result += '<option value="' + status + '"';
+                            if (status === data) {
+                                result += ' selected';
+                            }
+                            result += '>' + status + '</option>\n';
+                        }
+
+                        result += `
+            </select>
+        </div>
+    </form>`;
+                    }
+                    return result;
+                },
+            },
+            {
+                'targets': notes,
+                'render': function(data, type, row, meta) {
+                    let result = `
+<form action="/answers/update_note/${row[id]}" method="post" class="form-inline">
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+    <div class="form-group">
+        <input type="text" name="text" class="form-control form-control-sm col-xs-4" placeholder="Enter notes here" maxlength="128" required`;
+                    if (data) {
+                        result += ` value=${data}`;
+                    }
+                    result += `>
+        <button type="submit" class="btn btn-outline-primary btn-sm">Submit</button>
+    </div>
+</form>`;
+                    return result;
+                },
+            },
+        ],
     } );
 });
 </script>

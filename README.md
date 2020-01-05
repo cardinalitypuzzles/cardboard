@@ -1,242 +1,100 @@
-### Getting started
+## Small Board
 
-To set up Small Board locally, you need:
+This guide gives an overview of how to use Small Board and its features.
 
-* Git
-* a Python environment with the packages in [requirements.txt]() installed
-* a local database (e.g.: Postgres)
+For instructions on how to set up an existing deployment for a new hunt, see this [new hunt setup guide](new-hunt-setup.md).
 
+For development instructions, see the [dev guide](dev-guide.md).
 
-#### Checking out the code
 
-To check out the code, you first need to [install Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git). Then you can checkout the code using:
+### Overview
 
-```
-git clone git@github.com:cardinalitypuzzles/smallboard.git
-```
+![overview](https://user-images.githubusercontent.com/544734/71759676-6a283b80-2e7e-11ea-82d0-f2f4fc737c71.png)
 
+The default page you see is a list of all puzzles in a table. The puzzle name is a link to the puzzle page on the hunt website. The puzzles are grouped by meta, and each puzzle has a Google spreadsheet ("Sheet" column) and Slack channel ("Slack" column) associated with it.
 
-#### Setting up a Python environment
+In case you need to edit the puzzle name, URL, or meta status, you can use the pencil icon next to the puzzle name. Use the trash icon to delete a puzzle.
 
-We recommend setting up an isolated virtual environment where you install the dependencies. You can set one up by following [this guide](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/#creating-a-virtual-environment). Here are the steps for Ubuntu:
+To submit a guess for a puzzle, click the "Submit Answer" button for that puzzle. Once a guess has been submitted, the puzzle status will be changed to PENDING and the row will be highlighted in yellow. Note that this does not actually submit the answer on the hunt website. A dedicated person monitoring the "Answer Queue" page should be responsible for submitting the answers on the hunt website and reporting back whether the answer was correct or not.
 
-```
-# install Python 3, venv, and Postgres packages
-sudo apt-get install python3-dev python3-venv libpq-dev
-# create a new virtual environment
-python3 -m venv venv_smallboard
-```
+The default status of a new puzzle is SOLVING. When an answer is submitted, the status automatically changes to PENDING, and when a puzzle is solved (an answer is confirmed to be correct), the status changes to SOLVED. In addition, you can set a puzzle's status to STUCK or EXTRACTION by using the pencil icon in the "Status" column to indicate that the solvers are stuck on the puzzle or the puzzle just needs a final extraction to get an answer.
 
-Once you've set up the new virtual environment, activate it and install Small Board's dependencies:
+Users can also tag puzzles as belonging to one or more metas, mark puzzles as high priority or low priority, logic or word puzzles, backsolved, or create new tags by clicking the "+" icon in the "Tags" column.
 
-```
-source venv_smallboard/bin/activate
-(venv_smallboard)$ pip install -r requirements.txt
-```
+<img src='https://user-images.githubusercontent.com/544734/71759748-cfc8f780-2e7f-11ea-948d-1d0f32593089.png' width='300'>
 
-If you encounter issues during dependency installation, make sure you've installed the `python3-dev` package (and not just `python3`).
+Clicking the "x" icon next to an existing tag will remove it from the puzzle.
 
+There is also a static "Tools and References" page linked on the navigation bar at the top that includes links to useful puzzle tools and resources.
 
-#### <a name='database'>Setting up a local database</a>
 
-Django supports multiple databases but here we use Postgres as an example. For most OS distributions, you should be able to install it using your package manager, similar to:
+### Login
 
-```
-sudo apt-get install postgresql
-```
+You login to Small Board using a Google account. If you get an error message like
 
-As of 11/23/2019, postgresql doesn't work out of the box. You'll need to add the following 2 config files to the right places:
+![login-error](https://user-images.githubusercontent.com/544734/71759638-0ef64900-2e7e-11ea-8362-73f789085547.png)
 
-```
-sudo -u postgres touch /var/lib/postgresql/10/main/postgresql.conf
-sudo -u postgres cp missing_postgres_configs/pg_hba.conf /var/lib/postgresql/10/main/pg_hba.conf
-```
+then you should contact an admin and ask them to add you to the Google Drive hunt folder (and invite you to the Slack workspace). For more details, see the [hunt setup guide](new-hunt-setup.md#giving-a-new-user-access-to-small-board).
 
-Start the database server using a command like:
 
-```
-# by default, the server runs as the "postgres" user,
-# so you'll need to run this as the postgres user
-sudo -u postgres /usr/lib/postgresql/10/bin/pg_ctl -D /var/lib/postgresql/10/main -l logfile start
-```
+### Adding and modifying puzzles
 
-Once the database server is running, connect to it and set up a database, user, and password for Small Board:
+Any user can add a new puzzle by using the blue "Add New Puzzle" button in the top right.
 
-```
-# run as postgres user
-sudo -u postgres psql
+<img src='https://user-images.githubusercontent.com/544734/71759777-3cdc8d00-2e80-11ea-9d49-48de77370976.png' width='300'>
 
-# inside postgres shell
-create database smallboard;
+You must specify a name but the URL is optional. If you know the puzzle is a meta puzzle, you can check the "Meta?" checkbox. In case you made a mistake or realize a puzzle is a meta later on, you can always go back and edit a puzzle by pressing the pencil icon next to the puzzle name.
 
-create user myuser with encrypted password 'mypass';
-grant all privileges on database smallboard to myuser;
+In case you need to delete a puzzle (perhaps you accidentally created a duplicate), you can do so using the trash icon next to a puzzle name.
 
-# needed for tests
-ALTER USER myuser CREATEDB;
-```
+When a puzzle is created, a Google Spreadsheet and Slack channel are automatically created for the puzzle. These are accessible from the links in the "Sheet" and "Slack" columns.
 
-Create a `.env` file in the `smallboard/` root directory with the database connection info:
 
-```
-# .env file contents
-DATABASE_URL=postgres://myuser:mypass@localhost/smallboard
-```
+### Searching
 
-Once this is set up, you'll need to run a one-time database migration to set up the database tables:
+As a hunt progresses, the number of puzzles can get quite large (especially for a hunt like the MIT Mystery Hunt). To make things more manageable, you can use the "Search" box in the top-right to filter puzzles. The search matches puzzle name, answer, status, or tags. For example, the following shows filtering to just the puzzles that need extraction:
 
-```
-# activate virtual environment
-source venv_smallboard/bin/activate
+![extraction](https://user-images.githubusercontent.com/544734/71759824-38fd3a80-2e81-11ea-8670-d0a1039f6502.png)
 
-# from smallboard/ root directory
-(venv_smallboard)$ python manage.py migrate
-```
 
-#### Copying production data to local database
+### Answer submission and verification
 
-For testing and development, it can be helpful to load the production data into your local database. You can do so as follows:
+To submit an answer for a puzzle, you can either use the "Submit Answer" button on the website, or enter `/answer PUZZLEANSWER` in the puzzle's Slack channel. This will change the puzzle status to PENDING (causing the puzzle row to be highlighted in yellow), and the answer will be added to the Answer Queue page, which looks like this:
 
-```
-# download production data
-# get the postgres connection string from https://dashboard.heroku.com/apps/smallboard/settings
-heroku run pg_dump postgres://user:pass@....compute-1.amazonaws.com:5432/database > prod_db.sql
+![answer-queue](https://user-images.githubusercontent.com/544734/71759910-179d4e00-2e83-11ea-94bc-f26dd46a8a31.png)
 
-# edit prod_db.sql and replace all instances of "Owner: <random_string_of_letters>" with "Owner: myuser"
+Generally, a dedicated person will monitor this Answer Queue page and submit the guesses on the actual hunt website, updating the status to SUBMITTED once submitted on the hunt site. When the team gets notified whether the answer is right or wrong, the status can be updated to CORRECT or INCORRECT. Once an answer has been marked CORRECT, the puzzle will be marked SOLVED on the main puzzles page and its status can no longer be updated there. In case this was a mistake, the status of the answer can be changed to INCORRECT to allow updates to the puzzle status on the main puzzles page.
 
-# drop all tables
-psql postgres://myuser:mypass@localhost/smallboard
-# run the following to generate the drop table commands
-SELECT  'DROP TABLE IF EXISTS "' || tablename || '" CASCADE;' FROM pg_tables WHERE tableowner = 'myuser';
-# run the drop table commands
+Notes (such as feedback that our guess was a partial answer) may be entered in the "Notes" field, and these will automatically be posted in the puzzle's Slack channel as well.
 
-# load production data
-\i prod_db.sql
-```
 
+### Metas and Tags
 
-#### <a name='env'>Local `.env` file: credentials, API Tokens, configuration</a>
+When adding a new puzzle, if you know it's a meta, you can mark it as such by checking the "Meta?" checkbox. This will automatically create a tag with the same name as the meta puzzle. You can then assign other puzzles as belonging to this meta by using the "Assign Metas" button for a puzzle or adding the meta puzzle tag using the "+" icon in the "Tags" column for a puzzle.
 
-This app uses various secrets including Google and Slack API tokens that need to be present in the environment. Locally, you can put these in the `.env` file. In the production Heroku deployment, they're set as Config Vars at https://dashboard.heroku.com/apps/smallboard/settings. For most of these configs, you can just use the production settings. The ones you probably want to change are `DATABASE_URL`, `DJANGO_SECRET_KEY`, and `DEBUG`. You can contact a Collaborator to give you access to the Heroku Small Board settings or to share their `.env` file with you.
+The main puzzles page is grouped by metas, with puzzles belonging to a meta indented underneath the meta. Each puzzle may belong to multiple metas, in which case it will appear multiple times, once under each meta it belongs to.
 
-The environment variables used by Small Board are listed below. The only required variables are `DATABASE_URL` and `ACTIVE_HUNT_ID`.
+Meta puzzles may also be assigned to other metas (which might be meta-metas).
 
-```
-# for connecting to the database (see "Setting up a local database" section above)
-DATABASE_URL=postgres://myuser:mypass@localhost/smallboard
+In addition to meta tags for puzzles, users can also tag puzzles as high or low priority, logic or word puzzles, or create new tags.
 
-# the default (active) hunt
-ACTIVE_HUNT_ID=1
 
-# for accessing Google Drive APIs
-GOOGLE_DRIVE_API_PRIVATE_KEY=...
+### Google Sheets integration
 
-# id of the Google Drive hunt folder
-# when you go to the folder, it's the last part of the URL
-# drive.google.com/drive/folders/<HUNT_FOLDER_ID>
-# the whitelist of emails allowed access to Small Board
-# are the emails of the users who have access to this folder
-GOOGLE_DRIVE_HUNT_FOLDER_ID=...
+When a puzzle is added, a Google Sheet is automatically created for it, accessible from the link under the "Sheet" column. The puzzle sheet is a clone of a template sheet, which may have some useful formulas pre-populated.
 
-# id of the Google Spreadsheet template to be copied for
-# each puzzle. The id is in the URL when you open the spreadsheet:
-# docs.google.com/spreadsheets/d/<SHEETS_ID>/...
-# This file should in inside the hunt folder, since when
-# this template is copied, the new spreadsheet will be
-# put in the same folder as the template.
-GOOGLE_SHEETS_TEMPLATE_FILE_ID=...
 
-# for Google OAuth2 login
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET=...
+### Slack integration
 
-# for Slack integration
-SLACK_BASE_URL=https://my-workspace.slack.com
-SLACK_API_TOKEN=...
-SLACK_VERIFICATION_TOKEN=...
+![slack](https://user-images.githubusercontent.com/544734/71760119-67c9df80-2e86-11ea-9c9d-089c5535b09b.png)
 
-# secret used by Django framework for sessions, passwords, etc.
-# rather than use the production secret key locally, you can easily generate a new one using:
-# python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
-DJANGO_SECRET_KEY=...
+When a puzzle is added, a Slack channel is automatically created for it, accessible from the link under the "Slack" column. In addition to submitting answers on the website, users can also submit answers from a puzzle's Slack channel by entering `/answer PUZZLEANSWER`.
 
-# whether to enable debug info when errors happen
-# for dev, you probably want to set to True, but in production,
-# we should set to False
-DEBUG=...
-```
+When a puzzle's status is changed to CORRECT, INCORRECT, or PARTIAL, a message is posted in the puzzle's Slack channel. Also, if any "Notes" are entered for a puzzle on the Answer Queue page, these notes are posted in the Slack channel as well.
 
-#### Google OAuth2 login integration (optional)
 
-The app uses Google OAuth2 to authenticate users. If the `SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET` environment variable isn't set, the app will fall back to a "Signup" flow where users can create their own username and password. Even with Google OAuth2 enabled, you can still create superusers using `python manage.py createsuperuser`. The OAuth2 settings are configured at https://console.developers.google.com/apis/credentials?project=smallboard-test-260001.
+### Tools and References
 
-You should be able to use Google OAuth2 locally as well, since the OAuth2 settings above include `localhost` and `127.0.0.1` as authorized redirect URLs.
+![tools](https://user-images.githubusercontent.com/544734/71760134-8def7f80-2e86-11ea-82cf-b6b8e906ebf7.png)
 
-The whitelist of allowed emails is the emails of the users who have access to `GOOGLE_DRIVE_HUNT_FOLDER_ID`. If you don't have access, please message a Collaborator to be added.
-
-
-#### Google Sheets Integration (optional)
-
-When a puzzle is created, a Google Sheet is created that is a copy of the template specified by `GOOGLE_SHEETS_TEMPLATE_FILE_ID` (which should have some useful formulas pre-added). The copied sheet is created in the same folder as the template.
-
-You need to have access to the Google Drive folder to view it. Please message a Collaborator if you don't.
-
-These Google Drive and Sheets related settings can be found in [smallboard/settings.py](smallboard/settings.py).
-
-
-#### Slack Integration (optional)
-
-This app interacts with a slack workspace in the following ways:
-1) Channel creation upon puzzle creation
-2) A '/answer' command on slack that inputs answers into the big board
-
-When running locally, only 1) will work since the /answer command sends a direct
-POST request to the heroku deployment.
-
-You can contact a Collaborator to be added to the relevant slack workspace(s).
-
-
-#### Local deployment
-
-Once the Python environment and database are set up and running, you can run Small Board locally using
-
-```
-(venv_smallboard)$ python manage.py runserver
-```
-
-You can view the app in your browser at [http://127.0.0.1:8000/]().
-
-
-### Running Tests
-
-To run tests:
-
-```
-python manage.py test
-```
-
-The test environment settings are in `.env.test`. If you encounter an error `Got an error creating the test database: permission denied to create database`, make sure you run `ALTER USER myuser CREATEDB` as described above in the [Setting up a local database](#database) section.
-
-
-### Deployment to Heroku
-
-Though our development repo is this GitHub repo ([cardinalitypuzzles/smallboard](https://github.com/cardinalitypuzzles/smallboard)), to deploy to Heroku, you need to push the latest code to the Heroku Git server. To do so, you need to be added as a collaborator for the Heroku app first. Please message one of the collaborators on this project to be added.
-
-Once you've been added as a collaborator for the smallboard Heroku app, you can deploy changes by following [this guide](https://devcenter.heroku.com/articles/git). Install Git and the Heroku CLI. Then run
-
-```
-heroku login
-heroku git:remote -a smallboard
-```
-
-After this, you can deploy changes by running
-
-```
-git push heroku master
-```
-
-We encourage you to keep the `origin` remote as our GitHub repo and make it the default for `git push`s, and use `git push heroku master` to push to the Heroku Git servers when you are ready to deploy changes to production.
-
-
-#### Environment variables
-
-We rely on various secrets and tokens for Google and Slack integration, etc. These are set as Config Vars at https://dashboard.heroku.com/apps/smallboard/settings. See the [Local `.env` file](#env) section above for more details.
+A static list of tools and references is collected on the "Tools and References" page. You can add more by editing the [tools.html](hunts/templates/tools.html) page.

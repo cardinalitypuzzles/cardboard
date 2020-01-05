@@ -1,5 +1,6 @@
 import json
 import os
+import re
 
 from django.conf import settings
 from django.contrib import messages
@@ -39,6 +40,10 @@ def update_status(request, pk):
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
 
+def __sanitize_guess(guess):
+    return re.sub('[^0-9A-Za-z]', '', guess).upper()
+
+
 @require_POST
 @login_required(login_url='/accounts/login/')
 def guess(request, pk):
@@ -46,7 +51,7 @@ def guess(request, pk):
     puzzle = get_object_or_404(Puzzle, pk=pk)
 
     if form.is_valid() and puzzle.status != Puzzle.SOLVED:
-        answer_text = form.cleaned_data["text"].replace(' ', '').upper()
+        answer_text = __sanitize_guess(form.cleaned_data["text"])
         # If answer has already been added to the queue
         if not Answer.objects.filter(puzzle=puzzle, text=answer_text):
             answer = Answer(text=answer_text, puzzle=puzzle)
@@ -60,6 +65,10 @@ def guess(request, pk):
 
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
+if settings.DEBUG:
+    guess = csrf_exempt(guess)
+
+
 @require_POST
 @csrf_exempt
 def slack_guess(request):
@@ -68,7 +77,7 @@ def slack_guess(request):
     if slack_message.get('token') != os.environ.get("SLACK_VERIFICATION_TOKEN"):
         return HttpResponseForbidden()
 
-    answer_text = slack_message.get('text').replace(' ', '').upper()
+    answer_text = __sanitize_guess(slack_message.get('text'))
     channel_id = slack_message.get('channel_id')
     puzzle = Puzzle.objects.get(channel=channel_id)
     print("puzzle: " + str(puzzle))

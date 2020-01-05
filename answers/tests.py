@@ -23,15 +23,23 @@ class TestAnswers(TestCase):
     def tearDown(self):
         self._puzzle.delete()
         self._test_hunt.delete()
+        self._user.delete()
+
+
+    def test_answer_queue_page(self):
+        response = self.client.get('/answers/queue/' + str(self._test_hunt.pk))
+        self.assertEqual(response.status_code, 200)
 
 
     def test_answer_from_smallboard(self):
         self.assertEqual(list(self._puzzle.guesses.all()), [])
         self.assertEqual(self._puzzle.status, Puzzle.SOLVING)
 
-        self.client.post("/puzzles/guess/{}/".format(self._puzzle.pk), {"text": "guess"})
+        guess = 'a!@#1$%^&*() b  \t C \n d[2]{}\\\'"/?<>,. e~`'
+        self.client.post("/puzzles/guess/{}/".format(self._puzzle.pk), {"text": guess})
 
-        self.assertEqual([a.text for a in self._puzzle.guesses.all()], ["GUESS"])
+        sanitized = 'A1BCD2E'
+        self.assertEqual([a.text for a in self._puzzle.guesses.all()], [sanitized])
         self._puzzle.refresh_from_db()
         self.assertEqual(self._puzzle.status, Puzzle.PENDING)
 

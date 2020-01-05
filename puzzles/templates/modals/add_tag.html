@@ -7,14 +7,16 @@
 </div>
 
 <script type="text/javascript">
-$(function () {
+function initAddTag() {
   $(".addtag").click(function() {
     var pk = $(this).data("pk");
     $.get({
         "url": `/puzzles/add_tags_form/${pk}`
 	}).done(function(data) {
         $("#addtag .modal-content").html(data);
-    })
-  })
-});
+    });
+  });
+}
+initAddTag();
+$('#puzzles').on('draw.dt', initAddTag);
 </script>
