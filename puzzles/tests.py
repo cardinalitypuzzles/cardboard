@@ -1,10 +1,11 @@
 from django.test import TestCase
 
 from accounts.models import Puzzler
-from hunts.models import *
-from .models import *
-from .puzzle_tree import *
-from .puzzle_tag import *
+from hunts.models import Hunt
+from .models import Puzzle, is_ancestor
+from .puzzle_tree import PuzzleTree
+from .puzzle_tag import PuzzleTag
+
 
 class TestPuzzle(TestCase):
 
@@ -148,4 +149,3 @@ class TestPuzzle(TestCase):
 
         self.assertFalse(PuzzleTag.objects.filter(name="oldname").exists())
         self.assertTrue(feeder.tags.filter(name="newname").exists())
-
