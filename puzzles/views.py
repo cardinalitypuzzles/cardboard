@@ -42,11 +42,13 @@ def update_status(request, pk):
 @require_POST
 @login_required(login_url='/accounts/login/')
 def guess(request, pk):
+    print('guess received')
     form = AnswerForm(request.POST)
     puzzle = get_object_or_404(Puzzle, pk=pk)
 
     if form.is_valid() and puzzle.status != Puzzle.SOLVED:
         answer_text = form.cleaned_data["text"].replace(' ', '').upper()
+        print('answer_text', answer_text)
         # If answer has already been added to the queue
         if not Answer.objects.filter(puzzle=puzzle, text=answer_text):
             answer = Answer(text=answer_text, puzzle=puzzle)
@@ -59,6 +61,10 @@ def guess(request, pk):
         messages.error(request, form.errors)
 
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+if settings.DEBUG:
+    guess = csrf_exempt(guess)
+
 
 @require_POST
 @csrf_exempt
