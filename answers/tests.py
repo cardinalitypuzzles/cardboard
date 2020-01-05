@@ -35,9 +35,11 @@ class TestAnswers(TestCase):
         self.assertEqual(list(self._puzzle.guesses.all()), [])
         self.assertEqual(self._puzzle.status, Puzzle.SOLVING)
 
-        self.client.post("/puzzles/guess/{}/".format(self._puzzle.pk), {"text": "guess"})
+        guess = 'a!@#1$%^&*() b  \t C \n d[2]{}\\\'"/?<>,. e~`'
+        self.client.post("/puzzles/guess/{}/".format(self._puzzle.pk), {"text": guess})
 
-        self.assertEqual([a.text for a in self._puzzle.guesses.all()], ["GUESS"])
+        sanitized = 'A1BCD2E'
+        self.assertEqual([a.text for a in self._puzzle.guesses.all()], [sanitized])
         self._puzzle.refresh_from_db()
         self.assertEqual(self._puzzle.status, Puzzle.PENDING)
 
