@@ -97,6 +97,7 @@ def slack_guess(request):
 
 @require_POST
 @csrf_exempt
+@transaction.atomic
 def slack_events(request):
     '''
     Handles Slack member_joined_channel and member_left_channel events
@@ -124,7 +125,7 @@ def slack_events(request):
         return HttpResponse('User with email ' + email + ' not found.')
 
     event_type = event.get('type')
-    puzzle = Puzzle.objects.get(channel=event.get('channel'))
+    puzzle = get_object_or_404(Puzzle.objects.select_for_update(), channel=event.get('channel'))
 
     # we ignore the case where puzzle is accidentally marked as solved
     # and user joins/leaves during this time
