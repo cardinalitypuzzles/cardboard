@@ -86,7 +86,7 @@ def slack_guess(request):
     if puzzle.status == Puzzle.SOLVED:
         return HttpResponse("Puzzle is already solved!")
 
-    answer, created = Answer.objects.get_or_create(puzzle=puzzle, text=answer_text)
+    _, created = Answer.objects.get_or_create(puzzle=puzzle, text=answer_text)
     if not created:
         return HttpResponse("The answer " + answer_text + " has already been submitted.")
     puzzle.status = Puzzle.PENDING
@@ -209,7 +209,7 @@ def add_tag(request, pk):
         defaults={'color' : form.cleaned_data["color"]}
     )
     if tag.is_meta:
-        metapuzzle = get_object_or_404(Puzzle, name=tag.name)
+        metapuzzle = get_object_or_404(Puzzle.objects.select_for_update(), name=tag.name)
         if is_ancestor(puzzle, metapuzzle):
             messages.error(request,
                 "Unable to assign metapuzzle since doing so would introduce a meta-cycle.")
