@@ -97,6 +97,9 @@ class AnswerView(LoginRequiredMixin, View):
         elif status in [Answer.PARTIAL, Answer.INCORRECT, Answer.CORRECT]:
             message = ("'%s' for puzzle '%s' is %s!" %
                       (answer.text, answer.puzzle.name, status))
+        else:
+            message = ("Unexpected status '%s' for answer '%s' for puzzle '%s'" %
+                      (status, answer.text, answer.puzzle.name))
 
         slack_client.send_message(puzzle_channel, message)
         slack_client.send_answer_queue_message(message)
