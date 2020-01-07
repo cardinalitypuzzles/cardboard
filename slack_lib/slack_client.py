@@ -23,7 +23,8 @@ class SlackClient:
         return SlackClient.__instance
 
 
-    def __init__(self, announcement_channel_name="announcements"):
+    def __init__(self, announcement_channel_name="announcements",
+                 answer_queue_channel_name="answer-queue"):
         ''' Private constructor. '''
         if SlackClient.__instance != None:
             raise Exception("SlackClient is a singleton and should not be "
@@ -36,6 +37,7 @@ class SlackClient:
                 self._enabled = True
                 self._web_client = slack.WebClient(token=token)
                 self.announcement_channel_name = announcement_channel_name
+                self.answer_queue_channel_name = answer_queue_channel_name
             else:
                 self._enabled = False
 
@@ -60,6 +62,11 @@ class SlackClient:
             return
 
         self._web_client.chat_postMessage(channel=channel, text=message)
+
+    def send_answer_queue_message(self, message):
+        if not self._enabled:
+            return
+        self.send_message(self.answer_queue_channel_name, message)
 
     def announce_puzzle_creation(self, puzzle_name, channel_id, is_meta=False):
         if not self._enabled:
