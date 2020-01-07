@@ -6,6 +6,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import transaction
 from django.http import HttpResponse
 from django.http import HttpResponseForbidden
 from django.http import HttpResponseRedirect
@@ -46,17 +47,17 @@ def __sanitize_guess(guess):
 
 @require_POST
 @login_required(login_url='/accounts/login/')
+@transaction.atomic
 def guess(request, pk):
     form = AnswerForm(request.POST)
-    puzzle = get_object_or_404(Puzzle, pk=pk)
+    puzzle = get_object_or_404(Puzzle.objects.select_for_update(), pk=pk)
 
     if form.is_valid() and puzzle.status != Puzzle.SOLVED:
         answer_text = __sanitize_guess(form.cleaned_data["text"])
         # If answer has already been added to the queue
-        if not Answer.objects.filter(puzzle=puzzle, text=answer_text):
-            answer = Answer(text=answer_text, puzzle=puzzle)
+        _, created = Answer.objects.get_or_create(text=answer_text, puzzle=puzzle)
+        if created:
             puzzle.status = Puzzle.PENDING
-            answer.save()
             puzzle.save()
         else:
             messages.error(request, '"{}" has already been submitted as a guess'.format(answer_text))
@@ -71,6 +72,7 @@ if settings.DEBUG:
 
 @require_POST
 @csrf_exempt
+@transaction.atomic
 def slack_guess(request):
     print("request data: " + str(request.POST))
     slack_message = request.POST
@@ -79,15 +81,15 @@ def slack_guess(request):
 
     answer_text = __sanitize_guess(slack_message.get('text'))
     channel_id = slack_message.get('channel_id')
-    puzzle = Puzzle.objects.get(channel=channel_id)
+    puzzle = get_object_or_404(Puzzle.objects.select_for_update(), channel=channel_id)
     print("puzzle: " + str(puzzle))
     if puzzle.status == Puzzle.SOLVED:
         return HttpResponse("Puzzle is already solved!")
-    if Answer.objects.filter(puzzle=puzzle).filter(text=answer_text):
+
+    _, created = Answer.objects.get_or_create(puzzle=puzzle, text=answer_text)
+    if not created:
         return HttpResponse("The answer " + answer_text + " has already been submitted.")
-    answer = Answer(text=answer_text, puzzle=puzzle)
     puzzle.status = Puzzle.PENDING
-    answer.save()
     puzzle.save()
 
     return HttpResponse("Answer " + answer_text + " has been submitted!")
@@ -95,6 +97,7 @@ def slack_guess(request):
 
 @require_POST
 @csrf_exempt
+@transaction.atomic
 def slack_events(request):
     '''
     Handles Slack member_joined_channel and member_left_channel events
@@ -122,7 +125,7 @@ def slack_events(request):
         return HttpResponse('User with email ' + email + ' not found.')
 
     event_type = event.get('type')
-    puzzle = Puzzle.objects.get(channel=event.get('channel'))
+    puzzle = get_object_or_404(Puzzle.objects.select_for_update(), channel=event.get('channel'))
 
     # we ignore the case where puzzle is accidentally marked as solved
     # and user joins/leaves during this time
@@ -137,13 +140,14 @@ def slack_events(request):
 
 @require_POST
 @login_required(login_url='/accounts/login/')
+@transaction.atomic
 def set_metas(request, pk):
-    form = MetaPuzzleForm(request.POST, instance=get_object_or_404(Puzzle, pk=pk))
+    puzzle = get_object_or_404(Puzzle.objects.select_for_update(), pk=pk)
+    form = MetaPuzzleForm(request.POST, instance=puzzle)
     if not form.is_valid():
         messages.error(request, form)
         return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
-    puzzle = get_object_or_404(Puzzle, pk=pk)
     metas = form.cleaned_data["metas"]
     # Check if any additional meta would introduce a cycle. If so, then stop the whole transaction.
     for meta in metas:
@@ -158,13 +162,14 @@ def set_metas(request, pk):
 
 @require_POST
 @login_required(login_url='/accounts/login/')
+@transaction.atomic
 def edit_puzzle(request, pk):
     form = PuzzleForm(request.POST, auto_id=False)
     if form.is_valid():
         new_name = form.cleaned_data["name"]
         new_url = url_normalize(form.cleaned_data["url"])
         new_is_meta = form.cleaned_data["is_meta"]
-        puzzle = get_object_or_404(Puzzle, pk=pk)
+        puzzle = get_object_or_404(Puzzle.objects.select_for_update(), pk=pk)
         try:
             puzzle.update_metadata(new_name, new_url, new_is_meta)
             # TODO(asdfryan): Consider also renaming the slack channel to match the
@@ -174,10 +179,12 @@ def edit_puzzle(request, pk):
 
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
+
 @require_POST
 @login_required(login_url='/accounts/login/')
+@transaction.atomic
 def delete_puzzle(request, pk):
-    puzzle = get_object_or_404(Puzzle, pk=pk)
+    puzzle = get_object_or_404(Puzzle.objects.select_for_update(), pk=pk)
     if puzzle.is_meta and Puzzle.objects.filter(metas__id=pk):
         messages.error(request,
             "Metapuzzles can only be deleted or made non-meta if no "
@@ -190,24 +197,25 @@ def delete_puzzle(request, pk):
 
 @require_POST
 @login_required(login_url='/accounts/login/')
+@transaction.atomic
 def add_tag(request, pk):
     form = TagForm(request.POST)
     if not form.is_valid():
         messages.error(request, form)
         return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
-    puzzle = get_object_or_404(Puzzle, pk=pk)
+    puzzle = get_object_or_404(Puzzle.objects.select_for_update(), pk=pk)
     (tag, _) = PuzzleTag.objects.update_or_create(
         name=form.cleaned_data["name"],
         defaults={'color' : form.cleaned_data["color"]}
     )
     if tag.is_meta:
-        metapuzzle = Puzzle.objects.get(name=tag.name)
+        metapuzzle = get_object_or_404(Puzzle.objects.select_for_update(), name=tag.name)
         if is_ancestor(puzzle, metapuzzle):
             messages.error(request,
                 "Unable to assign metapuzzle since doing so would introduce a meta-cycle.")
             return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
         # the post m2m hook will add tag
-        puzzle.metas.add(Puzzle.objects.get(name=tag.name))
+        puzzle.metas.add(metapuzzle)
     else:
         puzzle.tags.add(tag)
 
@@ -219,8 +227,9 @@ if settings.DEBUG:
 
 @require_POST
 @login_required(login_url='/accounts/login/')
+@transaction.atomic
 def remove_tag(request, pk, tag_text):
-    puzzle = get_object_or_404(Puzzle, pk=pk)
+    puzzle = get_object_or_404(Puzzle.objects.select_for_update(), pk=pk)
     if puzzle.name == tag_text:
         messages.error(request, "You cannot remove a meta's tag from itself")
         return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))

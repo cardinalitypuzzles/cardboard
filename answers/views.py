@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import transaction
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.views import View
@@ -16,10 +17,11 @@ from slack_lib.slack_client import SlackClient
 
 @require_POST
 @login_required(login_url='/accounts/login/')
+@transaction.atomic
 def update_note(request, answer_pk):
     notes_form = UpdateAnswerNotesForm(request.POST)
     if notes_form.is_valid():
-        answer = get_object_or_404(Answer, pk=answer_pk)
+        answer = get_object_or_404(Answer.objects.select_for_update(), pk=answer_pk)
         notes_text = notes_form.cleaned_data["text"]
         answer.set_notes(notes_text)
         slack_client = SlackClient.getInstance()
@@ -93,11 +95,12 @@ class AnswerView(LoginRequiredMixin, View):
                                   (answer.puzzle.name, answer.text.upper()))
 
 
+    @transaction.atomic
     def post(self, request, hunt_pk, answer_pk):
         status_form = UpdateAnswerStatusForm(request.POST)
 
         if status_form.is_valid():
-            guess = get_object_or_404(Answer, pk=answer_pk)
+            guess = get_object_or_404(Answer.objects.select_for_update(), pk=answer_pk)
             status = status_form.cleaned_data["status"]
             if status == Answer.CORRECT and len(guess.puzzle.answer) > 0:
                 messages.warning(request,
