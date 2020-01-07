@@ -23,7 +23,7 @@ class SlackClient:
         return SlackClient.__instance
 
 
-    def __init__(self, announcement_channel_name="announcements",
+    def __init__(self, announcement_channel_name="puzzle-announcements",
                  answer_queue_channel_name="answer-queue"):
         ''' Private constructor. '''
         if SlackClient.__instance != None:
