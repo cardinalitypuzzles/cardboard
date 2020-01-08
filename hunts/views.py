@@ -107,8 +107,9 @@ class HuntView(LoginRequiredMixin, View):
             if channel_id is None:
                 messages.warning(request, "Slack channel not created")
 
-            google_api_client.add_puzzle_and_slack_links_to_sheet(
-                puzzle_url, channel_id, sheet)
+            if google_api_client:
+                google_api_client.add_puzzle_and_slack_links_to_sheet(
+                    puzzle_url, channel_id, sheet)
 
             try:
                 puzzle = Puzzle.objects.create(

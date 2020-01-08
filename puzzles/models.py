@@ -101,8 +101,10 @@ class Puzzle(models.Model):
         self.save()
 
         if is_new_url:
-            GoogleApiClient.getInstance().add_puzzle_and_slack_links_to_sheet(
-                self.url, self.channel, self.sheet)
+            google_api_client = GoogleApiClient.getInstance()
+            if google_api_client:
+                google_api_client.add_puzzle_and_slack_links_to_sheet(
+                    self.url, self.channel, self.sheet)
 
 
     def set_answer(self, answer):
