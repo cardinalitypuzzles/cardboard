@@ -14,17 +14,35 @@
 </div>
 
 <script type="text/javascript">
+function getTableClassForAnswerStatus(answerStatus) {
+    if (['SUBMITTED', 'PARTIAL'].includes(answerStatus)) {
+        return 'table-warning';
+    } else if (answerStatus === 'CORRECT') {
+        return 'table-success';
+    } else if (answerStatus === 'INCORRECT') {
+        return 'table-danger';
+    }
+    return '';
+}
+
+function updateRowColor(row, status) {
+    let newClass = getTableClassForAnswerStatus(status);
+    for (const tableClass of ['table-warning', 'table-danger', 'table-success']) {
+        $(row).removeClass(tableClass);
+    }
+    $(row).addClass(newClass);
+}
+
 $(document).ready(function() {
     // table column indices
-    let answer_class = 0,
-        time = 1,
-        puzzle_name = 2,
-        puzzle_url = 3,
-        puzzle_is_meta = 4,
-        guess = 5,
-        answer_status = 6,
-        id = 7,
-        notes = 8;
+    let time = 0,
+        puzzle_name = 1,
+        puzzle_url = 2,
+        puzzle_is_meta = 3,
+        guess = 4,
+        answer_status = 5,
+        id = 6,
+        notes = 7;
 
     let statuses = ['NEW', 'SUBMITTED', 'CORRECT', 'INCORRECT', 'PARTIAL',];
 
@@ -38,17 +56,18 @@ $(document).ready(function() {
         "order": [[ time, "desc" ]],
         "ordering": false,
         "createdRow": function(row, data, dataIndex) {
-            $(row).addClass(data[answer_class]);
+            $(row).addClass(getTableClassForAnswerStatus(data[answer_status]));
             $(row).find(`#answer-status-${data[id]}`).change(function() {
+                let newStatus = $(this).val();
+                updateRowColor(row, newStatus);
+                data[answer_status] = newStatus;
                 $.ajax('/answers/queue/{{hunt_pk}}/' + $(this).data('id'), {
                     'data': {
                         'csrfmiddlewaretoken': '{{csrf_token}}',
-                        'status': $(this).val()
+                        'status': newStatus
                     },
                     'method': 'POST',
                     'success': function(response) {
-                        // Need to clear table so row gets redrawn with new background color
-                        table.clear();
                         reload();
                     },
                     'error': function(response) {
@@ -64,11 +83,11 @@ $(document).ready(function() {
         "columnDefs": [
             {
                 'visible': false,
-                'targets': [answer_class, id, puzzle_url, puzzle_is_meta],
+                'targets': [id, puzzle_url, puzzle_is_meta],
             },
             {
                 'searchable': false,
-                'targets': [answer_class, id, time, puzzle_url, puzzle_is_meta],
+                'targets': [id, time, puzzle_url, puzzle_is_meta],
             },
             {'title': 'Time', 'targets': time},
             {'title': 'Puzzle', 'targets': puzzle_name},
@@ -147,7 +166,6 @@ $(document).ready(function() {
 
     function reload() {
         $.ajax('/answers/queue/{{hunt_pk}}/answers', {
-            'method': 'GET',
             'success': function(newdata) {
                 newdata = newdata['data'];
                 olddata = table.data();
@@ -161,11 +179,11 @@ $(document).ready(function() {
                 }
 
                 // diff row by row, invalidating updated rows
-                newdata.forEach(function(newrow, index1) {
-                    oldrow = olddata[index1];
-                    if (!newrow.every((value, index2) => value === oldrow[index2])) {
-                        table.row(index1).data(newrow);
-                        table.row(index1).invalidate();
+                newdata.forEach(function(newrow, rowIndex) {
+                    oldrow = olddata[rowIndex];
+                    if (!newrow.every((value, colIndex) => value === oldrow[colIndex])) {
+                        table.row(rowIndex).data(newrow);
+                        table.row(rowIndex).invalidate();
                     }
                 });
             },
