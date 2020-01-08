@@ -134,6 +134,9 @@ class SlackClient:
         Given a channel_id (str, e.g. C1H9RESGL), returns the name of that
         human-readable channel name.
         '''
+        if not self._enabled:
+            return channel_id
+
         response = self._web_client.channels_info(channel=channel_id)
         return response["channel"]["name"]
 
@@ -156,5 +159,27 @@ class SlackClient:
         '''
         Given a Slack user id, returns the email address of the user.
         '''
+        if not self._enabled:
+            return user_id
+
         response = self._web_client.users_info(user=user_id)
         return response['user']['profile']['email']
+
+    def archive_channel(self, channel_id):
+        '''Archives a channel if it not archived'''
+        if not self._enabled:
+            return
+
+        response = self._web_client.channels_info(channel=channel_id)
+        if not response['channel']['is_archived']:
+            self._web_client.channels_archive(channel=channel_id)
+
+    def unarchive_channel(self, channel_id):
+        '''Unarchives a channel if it is archived'''
+        if not self._enabled:
+            return
+
+        response = self._web_client.channels_info(channel=channel_id)
+        if response['channel']['is_archived']:
+            self._web_client.channels_unarchive(channel=channel_id)
+
