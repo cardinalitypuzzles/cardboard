@@ -64,16 +64,16 @@ $(document).ready(function() {
         metas = 10,
         puzzle_class = 11;
 
-    var start_ts = Date.now();
-    var pre_dt_init_ts = Date.now();
-
     var table = $('#puzzles').DataTable({
-        'ajax': '/hunts/{{hunt_pk}}/puzzles',
+        'data': [],
         'paging': true,
         'pageLength': 50,
         'ordering': false,
         'createdRow': function(row, data, dataIndex) {
             $(row).addClass(data[puzzle_class]);
+        },
+        'initComplete': function() {
+            reload();
         },
         'columnDefs': [
             {
@@ -206,10 +206,6 @@ $(document).ready(function() {
         ],
     });
 
-    var dt_init_ts = Date.now();
-    var dt_init_ms = dt_init_ts - pre_dt_init_ts;
-    console.log("Datatable init time (ms) :" + dt_init_ms);
-
     var all_uncollapsed = false;
     function maybeExpandAll() {
         if ( all_uncollapsed == false ) {
@@ -217,10 +213,7 @@ $(document).ready(function() {
             $('.tree').treegrid('expandAll');
         }
     }
-    table.on( 'search.dt', maybeExpandAll);
 
-    // Initialize treegrid.
-    var pre_treegrid_ts = Date.now();
     function initTreegrid() {
         $('.tree').treegrid({
             onCollapse: function() {
@@ -231,15 +224,59 @@ $(document).ready(function() {
             $('.initial-collapsed').treegrid('collapse');
         }
     }
-    initTreegrid();
-    // New datatable page and search should also trigger treegrid.
-    $('#puzzles').on( "draw.dt", initTreegrid);
 
-    var treegrid_ts = Date.now();
-    var treegrid_ms = treegrid_ts - pre_treegrid_ts;
-    var total_ms = treegrid_ts - start_ts;
-    console.log("treegrid init time (ms): " + treegrid_ms);
-    console.log("total time(ms): " + total_ms);
+    function areArraysEqual(arr1, arr2) {
+        return arr1.every((value, index) => {
+            if (Array.isArray(value)) {
+                return value.length === arr2[index].length
+                    && areArraysEqual(value, arr2[index]);
+            }
+            return value === arr2[index];
+        });
+    }
+
+    function reload() {
+        $.ajax('/hunts/{{hunt_pk}}/puzzles', {
+            'success': function(newdata) {
+                newdata = newdata['data'];
+                olddata = table.data();
+                if (newdata.length !== olddata.length) {
+                    table.clear();
+                    for (const row of newdata) {
+                        table.row.add(row);
+                    }
+                    table.draw(false);
+                    table.on( 'search.dt', maybeExpandAll);
+                    // New datatable page and search should also trigger treegrid.
+                    $('#puzzles').on( "draw.dt", initTreegrid);
+                    initTreegrid();
+                    return;
+                }
+
+                // diff row by row, invalidating updated rows
+                let changesPresent = false;
+                newdata.forEach(function(newrow, rowIndex) {
+                    oldrow = olddata[rowIndex];
+                    if (!areArraysEqual(newrow, oldrow)) {
+                        table.row(rowIndex).data(newrow);
+                        table.row(rowIndex).invalidate();
+                        changesPresent = true;
+                    }
+                });
+
+                if (changesPresent) {
+                    initTreegrid();
+                }
+            },
+            'error': function(response) {
+                console.log('Encountered error making /puzzles AJAX call:', response);
+            },
+        });
+    }
+
+    setInterval(function() {
+        reload();
+    }, 10000);
 });
 </script>
 
