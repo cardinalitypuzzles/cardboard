@@ -124,13 +124,8 @@ class HuntView(LoginRequiredMixin, View):
         context = {
             'hunt_name': hunt.name,
             'hunt_pk': pk,
-            # Prefetch related otherwise we scale the number of queries with the number of puzzles.
-            # That can be really slow with 100s of puzzles.
-            'puzzles': (hunt.puzzles.all()
-                .prefetch_related('metas')
-                .prefetch_related('active_users')
-                .prefetch_related('tags')),
-            'form': form
+            'form': form,
+            'slack_base_url': settings.SLACK_BASE_URL,
         }
 
         return render(request, 'all_puzzles.html', context)
