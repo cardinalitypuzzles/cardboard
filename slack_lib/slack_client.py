@@ -68,19 +68,25 @@ class SlackClient:
             return
         self.send_message(self.answer_queue_channel_name, message)
 
-    def announce_puzzle_creation(self, puzzle_name, channel_id, is_meta=False):
+    def announce_puzzle_creation(self, puzzle_name, puzzle_url, channel_id,
+                                 sheet_url, is_meta=False):
         if not self._enabled:
             return
 
-        channel_name = self.get_channel_name(channel_id)
         puzzle_type = "MetaPuzzle" if is_meta else "Puzzle"
         self.announce(
-                      "Channel %s created for a new %s titled %s!" %
-                      (channel_name, puzzle_type, puzzle_name))
+                      "Channel <#%s> created for a new %s titled '%s'!\n"
+                      "Puzzle link: %s\n"
+                      "Spreadsheet: %s" %
+                      (channel_id, puzzle_type, puzzle_name, puzzle_url,
+                       sheet_url))
         self.send_message(channel_id,
                       "This channel has been registered with the "
-                      "%s titled %s. You may submit answers via "
-                      "the /answer command." % (puzzle_type, puzzle_name))
+                      "%s titled '%s'. You may submit answers via "
+                      "the /answer command.\n"
+                      "Puzzle link: %s\n"
+                      "Spreadsheet: %s" %
+                      (puzzle_type, puzzle_name, puzzle_url, sheet_url))
 
     def create_or_join_channel(self, puzzle_name):
         '''
