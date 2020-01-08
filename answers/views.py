@@ -85,6 +85,10 @@ class AnswerView(LoginRequiredMixin, View):
     # puzzles/views.py as well
     @staticmethod
     def update_slack_with_puzzle_status(answer, status):
+        '''
+        Sends Slack messages about answer status updates and archives/unarchives
+        puzzle channels accordingly
+        '''
         slack_client = SlackClient.getInstance()
         puzzle_channel = answer.puzzle.channel
         message = ''
@@ -110,6 +114,9 @@ class AnswerView(LoginRequiredMixin, View):
                                   "\'%s\' Hurray!"
                                   % (answer.puzzle.name, answer.text))
             slack_client.archive_channel(puzzle_channel)
+        elif answer.puzzle.status == Puzzle.SOLVED:
+            # puzzle was already solved from another guess
+            slack_client.archive_channel(puzzle_channel)
 
     @transaction.atomic
     def post(self, request, hunt_pk, answer_pk):
@@ -127,7 +134,6 @@ class AnswerView(LoginRequiredMixin, View):
 
             guess.set_status(status)
             self.update_slack_with_puzzle_status(guess, status)
-
         else:
             logger.warn('invalid form for answer ' + str(answer_pk) + ' and hunt ' + str(hunt_pk))
             status_code = 400
