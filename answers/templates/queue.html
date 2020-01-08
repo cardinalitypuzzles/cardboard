@@ -2,8 +2,6 @@
 
 {% block page_content %}
 
-<meta http-equiv="refresh" content="30">
-
 <div class="row justify-content-between" style="margin:10">
     <div class="col-10">
         <h1>{{ hunt_name }} - Answer Queue</h1>
@@ -30,8 +28,8 @@ $(document).ready(function() {
 
     let statuses = ['NEW', 'SUBMITTED', 'CORRECT', 'INCORRECT', 'PARTIAL',];
 
-    $('#queue').DataTable( {
-        "ajax": "/answers/queue/{{hunt_pk}}/answers",
+    let table = $('#queue').DataTable( {
+        "data": [],
         "paging": true,
         "pageLength": 50,
         "info": true,
@@ -41,6 +39,27 @@ $(document).ready(function() {
         "ordering": false,
         "createdRow": function(row, data, dataIndex) {
             $(row).addClass(data[answer_class]);
+            $(row).find(`#answer-status-${data[id]}`).change(function() {
+                $.ajax('/answers/queue/{{hunt_pk}}/' + $(this).data('id'), {
+                    'data': {
+                        'csrfmiddlewaretoken': '{{csrf_token}}',
+                        'status': $(this).val()
+                    },
+                    'method': 'POST',
+                    'success': function(response) {
+                        // Need to clear table so row gets redrawn with new background color
+                        table.clear();
+                        reload();
+                    },
+                    'error': function(response) {
+                        console.log('Got error response when updating answer:', response);
+                        reload();
+                    }
+                });
+            });
+        },
+        "initComplete": function(settings) {
+            reload();
         },
         "columnDefs": [
             {
@@ -57,10 +76,12 @@ $(document).ready(function() {
             {'title': 'Status', 'targets': answer_status},
             {'title': 'Notes', 'targets': notes},
 
+            {'width': '15%', 'targets': [time, answer_status]},
+
             {
                 'targets': time,
                 'render': function(data, type, row, meta) {
-                    return moment(data).format('MMM D, YYYY, h:m a');
+                    return moment(data).format('MMM D, YYYY, hh:mm a');
                 },
             },
             {
@@ -85,12 +106,9 @@ $(document).ready(function() {
                     let result = data;
                     if (type === 'display') {
                         result = `
-    <form action="/answers/queue/{{ hunt_pk }}/${row[id]}" method="post" class="form-inline">
-        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
         <div class="form-group">
-            <select name="status" onChange="this.form.submit();" class="form-control form-control-sm">
+            <select name="status" class="form-control form-control-sm" id="answer-status-${row[id]}" data-id="${row[id]}">
     `;
-
                         for (const status of statuses) {
                             result += '<option value="' + status + '"';
                             if (status === data) {
@@ -101,8 +119,7 @@ $(document).ready(function() {
 
                         result += `
             </select>
-        </div>
-    </form>`;
+        </div>`;
                     }
                     return result;
                 },
@@ -116,7 +133,7 @@ $(document).ready(function() {
     <div class="form-group">
         <input type="text" name="text" class="form-control form-control-sm col-xs-4" placeholder="Enter notes here" maxlength="128" required`;
                     if (data) {
-                        result += ` value=${data}`;
+                        result += ` value="${data}"`;
                     }
                     result += `>
         <button type="submit" class="btn btn-outline-primary btn-sm">Submit</button>
@@ -127,6 +144,40 @@ $(document).ready(function() {
             },
         ],
     } );
+
+    function reload() {
+        $.ajax('/answers/queue/{{hunt_pk}}/answers', {
+            'method': 'GET',
+            'success': function(newdata) {
+                newdata = newdata['data'];
+                olddata = table.data();
+                if (newdata.length !== olddata.length) {
+                    table.clear();
+                    for (const row of newdata) {
+                        table.row.add(row);
+                    }
+                    table.draw(false);
+                    return;
+                }
+
+                // diff row by row, invalidating updated rows
+                newdata.forEach(function(newrow, index1) {
+                    oldrow = olddata[index1];
+                    if (!newrow.every((value, index2) => value === oldrow[index2])) {
+                        table.row(index1).data(newrow);
+                        table.row(index1).invalidate();
+                    }
+                });
+            },
+            'error': function(response) {
+                console.log('Encountered error making /answers AJAX call:', response);
+            },
+        });
+    }
+
+    setInterval(function() {
+        reload();
+    }, 3000);
 });
 </script>
 {% endblock %}
