@@ -23,6 +23,7 @@ from .puzzle_tag import PuzzleTag
 from accounts.models import Puzzler
 from answers.forms import AnswerForm
 from answers.models import Answer
+from answers.views import AnswerView
 from slack_lib.slack_client import SlackClient
 
 
@@ -55,10 +56,11 @@ def guess(request, pk):
     if form.is_valid() and puzzle.status != Puzzle.SOLVED:
         answer_text = __sanitize_guess(form.cleaned_data["text"])
         # If answer has already been added to the queue
-        _, created = Answer.objects.get_or_create(text=answer_text, puzzle=puzzle)
+        answer, created = Answer.objects.get_or_create(text=answer_text, puzzle=puzzle)
         if created:
             puzzle.status = Puzzle.PENDING
             puzzle.save()
+            AnswerView.update_slack_with_puzzle_status(answer, answer.status)
         else:
             messages.error(request, '"{}" has already been submitted as a guess'.format(answer_text))
     else:
@@ -86,11 +88,13 @@ def slack_guess(request):
     if puzzle.status == Puzzle.SOLVED:
         return HttpResponse("Puzzle is already solved!")
 
-    _, created = Answer.objects.get_or_create(puzzle=puzzle, text=answer_text)
+    answer, created = Answer.objects.get_or_create(puzzle=puzzle, text=answer_text)
     if not created:
         return HttpResponse("The answer " + answer_text + " has already been submitted.")
     puzzle.status = Puzzle.PENDING
     puzzle.save()
+
+    AnswerView.update_slack_with_puzzle_status(answer, answer.status)
 
     return HttpResponse("Answer " + answer_text + " has been submitted!")
 
