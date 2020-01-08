@@ -24,14 +24,18 @@
 </div>
 
 <script type="text/javascript">
-function initSubmitAnswer() {
-  $(".submitanswer").click(function() {
+function submitAnswerHandler() {
     var pk = $(this).data("pk");
     var name = $(this).data("name");
     $('#submitanswer form').attr('action', `/puzzles/guess/${pk}/`);
     $('#submitanswer-puzzle-name').text(name);
-  });
 }
+
+function initSubmitAnswer() {
+  $(".submitanswer").off('click', submitAnswerHandler);
+  $(".submitanswer").on('click', submitAnswerHandler);
+}
+
 initSubmitAnswer();
 $('#puzzles').on('draw.dt', initSubmitAnswer);
 </script>

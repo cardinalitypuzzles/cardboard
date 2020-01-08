@@ -24,16 +24,19 @@
 </div>
 
 <script type="text/javascript">
-function initSetMeta() {
- $(".meta").click(function () {
+function setMetaHandler() {
     var pk = $(this).data("pk");
     $('#meta form').attr("action", `/puzzles/meta/${pk}/`);
     $.get({"url": `/puzzles/meta_select_form/${pk}`}).done(function(data) {
-        console.log(pk)
         $("#meta .modal-body .form-group").html(data);
-    })
- })
+    });
+};
+
+function initSetMeta() {
+    $(".meta").off('click', setMetaHandler);
+    $(".meta").on('click', setMetaHandler);
 }
+
 initSetMeta();
 $('#puzzles').on('draw.dt', initSetMeta);
 </script>

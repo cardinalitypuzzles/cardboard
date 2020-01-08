@@ -235,6 +235,35 @@ $(document).ready(function() {
         });
     }
 
+    function getTableClassForPuzzleStatus(puzzleStatus) {
+        if (puzzleStatus === 'PENDING') {
+            return 'table-warning';
+        } else if (puzzleStatus === 'SOLVED') {
+            return 'table-success';
+        } else if (['STUCK', 'EXTRACTION'].includes(puzzleStatus)) {
+            return 'table-danger';
+        }
+        return '';
+    }
+
+    function updateRowColor(rowIndex, status) {
+        let newClass = getTableClassForPuzzleStatus(status);
+        let rowNode = table.row(rowIndex).node();
+        for (const tableClass of ['table-warning', 'table-danger', 'table-success']) {
+            $(rowNode).removeClass(tableClass);
+        }
+        $(rowNode).addClass(newClass);
+    }
+
+    function refreshModalHandlers() {
+        initEditPuzzle();
+        initDeletePuzzle();
+        initEditStatus();
+        initSubmitAnswer();
+        initAddTag();
+        initSetMeta();
+    }
+
     function reload() {
         $.ajax('/hunts/{{hunt_pk}}/puzzles', {
             'success': function(newdata) {
@@ -260,11 +289,13 @@ $(document).ready(function() {
                     if (!areArraysEqual(newrow, oldrow)) {
                         table.row(rowIndex).data(newrow);
                         table.row(rowIndex).invalidate();
+                        updateRowColor(rowIndex, newrow[status]);
                         changesPresent = true;
                     }
                 });
 
                 if (changesPresent) {
+                    refreshModalHandlers();
                     initTreegrid();
                 }
             },
