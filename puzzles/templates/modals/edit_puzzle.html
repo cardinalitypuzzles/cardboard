@@ -40,7 +40,7 @@ function initEditPuzzle() {
     $('#editpuzzle form').attr('action', `/puzzles/edit/${pk}/`);
     $('#id_name').attr('value', name);
     $('#id_url').attr('value', url);
-    if (is_meta.toLowerCase() === 'true') {
+    if (is_meta) {
         $('#id_is_meta').attr('checked', 'checked');
     } else {
         $('#id_is_meta').removeAttr('checked');

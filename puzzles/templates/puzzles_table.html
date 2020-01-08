@@ -7,10 +7,6 @@
 
 <script type="text/javascript">
 var slack_base_url = '{{ slack_base_url }}';
-var data = [
-{% for p, tags, metas, active_users, puzzle_class in rows %}['{{p.pk}}', '{{p.name}}', '{{p.url}}', '{{p.is_meta}}', '{{active_users|join:", "}}', '{{p.answer}}', '{{p.status}}', '{{p.sheet}}', '{{p.channel}}', {{tags|safe}}, '', '{{puzzle_class}}', ],
-{% endfor %}
-];
 
 $(document).ready(function() {
     // indices into data array
@@ -31,7 +27,7 @@ $(document).ready(function() {
     var pre_dt_init_ts = Date.now();
 
     var table = $('#puzzles').DataTable({
-        'data': data,
+        'ajax': '/hunts/{{hunt_pk}}/puzzles',
         'paging': true,
         'pageLength': 50,
         'ordering': false,
@@ -66,10 +62,10 @@ $(document).ready(function() {
                 'targets': name,
                 'render': function(data, type, row, meta) {
                     var result = '<a href="' + row[url] + '">' + row[name] + '</a>';
-                    if (row[is_meta] === 'True') {
+                    if (row[is_meta]) {
                         result += ' <span class="badge badge-dark badge-meta">META</span>';
                     }
-                    if (row[active_users]) {
+                    if (row[active_users] && row[active_users].length > 0) {
                         result += ` <span data-toggle="tooltip" title="${row[active_users]}">
                                       <i class="fa fa-users" aria-hidden="true"></i>
                                     </span>`;
