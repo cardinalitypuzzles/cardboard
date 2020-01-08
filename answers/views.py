@@ -89,24 +89,25 @@ class AnswerView(LoginRequiredMixin, View):
         puzzle_channel = answer.puzzle.channel
         message = ''
         if status == Answer.NEW:
-            message = ("NEW answer '%s' has been guessed for puzzle '%s'." %
-                      (answer.text, answer.puzzle.name))
+            message = ("NEW answer '%s' has been guessed for puzzle '%s'."
+                       % (answer.text, answer.puzzle.name))
         elif status == Answer.SUBMITTED:
-            message = ("'%s' has been SUBMITTED for puzzle '%s' on the hunt website." %
-                      (answer.text, answer.puzzle.name))
+            message = ("'%s' has been SUBMITTED for puzzle '%s' on the hunt website."
+                       % (answer.text, answer.puzzle.name))
         elif status in [Answer.PARTIAL, Answer.INCORRECT, Answer.CORRECT]:
-            message = ("'%s' for puzzle '%s' is %s!" %
-                      (answer.text, answer.puzzle.name, status))
+            message = ("'%s' for puzzle '%s' is %s!"
+                       % (answer.text, answer.puzzle.name, status))
         else:
-            message = ("Unexpected status '%s' for answer '%s' for puzzle '%s'" %
-                      (status, answer.text, answer.puzzle.name))
+            logger.error("Unexpected status '%s' for answer '%s' for puzzle '%s'"
+                         % (status, answer.text, answer.puzzle.name))
+            return
 
         slack_client.send_message(puzzle_channel, message)
         slack_client.send_answer_queue_message(message)
         if status == Answer.CORRECT:
             slack_client.announce("'%s' has been solved with the answer: "
-                                   "\'%s\' Hurray!" %
-                                  (answer.puzzle.name, answer.text))
+                                  "\'%s\' Hurray!"
+                                  % (answer.puzzle.name, answer.text))
 
     @transaction.atomic
     def post(self, request, hunt_pk, answer_pk):
