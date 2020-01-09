@@ -24,6 +24,7 @@ from accounts.models import Puzzler
 from answers.forms import AnswerForm
 from answers.models import Answer
 from answers.views import AnswerView
+from google_api_lib.google_api_client import GoogleApiClient
 from slack_lib.slack_client import SlackClient
 
 
@@ -161,6 +162,8 @@ def set_metas(request, pk):
             return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
     puzzle.metas.set(metas)
+    for meta in metas:
+        GoogleApiClient.populate_meta_sheet_with_feeders(meta)
 
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
@@ -178,6 +181,9 @@ def edit_puzzle(request, pk):
             puzzle.update_metadata(new_name, new_url, new_is_meta)
             # TODO(asdfryan): Consider also renaming the slack channel to match the
             # new puzzle name.
+            metas = puzzle.metas.all()
+            for meta in metas:
+                GoogleApiClient.populate_meta_sheet_with_feeders(meta)
         except (DuplicatePuzzleNameError, DuplicatePuzzleUrlError, InvalidMetaPuzzleError) as e:
            messages.error(request, str(e))
 
@@ -194,8 +200,11 @@ def delete_puzzle(request, pk):
             "Metapuzzles can only be deleted or made non-meta if no "
             "other puzzles are assigned to it.")
     else:
+        metas = list(puzzle.metas.all())
         puzzle.delete()
         SlackClient.getInstance().archive_channel(puzzle.channel)
+        for meta in metas:
+            GoogleApiClient.populate_meta_sheet_with_feeders(meta)
 
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
@@ -221,6 +230,7 @@ def add_tag(request, pk):
             return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
         # the post m2m hook will add tag
         puzzle.metas.add(metapuzzle)
+        GoogleApiClient.populate_meta_sheet_with_feeders(metapuzzle)
     else:
         puzzle.tags.add(tag)
 
@@ -241,8 +251,10 @@ def remove_tag(request, pk, tag_text):
     try:
         tag = puzzle.tags.get(name=tag_text)
         if tag.is_meta:
+            meta = Puzzle.objects.get(name=tag_text)
             # the post m2m hook will remove tag
-            puzzle.metas.remove(Puzzle.objects.get(name=tag_text))
+            puzzle.metas.remove(meta)
+            GoogleApiClient.populate_meta_sheet_with_feeders(meta)
         else:
             puzzle.tags.remove(tag_text)
 

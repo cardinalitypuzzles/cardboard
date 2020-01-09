@@ -10,6 +10,7 @@ from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.views import View
 from django.views.decorators.http import require_GET, require_POST
+from google_api_lib.google_api_client import GoogleApiClient
 from hunts.models import Hunt
 from puzzles.forms import PuzzleForm
 from puzzles.models import Puzzle
@@ -128,13 +129,19 @@ class AnswerView(LoginRequiredMixin, View):
         if status_form.is_valid():
             guess = get_object_or_404(Answer.objects.select_for_update(), pk=answer_pk)
             status = status_form.cleaned_data["status"]
-            if status == Answer.CORRECT and len(guess.puzzle.answer) > 0:
+            puzzle_already_solved = len(guess.puzzle.answer) > 0
+            if status == Answer.CORRECT and puzzle_already_solved:
                 messages.warning(request,
                     '{} was already marked as solved with the answer "{}"\n'.format(guess.puzzle, guess.puzzle.answer) +
                     'We won\'t stop ya, but please think twice.')
 
             guess.set_status(status)
             self.update_slack_with_puzzle_status(guess, status)
+
+            if puzzle_already_solved or status == Answer.CORRECT:
+                metas = guess.puzzle.metas.all()
+                for meta in metas:
+                    GoogleApiClient.populate_meta_sheet_with_feeders(meta)
         else:
             logger.warn('invalid form for answer ' + str(answer_pk) + ' and hunt ' + str(hunt_pk))
             status_code = 400
