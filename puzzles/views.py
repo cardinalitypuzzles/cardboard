@@ -195,6 +195,7 @@ def delete_puzzle(request, pk):
             "other puzzles are assigned to it.")
     else:
         puzzle.delete()
+        SlackClient.getInstance().archive_channel(puzzle.channel)
 
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
