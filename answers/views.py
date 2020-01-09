@@ -12,6 +12,7 @@ from django.views import View
 from django.views.decorators.http import require_GET, require_POST
 from hunts.models import Hunt
 from puzzles.forms import PuzzleForm
+from puzzles.models import Puzzle
 from slack_lib.slack_client import SlackClient
 
 import logging
@@ -85,6 +86,10 @@ class AnswerView(LoginRequiredMixin, View):
     # puzzles/views.py as well
     @staticmethod
     def update_slack_with_puzzle_status(answer, status):
+        '''
+        Sends Slack messages about answer status updates and archives/unarchives
+        puzzle channels accordingly
+        '''
         slack_client = SlackClient.getInstance()
         puzzle_channel = answer.puzzle.channel
         message = ''
@@ -102,15 +107,21 @@ class AnswerView(LoginRequiredMixin, View):
                          % (status, answer.text, answer.puzzle.name))
             return
 
+        slack_client.unarchive_channel(puzzle_channel)
         slack_client.send_message(puzzle_channel, message)
         slack_client.send_answer_queue_message(message)
         if status == Answer.CORRECT:
             slack_client.announce("'%s' has been solved with the answer: "
                                   "\'%s\' Hurray!"
                                   % (answer.puzzle.name, answer.text))
+            slack_client.archive_channel(puzzle_channel)
+        elif answer.puzzle.status == Puzzle.SOLVED:
+            # puzzle was already solved from another guess
+            slack_client.archive_channel(puzzle_channel)
 
     @transaction.atomic
     def post(self, request, hunt_pk, answer_pk):
+        """Handles answer status update"""
         status_form = UpdateAnswerStatusForm(request.POST)
 
         status_code = 200
@@ -123,6 +134,7 @@ class AnswerView(LoginRequiredMixin, View):
                     'We won\'t stop ya, but please think twice.')
 
             guess.set_status(status)
+            self.update_slack_with_puzzle_status(guess, status)
         else:
             logger.warn('invalid form for answer ' + str(answer_pk) + ' and hunt ' + str(hunt_pk))
             status_code = 400
