@@ -76,7 +76,7 @@ class GoogleApiClient:
         }
         self._sheets_service.spreadsheets().values().update(
             spreadsheetId=self.__extract_id_from_sheets_url(sheet_url),
-            range='Sheet1!A1:B2',
+            range='A1:B2',
             valueInputOption='RAW',
             body=req_body
         ).execute()
