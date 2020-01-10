@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.views import View
 from django.views.decorators.http import require_GET, require_POST
@@ -25,6 +25,7 @@ logger = logging.getLogger(__name__)
 @login_required(login_url='/accounts/login/')
 @transaction.atomic
 def update_note(request, answer_pk):
+    status_code = 200
     notes_form = UpdateAnswerNotesForm(request.POST)
     if notes_form.is_valid():
         answer = get_object_or_404(Answer.objects.select_for_update(), pk=answer_pk)
@@ -35,7 +36,10 @@ def update_note(request, answer_pk):
         slack_client.send_message(puzzle_channel,
                                   "The operator has added an update regarding the answer "
                                    "\'%s\'. Note: \'%s\'" % (answer.text.upper(), notes_text))
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+    else:
+        logger.warn('Invalid notes form for answer with id %s' % answer_pk)
+        status_code = 400
+    return JsonResponse({}, status=status_code)
 
 
 @require_GET

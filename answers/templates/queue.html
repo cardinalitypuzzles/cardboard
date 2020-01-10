@@ -57,11 +57,13 @@ $(document).ready(function() {
         "ordering": false,
         "createdRow": function(row, data, dataIndex) {
             $(row).addClass(getTableClassForAnswerStatus(data[answer_status]));
-            $(row).find(`#answer-status-${data[id]}`).change(function() {
+
+            // register status update handler
+            $('#queue').on('change', `#answer-status-${data[id]}`, function() {
                 let newStatus = $(this).val();
                 updateRowColor(row, newStatus);
                 data[answer_status] = newStatus;
-                $.ajax('/answers/queue/{{hunt_pk}}/' + $(this).data('id'), {
+                $.ajax(`/answers/queue/{{hunt_pk}}/${data[id]}`, {
                     'data': {
                         'csrfmiddlewaretoken': '{{csrf_token}}',
                         'status': newStatus
@@ -72,6 +74,26 @@ $(document).ready(function() {
                     },
                     'error': function(response) {
                         console.log('Got error response when updating answer:', response);
+                        reload();
+                    }
+                });
+            });
+
+            // register notes update handler
+            $('#queue').on('submit', `#notes-${data[id]}`, function(e) {
+                e.preventDefault();
+                // flash the row for visual feedback
+                $(row).hide();
+                $(row).fadeIn('slow');
+                data[notes] = $(this).find('.notes-value').val();
+                $.ajax(`/answers/update_note/${data[id]}`, {
+                    'method': 'POST',
+                    'data': $(this).serialize(),
+                    'success': function(response) {
+                        reload();
+                    },
+                    'error': function(response) {
+                        console.log('Got error when updating notes:', response);
                         reload();
                     }
                 });
@@ -126,7 +148,7 @@ $(document).ready(function() {
                     if (type === 'display') {
                         result = `
         <div class="form-group">
-            <select name="status" class="form-control form-control-sm" id="answer-status-${row[id]}" data-id="${row[id]}">
+            <select name="status" class="form-control form-control-sm" id="answer-status-${row[id]}">
     `;
                         for (const status of statuses) {
                             result += '<option value="' + status + '"';
@@ -147,10 +169,10 @@ $(document).ready(function() {
                 'targets': notes,
                 'render': function(data, type, row, meta) {
                     let result = `
-<form action="/answers/update_note/${row[id]}" method="post" class="form-inline">
+<form method="post" class="form-inline" id="notes-${row[id]}">
     <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
     <div class="form-group">
-        <input type="text" name="text" class="form-control form-control-sm col-xs-4" placeholder="Enter notes here" maxlength="128" required`;
+        <input type="text" name="text" class="notes-value form-control form-control-sm col-xs-4" placeholder="Enter notes here" maxlength="128"`;
                     if (data) {
                         result += ` value="${data}"`;
                     }

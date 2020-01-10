@@ -26,5 +26,6 @@ class UpdateAnswerNotesForm(forms.Form):
         widget=forms.TextInput(attrs={
             "class": "form-control form-control-sm",
             "placeholder": "Enter notes here"
-        })
+        }),
+        required=False,
     )
