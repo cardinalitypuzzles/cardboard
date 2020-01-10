@@ -131,8 +131,8 @@ DATABASE_URL=postgres://myuser:mypass@localhost/smallboard
 # the default (active) hunt
 ACTIVE_HUNT_ID=1
 
-# for accessing Google Drive APIs
-GOOGLE_DRIVE_API_PRIVATE_KEY=...
+# for accessing Google APIs
+GOOGLE_API_PRIVATE_KEY=...
 
 # id of the Google Drive hunt folder
 # when you go to the folder, it's the last part of the URL

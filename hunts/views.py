@@ -13,7 +13,7 @@ from url_normalize import url_normalize
 
 from .forms import HuntForm
 from .models import Hunt
-from google_drive_lib.google_drive_client import GoogleDriveClient
+from google_api_lib.google_api_client import GoogleApiClient
 from puzzles.forms import PuzzleForm
 from puzzles.models import Puzzle
 from slack_lib.slack_client import SlackClient
@@ -93,10 +93,10 @@ class HuntView(LoginRequiredMixin, View):
             if already_exists:
                 return self.__handle_dup_puzzle(request)
 
-            # TODO(erwa): Add error handling and refactor into google drive lib.
-            google_drive_client = GoogleDriveClient.getInstance()
-            if google_drive_client:
-                sheet = google_drive_client.create_google_sheets(name)
+            # TODO(erwa): Add error handling and refactor into google API lib.
+            google_api_client = GoogleApiClient.getInstance()
+            if google_api_client:
+                sheet = google_api_client.create_google_sheets(name)
             else:
                 # TODO(erwa): This should incur a warning.
                 sheet = puzzle_url
@@ -106,6 +106,10 @@ class HuntView(LoginRequiredMixin, View):
             channel_id = slack_client.create_or_join_channel(name)
             if channel_id is None:
                 messages.warning(request, "Slack channel not created")
+
+            if google_api_client:
+                google_api_client.add_puzzle_and_slack_links_to_sheet(
+                    puzzle_url, channel_id, sheet)
 
             try:
                 puzzle = Puzzle.objects.create(
