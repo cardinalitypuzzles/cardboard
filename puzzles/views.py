@@ -164,10 +164,10 @@ def set_metas(request, pk):
 
     puzzle.metas.set(new_metas)
     for new_meta in new_metas:
-        update_meta_sheet_async(new_meta)
+        GoogleApiClient.update_meta_sheet_feeders(new_meta)
     for old_meta in old_metas:
         if old_meta not in new_metas:
-            update_meta_sheet_async(old_meta)
+            GoogleApiClient.update_meta_sheet_feeders(old_meta)
 
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 

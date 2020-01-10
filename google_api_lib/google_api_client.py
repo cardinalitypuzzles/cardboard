@@ -1,13 +1,17 @@
 import googleapiclient
 import googleapiclient.discovery
 import httplib2
+import logging
 import os
 import slack
-import threading
 
+from concurrent.futures import ThreadPoolExecutor
 from django.conf import settings
 from google.oauth2 import service_account
 from googleapiclient import _auth
+
+
+logger = logging.getLogger(__name__)
 
 
 class GoogleApiClient:
@@ -39,9 +43,9 @@ class GoogleApiClient:
             settings.GOOGLE_API_AUTHN_INFO,
             scopes=settings.GOOGLE_DRIVE_PERMISSIONS_SCOPES
         )
-
         self._drive_service = googleapiclient.discovery.build('drive', 'v3', credentials=self._credentials)
         self._sheets_service = googleapiclient.discovery.build('sheets', 'v4', credentials=self._credentials)
+        self._executor = ThreadPoolExecutor(max_workers=1)
 
         GoogleApiClient.__instance = self
 
@@ -102,6 +106,8 @@ class GoogleApiClient:
         ).execute()
 
     def __update_meta_sheet_feeders(self, meta_puzzle):
+        logger.info("Starting updating the meta sheet for '%s' "
+                    "with feeder puzzles" % meta_puzzle)
         spreadsheet_id = self.__extract_id_from_sheets_url(meta_puzzle.sheet)
         feeders = meta_puzzle.feeders.all()
         feeders = sorted(feeders, key=lambda p: p.answer)
@@ -190,6 +196,8 @@ class GoogleApiClient:
             spreadsheetId=spreadsheet_id,
             body=body
         ).execute(http=http)
+        logger.info("Done updating the meta sheet for '%s' "
+                    "with feeder puzzles" % meta_puzzle)
 
     @staticmethod
     def update_meta_sheet_feeders(meta_puzzle):
@@ -204,11 +212,10 @@ class GoogleApiClient:
         if not client:
             return
 
-        # update meta sheet in separate thread
-        # to avoid delaying response
-        t = threading.Thread(
-            target=client.__update_meta_sheet_feeders,
-            args=(meta_puzzle,)
-        )
-        t.setDaemon(True)
-        t.start()
+        # TODO(erwa): Use work queue and separate process for running tasks.
+        # See https://github.com/cardinalitypuzzles/smallboard/pull/140
+        # for discussion.
+        # Update meta sheet in separate thread to avoid delaying response.
+        client._executor.submit(
+            client.__update_meta_sheet_feeders,
+            meta_puzzle)
