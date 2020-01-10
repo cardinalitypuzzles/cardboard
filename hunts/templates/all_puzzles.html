@@ -274,7 +274,8 @@ $(document).ready(function() {
                     for (const row of newdata) {
                         table.row.add(row);
                     }
-                    table.draw(false);
+                    // keep current page position after redraw
+                    table.draw('full-hold');
                     table.on( 'search.dt', maybeExpandAll);
                     // New datatable page and search should also trigger treegrid.
                     $('#puzzles').on( "draw.dt", initTreegrid);
