@@ -141,7 +141,7 @@ class AnswerView(LoginRequiredMixin, View):
             if (puzzle_already_solved and guess.text == guess.puzzle.answer) or status == Answer.CORRECT:
                 metas = guess.puzzle.metas.all()
                 for meta in metas:
-                    GoogleApiClient.populate_meta_sheet_with_feeders(meta)
+                    GoogleApiClient.update_meta_sheet_feeders(meta)
         else:
             logger.warn('invalid form for answer ' + str(answer_pk) + ' and hunt ' + str(hunt_pk))
             status_code = 400
