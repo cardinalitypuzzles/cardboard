@@ -1,7 +1,5 @@
 {% extends "base.html" %}
 
-{% load puzzle_extras %}
-
 {% block page_content %}
 
 <div class="d-flex justify-content-between px-3 pb-3">
@@ -11,7 +9,10 @@
     </button>
 </div>
 
-{% get_table puzzles request %}
+<div class="px-3 pb-3">
+    <table class="table table-sm tree" id="puzzles" style="width:100%">
+    </table>
+</div>
 
 <div class="modal fade" id="addpuzzle" tabindex="-1" role="dialog" aria-labelledby="addtitle" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -45,5 +46,277 @@
     </div>
 </div>
 
-{% endblock %}
+<script type="text/javascript">
+var slack_base_url = '{{ slack_base_url }}';
 
+$(document).ready(function() {
+    // indices into data array
+    var pk = 0,
+        name = 1,
+        url = 2,
+        is_meta = 3,
+        active_users = 4,
+        answer = 5,
+        status = 6,
+        sheet = 7,
+        channel = 8,
+        tags = 9,
+        metas = 10,
+        puzzle_class = 11;
+
+    var table = $('#puzzles').DataTable({
+        'data': [],
+        'paging': true,
+        'pageLength': 50,
+        'ordering': false,
+        'createdRow': function(row, data, dataIndex) {
+            $(row).addClass(data[puzzle_class]);
+        },
+        'initComplete': function() {
+            reload();
+        },
+        'columnDefs': [
+            {
+                'visible': false,
+                'targets': [pk, url, is_meta, active_users, puzzle_class],
+            },
+
+            {
+                'searchable': false,
+                'targets': [pk, url, is_meta, active_users, puzzle_class, sheet, channel, metas]
+            },
+
+            {'title': 'Name', 'targets': name},
+            {'title': 'Answer', 'targets': answer},
+            {'title': 'Status', 'targets': status},
+            {'title': 'Sheet', 'targets': sheet},
+            {'title': 'Slack', 'targets': channel},
+            {'title': 'Tags', 'targets': tags},
+            {'title': 'Metas', 'targets': metas},
+
+            {'width': '30%', 'targets': name},
+            {'width': '17.5%', 'targets': [answer, tags]},
+            {'width': '80px', 'targets': metas},
+            {'width': '60px', 'targets': [sheet, channel]},
+
+            {
+                'targets': name,
+                'render': function(data, type, row, meta) {
+                    var result = '<a href="' + row[url] + '">' + row[name] + '</a>';
+                    if (row[is_meta]) {
+                        result += ' <span class="badge badge-dark badge-meta">META</span>';
+                    }
+                    if (row[active_users] && row[active_users].length > 0) {
+                        result += ` <span data-toggle="tooltip" title="${row[active_users].join(', ')}">
+                                      <i class="fa fa-users" aria-hidden="true"></i>
+                                    </span>`;
+                    }
+                    result += `
+<button type="button" class="editpuzzle btn btn-default" data-toggle="modal" data-target="#editpuzzle" data-pk="${row[pk]}" data-name="${row[name]}" data-url="${row[url]}" data-is_meta="${row[is_meta]}" style="padding: 0px 0px;">
+    <i class="fa fa-edit" aria-hidden="true"></i>
+</button>
+<button type="button" class="deletepuzzle btn btn-default" data-toggle="modal" data-target="#deletepuzzle" data-pk="${row[pk]}" data-name="${row[name]}" style="padding: 0px 0px;">
+    <i class="fa fa-trash-o" aria-hidden="true"></i>
+</button>`;
+
+                    return result;
+                },
+            },
+            {
+                'targets': answer,
+                'render': function(data, type, row, meta) {
+                    if (data || type === 'filter') {
+                        return data;
+                    }
+                    var result = `
+                    <button type="button" class="submitanswer btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#submitanswer" data-pk="${row[pk]}" data-name="${row[name]}">
+                        Submit Answer
+                    </button>`;
+                    return result;
+                }
+            },
+            {
+                'targets': status,
+                'render': function(data, type, row, meta) {
+                    var result = row[status];
+                    if (row[status] !== 'PENDING' && row[status] !== 'SOLVED') {
+                        result += `
+<button type="button" class="editstatus btn btn-default" data-toggle="modal" data-target="#editstatus" data-pk="${row[pk]}" data-name="${row[name]}" data-status="${row[status]}" style="padding: 0px 0px;">
+    <i class="fa fa-edit" aria-hidden="true"></i>
+</button>`
+                    }
+                    return result;
+                }
+            },
+            {
+                'targets': sheet,
+                'render': function(data, type, row, meta) {
+                    var result = '';
+                    if (data) {
+                        result = `<a href="${data}" target="_blank">Link</a>`;
+                    }
+                    return result;
+                }
+            },
+            {
+                'targets': channel,
+                'render': function(data, type, row, meta) {
+                    var result = '';
+                    if (data) {
+                        result = `<a href="${slack_base_url}/app_redirect?channel=${data}" target="_blank">Link</a>`
+                    }
+                    return result;
+                }
+            },
+            {
+                'targets': tags,
+                'render': function(data, type, row, meta) {
+                    var result = '';
+                    for (var i = 0; i < data.length; i++) {
+                        tag = data[i];
+                        result += `
+    <form method="post" action="/puzzles/remove_tag/${row[pk]}/${tag[0]}">
+        <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+        <small>
+            <span class="badge badge-${tag[1]}">${tag[0]}</span>
+            <button type="submit" class="btn btn-default" style="padding: 0px 0px;">
+                <i class="fa fa-xs fa-times"></i>
+            </button>
+        </small>
+    </form>`;
+                    }
+                    result += `
+<button type="button" class="addtag btn btn-default" data-toggle="modal" data-target="#addtag" data-pk="${row[pk]}" style="padding: 0px 0px;">
+    <i class="fa fa-xs fa-plus" aria-hidden="true"></i>
+</button>`
+                    return result;
+                }
+            },
+            {
+                'targets': metas,
+                'render': function(data, type, row, meta) {
+                    var result = `
+                    <button type="button" class="meta btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#meta" data-pk="${row[pk]}">
+                        Assign Metas
+                    </button>`;
+
+                    return result;
+                }
+            }
+        ],
+    });
+
+    var all_uncollapsed = false;
+    function maybeExpandAll() {
+        if ( all_uncollapsed == false ) {
+            all_uncollapsed = true;
+            $('.tree').treegrid('expandAll');
+        }
+    }
+
+    function initTreegrid() {
+        $('.tree').treegrid({
+            onCollapse: function() {
+                all_uncollapsed = false;
+            }
+        });
+        if ($('.tree').hasClass( "initial-collapsed" )) {
+            $('.initial-collapsed').treegrid('collapse');
+        }
+    }
+
+    function areArraysEqual(arr1, arr2) {
+        return arr1.every((value, index) => {
+            if (Array.isArray(value)) {
+                return value.length === arr2[index].length
+                    && areArraysEqual(value, arr2[index]);
+            }
+            return value === arr2[index];
+        });
+    }
+
+    function getTableClassForPuzzleStatus(puzzleStatus) {
+        if (puzzleStatus === 'PENDING') {
+            return 'table-warning';
+        } else if (puzzleStatus === 'SOLVED') {
+            return 'table-success';
+        } else if (['STUCK', 'EXTRACTION'].includes(puzzleStatus)) {
+            return 'table-danger';
+        }
+        return '';
+    }
+
+    function updateRowColor(rowIndex, status) {
+        let newClass = getTableClassForPuzzleStatus(status);
+        let rowNode = table.row(rowIndex).node();
+        for (const tableClass of ['table-warning', 'table-danger', 'table-success']) {
+            $(rowNode).removeClass(tableClass);
+        }
+        $(rowNode).addClass(newClass);
+    }
+
+    function refreshModalHandlers() {
+        initEditPuzzle();
+        initDeletePuzzle();
+        initEditStatus();
+        initSubmitAnswer();
+        initAddTag();
+        initSetMeta();
+    }
+
+    function reload() {
+        $.ajax('/hunts/{{hunt_pk}}/puzzles', {
+            'success': function(newdata) {
+                newdata = newdata['data'];
+                olddata = table.data();
+                if (newdata.length !== olddata.length) {
+                    table.clear();
+                    for (const row of newdata) {
+                        table.row.add(row);
+                    }
+                    // keep current page position after redraw
+                    table.draw('full-hold');
+                    table.on( 'search.dt', maybeExpandAll);
+                    // New datatable page and search should also trigger treegrid.
+                    $('#puzzles').on( "draw.dt", initTreegrid);
+                    initTreegrid();
+                    return;
+                }
+
+                // diff row by row, invalidating updated rows
+                let changesPresent = false;
+                newdata.forEach(function(newrow, rowIndex) {
+                    oldrow = olddata[rowIndex];
+                    if (!areArraysEqual(newrow, oldrow)) {
+                        table.row(rowIndex).data(newrow);
+                        table.row(rowIndex).invalidate();
+                        updateRowColor(rowIndex, newrow[status]);
+                        changesPresent = true;
+                    }
+                });
+
+                if (changesPresent) {
+                    refreshModalHandlers();
+                    initTreegrid();
+                }
+            },
+            'error': function(response) {
+                console.log('Encountered error making /puzzles AJAX call:', response);
+            },
+        });
+    }
+
+    setInterval(function() {
+        reload();
+    }, 10000);
+});
+</script>
+
+{% include "modals/edit_puzzle.html" %}
+{% include "modals/delete_puzzle.html" %}
+{% include "modals/submit_answer.html" %}
+{% include "modals/edit_status.html" %}
+{% include "modals/add_tag.html" %}
+{% include "modals/set_meta.html" %}
+
+{% endblock %}
