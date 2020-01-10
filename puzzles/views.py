@@ -153,17 +153,21 @@ def set_metas(request, pk):
         messages.error(request, form)
         return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
-    metas = form.cleaned_data["metas"]
+    old_metas = list(puzzle.metas.all())
+    new_metas = form.cleaned_data["metas"]
     # Check if any additional meta would introduce a cycle. If so, then stop the whole transaction.
-    for meta in metas:
-        if meta not in puzzle.metas.all() and is_ancestor(puzzle, meta):
+    for new_meta in new_metas:
+        if new_meta not in puzzle.metas.all() and is_ancestor(puzzle, new_meta):
             messages.error(request,
                 "Transaction cancelled: unable to assign metapuzzle since doing so would introduce a meta-cycle.")
             return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
-    puzzle.metas.set(metas)
-    for meta in metas:
-        GoogleApiClient.populate_meta_sheet_with_feeders(meta)
+    puzzle.metas.set(new_metas)
+    for new_meta in new_metas:
+        GoogleApiClient.update_meta_sheet_feeders(new_meta)
+    for old_meta in old_metas:
+        if old_meta not in new_metas:
+            GoogleApiClient.update_meta_sheet_feeders(old_meta)
 
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
@@ -183,7 +187,7 @@ def edit_puzzle(request, pk):
             # new puzzle name.
             metas = puzzle.metas.all()
             for meta in metas:
-                GoogleApiClient.populate_meta_sheet_with_feeders(meta)
+                GoogleApiClient.update_meta_sheet_feeders(meta)
         except (DuplicatePuzzleNameError, DuplicatePuzzleUrlError, InvalidMetaPuzzleError) as e:
            messages.error(request, str(e))
 
@@ -204,7 +208,7 @@ def delete_puzzle(request, pk):
         puzzle.delete()
         SlackClient.getInstance().archive_channel(puzzle.channel)
         for meta in metas:
-            GoogleApiClient.populate_meta_sheet_with_feeders(meta)
+            GoogleApiClient.update_meta_sheet_feeders(meta)
 
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
@@ -230,7 +234,7 @@ def add_tag(request, pk):
             return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
         # the post m2m hook will add tag
         puzzle.metas.add(metapuzzle)
-        GoogleApiClient.populate_meta_sheet_with_feeders(metapuzzle)
+        GoogleApiClient.update_meta_sheet_feeders(metapuzzle)
     else:
         puzzle.tags.add(tag)
 
@@ -254,7 +258,7 @@ def remove_tag(request, pk, tag_text):
             meta = Puzzle.objects.get(name=tag_text)
             # the post m2m hook will remove tag
             puzzle.metas.remove(meta)
-            GoogleApiClient.populate_meta_sheet_with_feeders(meta)
+            GoogleApiClient.update_meta_sheet_feeders(meta)
         else:
             puzzle.tags.remove(tag_text)
 

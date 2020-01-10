@@ -138,7 +138,7 @@ class AnswerView(LoginRequiredMixin, View):
             guess.set_status(status)
             self.update_slack_with_puzzle_status(guess, status)
 
-            if puzzle_already_solved or status == Answer.CORRECT:
+            if (puzzle_already_solved and guess.text == guess.puzzle.answer) or status == Answer.CORRECT:
                 metas = guess.puzzle.metas.all()
                 for meta in metas:
                     GoogleApiClient.populate_meta_sheet_with_feeders(meta)

@@ -97,7 +97,7 @@ class GoogleApiClient:
             body=req_body
         ).execute()
 
-    def __populate_meta_sheet_with_feeders(self, meta_puzzle):
+    def __update_meta_sheet_feeders(self, meta_puzzle):
         spreadsheet_id = self.__extract_id_from_sheets_url(meta_puzzle.sheet)
         feeders = meta_puzzle.feeders.all()
         feeders = sorted(feeders, key=lambda p: p.answer)
@@ -176,7 +176,11 @@ class GoogleApiClient:
             body=body).execute()
 
     @staticmethod
-    def populate_meta_sheet_with_feeders(meta_puzzle):
+    def update_meta_sheet_feeders(meta_puzzle):
+        '''
+        Updates the input meta puzzle's spreadsheet with the
+        latest feeder puzzle info
+        '''
         if not meta_puzzle.is_meta:
             return
 
@@ -184,4 +188,4 @@ class GoogleApiClient:
         if not client:
             return
 
-        client.__populate_meta_sheet_with_feeders(meta_puzzle)
+        client.__update_meta_sheet_feeders(meta_puzzle)
