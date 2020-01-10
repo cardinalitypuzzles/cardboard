@@ -37,20 +37,6 @@ def update_note(request, answer_pk):
     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
 
-def __answer_class(answer):
-    status = answer.get_status()
-    if status == Answer.SUBMITTED:
-        return "table-warning"
-    elif status == Answer.CORRECT:
-        return "table-success"
-    elif status == Answer.INCORRECT:
-        return "table-danger"
-    elif status == Answer.PARTIAL:
-        return "table-warning"
-    else:
-        return ""
-
-
 @require_GET
 @login_required(login_url='/accounts/login/')
 def answers(request, hunt_pk):
@@ -60,7 +46,7 @@ def answers(request, hunt_pk):
     result = {
         "data": [
             [
-                __answer_class(answer), answer.created_on, answer.puzzle.name,
+                answer.created_on, answer.puzzle.name,
                 answer.puzzle.url, answer.puzzle.is_meta, answer.text,
                 answer.status, answer.id, answer.response,
             ]
