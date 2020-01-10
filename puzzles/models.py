@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models import Q
+from google_api_lib.google_api_client import GoogleApiClient
 from taggit.managers import TaggableManager
 from taggit.models import TagBase, GenericTaggedItemBase
 from answers.models import Answer
@@ -77,7 +78,9 @@ class Puzzle(models.Model):
                 raise DuplicatePuzzleNameError(
                     "Name %s is already taken by another puzzle." % new_name)
 
+        is_new_url = False
         if self.url != new_url:
+            is_new_url = True
             if Puzzle.objects.filter(~Q(id=self.pk), Q(url=new_url)):
                 raise DuplicatePuzzleUrlError(
                     "URL %s is already taken by another puzzle." % new_url)
@@ -96,6 +99,10 @@ class Puzzle(models.Model):
         self.is_meta = new_is_meta
 
         self.save()
+
+        if is_new_url:
+            GoogleApiClient.getInstance().add_puzzle_and_slack_links_to_sheet(
+                self.url, self.channel, self.sheet)
 
 
     def set_answer(self, answer):

@@ -158,15 +158,15 @@ if not ACTIVE_HUNT_ID:
     logger.warn("No ACTIVE_HUNT_ID set. Links may not work properly.")
 
 # Google Drive API
-GOOGLE_DRIVE_API_AUTHN_INFO = None
-if not 'GOOGLE_DRIVE_API_PRIVATE_KEY' in os.environ:
+GOOGLE_API_AUTHN_INFO = None
+if not 'GOOGLE_API_PRIVATE_KEY' in os.environ:
     logger.warn('No Google Drive API key found in environment. Automatic sheets creation disabled.')
 else:
-    GOOGLE_DRIVE_API_AUTHN_INFO = {
+    GOOGLE_API_AUTHN_INFO = {
       "type": "service_account",
       "project_id": "smallboard-test-260001",
       "private_key_id": "ca6bf4b1c0db884c0a0cf490839c375f63dab3af",
-      "private_key": os.environ['GOOGLE_DRIVE_API_PRIVATE_KEY'].replace('\\n', '\n'),
+      "private_key": os.environ['GOOGLE_API_PRIVATE_KEY'].replace('\\n', '\n'),
       "client_email": "smallboard-test@smallboard-test-260001.iam.gserviceaccount.com",
       "client_id": "108658192634408271921",
       "auth_uri": "https://accounts.google.com/o/oauth2/auth",
@@ -179,7 +179,7 @@ else:
     GOOGLE_SHEETS_TEMPLATE_FILE_ID = os.environ.get('GOOGLE_SHEETS_TEMPLATE_FILE_ID', None)
 
     if not GOOGLE_DRIVE_HUNT_FOLDER_ID or not GOOGLE_SHEETS_TEMPLATE_FILE_ID:
-        GOOGLE_DRIVE_API_AUTHN_INFO = None
+        GOOGLE_API_AUTHN_INFO = None
         logger.warn('GOOGLE_DRIVE_HUNT_FOLDER_ID or GOOGLE_SHEETS_TEMPLATE_FILE_ID not set. '
                     'Automatic sheets creation disabled.')
 
@@ -209,11 +209,11 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.environ.get('SOCIAL_AUTH_GOOGLE_OAUTH2_SEC
 if not SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET:
     logger.warn('No SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET environment variable set. Google login will be disabled.')
 
-from google_drive_lib.google_drive_client import GoogleDriveClient
+from google_api_lib.google_api_client import GoogleApiClient
 
-google_drive_client = GoogleDriveClient.getInstance()
-if google_drive_client:
-    SOCIAL_AUTH_GOOGLE_OAUTH2_WHITELISTED_EMAILS = google_drive_client.get_file_user_emails(GOOGLE_DRIVE_HUNT_FOLDER_ID)
+google_api_client = GoogleApiClient.getInstance()
+if google_api_client:
+    SOCIAL_AUTH_GOOGLE_OAUTH2_WHITELISTED_EMAILS = google_api_client.get_file_user_emails(GOOGLE_DRIVE_HUNT_FOLDER_ID)
     logger.info('Whitelisted emails: ' + str(SOCIAL_AUTH_GOOGLE_OAUTH2_WHITELISTED_EMAILS))
 else:
     logger.warn('Google Drive integration not set up. All emails will be accepted.')

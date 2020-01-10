@@ -6,9 +6,9 @@ from django.conf import settings
 from google.oauth2 import service_account
 
 
-class GoogleDriveClient:
+class GoogleApiClient:
     '''
-    This is a wrapper class around the Google Drive API client.
+    This is a wrapper class around the Google API client.
 
     This is a singleton class.
     '''
@@ -17,34 +17,46 @@ class GoogleDriveClient:
     @staticmethod
     def getInstance():
         ''' Static access method. '''
-        if GoogleDriveClient.__instance == None:
-            GoogleDriveClient()
-        return GoogleDriveClient.__instance
+        if GoogleApiClient.__instance == None:
+            GoogleApiClient()
+        return GoogleApiClient.__instance
 
     def __init__(self):
         ''' Private constructor. '''
-        if GoogleDriveClient.__instance != None:
-            raise Exception("GoogleDriveClient is a singleton and should not be "
+        if GoogleApiClient.__instance != None:
+            raise Exception("GoogleApiClient is a singleton and should not be "
                             "constructed multiple times. Use "
-                            "GoogleDriveClient.getInstance() to access it.")
+                            "GoogleApiClient.getInstance() to access it.")
 
-        if not settings.GOOGLE_DRIVE_API_AUTHN_INFO:
+        if not settings.GOOGLE_API_AUTHN_INFO:
             return None
 
         credentials = service_account.Credentials.from_service_account_info(
-            settings.GOOGLE_DRIVE_API_AUTHN_INFO,
+            settings.GOOGLE_API_AUTHN_INFO,
             scopes=settings.GOOGLE_DRIVE_PERMISSIONS_SCOPES
         )
 
-        self._service = googleapiclient.discovery.build('drive', 'v3', credentials=credentials)
+        self._drive_service = googleapiclient.discovery.build('drive', 'v3', credentials=credentials)
+        self._sheets_service = googleapiclient.discovery.build('sheets', 'v4', credentials=credentials)
 
-        GoogleDriveClient.__instance = self
+        GoogleApiClient.__instance = self
+
+    @staticmethod
+    def __extract_id_from_sheets_url(url):
+        '''
+        Assumes `url` is of the form
+        https://docs.google.com/spreadsheets/d/<ID>/edit...
+        and returns the <ID> portion
+        '''
+        start = url.find('/d/') + 3
+        end = url.find('/edit')
+        return url[start:end]
 
     def create_google_sheets(self, name):
         req_body = {
             'name': name
         }
-        response = self._service.files().copy(
+        response = self._drive_service.files().copy(
             fileId=settings.GOOGLE_SHEETS_TEMPLATE_FILE_ID,
             body=req_body,
             fields='webViewLink',
@@ -53,8 +65,24 @@ class GoogleDriveClient:
         link = response['webViewLink']
         return link
 
+    def add_puzzle_and_slack_links_to_sheet(self, puzzle_url, slack_channel_id,
+                                            sheet_url):
+        req_body = {
+            'values': [
+                ['Puzzle link', puzzle_url],
+                ['Slack channel', '%s/app_redirect?channel=%s'
+                                  % (settings.SLACK_BASE_URL, slack_channel_id)]
+            ]
+        }
+        self._sheets_service.spreadsheets().values().update(
+            spreadsheetId=self.__extract_id_from_sheets_url(sheet_url),
+            range='Sheet1!A1:B2',
+            valueInputOption='RAW',
+            body=req_body
+        ).execute()
+
     def get_file_user_emails(self, file_id):
-        response = self._service.files().get(
+        response = self._drive_service.files().get(
             fileId=file_id,
             fields='permissions'
         ).execute()

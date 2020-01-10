@@ -6,7 +6,7 @@ This guide assumes you have already configured Slack and Google API service acco
 
 * `SLACK_API_TOKEN` - user token for user that installed the Slack app
 * `SLACK_VERIFICATION_TOKEN` - for verifying Slack requests
-* `GOOGLE_DRIVE_API_PRIVATE_KEY` - private key used for Google OAuth2 authentication
+* `GOOGLE_API_PRIVATE_KEY` - private key used for Google OAuth2 authentication
 * `SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET` - Google OAuth2 client secret
 
 To create service accounts and obtain these secrets, visit [https://api.slack.com/apps]() and [https://console.developers.google.com/]().
