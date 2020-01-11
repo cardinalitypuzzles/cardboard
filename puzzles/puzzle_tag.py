@@ -19,9 +19,14 @@ class PuzzleTag(TagBase):
         BLACK : "black"
     }
     RESERVED = [GREEN, RED, YELLOW, BLACK]
-    VISIBLE_COLOR_CHOICES = filter(lambda c : c[0] not in PuzzleTag.RESERVED, COLORS.items())
 
-    COLOR_ORDERING = {k: v for v, k in enumerate([RED, BLACK, WHITE, GRAY, BLUE, GREEN, YELLOW])}
+    @classmethod
+    def visible_color_choices(cls):
+        return list(filter(lambda c : c[0] not in cls.RESERVED, cls.COLORS.items()))
+
+    @classmethod
+    def color_ordering(cls):
+        return {k: v for v, k in enumerate([cls.RED, cls.BLACK, cls.WHITE, cls.GRAY, cls.BLUE, cls.GREEN, cls.YELLOW])}
 
     color = models.CharField(
         max_length=10,

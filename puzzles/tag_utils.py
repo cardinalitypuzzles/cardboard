@@ -19,7 +19,7 @@ def to_tag(tag_string):
 
 def get_tags(puzzle):
     puzzle_tags = [[t.name, t.color] for t in puzzle.tags.all()]
-    puzzle_tags.sort(key=lambda item: (PuzzleTag.COLOR_ORDERING[item[1]], item[0]))
+    puzzle_tags.sort(key=lambda item: (PuzzleTag.color_ordering()[item[1]], item[0]))
     return puzzle_tags
 
 
