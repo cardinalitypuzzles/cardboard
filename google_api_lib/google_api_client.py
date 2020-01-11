@@ -130,7 +130,6 @@ class GoogleApiClient:
                     }
                 })
                 break
-
         requests.append({
             'addSheet': {
                 'properties': {
@@ -138,13 +137,13 @@ class GoogleApiClient:
                 },
             },
         })
-
         response = self._sheets_service.spreadsheets().batchUpdate(
             spreadsheetId=spreadsheet_id,
             body={'requests': requests},
             fields='replies.addSheet.properties.sheetId'
         ).execute(http=http)
         sheet_id = response['replies'][-1]['addSheet']['properties']['sheetId']
+
         body = {
             'requests': [{
                 'updateCells': {
@@ -191,7 +190,6 @@ class GoogleApiClient:
             },
             }]
         }
-
         self._sheets_service.spreadsheets().batchUpdate(
             spreadsheetId=spreadsheet_id,
             body=body
@@ -214,7 +212,9 @@ class GoogleApiClient:
 
         # TODO(erwa): Use work queue and separate process for running tasks.
         # See https://github.com/cardinalitypuzzles/smallboard/pull/140
-        # for discussion.
+        # for discussion. Need to use locking to prevent race conditions
+        # if there is more than one worker thread/process.
+
         # Update meta sheet in separate thread to avoid delaying response.
         client._executor.submit(
             client.__update_meta_sheet_feeders,
