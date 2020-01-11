@@ -26,10 +26,10 @@
 <script type="text/javascript">
 function submitAnswerHandler(e) {
     var pk = $(this).data("pk");
-    var name = $(this).data("name");
+    var puzzleName = $(this).data("name");
     $('#submitanswer form').attr('action', `/puzzles/guess/${pk}/`);
     $('#submitanswer form').data('pk', pk);
-    $('#submitanswer-puzzle-name').text(name);
+    $('#submitanswer-puzzle-name').text(puzzleName);
     $('#guess-input').val('');
 
     // Need to set focus after delay to accommodate fade in
@@ -37,15 +37,21 @@ function submitAnswerHandler(e) {
         $('#guess-input').focus();
     }, 350);
 }
-
 $('#puzzles').on('click', '.submitanswer', submitAnswerHandler);
+
+function sanitizeGuess(guess) {
+    return guess.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+}
+
 $('#submitanswer form').on('submit', function(e) {
     e.preventDefault();
     let pk = $(this).data('pk');
     let url = $(this).attr('action');
+    let guess = sanitizeGuess($('#guess-input').val());
     let row = table.row(`#puzzle-${pk}`);
     let rowNode = row.node();
     let data = row.data();
+    let puzzleName = data[puzzle_name];
     data[status] = 'PENDING';
     updateRowColor(rowNode, 'PENDING');
 
@@ -53,10 +59,11 @@ $('#submitanswer form').on('submit', function(e) {
         'method': 'POST',
         'data': $(this).serialize(),
         'success': function(response) {
+            showMessage(`Submitted guess ${guess} for puzzle ${puzzleName}`);
             reload();
         },
         'error': function(response) {
-            console.log('Got error submitting guess', guess, 'for puzzle', pk, ':', response);
+            showMessage(`Got error submitting guess ${guess} for puzzle ${puzzleName}: ${response['responseJSON']['error']}`);
             reload();
         },
     });

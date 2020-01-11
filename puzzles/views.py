@@ -66,11 +66,13 @@ def guess(request, pk):
             puzzle.save()
             AnswerView.update_slack_with_puzzle_status(answer, answer.status)
         else:
-            logger.error('"%s" has already been submitted as a guess' % answer_text)
-            status_code = 400
+            return JsonResponse(
+                {'error': '"%s" has already been submitted as a guess for puzzle "%s"' % (answer_text, puzzle.name)},
+                status=400)
     else:
-        logger.error('Answer form was invalid or puzzle was already solved')
-        status_code = 400
+        return JsonResponse(
+            {'error': 'Answer form was invalid or puzzle was already solved for puzzle "%s"' % puzzle.name},
+            status=400)
 
     return JsonResponse({}, status=status_code)
 
@@ -255,8 +257,7 @@ if settings.DEBUG:
 def remove_tag(request, pk, tag_text):
     puzzle = get_object_or_404(Puzzle.objects.select_for_update(), pk=pk)
     if puzzle.name == tag_text:
-        messages.error(request, "You cannot remove a meta's tag from itself")
-        return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+        return JsonResponse({'error': "You cannot remove a meta's tag (%s) from itself" % tag_text}, status=400)
     try:
         tag = puzzle.tags.get(name=tag_text)
         if tag.is_meta:
@@ -271,8 +272,8 @@ def remove_tag(request, pk, tag_text):
         if not tag.tagged_items.exists():
             tag.delete()
     except ObjectDoesNotExist as e:
-        messages.error(request, "Could not find the tag {} to remove".format(tag_text))
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+        return JsonResponse({'error': "Could not find the tag {} to remove".format(tag_text)}, status=400)
+    return JsonResponse({})
 
 
 @login_required(login_url='/accounts/login/')
