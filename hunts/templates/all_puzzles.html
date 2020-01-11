@@ -212,6 +212,7 @@ $(document).ready(function() {
         'createdRow': function(row, data, dataIndex) {
             $(row).addClass(data[puzzle_class]);
             $(row).attr('id', `puzzle-${data[pk]}`);
+            initDeleteTagHandlers(data);
         },
         'drawCallback': function() {
             $('#puzzles').on('draw.dt', initTreegrid);
