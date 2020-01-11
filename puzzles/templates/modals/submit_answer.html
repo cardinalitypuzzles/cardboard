@@ -60,11 +60,11 @@ $('#submitanswer form').on('submit', function(e) {
         'method': 'POST',
         'data': $(this).serialize(),
         'success': function(response) {
-            showMessage(`Submitted guess ${guess} for puzzle ${puzzleName}`);
+            showMessage(`Submitted guess '${guess}' for puzzle '${puzzleName}'`);
             reload();
         },
         'error': function(response) {
-            showMessage(`Got error submitting guess ${guess} for puzzle ${puzzleName}: ${response['responseJSON']['error']}`, 'error');
+            showMessage(`Got error submitting guess '${guess}' for puzzle '${puzzleName}': ${response['responseJSON']['error']}`, 'error');
             reload();
         },
     });

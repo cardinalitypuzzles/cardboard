@@ -189,12 +189,12 @@ function initDeleteTagHandlers(data) {
                 'method': 'POST',
                 'data': $(this).serialize(),
                 'success': function() {
-                    showMessage(`Removed tag ${tagName} from puzzle ${data[name]}`);
+                    showMessage(`Removed tag '${tagName}' from puzzle '${data[puzzle_name]}'`);
                     reload();
                 },
                 'error': function(response) {
                     response = response['responseJSON'];
-                    let message = `Got error deleting tag ${tagName} from puzzle ${data[name]}: ${response['error']}`;
+                    let message = `Got error deleting tag '${tagName}' from puzzle '${data[puzzle_name]}': ${response['error']}`;
                     showMessage(message, 'error');
                     reload();
                 },

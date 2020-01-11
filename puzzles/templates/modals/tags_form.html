@@ -52,11 +52,11 @@ $('.add-existing-tag-form, #add-new-tag-form').on('submit', function(e) {
         'method': 'POST',
         'data': $(this).serialize(),
         'success': function() {
-            showMessage(`Added tag ${values['name']} to puzzle {{puzzle.name}}`);
+            showMessage(`Added tag '${values['name']}' to puzzle '{{puzzle.name}}'`);
             reload();
         },
         'error': function(response) {
-            showMessage(`Encountered error adding tag ${values['name']} to puzzle {{puzzle.name}}: ${response['responseJSON']['error']}`, 'error');
+            showMessage(`Encountered error adding tag '${values['name']}' to puzzle '{{puzzle.name}}': ${response['responseJSON']['error']}`, 'error');
             reload();
         },
     });
