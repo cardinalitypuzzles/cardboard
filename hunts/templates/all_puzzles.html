@@ -48,29 +48,107 @@
 
 <script type="text/javascript">
 var slack_base_url = '{{ slack_base_url }}';
+var table;
+
+// indices into data array
+var pk = 0,
+    puzzle_name = 1,
+    url = 2,
+    is_meta = 3,
+    active_users = 4,
+    answer = 5,
+    puzzle_status = 6,
+    sheet = 7,
+    channel = 8,
+    tags = 9,
+    metas = 10,
+    puzzle_class = 11;
+
+function getTableClassForPuzzleStatus(puzzleStatus) {
+    if (['STUCK', 'EXTRACTION'].includes(puzzleStatus)) {
+        return 'table-danger';
+    } else if (puzzleStatus === 'PENDING') {
+        return 'table-warning';
+    } else if (puzzleStatus === 'SOLVED') {
+        return 'table-success';
+    }
+    return '';
+}
+
+function updateRowColor(row, puzzleStatus) {
+    let newClass = getTableClassForPuzzleStatus(puzzleStatus);
+    for (const tableClass of ['table-warning', 'table-danger', 'table-success']) {
+        $(row).removeClass(tableClass);
+    }
+    $(row).addClass(newClass);
+}
+
+function areArraysEqual(arr1, arr2) {
+    return arr1.every((value, index) => {
+        if (Array.isArray(value)) {
+            return value.length === arr2[index].length
+                && areArraysEqual(value, arr2[index]);
+        }
+        return value === arr2[index];
+    });
+}
+
+function redrawTable(newdata) {
+    table.clear();
+    for (const row of newdata) {
+        table.row.add(row);
+    }
+    // keep current page position after redraw
+    table.draw('full-hold');
+}
+
+function reload() {
+    $.ajax('/hunts/{{hunt_pk}}/puzzles', {
+        'success': function(newdata) {
+            newdata = newdata['data'];
+            let olddata = table.data();
+            if (newdata.length !== olddata.length) {
+                return redrawTable(newdata);
+            }
+
+            // diff row by row, invalidating updated rows
+            let redrawRequired = false;
+            newdata.forEach(function(newrow, rowIndex) {
+                oldrow = olddata[rowIndex];
+                if (!areArraysEqual(newrow, oldrow)) {
+                    if (newrow[pk] !== oldrow[pk]) {
+                        // treegrid order changed, need to redraw
+                        redrawRequired = true;
+                    }
+                    table.row(rowIndex).data(newrow);
+                    table.row(rowIndex).invalidate();
+                    updateRowColor(rowIndex, newrow[puzzle_status]);
+                }
+            });
+
+            if (redrawRequired) {
+                redrawTable(newdata);
+            }
+        },
+        'error': function(response) {
+            console.log('Encountered error making /puzzles AJAX call:', response);
+        },
+    });
+}
 
 $(document).ready(function() {
-    // indices into data array
-    var pk = 0,
-        name = 1,
-        url = 2,
-        is_meta = 3,
-        active_users = 4,
-        answer = 5,
-        status = 6,
-        sheet = 7,
-        channel = 8,
-        tags = 9,
-        metas = 10,
-        puzzle_class = 11;
-
-    var table = $('#puzzles').DataTable({
+    table = $('#puzzles').DataTable({
         'data': [],
         'paging': true,
         'pageLength': 50,
         'ordering': false,
         'createdRow': function(row, data, dataIndex) {
             $(row).addClass(data[puzzle_class]);
+            $(row).attr('id', `puzzle-${data[pk]}`);
+        },
+        'drawCallback': function() {
+            $('#puzzles').on('draw.dt', initTreegrid);
+            $('#puzzles').on('search.dt', maybeExpandAll);
         },
         'initComplete': function() {
             reload();
@@ -86,23 +164,23 @@ $(document).ready(function() {
                 'targets': [pk, url, is_meta, active_users, puzzle_class, sheet, channel, metas]
             },
 
-            {'title': 'Name', 'targets': name},
+            {'title': 'Name', 'targets': puzzle_name},
             {'title': 'Answer', 'targets': answer},
-            {'title': 'Status', 'targets': status},
+            {'title': 'Status', 'targets': puzzle_status},
             {'title': 'Sheet', 'targets': sheet},
             {'title': 'Slack', 'targets': channel},
             {'title': 'Tags', 'targets': tags},
             {'title': 'Metas', 'targets': metas},
 
-            {'width': '30%', 'targets': name},
+            {'width': '30%', 'targets': puzzle_name},
             {'width': '17.5%', 'targets': [answer, tags]},
             {'width': '80px', 'targets': metas},
             {'width': '60px', 'targets': [sheet, channel]},
 
             {
-                'targets': name,
+                'targets': puzzle_name,
                 'render': function(data, type, row, meta) {
-                    var result = '<a href="' + row[url] + '">' + row[name] + '</a>';
+                    var result = '<a href="' + row[url] + '">' + row[puzzle_name] + '</a>';
                     if (row[is_meta]) {
                         result += ' <span class="badge badge-dark badge-meta">META</span>';
                     }
@@ -112,10 +190,10 @@ $(document).ready(function() {
                                     </span>`;
                     }
                     result += `
-<button type="button" class="editpuzzle btn btn-default" data-toggle="modal" data-target="#editpuzzle" data-pk="${row[pk]}" data-name="${row[name]}" data-url="${row[url]}" data-is_meta="${row[is_meta]}" style="padding: 0px 0px;">
+<button type="button" class="editpuzzle btn btn-default" data-toggle="modal" data-target="#editpuzzle" data-pk="${row[pk]}" data-name="${row[puzzle_name]}" data-url="${row[url]}" data-is_meta="${row[is_meta]}" style="padding: 0px 0px;">
     <i class="fa fa-edit" aria-hidden="true"></i>
 </button>
-<button type="button" class="deletepuzzle btn btn-default" data-toggle="modal" data-target="#deletepuzzle" data-pk="${row[pk]}" data-name="${row[name]}" style="padding: 0px 0px;">
+<button type="button" class="deletepuzzle btn btn-default" data-toggle="modal" data-target="#deletepuzzle" data-pk="${row[pk]}" data-name="${row[puzzle_name]}" style="padding: 0px 0px;">
     <i class="fa fa-trash-o" aria-hidden="true"></i>
 </button>`;
 
@@ -129,19 +207,19 @@ $(document).ready(function() {
                         return data;
                     }
                     var result = `
-                    <button type="button" class="submitanswer btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#submitanswer" data-pk="${row[pk]}" data-name="${row[name]}">
+                    <button type="button" class="submitanswer btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#submitanswer" data-pk="${row[pk]}" data-name="${row[puzzle_name]}">
                         Submit Answer
                     </button>`;
                     return result;
                 }
             },
             {
-                'targets': status,
+                'targets': puzzle_status,
                 'render': function(data, type, row, meta) {
-                    var result = row[status];
-                    if (row[status] !== 'PENDING' && row[status] !== 'SOLVED') {
+                    var result = row[puzzle_status];
+                    if (row[puzzle_status] !== 'PENDING' && row[puzzle_status] !== 'SOLVED') {
                         result += `
-<button type="button" class="editstatus btn btn-default" data-toggle="modal" data-target="#editstatus" data-pk="${row[pk]}" data-name="${row[name]}" data-status="${row[status]}" style="padding: 0px 0px;">
+<button type="button" class="editstatus btn btn-default" data-toggle="modal" data-target="#editstatus" data-pk="${row[pk]}" data-name="${row[puzzle_name]}" data-status="${row[puzzle_status]}" style="padding: 0px 0px;">
     <i class="fa fa-edit" aria-hidden="true"></i>
 </button>`
                     }
@@ -196,7 +274,7 @@ $(document).ready(function() {
                 'targets': metas,
                 'render': function(data, type, row, meta) {
                     var result = `
-                    <button type="button" class="meta btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#meta" data-pk="${row[pk]}">
+                    <button type="button" class="meta btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#meta" data-pk="${row[pk]}" data-name="${row[puzzle_name]}">
                         Assign Metas
                     </button>`;
 
@@ -223,87 +301,6 @@ $(document).ready(function() {
         if ($('.tree').hasClass( "initial-collapsed" )) {
             $('.initial-collapsed').treegrid('collapse');
         }
-    }
-
-    function areArraysEqual(arr1, arr2) {
-        return arr1.every((value, index) => {
-            if (Array.isArray(value)) {
-                return value.length === arr2[index].length
-                    && areArraysEqual(value, arr2[index]);
-            }
-            return value === arr2[index];
-        });
-    }
-
-    function getTableClassForPuzzleStatus(puzzleStatus) {
-        if (puzzleStatus === 'PENDING') {
-            return 'table-warning';
-        } else if (puzzleStatus === 'SOLVED') {
-            return 'table-success';
-        } else if (['STUCK', 'EXTRACTION'].includes(puzzleStatus)) {
-            return 'table-danger';
-        }
-        return '';
-    }
-
-    function updateRowColor(rowIndex, status) {
-        let newClass = getTableClassForPuzzleStatus(status);
-        let rowNode = table.row(rowIndex).node();
-        for (const tableClass of ['table-warning', 'table-danger', 'table-success']) {
-            $(rowNode).removeClass(tableClass);
-        }
-        $(rowNode).addClass(newClass);
-    }
-
-    function refreshModalHandlers() {
-        initEditPuzzle();
-        initDeletePuzzle();
-        initEditStatus();
-        initSubmitAnswer();
-        initAddTag();
-        initSetMeta();
-    }
-
-    function reload() {
-        $.ajax('/hunts/{{hunt_pk}}/puzzles', {
-            'success': function(newdata) {
-                newdata = newdata['data'];
-                olddata = table.data();
-                if (newdata.length !== olddata.length) {
-                    table.clear();
-                    for (const row of newdata) {
-                        table.row.add(row);
-                    }
-                    // keep current page position after redraw
-                    table.draw('full-hold');
-                    table.on( 'search.dt', maybeExpandAll);
-                    // New datatable page and search should also trigger treegrid.
-                    $('#puzzles').on( "draw.dt", initTreegrid);
-                    initTreegrid();
-                    return;
-                }
-
-                // diff row by row, invalidating updated rows
-                let changesPresent = false;
-                newdata.forEach(function(newrow, rowIndex) {
-                    oldrow = olddata[rowIndex];
-                    if (!areArraysEqual(newrow, oldrow)) {
-                        table.row(rowIndex).data(newrow);
-                        table.row(rowIndex).invalidate();
-                        updateRowColor(rowIndex, newrow[status]);
-                        changesPresent = true;
-                    }
-                });
-
-                if (changesPresent) {
-                    refreshModalHandlers();
-                    initTreegrid();
-                }
-            },
-            'error': function(response) {
-                console.log('Encountered error making /puzzles AJAX call:', response);
-            },
-        });
     }
 
     setInterval(function() {

@@ -29,11 +29,5 @@ function deletePuzzleHandler() {
     $('#deletetitle').text(`Delete ${name}`);
 }
 
-function initDeletePuzzle() {
-    $('.deletepuzzle').off('click', deletePuzzleHandler);
-    $('.deletepuzzle').on('click', deletePuzzleHandler);
-}
-
-initDeletePuzzle();
-$('#puzzles').on('draw.dt', initDeletePuzzle);
+$('#puzzles').on('click', '.deletepuzzle', deletePuzzleHandler);
 </script>

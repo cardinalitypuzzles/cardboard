@@ -2,7 +2,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="meta-title">Assign Meta</h5>
+                <h5 class="modal-title" id="meta-title">Assign metas</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -26,17 +26,13 @@
 <script type="text/javascript">
 function setMetaHandler() {
     var pk = $(this).data("pk");
+    var name = $(this).data("name");
     $('#meta form').attr("action", `/puzzles/meta/${pk}/`);
+    $('#meta-title').text(`Assign metas for ${name}`);
     $.get({"url": `/puzzles/meta_select_form/${pk}`}).done(function(data) {
         $("#meta .modal-body .form-group").html(data);
     });
 };
 
-function initSetMeta() {
-    $(".meta").off('click', setMetaHandler);
-    $(".meta").on('click', setMetaHandler);
-}
-
-initSetMeta();
-$('#puzzles').on('draw.dt', initSetMeta);
+$('#puzzles').on('click', '.meta', setMetaHandler);
 </script>

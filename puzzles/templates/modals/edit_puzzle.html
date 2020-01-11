@@ -31,8 +31,7 @@
 </div>
 
 <script type="text/javascript">
-function initEditPuzzle() {
-  $(".editpuzzle").click(function() {
+function editPuzzleHandler() {
     var pk = $(this).data("pk");
     var name = $(this).data("name");
     var url = $(this).data("url");
@@ -45,8 +44,7 @@ function initEditPuzzle() {
     } else {
         $('#id_is_meta').removeAttr('checked');
     }
-  });
 }
-initEditPuzzle();
-$('#puzzles').on('draw.dt', initEditPuzzle);
+
+$('#puzzles').on('click', '.editpuzzle', editPuzzleHandler);
 </script>

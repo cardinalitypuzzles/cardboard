@@ -31,17 +31,11 @@
 function editStatusHandler() {
     var pk = $(this).data("pk");
     var name = $(this).data("name");
-    var status = $(this).data('status');
+    var puzzleStatus = $(this).data('status');
     $('#editstatus form').attr('action', `/puzzles/update_status/${pk}/`);
     $('#puzzletitle').text(name);
-    $(`#editstatus option[value="${status}"]`).attr('selected', 'selected');
+    $(`#editstatus option[value="${puzzleStatus}"]`).attr('selected', 'selected');
 }
 
-function initEditStatus() {
-    $('.editstatus').off('click', editStatusHandler);
-    $('.editstatus').on('click', editStatusHandler);
-}
-
-initEditStatus();
-$('#puzzles').on('draw.dt', initEditStatus);
+$('#puzzles').on('click', '.editstatus', editStatusHandler);
 </script>
