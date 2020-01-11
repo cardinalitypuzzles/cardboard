@@ -52,7 +52,8 @@ $('#submitanswer form').on('submit', function(e) {
     let rowNode = row.node();
     let data = row.data();
     let puzzleName = data[puzzle_name];
-    data[status] = 'PENDING';
+    data[puzzle_status] = 'PENDING';
+    table.cell(row.index(), puzzle_status).invalidate();
     updateRowColor(rowNode, 'PENDING');
 
     $.ajax(url, {
@@ -63,13 +64,11 @@ $('#submitanswer form').on('submit', function(e) {
             reload();
         },
         'error': function(response) {
-            showMessage(`Got error submitting guess ${guess} for puzzle ${puzzleName}: ${response['responseJSON']['error']}`);
+            showMessage(`Got error submitting guess ${guess} for puzzle ${puzzleName}: ${response['responseJSON']['error']}`, 'error');
             reload();
         },
     });
 
     $('#submitanswer').modal('hide');
-
-    row.invalidate();
 })
 </script>

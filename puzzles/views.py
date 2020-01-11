@@ -226,8 +226,7 @@ def delete_puzzle(request, pk):
 def add_tag(request, pk):
     form = TagForm(request.POST)
     if not form.is_valid():
-        messages.error(request, form)
-        return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+        return JsonResponse({'error': 'Invalid add tag form submission'}, status=400)
     puzzle = get_object_or_404(Puzzle.objects.select_for_update(), pk=pk)
     (tag, _) = PuzzleTag.objects.update_or_create(
         name=form.cleaned_data["name"],
@@ -236,16 +235,14 @@ def add_tag(request, pk):
     if tag.is_meta:
         metapuzzle = get_object_or_404(Puzzle.objects.select_for_update(), name=tag.name)
         if is_ancestor(puzzle, metapuzzle):
-            messages.error(request,
-                "Unable to assign metapuzzle since doing so would introduce a meta-cycle.")
-            return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+            return JsonResponse({'error': '"Unable to assign metapuzzle since doing so would introduce a meta-cycle."'}, status=400)
         # the post m2m hook will add tag
         puzzle.metas.add(metapuzzle)
         GoogleApiClient.update_meta_sheet_feeders(metapuzzle)
     else:
         puzzle.tags.add(tag)
 
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+    return JsonResponse({})
 
 if settings.DEBUG:
     add_tag = csrf_exempt(add_tag)

@@ -123,6 +123,8 @@ function reload() {
                     table.row(rowIndex).data(newrow);
                     table.row(rowIndex).invalidate();
                     updateRowColor(rowIndex, newrow[puzzle_status]);
+                    initDeleteTagHandlers(newrow);
+                    initTreegrid();
                 }
             });
 
@@ -134,6 +136,25 @@ function reload() {
             console.log('Encountered error making /puzzles AJAX call:', response);
         },
     });
+}
+
+var all_uncollapsed = false;
+function maybeExpandAll() {
+    if ( all_uncollapsed == false ) {
+        all_uncollapsed = true;
+        $('.tree').treegrid('expandAll');
+    }
+}
+
+function initTreegrid() {
+    $('.tree').treegrid({
+        onCollapse: function() {
+            all_uncollapsed = false;
+        }
+    });
+    if ($('.tree').hasClass( "initial-collapsed" )) {
+        $('.initial-collapsed').treegrid('collapse');
+    }
 }
 
 function showMessage(message, type) {
@@ -150,6 +171,38 @@ function showMessage(message, type) {
     );
 }
 
+function initDeleteTagHandlers(data) {
+    let puzzleTags = data[tags];
+    for (let i = 0; i < puzzleTags.length; i++) {
+        let tagName = puzzleTags[i][0];
+        $('#puzzles').on('submit', `.delete-tag-${data[pk]}-${tagName}`, function(e) {
+            let url = $(this).attr('action');
+            e.preventDefault();
+
+            // to prevent form submission from being triggered for every instance of
+            // this puzzle (which might be listed under multiple metas)
+            e.stopImmediatePropagation();
+
+            puzzleTags.splice(i, 1);
+            table.cell(`#puzzle-${data[pk]}`, tags).invalidate();
+            $.ajax(url, {
+                'method': 'POST',
+                'data': $(this).serialize(),
+                'success': function() {
+                    showMessage(`Removed tag ${tagName} from puzzle ${data[name]}`);
+                    reload();
+                },
+                'error': function(response) {
+                    response = response['responseJSON'];
+                    let message = `Got error deleting tag ${tagName} from puzzle ${data[name]}: ${response['error']}`;
+                    showMessage(message, 'error');
+                    reload();
+                },
+            });
+        });
+    }
+}
+
 $(document).ready(function() {
     table = $('#puzzles').DataTable({
         'data': [],
@@ -159,38 +212,6 @@ $(document).ready(function() {
         'createdRow': function(row, data, dataIndex) {
             $(row).addClass(data[puzzle_class]);
             $(row).attr('id', `puzzle-${data[pk]}`);
-
-            // add delete tag handlers
-            let puzzleTags = data[tags];
-            for (let i = 0; i < puzzleTags.length; i++) {
-                let tagName = puzzleTags[i][0];
-                $('#puzzles').on('submit', `.delete-tag-${data[pk]}-${tagName}`, function(e) {
-                    console.log("submitting");
-                    e.preventDefault();
-
-                    // to prevent form submission from being triggered for every instance of
-                    // this puzzle (which might be listed under multiple metas)
-                    e.stopImmediatePropagation();
-
-                    puzzleTags.splice(i, 1);
-                    table.row(`#puzzle-${data[pk]}`).invalidate();
-                    let url = $(this).attr('action');
-                    $.ajax(url, {
-                        'method': 'POST',
-                        'data': $(this).serialize(),
-                        'success': function() {
-                            showMessage(`Removed tag ${tagName} from puzzle ${data[name]}`);
-                            reload();
-                        },
-                        'error': function(response) {
-                            response = response['responseJSON'];
-                            let message = `Got error deleting tag ${tagName} from puzzle ${data[name]}: ${response['error']}`;
-                            showMessage(message, 'error');
-                            reload();
-                        },
-                    });
-                });
-            }
         },
         'drawCallback': function() {
             $('#puzzles').on('draw.dt', initTreegrid);
@@ -329,25 +350,6 @@ $(document).ready(function() {
             }
         ],
     });
-
-    var all_uncollapsed = false;
-    function maybeExpandAll() {
-        if ( all_uncollapsed == false ) {
-            all_uncollapsed = true;
-            $('.tree').treegrid('expandAll');
-        }
-    }
-
-    function initTreegrid() {
-        $('.tree').treegrid({
-            onCollapse: function() {
-                all_uncollapsed = false;
-            }
-        });
-        if ($('.tree').hasClass( "initial-collapsed" )) {
-            $('.initial-collapsed').treegrid('collapse');
-        }
-    }
 
     setInterval(function() {
         reload();

@@ -6,7 +6,7 @@
             </div>
             <div class="modal-body">
                 {% for tag, class in suggestions %}
-                    <form  style="display: inline;" method="post" action="/puzzles/add_tag/{{ puzzle.pk }}/">
+                    <form  style="display: inline;" method="post" action="/puzzles/add_tag/{{ puzzle.pk }}/" class='add-existing-tag-form'>
                         {% csrf_token %}
                         <input type="hidden" name="name" value="{{ tag }}">
                         <input type="hidden" name="color" value="{{ class }}">
@@ -18,7 +18,7 @@
                 <button type="button" class="btn btn-info btn-sm btn-block" data-toggle="collapse" data-target="#collapseTagInput" aria-expanded="false" aria-controls="collapseTagInput"> <i class="fa fa fa-plus" aria-hidden="true"></i> Add New Tag </button>
                 <div class="collapse" id="collapseTagInput">
                   <div class="card card-body">
-                    <form method="post" action="/puzzles/add_tag/{{ puzzle.pk }}/">
+                    <form method="post" action="/puzzles/add_tag/{{ puzzle.pk }}/" id='add-new-tag-form'>
                         {% csrf_token %}
                         <div class="form-group">
                             {{ tag_form.name }}
@@ -32,3 +32,35 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
             </div>
+
+<script type='text/javascript'>
+$('.add-existing-tag-form, #add-new-tag-form').on('submit', function(e) {
+    e.preventDefault();
+
+    let row = table.row(`#puzzle-{{puzzle.pk}}`);
+    let url = $(this).attr('action');
+    let values = {};
+    $.each($(this).serializeArray(), function(i, field) {
+        values[field.name] = field.value;
+    });
+
+    row.data()[tags].push([values['name'], values['color']]);
+    table.cell(row.index(), tags).invalidate();
+    initDeleteTagHandlers(row.data());
+
+    $.ajax(url, {
+        'method': 'POST',
+        'data': $(this).serialize(),
+        'success': function() {
+            showMessage(`Added tag ${values['name']} to puzzle {{puzzle.name}}`);
+            reload();
+        },
+        'error': function(response) {
+            showMessage(`Encountered error adding tag ${values['name']} to puzzle {{puzzle.name}}: ${response['responseJSON']['error']}`, 'error');
+            reload();
+        },
+    });
+
+    $('#addtag').modal('hide');
+});
+</script>
