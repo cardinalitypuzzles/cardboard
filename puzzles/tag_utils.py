@@ -9,6 +9,7 @@ DEFAULT_TAGS = [
     ('LOGIC', PuzzleTag.WHITE),
     ('TECHNICAL', PuzzleTag.WHITE),
     ('SLOG', PuzzleTag.GRAY),
+    ('INTERACTIVE', PuzzleTag.BLUE),
 ]
 
 
