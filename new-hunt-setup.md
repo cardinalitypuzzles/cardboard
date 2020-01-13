@@ -25,11 +25,13 @@ Small Board expects a hunt Google Drive folder to already be set up with a templ
 * `GOOGLE_DRIVE_HUNT_FOLDER_ID`
 * `GOOGLE_SHEETS_TEMPLATE_FILE_ID`
 
-You should also have created a Slack workspace for the puzzlehunt. If you are reusing an existing workspace, make sure to delete all channels to avoid conflicts with puzzles in the new hunt. You should set
+You should also have created a Slack workspace for the puzzlehunt. Make sure you've set the following environment variable accordingly:
 
 ```
 SLACK_BASE_URL=https://<your-slack-workspace>.slack.com
 ```
+
+If you are reusing an existing workspace, make sure to delete all channels to avoid conflicts with puzzles in the new hunt. You can use [`slack.py`](https://github.com/santiagobasulto/slack.py) to easily delete channels.
 
 You should now be able to login to your Small Board deployment, create a new hunt, and start adding puzzles. In case the hunt id of the newly created hunt is not `1`, update `ACTIVE_HUNT_ID` to the new hunt id (check the database).
 
