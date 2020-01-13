@@ -16,11 +16,5 @@ function addTagHandler() {
     });
 }
 
-function initAddTag() {
-    $(".addtag").off('click', addTagHandler);
-    $(".addtag").on('click', addTagHandler);
-}
-
-initAddTag();
-$('#puzzles').on('draw.dt', initAddTag);
+$('#puzzles').on('click', '.addtag', addTagHandler);
 </script>

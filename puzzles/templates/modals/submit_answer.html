@@ -11,7 +11,7 @@
                 {% csrf_token %}
                 <div class="modal-body">
                     <div class="form-group">
-                        <input type="text" name="text" class="form-control form-control-sm" placeholder="Enter Guess" maxlength="128" required>
+                        <input type="text" name="text" id="guess-input" class="form-control form-control-sm" placeholder="Enter Guess" maxlength="128" required>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -24,18 +24,45 @@
 </div>
 
 <script type="text/javascript">
-function submitAnswerHandler() {
+function submitAnswerHandler(e) {
     var pk = $(this).data("pk");
     var name = $(this).data("name");
     $('#submitanswer form').attr('action', `/puzzles/guess/${pk}/`);
+    $('#submitanswer form').data('pk', pk);
     $('#submitanswer-puzzle-name').text(name);
+    $('#guess-input').val('');
+
+    // Need to set focus after delay to accommodate fade in
+    setTimeout(function() {
+        $('#guess-input').focus();
+    }, 350);
 }
 
-function initSubmitAnswer() {
-    $(".submitanswer").off('click', submitAnswerHandler);
-    $(".submitanswer").on('click', submitAnswerHandler);
-}
+$('#puzzles').on('click', '.submitanswer', submitAnswerHandler);
+$('#submitanswer form').on('submit', function(e) {
+    e.preventDefault();
+    let pk = $(this).data('pk');
+    let url = $(this).attr('action');
+    let row = table.row(`#puzzle-${pk}`);
+    let rowNode = row.node();
+    let data = row.data();
+    data[status] = 'PENDING';
+    updateRowColor(rowNode, 'PENDING');
 
-initSubmitAnswer();
-$('#puzzles').on('draw.dt', initSubmitAnswer);
+    $.ajax(url, {
+        'method': 'POST',
+        'data': $(this).serialize(),
+        'success': function(response) {
+            reload();
+        },
+        'error': function(response) {
+            console.log('Got error submitting guess', guess, 'for puzzle', pk, ':', response);
+            reload();
+        },
+    });
+
+    $('#submitanswer').modal('hide');
+
+    row.invalidate();
+})
 </script>

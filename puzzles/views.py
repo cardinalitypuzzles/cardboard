@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import re
 
@@ -7,9 +8,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
-from django.http import HttpResponse
-from django.http import HttpResponseForbidden
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseForbidden, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.template.loader import render_to_string
 from django.views.decorators.csrf import csrf_exempt
@@ -26,6 +25,9 @@ from answers.models import Answer
 from answers.views import AnswerView
 from google_api_lib.google_api_client import GoogleApiClient
 from slack_lib.slack_client import SlackClient
+
+
+logger = logging.getLogger(__name__)
 
 
 @login_required(login_url='/accounts/login/')
@@ -54,6 +56,7 @@ def guess(request, pk):
     form = AnswerForm(request.POST)
     puzzle = get_object_or_404(Puzzle.objects.select_for_update(), pk=pk)
 
+    status_code = 200
     if form.is_valid() and puzzle.status != Puzzle.SOLVED:
         answer_text = __sanitize_guess(form.cleaned_data["text"])
         # If answer has already been added to the queue
@@ -63,11 +66,13 @@ def guess(request, pk):
             puzzle.save()
             AnswerView.update_slack_with_puzzle_status(answer, answer.status)
         else:
-            messages.error(request, '"{}" has already been submitted as a guess'.format(answer_text))
+            logger.error('"%s" has already been submitted as a guess' % answer_text)
+            status_code = 400
     else:
-        messages.error(request, form.errors)
+        logger.error('Answer form was invalid or puzzle was already solved')
+        status_code = 400
 
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+    return JsonResponse({}, status=status_code)
 
 if settings.DEBUG:
     guess = csrf_exempt(guess)
