@@ -123,6 +123,8 @@ function reload() {
                     table.row(rowIndex).data(newrow);
                     table.row(rowIndex).invalidate();
                     updateRowColor(rowIndex, newrow[puzzle_status]);
+                    initDeleteTagHandlers(newrow);
+                    initTreegrid();
                 }
             });
 
@@ -136,6 +138,71 @@ function reload() {
     });
 }
 
+var all_uncollapsed = false;
+function maybeExpandAll() {
+    if ( all_uncollapsed == false ) {
+        all_uncollapsed = true;
+        $('.tree').treegrid('expandAll');
+    }
+}
+
+function initTreegrid() {
+    $('.tree').treegrid({
+        onCollapse: function() {
+            all_uncollapsed = false;
+        }
+    });
+    if ($('.tree').hasClass( "initial-collapsed" )) {
+        $('.initial-collapsed').treegrid('collapse');
+    }
+}
+
+function showMessage(message, type) {
+    let alertClass = 'alert-success';
+    if (type === 'error') {
+        alertClass = 'alert-danger'
+    }
+
+    $('#ajax-messages').html(`
+        <div class="alert ${alertClass} alert-dismissible fade show">
+            ${message}
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+        </div>`
+    );
+}
+
+function initDeleteTagHandlers(data) {
+    let puzzleTags = data[tags];
+    for (let i = 0; i < puzzleTags.length; i++) {
+        let tagName = puzzleTags[i][0];
+        $('#puzzles').on('submit', `.delete-tag-${data[pk]}-${tagName}`, function(e) {
+            let url = $(this).attr('action');
+            e.preventDefault();
+
+            // to prevent form submission from being triggered for every instance of
+            // this puzzle (which might be listed under multiple metas)
+            e.stopImmediatePropagation();
+
+            puzzleTags.splice(i, 1);
+            table.cell(`#puzzle-${data[pk]}`, tags).invalidate();
+            $.ajax(url, {
+                'method': 'POST',
+                'data': $(this).serialize(),
+                'success': function() {
+                    showMessage(`Removed tag '${tagName}' from puzzle '${data[puzzle_name]}'`);
+                    reload();
+                },
+                'error': function(response) {
+                    response = response['responseJSON'];
+                    let message = `Got error deleting tag '${tagName}' from puzzle '${data[puzzle_name]}': ${response['error']}`;
+                    showMessage(message, 'error');
+                    reload();
+                },
+            });
+        });
+    }
+}
+
 $(document).ready(function() {
     table = $('#puzzles').DataTable({
         'data': [],
@@ -145,6 +212,7 @@ $(document).ready(function() {
         'createdRow': function(row, data, dataIndex) {
             $(row).addClass(data[puzzle_class]);
             $(row).attr('id', `puzzle-${data[pk]}`);
+            initDeleteTagHandlers(data);
         },
         'drawCallback': function() {
             $('#puzzles').on('draw.dt', initTreegrid);
@@ -253,7 +321,7 @@ $(document).ready(function() {
                     for (var i = 0; i < data.length; i++) {
                         tag = data[i];
                         result += `
-    <form method="post" action="/puzzles/remove_tag/${row[pk]}/${tag[0]}">
+    <form method="post" action="/puzzles/remove_tag/${row[pk]}/${tag[0]}" class="delete-tag-${row[pk]}-${tag[0]}">
         <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
         <small>
             <span class="badge badge-${tag[1]}">${tag[0]}</span>
@@ -283,25 +351,6 @@ $(document).ready(function() {
             }
         ],
     });
-
-    var all_uncollapsed = false;
-    function maybeExpandAll() {
-        if ( all_uncollapsed == false ) {
-            all_uncollapsed = true;
-            $('.tree').treegrid('expandAll');
-        }
-    }
-
-    function initTreegrid() {
-        $('.tree').treegrid({
-            onCollapse: function() {
-                all_uncollapsed = false;
-            }
-        });
-        if ($('.tree').hasClass( "initial-collapsed" )) {
-            $('.initial-collapsed').treegrid('collapse');
-        }
-    }
 
     setInterval(function() {
         reload();

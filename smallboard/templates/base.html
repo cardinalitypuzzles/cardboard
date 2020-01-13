@@ -70,7 +70,7 @@
 
         </nav>
 
-
+        <div id='ajax-messages'></div>
         {% for message in messages %}
         {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
             <div class="alert alert-danger" style="white-space: pre-line" role="alert">{{ message }}</div>

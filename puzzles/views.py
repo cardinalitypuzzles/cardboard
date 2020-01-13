@@ -66,11 +66,13 @@ def guess(request, pk):
             puzzle.save()
             AnswerView.update_slack_with_puzzle_status(answer, answer.status)
         else:
-            logger.error('"%s" has already been submitted as a guess' % answer_text)
-            status_code = 400
+            return JsonResponse(
+                {'error': '"%s" has already been submitted as a guess for puzzle "%s"' % (answer_text, puzzle.name)},
+                status=400)
     else:
-        logger.error('Answer form was invalid or puzzle was already solved')
-        status_code = 400
+        return JsonResponse(
+            {'error': 'Answer form was invalid or puzzle was already solved for puzzle "%s"' % puzzle.name},
+            status=400)
 
     return JsonResponse({}, status=status_code)
 
@@ -224,8 +226,7 @@ def delete_puzzle(request, pk):
 def add_tag(request, pk):
     form = TagForm(request.POST)
     if not form.is_valid():
-        messages.error(request, form)
-        return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+        return JsonResponse({'error': 'Invalid add tag form submission'}, status=400)
     puzzle = get_object_or_404(Puzzle.objects.select_for_update(), pk=pk)
     (tag, _) = PuzzleTag.objects.update_or_create(
         name=form.cleaned_data["name"],
@@ -234,16 +235,14 @@ def add_tag(request, pk):
     if tag.is_meta:
         metapuzzle = get_object_or_404(Puzzle.objects.select_for_update(), name=tag.name)
         if is_ancestor(puzzle, metapuzzle):
-            messages.error(request,
-                "Unable to assign metapuzzle since doing so would introduce a meta-cycle.")
-            return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+            return JsonResponse({'error': '"Unable to assign metapuzzle since doing so would introduce a meta-cycle."'}, status=400)
         # the post m2m hook will add tag
         puzzle.metas.add(metapuzzle)
         GoogleApiClient.update_meta_sheet_feeders(metapuzzle)
     else:
         puzzle.tags.add(tag)
 
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+    return JsonResponse({})
 
 if settings.DEBUG:
     add_tag = csrf_exempt(add_tag)
@@ -255,8 +254,7 @@ if settings.DEBUG:
 def remove_tag(request, pk, tag_text):
     puzzle = get_object_or_404(Puzzle.objects.select_for_update(), pk=pk)
     if puzzle.name == tag_text:
-        messages.error(request, "You cannot remove a meta's tag from itself")
-        return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+        return JsonResponse({'error': "You cannot remove a meta's tag (%s) from itself" % tag_text}, status=400)
     try:
         tag = puzzle.tags.get(name=tag_text)
         if tag.is_meta:
@@ -271,8 +269,8 @@ def remove_tag(request, pk, tag_text):
         if not tag.tagged_items.exists():
             tag.delete()
     except ObjectDoesNotExist as e:
-        messages.error(request, "Could not find the tag {} to remove".format(tag_text))
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+        return JsonResponse({'error': "Could not find the tag {} to remove".format(tag_text)}, status=400)
+    return JsonResponse({})
 
 
 @login_required(login_url='/accounts/login/')
