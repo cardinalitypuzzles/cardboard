@@ -1,9 +1,14 @@
+import logging
 import os
+import re
 import slack
 
-from puzzles.models import *
-
 from django.conf import settings
+from puzzles.models import is_unassigned_channel
+from slack.errors import SlackApiError
+
+
+_logger = logging.getLogger(__name__)
 
 
 class SlackClient:
@@ -98,6 +103,19 @@ class SlackClient:
         return self.__create_or_join_channel_impl(puzzle_name)
 
 
+    def __create_channel_name(self, name, suffix):
+        '''
+        Creates a valid Slack channel name `name` by converting all characters
+        that are not alphanumeric, hyphen, or underscore to underscores,
+        appending a suffix, and ensuring the final name is lowercase and at most
+        80 characters.
+        '''
+        suffix = suffix.lower()
+        name = re.sub(r'[^a-z0-9_-]', '_', name.lower())
+        name = name[:80-len(suffix)] + suffix
+        return name[:80]
+
+
     def __create_or_join_channel_impl(self, puzzle_name, suffix=""):
         '''
         Implementation for create_or_join_channel.
@@ -117,15 +135,20 @@ class SlackClient:
                 return str(int(suffix) + 1)
 
         # Concatenate the puzzle name with a suffix to ensure uniqueness.
-        uncleaned_channel_name = "%s-%s" % (puzzle_name, suffix) if suffix else puzzle_name
-        # By setting validate=False, the client will automatically clean up
-        # special characters and make it fit under 80 characters.
-        # If channel exists, it will join. Otherwise, it will create and then
-        # join.
-        response = self._web_client.channels_join(name=uncleaned_channel_name,
-                                                  validate=False)
+        channel_name = self.__create_channel_name(puzzle_name, suffix)
 
-        if response["ok"]:
+        response = None
+        try:
+            # If channel exists, it will join. Otherwise, it will create and then
+            # join.
+            response = self._web_client.channels_join(name=channel_name,
+                                                      validate=True)
+        except SlackApiError as e:
+            if e.response['error'] == 'is_archived':
+                self.unarchive_channel(self.get_channel_id(channel_name))
+                return self.__create_or_join_channel_impl(channel_name)
+
+        if response and response["ok"]:
             cleaned_channel_name = response["channel"]["name"]
             channel_id = response["channel"]["id"]
             # A puzzle with this channel already exists.
@@ -133,6 +156,23 @@ class SlackClient:
                 return self.__create_or_join_channel_impl(puzzle_name,
                            suffix=_get_next_suffix(suffix))
             return channel_id
+
+        return None
+
+
+    def get_channel_id(self, channel_name):
+        '''
+        Given a channel name, returns the channel's id. If no such channel exists,
+        returns None.
+        '''
+        response = self._web_client.channels_list()
+        if response['ok']:
+            return next(
+                (channel['id'] for channel in response['channels']
+                    if channel['name'] == channel_name),
+                None
+            )
+        return None
 
 
     def get_channel_name(self, channel_id):
@@ -176,16 +216,25 @@ class SlackClient:
         if not self._enabled:
             return
 
-        response = self._web_client.channels_info(channel=channel_id)
-        if not response['channel']['is_archived']:
-            self._web_client.channels_archive(channel=channel_id)
+        try:
+            response = self._web_client.channels_info(channel=channel_id)
+            if not response['channel']['is_archived']:
+                self._web_client.channels_archive(channel=channel_id)
+        except SlackApiError as e:
+            _logger.warn('Encountered error archiving channel %s: %s'
+                % (channel_id, e))
+
 
     def unarchive_channel(self, channel_id):
         '''Unarchives a channel if it is archived'''
         if not self._enabled:
             return
 
-        response = self._web_client.channels_info(channel=channel_id)
-        if response['channel']['is_archived']:
-            self._web_client.channels_unarchive(channel=channel_id)
+        try:
+            response = self._web_client.channels_info(channel=channel_id)
+            if response['ok'] and response['channel']['is_archived']:
+                self._web_client.channels_unarchive(channel=channel_id)
+        except SlackApiError as e:
+            _logger.warn('Encountered error unarchiving channel %s: %s'
+                % (channel_id, e))
 

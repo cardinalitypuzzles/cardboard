@@ -3,7 +3,6 @@ import googleapiclient.discovery
 import httplib2
 import logging
 import os
-import slack
 
 from concurrent.futures import ThreadPoolExecutor
 from django.conf import settings
