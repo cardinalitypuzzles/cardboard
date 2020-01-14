@@ -7,7 +7,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form method="post" action="/puzzles/update_status/">
+            <form method="post" action="/puzzles/update_status/" onsubmit="return disableSubmit(this);">
                 {% csrf_token %}
                 <div class="modal-body">
                     <div class="form-group">
@@ -20,7 +20,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Submit</button>
+                    <button type="submit" class="btn btn-primary" name="submit">Submit</button>
                 </div>
             </form>
         </div>

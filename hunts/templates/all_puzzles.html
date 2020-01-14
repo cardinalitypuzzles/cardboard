@@ -23,7 +23,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form action="/hunts/{{ hunt_pk }}/" method="post">
+            <form action="/hunts/{{ hunt_pk }}/" method="post" onsubmit="return disableSubmit(this);">
                 {% csrf_token %}
                 <div class="modal-body">
                     <div class="form-group">
@@ -39,7 +39,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Add</button>
+                    <button type="submit" class="btn btn-primary" name="submit">Add</button>
                 </div>
             </form>
         </div>
@@ -63,6 +63,11 @@ var pk = 0,
     tags = 9,
     metas = 10,
     puzzle_class = 11;
+
+function disableSubmit(form) {
+    form.submit.disabled = true
+    return true;
+}
 
 function getTableClassForPuzzleStatus(puzzleStatus) {
     if (['STUCK', 'EXTRACTION'].includes(puzzleStatus)) {
