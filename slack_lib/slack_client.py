@@ -110,6 +110,7 @@ class SlackClient:
         appending a suffix, and ensuring the final name is lowercase and at most
         80 characters.
         '''
+        suffix = suffix.lower()
         name = re.sub(r'[^a-z0-9_-]', '_', name.lower())
         name = name[:80-len(suffix)] + suffix
         return name[:80]
