@@ -7,7 +7,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form method="post" action="/puzzles/meta/" onsubmit="return disableSubmit(this);">
+            <form id='assign-metas' method="post" action="/puzzles/meta/">
                 {% csrf_token %}
                 <div class="modal-body">
                     <div class="form-group">
@@ -29,10 +29,57 @@ function setMetaHandler() {
     var name = $(this).data("name");
     $('#meta form').attr("action", `/puzzles/meta/${pk}/`);
     $('#meta-title').text(`Assign metas for ${name}`);
+    $('#assign-metas').data('pk', pk);
     $.get({"url": `/puzzles/meta_select_form/${pk}`}).done(function(data) {
         $("#meta .modal-body .form-group").html(data);
     });
 };
 
 $('#puzzles').on('click', '.meta', setMetaHandler);
+
+$('#assign-metas').on('submit', function(e) {
+    e.preventDefault();
+
+    let pk = $(this).data('pk');
+    let url = $(this).attr('action');
+    let row = table.row(`#puzzle-${pk}`);
+    let data = row.data();
+    let puzzleName = data[puzzle_name];
+
+    let oldTags = data[tags];
+    let metas = $(this).find('input:checked');
+    let metaNames = [];
+    for (const meta of metas) {
+        let id = $(meta).attr('id');
+        metaNames.push($(this).find(`label[for='${id}']`).text().trim());
+    }
+
+    // 'dark' is the reserved color for meta tags
+    let newTags = metaNames.map(meta => [meta, 'dark']);
+    oldTags.forEach(function(tag, index) {
+        if (tag[1] != 'dark' || tag[0] == puzzleName) {
+            newTags.push(tag);
+        }
+    });
+
+    data[tags] = newTags;
+    table.cell(row.index(), tags).invalidate();
+    initDeleteTagHandlers(data);
+
+    $.ajax(url, {
+        'method': 'POST',
+        'data': $(this).serialize(),
+        'success': function() {
+            showMessage(`Assigned puzzle '${puzzleName}' to the following ` +
+                `metas: ${metaNames.join(', ')}'`);
+            reload();
+        },
+        'error': function(response) {
+            showMessage(`Encountered error updating meta assignments for puzzle '${puzzleName}': ${response['responseJSON']['error']}`, 'error');
+            reload();
+        },
+    });
+
+    $('#meta').modal('hide');
+});
 </script>

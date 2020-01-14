@@ -157,8 +157,8 @@ def set_metas(request, pk):
     puzzle = get_object_or_404(Puzzle.objects.select_for_update(), pk=pk)
     form = MetaPuzzleForm(request.POST, instance=puzzle)
     if not form.is_valid():
-        messages.error(request, form)
-        return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+        return JsonResponse(
+            {'error': 'Invalid meta puzzle form submission'}, status=400)
 
     old_metas = list(puzzle.metas.all())
     new_metas = form.cleaned_data["metas"]
@@ -166,8 +166,11 @@ def set_metas(request, pk):
     for new_meta in new_metas:
         if new_meta not in puzzle.metas.all() and is_ancestor(puzzle, new_meta):
             messages.error(request,
-                "Transaction cancelled: unable to assign metapuzzle since doing so would introduce a meta-cycle.")
-            return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+                "")
+            return JsonResponse(
+                {'error': 'Transaction cancelled: unable to assign metapuzzle '
+                          'since doing so would introduce a meta-cycle.'},
+                status=400)
 
     puzzle.metas.set(new_metas)
     for new_meta in new_metas:
@@ -176,7 +179,7 @@ def set_metas(request, pk):
         if old_meta not in new_metas:
             GoogleApiClient.update_meta_sheet_feeders(old_meta)
 
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+    return JsonResponse({})
 
 @require_POST
 @login_required(login_url='/accounts/login/')
