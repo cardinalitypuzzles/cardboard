@@ -7,7 +7,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form method="post" action="/puzzles/update_status/" onsubmit="return disableSubmit(this);">
+            <form id='edit-status' method="post" action="/puzzles/update_status/">
                 {% csrf_token %}
                 <div class="modal-body">
                     <div class="form-group">
@@ -35,7 +35,39 @@ function editStatusHandler() {
     $('#editstatus form').attr('action', `/puzzles/update_status/${pk}/`);
     $('#puzzletitle').text(name);
     $(`#editstatus option[value="${puzzleStatus}"]`).attr('selected', 'selected');
+    $('#edit-status').data('pk', pk);
 }
 
 $('#puzzles').on('click', '.editstatus', editStatusHandler);
+
+$('#edit-status').on('submit', function(e) {
+    e.preventDefault();
+
+    let pk = $(this).data('pk');
+    let url = $(this).attr('action');
+    let row = table.row(`#puzzle-${pk}`);
+    let puzzleName = row.data()[puzzle_name];
+
+    let newStatus = $(this).find('option:selected').val();
+    row.data()[puzzle_status] = newStatus;
+    table.cell(row.index(), puzzle_status).invalidate();
+    updateRowColor(row.node(), newStatus);
+
+    $.ajax(url, {
+        'method': 'POST',
+        'data': $(this).serialize(),
+        'success': function() {
+            showMessage(`Updated status for puzzle '${puzzleName}' to ${newStatus}`);
+            reload();
+        },
+        'error': function(response) {
+            showMessage('Encountered error updating status for puzzle ' +
+                `'${puzzleName}' to ${newStatus}: ` +
+                `${response['responseJSON']['error']}`, 'error');
+            reload();
+        },
+    });
+
+    $('#editstatus').modal('hide');
+});
 </script>
