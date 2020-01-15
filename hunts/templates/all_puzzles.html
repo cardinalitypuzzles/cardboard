@@ -203,6 +203,10 @@ function showMessage(message, type) {
     );
 }
 
+function sanitizeTagName(tagName) {
+    return tagName.replace(/[^A-Za-z0-9_-]/g, '_');
+}
+
 function deleteTagHandler(e) {
     e.preventDefault();
 
@@ -248,7 +252,7 @@ function initDeleteTagHandlers(data) {
         let tagName = puzzleTags[i][0];
         $('#puzzles').on(
             'submit',
-            `.delete-tag-${data[pk]}-${tagName}`,
+            `.delete-tag-${data[pk]}-${sanitizeTagName(tagName)}`,
             deleteTagHandler
         );
     }
@@ -372,7 +376,7 @@ $(document).ready(function() {
                     for (var i = 0; i < data.length; i++) {
                         tag = data[i];
                         result += `
-    <form method="post" action="/puzzles/remove_tag/${row[pk]}/${tag[0]}" class="delete-tag-${row[pk]}-${tag[0]}" data-pk="${row[pk]}" data-tag-name="${tag[0]}">
+    <form method="post" action="/puzzles/remove_tag/${row[pk]}/${tag[0]}" class="delete-tag-${row[pk]}-${sanitizeTagName(tag[0])}" data-pk="${row[pk]}" data-tag-name="${tag[0]}">
         <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
         <small>
             <span class="badge badge-${tag[1]}">${tag[0]}</span>
