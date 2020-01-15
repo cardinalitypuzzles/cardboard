@@ -129,7 +129,7 @@ function reload() {
                     }
                     table.row(rowIndex).data(newrow);
                     table.row(rowIndex).invalidate();
-                    updateRowColor(rowIndex, newrow[puzzle_status]);
+                    updateRowColor(table.row(rowIndex).node(), newrow[puzzle_status]);
                     initDeleteTagHandlers(newrow);
                     initTreegrid();
                 }
