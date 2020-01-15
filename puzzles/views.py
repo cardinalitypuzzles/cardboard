@@ -213,9 +213,9 @@ def edit_puzzle(request, pk):
 def delete_puzzle(request, pk):
     puzzle = get_object_or_404(Puzzle.objects.select_for_update(), pk=pk)
     if puzzle.is_meta and Puzzle.objects.filter(metas__id=pk):
-        messages.error(request,
-            "Metapuzzles can only be deleted or made non-meta if no "
-            "other puzzles are assigned to it.")
+        return JsonResponse(
+            {'error': "Metapuzzles can only be deleted or made non-meta if no "
+                      "other puzzles are assigned to it."}, status=400)
     else:
         metas = list(puzzle.metas.all())
         puzzle.delete()
@@ -223,7 +223,7 @@ def delete_puzzle(request, pk):
         for meta in metas:
             GoogleApiClient.update_meta_sheet_feeders(meta)
 
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+    return JsonResponse({})
 
 
 @require_POST

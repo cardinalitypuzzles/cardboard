@@ -99,9 +99,11 @@ function areArraysEqual(arr1, arr2) {
 }
 
 function redrawTable(newdata) {
-    table.clear();
-    for (const row of newdata) {
-        table.row.add(row);
+    if (newdata) {
+        table.clear();
+        for (const row of newdata) {
+            table.row.add(row);
+        }
     }
     // keep current page position after redraw
     table.draw('full-hold');
