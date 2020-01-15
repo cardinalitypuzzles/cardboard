@@ -65,19 +65,19 @@ class PuzzleTree:
         self.root = PuzzleNode(None)
         # Construct nodes for each puzzle
         # Dictionary mapping puzzle PK -> list of nodes
-        self.puzzle_to_node = {p.pk : PuzzleNode(p) for p in puzzles}
+        puzzle_to_node = {p.pk : PuzzleNode(p) for p in puzzles}
 
         # Construct parent/child edges
         for p in puzzles:
-            node = self.puzzle_to_node[p.pk]
+            node = puzzle_to_node[p.pk]
             if not p.has_assigned_meta():
                 self.root.children.append(node) # This also adds node to node.children for ALL nodes for some reason
                 node.parents = [self.root]
             else:
-                node.parents = [self.puzzle_to_node[meta.pk] for meta in p.metas.all()]
+                node.parents = [puzzle_to_node[meta.pk] for meta in p.metas.all()]
                 for parent_node in node.parents:
                     parent_node.children.append(node) # This adds node to node.children for some reason
-        
+
 
     def get_sorted_node_parent_pairs(self):
         '''

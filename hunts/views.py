@@ -190,7 +190,8 @@ class HuntView(LoginRequiredMixin, View):
                 # TODO(asdfryan): Think about other catchable errors.
                 return self.__handle_dup_puzzle(request)
         else:
-            messages.error(request, "Puzzle not created because the form was invalid.")
+            messages.error(request, "Puzzle not created because the form was invalid. "
+                                    "Make sure the URL is actually a URL.")
 
         response = HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
         if puzzle:

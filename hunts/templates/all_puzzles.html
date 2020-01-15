@@ -149,6 +149,8 @@ function reload() {
                         else if (colIndex === puzzle_status) {
                             updateRowColor(table.row(rowIndex).node(),
                                 newrow[puzzle_status]);
+                        } else if (colIndex === tags) {
+                            initDeleteTagHandlers(newrow);
                         }
                     }
                 }
@@ -163,7 +165,7 @@ function reload() {
             }
         },
         'error': function(response) {
-            console.log('Encountered error making /puzzles AJAX call:', response);
+            showMessage(`Encountered error making /puzzles AJAX call: ${response['responseText']}`, 'error');
         },
     });
 }
@@ -201,35 +203,54 @@ function showMessage(message, type) {
     );
 }
 
+function deleteTagHandler(e) {
+    e.preventDefault();
+
+    // to prevent form submission from being triggered for every instance of
+    // this puzzle (which might be listed under multiple metas)
+    e.stopImmediatePropagation();
+
+    let url = $(this).attr('action');
+    let pk = $(this).attr('data-pk');
+    let tagName = $(this).attr('data-tag-name');
+    let row = table.row(`#puzzle-${pk}`);
+    let data = row.data();
+    let puzzleName = data[puzzle_name];
+    let tagPairs = data[tags];
+
+    for (let i = 0; i < tagPairs.length; i++) {
+        if (tagPairs[i][0] === tagName) {
+            tagPairs.splice(i, 1);
+            break;
+        }
+    }
+    table.cell(`#puzzle-${pk}`, tags).invalidate();
+
+    $.ajax(url, {
+        'method': 'POST',
+        'data': $(this).serialize(),
+        'success': function() {
+            showMessage(`Removed tag '${tagName}' from puzzle '${puzzleName}'`);
+            reload();
+        },
+        'error': function(response) {
+            response = response['responseJSON'];
+            let message = `Got error deleting tag '${tagName}' from puzzle '${puzzleName}': ${response['error']}`;
+            showMessage(message, 'error');
+            reload();
+        },
+    });
+}
+
 function initDeleteTagHandlers(data) {
     let puzzleTags = data[tags];
     for (let i = 0; i < puzzleTags.length; i++) {
         let tagName = puzzleTags[i][0];
-        $('#puzzles').on('submit', `.delete-tag-${data[pk]}-${tagName}`, function(e) {
-            let url = $(this).attr('action');
-            e.preventDefault();
-
-            // to prevent form submission from being triggered for every instance of
-            // this puzzle (which might be listed under multiple metas)
-            e.stopImmediatePropagation();
-
-            puzzleTags.splice(i, 1);
-            table.cell(`#puzzle-${data[pk]}`, tags).invalidate();
-            $.ajax(url, {
-                'method': 'POST',
-                'data': $(this).serialize(),
-                'success': function() {
-                    showMessage(`Removed tag '${tagName}' from puzzle '${data[puzzle_name]}'`);
-                    reload();
-                },
-                'error': function(response) {
-                    response = response['responseJSON'];
-                    let message = `Got error deleting tag '${tagName}' from puzzle '${data[puzzle_name]}': ${response['error']}`;
-                    showMessage(message, 'error');
-                    reload();
-                },
-            });
-        });
+        $('#puzzles').on(
+            'submit',
+            `.delete-tag-${data[pk]}-${tagName}`,
+            deleteTagHandler
+        );
     }
 }
 
@@ -351,7 +372,7 @@ $(document).ready(function() {
                     for (var i = 0; i < data.length; i++) {
                         tag = data[i];
                         result += `
-    <form method="post" action="/puzzles/remove_tag/${row[pk]}/${tag[0]}" class="delete-tag-${row[pk]}-${tag[0]}">
+    <form method="post" action="/puzzles/remove_tag/${row[pk]}/${tag[0]}" class="delete-tag-${row[pk]}-${tag[0]}" data-pk="${row[pk]}" data-tag-name="${tag[0]}">
         <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
         <small>
             <span class="badge badge-${tag[1]}">${tag[0]}</span>
