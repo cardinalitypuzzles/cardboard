@@ -38,11 +38,12 @@ def index(request, pk):
 @require_POST
 @login_required(login_url='/accounts/login/')
 def update_status(request, pk):
-    if request.method == 'POST':
-        form = StatusForm(request.POST, instance=get_object_or_404(Puzzle, pk=pk))
-        if form.is_valid():
-            form.save()
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+    form = StatusForm(request.POST, instance=get_object_or_404(Puzzle, pk=pk))
+    if not form.is_valid():
+        return JsonResponse({'error': 'Invalid update puzzle status form'},
+            status=400)
+    form.save()
+    return JsonResponse({})
 
 
 def __sanitize_guess(guess):
