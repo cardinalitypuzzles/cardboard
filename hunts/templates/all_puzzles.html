@@ -98,6 +98,13 @@ function areArraysEqual(arr1, arr2) {
     });
 }
 
+function areElemsEqual(elem1, elem2) {
+    if (Array.isArray(elem1)) {
+        return areArraysEqual(elem1, elem2);
+    }
+    return elem1 === elem2;
+}
+
 function redrawTable(newdata) {
     if (newdata) {
         table.clear();
@@ -120,20 +127,37 @@ function reload() {
 
             // diff row by row, invalidating updated rows
             let redrawRequired = false;
-            newdata.forEach(function(newrow, rowIndex) {
-                oldrow = olddata[rowIndex];
-                if (!areArraysEqual(newrow, oldrow)) {
-                    if (newrow[pk] !== oldrow[pk]) {
-                        // treegrid order changed, need to redraw
-                        redrawRequired = true;
+            for (let rowIndex = 0; rowIndex < olddata.length; rowIndex++) {
+                let oldrow = olddata[rowIndex];
+                let newrow = newdata[rowIndex];
+                for (let colIndex = 0;
+                    colIndex < oldrow.length; colIndex++) {
+                    if (!areElemsEqual(oldrow[colIndex], newrow[colIndex])) {
+                        if (colIndex === pk) {
+                            // treegrid order changed, need to redraw
+                            redrawRequired = true;
+                            break;
+                        }
+
+                        table.cell(rowIndex, colIndex).data(newrow[colIndex]);
+                        table.cell(rowIndex, colIndex).invalidate();
+
+                        if (colIndex === puzzle_name) {
+                            // to fix indentation
+                            initTreegrid();
+                        }
+                        else if (colIndex === puzzle_status) {
+                            updateRowColor(table.row(rowIndex).node(),
+                                newrow[puzzle_status]);
+                        }
+                        // initDeleteTagHandlers(newrow);
                     }
-                    table.row(rowIndex).data(newrow);
-                    table.row(rowIndex).invalidate();
-                    updateRowColor(table.row(rowIndex).node(), newrow[puzzle_status]);
-                    initDeleteTagHandlers(newrow);
-                    initTreegrid();
                 }
-            });
+
+                if (redrawRequired) {
+                    break;
+                }
+            }
 
             if (redrawRequired) {
                 redrawTable(newdata);
