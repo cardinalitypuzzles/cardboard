@@ -7,7 +7,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form method="post" action="/puzzles/edit/" onsubmit="return disableSubmit(this);">
+            <form id='edit-puzzle' method="post" action="/puzzles/edit/">
                 {% csrf_token %}
                 <div class="modal-body">
                     <div class="form-group">
@@ -36,7 +36,7 @@ function editPuzzleHandler() {
     var name = $(this).data("name");
     var url = $(this).data("url");
     var is_meta = $(this).data("is_meta");
-    $('#editpuzzle form').attr('action', `/puzzles/edit/${pk}/`);
+    $('#edit-puzzle').attr('action', `/puzzles/edit/${pk}/`);
     $('#id_name').attr('value', name);
     $('#id_url').attr('value', url);
     if (is_meta) {
@@ -44,7 +44,67 @@ function editPuzzleHandler() {
     } else {
         $('#id_is_meta').removeAttr('checked');
     }
+    $('#edit-puzzle').data('pk', pk);
+
+    // Need to set focus after delay to accommodate fade in
+    setTimeout(function() {
+        $('#id_name').focus();
+    }, 500);
 }
 
 $('#puzzles').on('click', '.editpuzzle', editPuzzleHandler);
+
+$('#edit-puzzle').on('submit', function(e) {
+    e.preventDefault();
+
+    let pk = $(this).data('pk');
+    let ajaxUrl = $(this).attr('action');
+    let row = table.row(`#puzzle-${pk}`);
+    let rowIndex = row.index();
+    let data = row.data();
+    let oldPuzzleName = data[puzzle_name];
+
+    let values = {};
+    $.each($(this).serializeArray(), function(i, field) {
+        values[field.name] = field.value;
+    });
+    let newPuzzleName = values['name'];
+
+    data[puzzle_name] = newPuzzleName;
+    data[url] = values['url'];
+    data[is_meta] = values['is_meta'] == 'on' ? true : false;
+
+    let newTags = [];
+    data[tags].forEach(function(tag, index) {
+        if (tag[0] == oldPuzzleName) {
+            if (data[is_meta]) {
+                newTags.push([newPuzzleName, 'dark']);
+            }
+        } else {
+            newTags.push(tag);
+        }
+    });
+    data[tags] = newTags;
+
+    table.cell(rowIndex, puzzle_name).invalidate();
+    table.cell(rowIndex, url).invalidate();
+    table.cell(rowIndex, is_meta).invalidate();
+    table.cell(rowIndex, tags).invalidate();
+
+    $.ajax(ajaxUrl, {
+        'method': 'POST',
+        'data': $(this).serialize(),
+        'success': function() {
+            showMessage(`Updated puzzle '${newPuzzleName}'`);
+            reload();
+        },
+        'error': function(response) {
+            showMessage(`Encountered error updating puzzle '${newPuzzleName}': ` +
+                `${response['responseJSON']['error']}`, 'error');
+            reload();
+        },
+    });
+
+    $('#editpuzzle').modal('hide');
+});
 </script>
