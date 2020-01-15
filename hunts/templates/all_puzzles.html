@@ -89,7 +89,7 @@ function updateRowColor(row, puzzleStatus) {
 }
 
 function areArraysEqual(arr1, arr2) {
-    return arr1.every((value, index) => {
+    return arr1.length === arr2.length && arr1.every((value, index) => {
         if (Array.isArray(value)) {
             return value.length === arr2[index].length
                 && areArraysEqual(value, arr2[index]);
@@ -150,7 +150,6 @@ function reload() {
                             updateRowColor(table.row(rowIndex).node(),
                                 newrow[puzzle_status]);
                         }
-                        // initDeleteTagHandlers(newrow);
                     }
                 }
 
