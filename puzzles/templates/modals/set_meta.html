@@ -71,7 +71,7 @@ $('#assign-metas').on('submit', function(e) {
         'data': $(this).serialize(),
         'success': function() {
             showMessage(`Assigned puzzle '${puzzleName}' to the following ` +
-                `metas: ${metaNames.join(', ')}'`);
+                `metas: ${metaNames.join(', ')}`);
             reload();
         },
         'error': function(response) {
