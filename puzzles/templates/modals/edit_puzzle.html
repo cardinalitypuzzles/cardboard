@@ -90,6 +90,7 @@ $('#edit-puzzle').on('submit', function(e) {
     table.cell(rowIndex, url).invalidate();
     table.cell(rowIndex, is_meta).invalidate();
     table.cell(rowIndex, tags).invalidate();
+    initTreegrid();
 
     $.ajax(ajaxUrl, {
         'method': 'POST',
