@@ -33,12 +33,12 @@
 <script type="text/javascript">
 function editPuzzleHandler() {
     var pk = $(this).data("pk");
-    var name = $(this).data("name");
+    var puzzleName = $(this).data("name");
     var url = $(this).data("url");
     var is_meta = $(this).data("is_meta");
     $('#edit-puzzle').attr('action', `/puzzles/edit/${pk}/`);
-    $('#id_name').attr('value', name);
-    $('#id_url').attr('value', url);
+    $('#id_name').val(puzzleName);
+    $('#id_url').val(url);
     if (is_meta) {
         $('#id_is_meta').attr('checked', 'checked');
     } else {
