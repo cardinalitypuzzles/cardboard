@@ -187,22 +187,24 @@ def set_metas(request, pk):
 @transaction.atomic
 def edit_puzzle(request, pk):
     form = PuzzleForm(request.POST, auto_id=False)
-    if form.is_valid():
-        new_name = form.cleaned_data["name"]
-        new_url = url_normalize(form.cleaned_data["url"])
-        new_is_meta = form.cleaned_data["is_meta"]
-        puzzle = get_object_or_404(Puzzle.objects.select_for_update(), pk=pk)
-        try:
-            puzzle.update_metadata(new_name, new_url, new_is_meta)
-            # TODO(asdfryan): Consider also renaming the slack channel to match the
-            # new puzzle name.
-            metas = puzzle.metas.all()
-            for meta in metas:
-                GoogleApiClient.update_meta_sheet_feeders(meta)
-        except (DuplicatePuzzleNameError, DuplicatePuzzleUrlError, InvalidMetaPuzzleError) as e:
-           messages.error(request, str(e))
+    if not form.is_valid():
+        return JsonResponse({'error': 'Invalid edit puzzle form'}, status=400)
 
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+    new_name = form.cleaned_data["name"]
+    new_url = url_normalize(form.cleaned_data["url"])
+    new_is_meta = form.cleaned_data["is_meta"]
+    puzzle = get_object_or_404(Puzzle.objects.select_for_update(), pk=pk)
+    try:
+        puzzle.update_metadata(new_name, new_url, new_is_meta)
+        # TODO(asdfryan): Consider also renaming the slack channel to match the
+        # new puzzle name.
+        metas = puzzle.metas.all()
+        for meta in metas:
+            GoogleApiClient.update_meta_sheet_feeders(meta)
+    except (DuplicatePuzzleNameError, DuplicatePuzzleUrlError, InvalidMetaPuzzleError) as e:
+       return JsonResponse({'error': str(e)}, status=400)
+
+    return JsonResponse({})
 
 
 @require_POST
