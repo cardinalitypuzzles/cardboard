@@ -131,7 +131,7 @@ class HuntView(LoginRequiredMixin, View):
         return render(request, 'all_puzzles.html', context)
 
     def __handle_dup_puzzle(self, request):
-        message = "A puzzle with the given name or url already exists!"
+        message = "A puzzle with the given name already exists!"
         messages.error(request, message)
         return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
