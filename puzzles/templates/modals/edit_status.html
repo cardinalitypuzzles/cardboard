@@ -34,7 +34,7 @@ function editStatusHandler() {
     var puzzleStatus = $(this).data('status');
     $('#editstatus form').attr('action', `/puzzles/update_status/${pk}/`);
     $('#puzzletitle').text(name);
-    $(`#editstatus option[value="${puzzleStatus}"]`).attr('selected', 'selected');
+    $(`#editstatus option[value="${puzzleStatus}"]`).prop('selected', true);
     $('#edit-status').data('pk', pk);
 }
 
@@ -68,6 +68,7 @@ $('#edit-status').on('submit', function(e) {
         },
     });
 
+    $(this).find('option:selected').prop('selected', false);
     $('#editstatus').modal('hide');
 });
 </script>
