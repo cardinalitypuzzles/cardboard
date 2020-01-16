@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.db import IntegrityError
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views import View
@@ -19,6 +19,11 @@ from puzzles.forms import PuzzleForm
 from puzzles.models import Puzzle
 from puzzles.puzzle_tree import PuzzleTree
 from slack_lib.slack_client import SlackClient
+
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 @login_required(login_url='/accounts/login/')
@@ -130,10 +135,9 @@ class HuntView(LoginRequiredMixin, View):
 
         return render(request, 'all_puzzles.html', context)
 
-    def __handle_dup_puzzle(self, request):
+    def __handle_dup_puzzle(self):
         message = "A puzzle with the given name already exists!"
-        messages.error(request, message)
-        return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+        return JsonResponse({'error': message}, status=400)
 
     def post(self, request, pk):
         hunt = get_object_or_404(Hunt, pk=pk)
@@ -151,7 +155,7 @@ class HuntView(LoginRequiredMixin, View):
             # google sheets / slack channels.
             already_exists = Puzzle.objects.filter(name=name).exists()
             if already_exists:
-                return self.__handle_dup_puzzle(request)
+                return self.__handle_dup_puzzle()
 
             # TODO(erwa): Add error handling and refactor into google API lib.
             google_api_client = GoogleApiClient.getInstance()
@@ -165,7 +169,7 @@ class HuntView(LoginRequiredMixin, View):
             slack_client = SlackClient.getInstance()
             channel_id = slack_client.create_or_join_channel(name)
             if channel_id is None:
-                messages.warning(request, "Slack channel not created")
+                logger.error("Slack channel not created for puzzle %s" % name)
 
             if google_api_client:
                 google_api_client.add_puzzle_and_slack_links_to_sheet(
@@ -188,15 +192,26 @@ class HuntView(LoginRequiredMixin, View):
             except IntegrityError as e:
                 # TODO(asdfryan): Think about cleaning up dangling sheets / slack channels.
                 # TODO(asdfryan): Think about other catchable errors.
-                return self.__handle_dup_puzzle(request)
+                return self.__handle_dup_puzzle()
         else:
-            messages.error(request, "Puzzle not created because the form was invalid. "
-                                    "Make sure the URL is actually a URL.")
+            return JsonResponse({'error': "Puzzle not created because the form "
+                                          "was invalid. "
+                                          "Make sure the URL is actually a URL."}, status=400)
 
-        response = HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
-        if puzzle:
-            response.set_cookie('puzzle-pk', puzzle.id)
-        return response
+        result = [
+            puzzle.pk,
+            puzzle.name,
+            puzzle.url,
+            puzzle.is_meta,
+            ['%s %s' % (user.first_name, user.last_name) for user in puzzle.active_users.all()],
+            puzzle.answer,
+            puzzle.status,
+            puzzle.sheet,
+            puzzle.channel,
+            [[tag.name, tag.color] for tag in puzzle.tags.all()], '',
+            'treegrid-0 even',
+        ]
+        return JsonResponse({'data': result})
 
 
 if settings.DEBUG:
