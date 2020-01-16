@@ -4,7 +4,7 @@
 
 <div class="d-flex justify-content-between px-3 pb-3">
     <h1>{{ hunt_name }} - All Puzzles</h1>
-    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addpuzzle">
+    <button id='add-new-puzzle' type="button" class="btn btn-primary" data-toggle="modal" data-target="#addpuzzle">
         Add New Puzzle
     </button>
 </div>
@@ -19,11 +19,11 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="addtitle">Add Puzzle</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button id='add-puzzle-close' type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form action="/hunts/{{ hunt_pk }}/" method="post" onsubmit="return disableSubmit(this);">
+            <form id='add-puzzle' action="/hunts/{{ hunt_pk }}/" method="post">
                 {% csrf_token %}
                 <div class="modal-body">
                     <div class="form-group">
@@ -38,8 +38,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary" name="submit">Add</button>
+                    <button id='add-puzzle-cancel' type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button id='submit-add-puzzle' type="submit" class="btn btn-primary" name="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Creating Puzzle">Add</button>
                 </div>
             </form>
         </div>
@@ -47,6 +47,62 @@
 </div>
 
 <script type="text/javascript">
+$('#add-new-puzzle').on('click', function() {
+    $('#add-puzzle-cancel').prop('disabled', false);
+    $('#submit-add-puzzle').prop('disabled', false);
+    $('#add-puzzle-close').show();
+    $('#submit-add-puzzle').html('Add');
+});
+
+function freezeModal(e) {
+    e.preventDefault();
+
+    setTimeout(function() {
+        $('#addpuzzle').off('hide.bs.modal', freezeModal);
+    }, 2000);
+}
+
+function closeAndResetAddPuzzleForm() {
+    $('#addpuzzle').off('hide.bs.modal', freezeModal);
+    $('#addpuzzle').modal('hide');
+    $(':input', '#addpuzzle').not(':button :hidden').val('')
+        .prop('checked', false);
+}
+
+$('#add-puzzle').on('submit', function(e) {
+    e.preventDefault();
+    $('#submit-add-puzzle').html("<i class='fa fa-spinner fa-spin fa-fw' aria-hidden='true'></i> Creating puzzle");
+
+    $('#add-puzzle-cancel').prop('disabled', true);
+    $('#submit-add-puzzle').prop('disabled', true);
+    $('#add-puzzle-close').hide();
+    $('#addpuzzle').on('hide.bs.modal', freezeModal);
+
+    let form = $(this);
+    let ajaxUrl = form.attr('action');
+    let values = {};
+    $.each(form.serializeArray(), function(i, field) {
+        values[field.name] = field.value;
+    });
+
+    $.ajax(ajaxUrl, {
+        'method': 'POST',
+        'data': form.serialize(),
+        'success': function(response) {
+            let data = response['data'];
+            showMessage(`Added puzzle ${data[puzzle_name]}`);
+            let newdata = Array.from(table.data());
+            newdata.unshift(data);
+            redrawTable(newdata);
+            closeAndResetAddPuzzleForm();
+        },
+        'error': function(response) {
+            showMessage(`Encountered error adding new puzzle: ${response['responseJSON']['error']}`, 'error');
+            closeAndResetAddPuzzleForm();
+        },
+    });
+});
+
 var slack_base_url = '{{ slack_base_url }}';
 var table;
 
