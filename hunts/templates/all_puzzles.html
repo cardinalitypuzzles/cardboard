@@ -56,10 +56,6 @@ $('#add-new-puzzle').on('click', function() {
 
 function freezeModal(e) {
     e.preventDefault();
-
-    setTimeout(function() {
-        $('#addpuzzle').off('hide.bs.modal', freezeModal);
-    }, 2000);
 }
 
 function closeAndResetAddPuzzleForm() {
