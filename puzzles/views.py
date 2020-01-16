@@ -153,38 +153,41 @@ def slack_events(request):
 
 @require_POST
 @login_required(login_url='/accounts/login/')
-@transaction.atomic
 def set_metas(request, pk):
-    puzzle = get_object_or_404(Puzzle.objects.select_for_update(), pk=pk)
-    form = MetaPuzzleForm(request.POST, instance=puzzle)
-    if not form.is_valid():
-        return JsonResponse(
-            {'error': 'Invalid meta puzzle form submission'}, status=400)
-
-    old_metas = list(puzzle.metas.all())
-    new_metas = form.cleaned_data["metas"]
-    # Check if any additional meta would introduce a cycle. If so, then stop the whole transaction.
-    for new_meta in new_metas:
-        if new_meta not in puzzle.metas.all() and is_ancestor(puzzle, new_meta):
-            messages.error(request,
-                "")
+    old_metas = None
+    new_metas = None
+    with transaction.atomic():
+        puzzle = get_object_or_404(Puzzle.objects.select_for_update(), pk=pk)
+        form = MetaPuzzleForm(request.POST, instance=puzzle)
+        if not form.is_valid():
             return JsonResponse(
-                {'error': 'Transaction cancelled: unable to assign metapuzzle '
-                          'since doing so would introduce a meta-cycle.'},
-                status=400)
+                {'error': 'Invalid meta puzzle form submission'}, status=400)
 
-    puzzle.metas.set(new_metas)
-    for new_meta in new_metas:
-        GoogleApiClient.update_meta_sheet_feeders(new_meta)
-    for old_meta in old_metas:
-        if old_meta not in new_metas:
-            GoogleApiClient.update_meta_sheet_feeders(old_meta)
+        old_metas = list(puzzle.metas.all())
+        new_metas = form.cleaned_data["metas"]
+        # Check if any additional meta would introduce a cycle. If so, then stop the whole transaction.
+        for new_meta in new_metas:
+            if new_meta not in puzzle.metas.all() and is_ancestor(puzzle, new_meta):
+                messages.error(request,
+                    "")
+                return JsonResponse(
+                    {'error': 'Transaction cancelled: unable to assign metapuzzle '
+                              'since doing so would introduce a meta-cycle.'},
+                    status=400)
+
+        puzzle.metas.set(new_metas)
+
+    if new_metas:
+        for new_meta in new_metas:
+            GoogleApiClient.update_meta_sheet_feeders(new_meta)
+        for old_meta in old_metas:
+            if old_meta not in new_metas:
+                GoogleApiClient.update_meta_sheet_feeders(old_meta)
 
     return JsonResponse({})
 
 @require_POST
 @login_required(login_url='/accounts/login/')
-@transaction.atomic
 def edit_puzzle(request, pk):
     form = PuzzleForm(request.POST, auto_id=False)
     if not form.is_valid():
@@ -193,33 +196,42 @@ def edit_puzzle(request, pk):
     new_name = form.cleaned_data["name"]
     new_url = url_normalize(form.cleaned_data["url"])
     new_is_meta = form.cleaned_data["is_meta"]
-    puzzle = get_object_or_404(Puzzle.objects.select_for_update(), pk=pk)
-    try:
-        puzzle.update_metadata(new_name, new_url, new_is_meta)
-        # TODO(asdfryan): Consider also renaming the slack channel to match the
-        # new puzzle name.
-        metas = puzzle.metas.all()
+
+    metas = None
+    with transaction.atomic():
+        puzzle = get_object_or_404(Puzzle.objects.select_for_update(), pk=pk)
+        try:
+            puzzle.update_metadata(new_name, new_url, new_is_meta)
+            # TODO(asdfryan): Consider also renaming the slack channel to match the
+            # new puzzle name.
+            metas = puzzle.metas.all()
+
+        except (DuplicatePuzzleNameError, DuplicatePuzzleUrlError, InvalidMetaPuzzleError) as e:
+           return JsonResponse({'error': str(e)}, status=400)
+
+    if metas:
         for meta in metas:
             GoogleApiClient.update_meta_sheet_feeders(meta)
-    except (DuplicatePuzzleNameError, DuplicatePuzzleUrlError, InvalidMetaPuzzleError) as e:
-       return JsonResponse({'error': str(e)}, status=400)
 
     return JsonResponse({})
 
 
 @require_POST
 @login_required(login_url='/accounts/login/')
-@transaction.atomic
 def delete_puzzle(request, pk):
-    puzzle = get_object_or_404(Puzzle.objects.select_for_update(), pk=pk)
-    if puzzle.is_meta and Puzzle.objects.filter(metas__id=pk):
-        return JsonResponse(
-            {'error': "Metapuzzles can only be deleted or made non-meta if no "
-                      "other puzzles are assigned to it."}, status=400)
-    else:
-        metas = list(puzzle.metas.all())
-        puzzle.delete()
-        SlackClient.getInstance().archive_channel(puzzle.channel)
+    metas = None
+    with transaction.atomic():
+        puzzle = get_object_or_404(Puzzle.objects.select_for_update(), pk=pk)
+        if puzzle.is_meta and Puzzle.objects.filter(metas__id=pk):
+            return JsonResponse(
+                {'error': "Metapuzzles can only be deleted or made non-meta if no "
+                          "other puzzles are assigned to it."}, status=400)
+        else:
+            metas = list(puzzle.metas.all())
+            puzzle.delete()
+            SlackClient.getInstance().archive_channel(puzzle.channel)
+
+    if metas:
         for meta in metas:
             GoogleApiClient.update_meta_sheet_feeders(meta)
 
@@ -228,25 +240,29 @@ def delete_puzzle(request, pk):
 
 @require_POST
 @login_required(login_url='/accounts/login/')
-@transaction.atomic
 def add_tag(request, pk):
     form = TagForm(request.POST)
     if not form.is_valid():
         return JsonResponse({'error': 'Invalid add tag form submission'}, status=400)
-    puzzle = get_object_or_404(Puzzle.objects.select_for_update(), pk=pk)
-    (tag, _) = PuzzleTag.objects.update_or_create(
-        name=form.cleaned_data["name"],
-        defaults={'color' : form.cleaned_data["color"]}
-    )
-    if tag.is_meta:
-        metapuzzle = get_object_or_404(Puzzle.objects.select_for_update(), name=tag.name)
-        if is_ancestor(puzzle, metapuzzle):
-            return JsonResponse({'error': '"Unable to assign metapuzzle since doing so would introduce a meta-cycle."'}, status=400)
-        # the post m2m hook will add tag
-        puzzle.metas.add(metapuzzle)
+
+    metapuzzle = None
+    with transaction.atomic():
+        puzzle = get_object_or_404(Puzzle.objects.select_for_update(), pk=pk)
+        (tag, _) = PuzzleTag.objects.update_or_create(
+            name=form.cleaned_data["name"],
+            defaults={'color' : form.cleaned_data["color"]}
+        )
+        if tag.is_meta:
+            metapuzzle = get_object_or_404(Puzzle.objects.select_for_update(), name=tag.name)
+            if is_ancestor(puzzle, metapuzzle):
+                return JsonResponse({'error': '"Unable to assign metapuzzle since doing so would introduce a meta-cycle."'}, status=400)
+            # the post m2m hook will add tag
+            puzzle.metas.add(metapuzzle)
+        else:
+            puzzle.tags.add(tag)
+
+    if metapuzzle:
         GoogleApiClient.update_meta_sheet_feeders(metapuzzle)
-    else:
-        puzzle.tags.add(tag)
 
     return JsonResponse({})
 
@@ -256,26 +272,30 @@ if settings.DEBUG:
 
 @require_POST
 @login_required(login_url='/accounts/login/')
-@transaction.atomic
 def remove_tag(request, pk, tag_text):
-    puzzle = get_object_or_404(Puzzle.objects.select_for_update(), pk=pk)
-    if puzzle.name == tag_text:
-        return JsonResponse({'error': "You cannot remove a meta's tag (%s) from itself" % tag_text}, status=400)
-    try:
-        tag = puzzle.tags.get(name=tag_text)
-        if tag.is_meta:
-            meta = Puzzle.objects.get(name=tag_text)
-            # the post m2m hook will remove tag
-            puzzle.metas.remove(meta)
-            GoogleApiClient.update_meta_sheet_feeders(meta)
-        else:
-            puzzle.tags.remove(tag_text)
+    meta = None
+    with transaction.atomic():
+        puzzle = get_object_or_404(Puzzle.objects.select_for_update(), pk=pk)
+        if puzzle.name == tag_text:
+            return JsonResponse({'error': "You cannot remove a meta's tag (%s) from itself" % tag_text}, status=400)
+        try:
+            tag = puzzle.tags.get(name=tag_text)
+            if tag.is_meta:
+                meta = Puzzle.objects.get(name=tag_text)
+                # the post m2m hook will remove tag
+                puzzle.metas.remove(meta)
+            else:
+                puzzle.tags.remove(tag_text)
 
-        # clear db of dangling tags
-        if not tag.tagged_items.exists():
-            tag.delete()
-    except ObjectDoesNotExist as e:
-        return JsonResponse({'error': "Could not find the tag {} to remove".format(tag_text)}, status=400)
+            # clear db of dangling tags
+            if not tag.tagged_items.exists():
+                tag.delete()
+        except ObjectDoesNotExist as e:
+            return JsonResponse({'error': "Could not find the tag {} to remove".format(tag_text)}, status=400)
+
+    if meta:
+        GoogleApiClient.update_meta_sheet_feeders(meta)
+
     return JsonResponse({})
 
 
