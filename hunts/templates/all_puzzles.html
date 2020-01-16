@@ -39,7 +39,7 @@
                 </div>
                 <div class="modal-footer">
                     <button id='add-puzzle-cancel' type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button id='submit-add-puzzle' type="submit" class="btn btn-primary" name="submit" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Creating Puzzle">Add</button>
+                    <button id='submit-add-puzzle' type="submit" class="btn btn-primary" name="submit">Add</button>
                 </div>
             </form>
         </div>
@@ -90,10 +90,11 @@ $('#add-puzzle').on('submit', function(e) {
         'data': form.serialize(),
         'success': function(response) {
             let data = response['data'];
-            showMessage(`Added puzzle ${data[puzzle_name]}`);
             let newdata = Array.from(table.data());
             newdata.unshift(data);
             redrawTable(newdata);
+
+            showMessage(`Added puzzle ${data[puzzle_name]}`);
             closeAndResetAddPuzzleForm();
         },
         'error': function(response) {
