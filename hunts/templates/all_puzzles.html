@@ -264,6 +264,7 @@ $(document).ready(function() {
         'paging': true,
         'pageLength': 50,
         'ordering': false,
+        'searchDelay': 500,
         'createdRow': function(row, data, dataIndex) {
             $(row).addClass(data[puzzle_class]);
             $(row).attr('id', `puzzle-${data[pk]}`);
