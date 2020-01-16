@@ -264,6 +264,7 @@ $(document).ready(function() {
         'paging': true,
         'pageLength': 50,
         'ordering': false,
+        'searchDelay': 500,
         'createdRow': function(row, data, dataIndex) {
             $(row).addClass(data[puzzle_class]);
             $(row).attr('id', `puzzle-${data[pk]}`);
@@ -303,6 +304,10 @@ $(document).ready(function() {
             {
                 'targets': puzzle_name,
                 'render': function(data, type, row, meta) {
+                    if (type === 'filter') {
+                        return data;
+                    }
+
                     var result = '<a href="' + row[url] + '">' + row[puzzle_name] + '</a>';
                     if (row[is_meta]) {
                         result += ' <span class="badge badge-dark badge-meta">META</span>';
@@ -339,10 +344,14 @@ $(document).ready(function() {
             {
                 'targets': puzzle_status,
                 'render': function(data, type, row, meta) {
-                    var result = row[puzzle_status];
-                    if (row[puzzle_status] !== 'PENDING' && row[puzzle_status] !== 'SOLVED') {
+                    if (type === 'filter') {
+                        return data;
+                    }
+
+                    var result = data;
+                    if (data !== 'PENDING' && data !== 'SOLVED') {
                         result += `
-<button type="button" class="editstatus btn btn-default" data-toggle="modal" data-target="#editstatus" data-pk="${row[pk]}" data-name="${row[puzzle_name]}" data-status="${row[puzzle_status]}" style="padding: 0px 0px;">
+<button type="button" class="editstatus btn btn-default" data-toggle="modal" data-target="#editstatus" data-pk="${row[pk]}" data-name="${row[puzzle_name]}" data-status="${data}" style="padding: 0px 0px;">
     <i class="fa fa-edit" aria-hidden="true"></i>
 </button>`
                     }
@@ -372,7 +381,14 @@ $(document).ready(function() {
             {
                 'targets': tags,
                 'render': function(data, type, row, meta) {
-                    var result = '';
+                    let result = '';
+                    if (type === 'filter') {
+                        data.forEach(function(tagPair, index) {
+                            result += ` ${tagPair[0]}`;
+                        });
+                        return result;
+                    }
+
                     for (var i = 0; i < data.length; i++) {
                         tag = data[i];
                         result += `
