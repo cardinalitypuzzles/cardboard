@@ -94,7 +94,7 @@ $('#add-puzzle').on('submit', function(e) {
             closeAndResetAddPuzzleForm();
         },
         'error': function(response) {
-            showMessage(`Encountered error adding new puzzle: ${response['responseJSON']['error']}`, 'error');
+            showMessage(`Encountered error adding new puzzle: ${response['responseText']}`, 'error');
             closeAndResetAddPuzzleForm();
         },
     });
