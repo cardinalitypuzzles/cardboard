@@ -25,7 +25,6 @@ logger = logging.getLogger(__name__)
 @login_required(login_url='/accounts/login/')
 @transaction.atomic
 def update_note(request, answer_pk):
-    status_code = 200
     notes_form = UpdateAnswerNotesForm(request.POST)
     if notes_form.is_valid():
         answer = get_object_or_404(Answer.objects.select_for_update(), pk=answer_pk)
@@ -37,9 +36,10 @@ def update_note(request, answer_pk):
                                   "The operator has added an update regarding the answer "
                                    "\'%s\'. Note: \'%s\'" % (answer.text.upper(), notes_text))
     else:
-        logger.warn('Invalid notes form for answer with id %s' % answer_pk)
-        status_code = 400
-    return JsonResponse({}, status=status_code)
+        return JsonResponse({'error': 'Invalid notes form for answer with id %s'
+            % answer_pk}, status=400)
+
+    return JsonResponse({})
 
 
 @require_GET
@@ -110,30 +110,31 @@ class AnswerView(LoginRequiredMixin, View):
             # puzzle was already solved from another guess
             slack_client.archive_channel(puzzle_channel)
 
-    @transaction.atomic
     def post(self, request, hunt_pk, answer_pk):
         """Handles answer status update"""
         status_form = UpdateAnswerStatusForm(request.POST)
 
-        status_code = 200
         if status_form.is_valid():
-            guess = get_object_or_404(Answer.objects.select_for_update(), pk=answer_pk)
-            status = status_form.cleaned_data["status"]
-            puzzle_already_solved = len(guess.puzzle.answer) > 0
-            if status == Answer.CORRECT and puzzle_already_solved:
-                messages.warning(request,
-                    '{} was already marked as solved with the answer "{}"\n'.format(guess.puzzle, guess.puzzle.answer) +
-                    'We won\'t stop ya, but please think twice.')
+            puzzle_already_solved = None
+            status = None
+            with transaction.atomic():
+                guess = get_object_or_404(Answer.objects.select_for_update(), pk=answer_pk)
+                status = status_form.cleaned_data["status"]
+                puzzle_already_solved = len(guess.puzzle.answer) > 0
+                if status == Answer.CORRECT and puzzle_already_solved:
+                    messages.warning(request,
+                        '{} was already marked as solved with the answer "{}"\n'.format(guess.puzzle, guess.puzzle.answer) +
+                        'We won\'t stop ya, but please think twice.')
 
-            guess.set_status(status)
-            self.update_slack_with_puzzle_status(guess, status)
+                guess.set_status(status)
+                self.update_slack_with_puzzle_status(guess, status)
 
-            if (puzzle_already_solved and guess.text == guess.puzzle.answer) or status == Answer.CORRECT:
+            if puzzle_already_solved or status == Answer.CORRECT:
                 metas = guess.puzzle.metas.all()
                 for meta in metas:
                     GoogleApiClient.update_meta_sheet_feeders(meta)
         else:
-            logger.warn('invalid form for answer ' + str(answer_pk) + ' and hunt ' + str(hunt_pk))
-            status_code = 400
+            return JsonResponse({'error': 'Invalid form for answer %s and hunt %s'
+                % (answer_pk, hunt_pk)}, status=400)
 
-        return JsonResponse({}, status=status_code)
+        return JsonResponse({})
