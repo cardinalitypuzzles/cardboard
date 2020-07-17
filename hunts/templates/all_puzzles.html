@@ -385,7 +385,7 @@ $(document).ready(function() {
                 'targets': answer,
                 'render': function(data, type, row, meta) {
                     if (data || type === 'filter') {
-                        return data;
+                        return `<p class="text-monospace">${data}</p>`;
                     }
                     var result = `
                     <button type="button" class="submitanswer btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#submitanswer" data-pk="${row[pk]}" data-name="${row[puzzle_name]}">
