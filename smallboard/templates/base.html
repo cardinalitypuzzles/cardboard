@@ -31,10 +31,10 @@
                 <ul class="navbar-nav mr-auto">
                     {% if user.is_authenticated %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'tools' %}">Tools and References</a>
+                            <a class="nav-link" href="{% url 'hunts:tools' %}">Tools and References</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'queue' %}">Answer Queue</a>
+                            <a class="nav-link" href="{% url 'answers:queue' %}">Answer Queue</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'logout' %}">Logout</a>

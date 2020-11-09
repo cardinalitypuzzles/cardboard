@@ -19,18 +19,17 @@ from django.http import HttpResponseRedirect
 from django.urls import path, include
 
 from . import views
+from hunts.views import ActiveHuntRedirectView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("accounts/", include("django.contrib.auth.urls")),
     path("accounts/", include("accounts.urls")),
     path("puzzles/", include("puzzles.urls")),
-    path("hunts/", include("hunts.urls")),
+    path("hunts/", include("hunts.urls", namespace="hunts")),
     path("answers/", include("answers.urls")),
     path("tools", views.tools, name="tools"),
     path("privacy", views.privacy, name="privacy"),
-    path(
-        "", lambda r: HttpResponseRedirect("hunts/{}/".format(settings.ACTIVE_HUNT_ID))
-    ),
+    path("", ActiveHuntRedirectView.as_view()),
     path("", include("social_django.urls", namespace="social")),
 ]
