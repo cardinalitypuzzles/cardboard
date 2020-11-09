@@ -1,14 +1,12 @@
 ## Small Board Development Guide
 
-
 ### Getting started
 
 To set up Small Board locally, you need:
 
-* Git
-* a Python environment with the packages in [requirements.txt]() installed
-* a local database (e.g.: Postgres)
-
+- Git
+- a Python environment with the packages in [requirements.txt]() installed
+- a local database (PostgreSQL or SQLite)
 
 #### Checking out the code
 
@@ -17,7 +15,6 @@ To check out the code, you first need to [install Git](https://git-scm.com/book/
 ```
 git clone git@github.com:cardinalitypuzzles/smallboard.git
 ```
-
 
 #### Setting up a Python environment
 
@@ -38,7 +35,6 @@ source venv_smallboard/bin/activate
 ```
 
 If you encounter issues during dependency installation, make sure you've installed the `python3-dev` package (and not just `python3`).
-
 
 #### <a name='database'>Setting up a local database</a>
 
@@ -117,7 +113,6 @@ SELECT  'DROP TABLE IF EXISTS "' || tablename || '" CASCADE;' FROM pg_tables WHE
 \i prod_db.sql
 ```
 
-
 #### <a name='env'>Local `.env` file: credentials, API Tokens, configuration</a>
 
 This app uses various secrets including Google and Slack API tokens that need to be present in the environment. Locally, you can put these in the `.env` file. In the production Heroku deployment, they're set as Config Vars at https://dashboard.heroku.com/apps/smallboard/settings. For most of these configs, you can just use the production settings. The ones you probably want to change are `DATABASE_URL`, `DJANGO_SECRET_KEY`, and `DEBUG`. You can contact a Collaborator to give you access to the Heroku Small Board settings or to share their `.env` file with you.
@@ -176,7 +171,6 @@ You should be able to use Google OAuth2 locally as well, since the OAuth2 settin
 
 The whitelist of allowed emails is the emails of the users who have access to `GOOGLE_DRIVE_HUNT_FOLDER_ID`. If you don't have access, please message a Collaborator to be added.
 
-
 #### Google Sheets Integration (optional)
 
 When a puzzle is created, a Google Sheet is created that is a copy of the template specified by `GOOGLE_SHEETS_TEMPLATE_FILE_ID` (which should have some useful formulas pre-added). The copied sheet is created in the same folder as the template.
@@ -185,18 +179,17 @@ You need to have access to the Google Drive folder to view it. Please message a 
 
 These Google Drive and Sheets related settings can be found in [smallboard/settings.py](smallboard/settings.py).
 
-
 #### Slack Integration (optional)
 
 This app interacts with a slack workspace in the following ways:
-1) Channel creation upon puzzle creation
-2) A '/answer' command on slack that inputs answers into the big board
+
+1. Channel creation upon puzzle creation
+2. A '/answer' command on slack that inputs answers into the big board
 
 When running locally, only 1) will work since the /answer command sends a direct
 POST request to the heroku deployment.
 
 You can contact a Collaborator to be added to the relevant slack workspace(s).
-
 
 #### Local deployment
 
@@ -208,7 +201,6 @@ Once the Python environment and database are set up and running, you can run Sma
 
 You can view the app in your browser at [http://127.0.0.1:8000/]().
 
-
 ### Running Tests
 
 To run tests:
@@ -218,7 +210,6 @@ python manage.py test
 ```
 
 The test environment settings are in `.env.test`. If you encounter an error `Got an error creating the test database: permission denied to create database`, make sure you run `ALTER USER myuser CREATEDB` as described above in the [Setting up a local database](#database) section.
-
 
 ### Deployment to Heroku
 
@@ -238,7 +229,6 @@ git push heroku master
 ```
 
 We encourage you to keep the `origin` remote as our GitHub repo and make it the default for `git push`s, and use `git push heroku master` to push to the Heroku Git servers when you are ready to deploy changes to production.
-
 
 #### Environment variables
 
