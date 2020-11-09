@@ -5,10 +5,12 @@ from django.contrib import messages
 from django.db import IntegrityError
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
+from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET
+from django.views.generic.base import RedirectView
 
 from url_normalize import url_normalize
 
@@ -206,6 +208,21 @@ class HuntView(LoginRequiredMixin, View):
             "treegrid-0 even",
         ]
         return JsonResponse({"data": result})
+
+
+class ActiveHuntRedirectView(RedirectView):
+    pattern_name = 'hunts:all_puzzles'
+
+    def get_redirect_url(self, *args, **kwargs):
+        try:
+            active_hunt = Hunt.objects.get(active=True)
+            if self.pattern_name == ActiveHuntRedirectView.pattern_name:
+                kwargs['pk'] = active_hunt.pk
+            else:
+                kwargs['hunt_pk'] = active_hunt.pk
+            return super().get_redirect_url(*args, **kwargs)
+        except Hunt.DoesNotExist:
+            return reverse('hunts:index')
 
 
 if settings.DEBUG:

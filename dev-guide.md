@@ -175,14 +175,11 @@ SELECT  'DROP TABLE IF EXISTS "' || tablename || '" CASCADE;' FROM pg_tables WHE
 
 This app uses various secrets including Google API tokens that need to be present in the environment. Locally, you can put these in the `.env` file. In the production Heroku deployment, they're set as Config Vars at https://dashboard.heroku.com/apps/smallboard/settings. For most of these configs, you can just use the production settings. The ones you probably want to change are `DATABASE_URL`, `DJANGO_SECRET_KEY`, and `DEBUG`. You can contact a Collaborator to give you access to the Heroku Small Board settings or to share their `.env` file with you.
 
-The environment variables used by Small Board are listed below. The only required variables are `DATABASE_URL` and `ACTIVE_HUNT_ID`.
+The environment variables used by Small Board are listed below. The only required variables are `DATABASE_URL`.
 
 ```
 # for connecting to the database (see "Setting up a local database" section above)
 DATABASE_URL=postgres://myuser:mypass@localhost/smallboard
-
-# the default (active) hunt
-ACTIVE_HUNT_ID=1
 
 # for accessing Google APIs
 GOOGLE_API_PRIVATE_KEY=...

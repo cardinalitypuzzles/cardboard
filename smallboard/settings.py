@@ -157,10 +157,6 @@ DATABASES = {}
 DATABASES["default"] = dj_database_url.config(conn_max_age=600, ssl_require=False)
 DATABASES["default"]["TEST"] = {"NAME": "test_smallboard"}
 
-ACTIVE_HUNT_ID = os.environ.get("ACTIVE_HUNT_ID", "")
-if not ACTIVE_HUNT_ID:
-    logger.warn("No ACTIVE_HUNT_ID set. Links may not work properly.")
-
 # Google Drive API
 GOOGLE_API_AUTHN_INFO = None
 if not "GOOGLE_API_PRIVATE_KEY" in os.environ:
