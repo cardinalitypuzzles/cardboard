@@ -93,8 +93,6 @@ class GoogleApiClient:
         req_body = {
             'values': [
                 [f'=HYPERLINK("{puzzle_url}", "Puzzle Link")'],
-                #['Slack channel', '%s/app_redirect?channel=%s'
-                #                  % (settings.SLACK_BASE_URL, slack_channel_id)]
             ]
         }
         self._sheets_service.spreadsheets().values().update(
