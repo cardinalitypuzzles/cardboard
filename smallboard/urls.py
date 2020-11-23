@@ -18,6 +18,8 @@ from django.contrib import admin
 from django.http import HttpResponseRedirect
 from django.urls import path, include
 
+from . import views
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('django.contrib.auth.urls')),
@@ -25,6 +27,7 @@ urlpatterns = [
     path('puzzles/', include('puzzles.urls')),
     path('hunts/', include('hunts.urls')),
     path('answers/', include('answers.urls')),
+    path('privacy', views.privacy, name='privacy'),
     path('', lambda r: HttpResponseRedirect('hunts/{}/'.format(settings.ACTIVE_HUNT_ID))),
     path('', include('social_django.urls', namespace='social')),
 ]
