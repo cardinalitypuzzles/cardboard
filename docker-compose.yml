@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:13.1-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=smallboard_user
+      - POSTGRES_PASSWORD=smallboard_password
+      - POSTGRES_DB=smallboard
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/usr/src/smallboard/
+    ports:
+      - 8000:8000
+    env_file:
+      - ./.env.docker
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
