@@ -14,97 +14,110 @@ logger = logging.getLogger(__name__)
 
 
 class GoogleApiClient:
-    '''
+    """
     This is a wrapper class around the Google API client.
 
     This is a singleton class.
-    '''
+    """
+
     __instance = None
 
     @staticmethod
     def getInstance():
-        ''' Static access method. '''
+        """ Static access method. """
         if GoogleApiClient.__instance == None:
             GoogleApiClient()
         return GoogleApiClient.__instance
 
     def __init__(self):
-        ''' Private constructor. '''
+        """ Private constructor. """
         if GoogleApiClient.__instance != None:
-            raise Exception("GoogleApiClient is a singleton and should not be "
-                            "constructed multiple times. Use "
-                            "GoogleApiClient.getInstance() to access it.")
+            raise Exception(
+                "GoogleApiClient is a singleton and should not be "
+                "constructed multiple times. Use "
+                "GoogleApiClient.getInstance() to access it."
+            )
 
         if not settings.GOOGLE_API_AUTHN_INFO:
             return None
 
         self._credentials = service_account.Credentials.from_service_account_info(
             settings.GOOGLE_API_AUTHN_INFO,
-            scopes=settings.GOOGLE_DRIVE_PERMISSIONS_SCOPES
+            scopes=settings.GOOGLE_DRIVE_PERMISSIONS_SCOPES,
         )
-        self._drive_service = googleapiclient.discovery.build('drive', 'v3', credentials=self._credentials)
-        self._sheets_service = googleapiclient.discovery.build('sheets', 'v4', credentials=self._credentials)
+        self._drive_service = googleapiclient.discovery.build(
+            "drive", "v3", credentials=self._credentials
+        )
+        self._sheets_service = googleapiclient.discovery.build(
+            "sheets", "v4", credentials=self._credentials
+        )
         self._executor = ThreadPoolExecutor(max_workers=1)
 
         GoogleApiClient.__instance = self
 
     @staticmethod
     def __extract_id_from_sheets_url(url):
-        '''
+        """
         Assumes `url` is of the form
         https://docs.google.com/spreadsheets/d/<ID>/edit...
         and returns the <ID> portion
-        '''
-        start = url.find('/d/') + 3
-        end = url.find('/edit')
+        """
+        start = url.find("/d/") + 3
+        end = url.find("/edit")
         return url[start:end]
 
     def create_google_sheets(self, name):
-        req_body = {
-            'name': name
-        }
-        response = self._drive_service.files().copy(
-            fileId=settings.GOOGLE_SHEETS_TEMPLATE_FILE_ID,
-            body=req_body,
-            fields='webViewLink',
-        ).execute()
+        req_body = {"name": name}
+        response = (
+            self._drive_service.files()
+            .copy(
+                fileId=settings.GOOGLE_SHEETS_TEMPLATE_FILE_ID,
+                body=req_body,
+                fields="webViewLink",
+            )
+            .execute()
+        )
 
-        link = response['webViewLink']
+        link = response["webViewLink"]
         return link
 
     def get_file_user_emails(self, file_id):
-        response = self._drive_service.files().get(
-            fileId=file_id,
-            fields='permissions'
-        ).execute()
+        response = (
+            self._drive_service.files()
+            .get(fileId=file_id, fields="permissions")
+            .execute()
+        )
 
-        permissions = response['permissions']
+        permissions = response["permissions"]
 
         emails = set()
         for perm in permissions:
-            email = perm['emailAddress']
+            email = perm["emailAddress"]
             emails.add(email)
             emails.add(email.lower())
 
         return sorted(list(emails))
 
-    def add_puzzle_and_slack_links_to_sheet(self, puzzle_url, slack_channel_id,
-                                            sheet_url):
+    def add_puzzle_and_slack_links_to_sheet(
+        self, puzzle_url, slack_channel_id, sheet_url
+    ):
         req_body = {
-            'values': [
+            "values": [
                 [f'=HYPERLINK("{puzzle_url}", "Puzzle Link")'],
             ]
         }
         self._sheets_service.spreadsheets().values().update(
             spreadsheetId=self.__extract_id_from_sheets_url(sheet_url),
-            range='A1:B2',
-            valueInputOption='USER_ENTERED',
-            body=req_body
+            range="A1:B2",
+            valueInputOption="USER_ENTERED",
+            body=req_body,
         ).execute()
 
     def __update_meta_sheet_feeders(self, meta_puzzle):
-        logger.info("Starting updating the meta sheet for '%s' "
-                    "with feeder puzzles" % meta_puzzle)
+        logger.info(
+            "Starting updating the meta sheet for '%s' "
+            "with feeder puzzles" % meta_puzzle
+        )
         spreadsheet_id = self.__extract_id_from_sheets_url(meta_puzzle.sheet)
         feeders = meta_puzzle.feeders.all()
         feeders = sorted(feeders, key=lambda p: p.answer)
@@ -113,93 +126,177 @@ class GoogleApiClient:
         # is used under the hood and that is not thread safe.
         # Ref: https://github.com/googleapis/google-api-python-client/blob/master/docs/thread_safety.md
         http = _auth.authorized_http(self._credentials)
-        response = self._sheets_service.spreadsheets().get(
-            spreadsheetId=spreadsheet_id,
-            fields='sheets.properties.title,sheets.properties.sheetId'
-        ).execute(http=http)
+        response = (
+            self._sheets_service.spreadsheets()
+            .get(
+                spreadsheetId=spreadsheet_id,
+                fields="sheets.properties.title,sheets.properties.sheetId",
+            )
+            .execute(http=http)
+        )
 
         requests = []
-        for sheet in response['sheets']:
-            if sheet['properties']['title'] == 'AUTOGENERATED':
-                requests.append({
-                    'deleteSheet': {
-                        'sheetId': sheet['properties']['sheetId']
-                    }
-                })
+        for sheet in response["sheets"]:
+            if sheet["properties"]["title"] == "AUTOGENERATED":
+                requests.append(
+                    {"deleteSheet": {"sheetId": sheet["properties"]["sheetId"]}}
+                )
                 break
-        requests.append({
-            'addSheet': {
-                'properties': {
-                    'title': 'AUTOGENERATED',
+        requests.append(
+            {
+                "addSheet": {
+                    "properties": {
+                        "title": "AUTOGENERATED",
+                    },
                 },
-            },
-        })
-        response = self._sheets_service.spreadsheets().batchUpdate(
-            spreadsheetId=spreadsheet_id,
-            body={'requests': requests},
-            fields='replies.addSheet.properties.sheetId'
-        ).execute(http=http)
-        sheet_id = response['replies'][-1]['addSheet']['properties']['sheetId']
+            }
+        )
+        response = (
+            self._sheets_service.spreadsheets()
+            .batchUpdate(
+                spreadsheetId=spreadsheet_id,
+                body={"requests": requests},
+                fields="replies.addSheet.properties.sheetId",
+            )
+            .execute(http=http)
+        )
+        sheet_id = response["replies"][-1]["addSheet"]["properties"]["sheetId"]
 
         body = {
-            'requests': [{
-                'updateCells': {
-                    'fields': 'userEnteredFormat.textFormat.fontFamily,'
-                              'userEnteredValue.stringValue,'
-                              'userEnteredValue.formulaValue,'
-                              'userEnteredFormat.textFormat.bold',
-                    'range': {
-                        'sheetId': sheet_id,
-                        'startRowIndex': 0,
-                        'endRowIndex': 4 + len(feeders),
-                        'startColumnIndex': 0,
-                        'endColumnIndex': 5,
+            "requests": [
+                {
+                    "updateCells": {
+                        "fields": "userEnteredFormat.textFormat.fontFamily,"
+                        "userEnteredValue.stringValue,"
+                        "userEnteredValue.formulaValue,"
+                        "userEnteredFormat.textFormat.bold",
+                        "range": {
+                            "sheetId": sheet_id,
+                            "startRowIndex": 0,
+                            "endRowIndex": 4 + len(feeders),
+                            "startColumnIndex": 0,
+                            "endColumnIndex": 5,
+                        },
+                        "rows": [
+                            {
+                                "values": [
+                                    {
+                                        "userEnteredValue": {
+                                            "stringValue": "THIS PAGE IS AUTOGENERATED AND WILL BE OVERWRITTEN WHEN THERE ARE PUZZLE UPDATES."
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "values": [
+                                    {
+                                        "userEnteredValue": {
+                                            "stringValue": "DO NOT MAKE CHANGES HERE; COPY INFO TO ANOTHER SHEET FIRST."
+                                        }
+                                    }
+                                ]
+                            },
+                            {},
+                            {
+                                "values": [
+                                    {
+                                        "userEnteredValue": {
+                                            "stringValue": "Puzzle Link"
+                                        },
+                                        "userEnteredFormat": {
+                                            "textFormat": {"bold": True}
+                                        },
+                                    },
+                                    {
+                                        "userEnteredValue": {
+                                            "stringValue": "Puzzle Name"
+                                        },
+                                        "userEnteredFormat": {
+                                            "textFormat": {"bold": True}
+                                        },
+                                    },
+                                    {
+                                        "userEnteredValue": {"stringValue": "Answer"},
+                                        "userEnteredFormat": {
+                                            "textFormat": {"bold": True}
+                                        },
+                                    },
+                                    {
+                                        "userEnteredValue": {"stringValue": "Sheet"},
+                                        "userEnteredFormat": {
+                                            "textFormat": {"bold": True}
+                                        },
+                                    },
+                                    {
+                                        "userEnteredValue": {"stringValue": "Slack"},
+                                        "userEnteredFormat": {
+                                            "textFormat": {"bold": True}
+                                        },
+                                    },
+                                ]
+                            },
+                        ]
+                        + [
+                            {
+                                "values": [
+                                    {
+                                        "userEnteredValue": {
+                                            "formulaValue": '=HYPERLINK("%s", "puzzle")'
+                                            % puzzle.url
+                                        }
+                                    },
+                                    {"userEnteredValue": {"stringValue": puzzle.name}},
+                                    {
+                                        "userEnteredValue": {
+                                            "stringValue": puzzle.answer
+                                        },
+                                        "userEnteredFormat": {
+                                            "textFormat": {"fontFamily": "Roboto Mono"}
+                                        },
+                                    },
+                                    {
+                                        "userEnteredValue": {
+                                            "formulaValue": '=HYPERLINK("%s", "sheet")'
+                                            % puzzle.sheet
+                                        }
+                                    },
+                                    {
+                                        "userEnteredValue": {
+                                            "formulaValue": '=HYPERLINK("%s/app_redirect?channel=%s", "channel")'
+                                            % (settings.SLACK_BASE_URL, puzzle.channel)
+                                        }
+                                    },
+                                ]
+                            }
+                            for puzzle in feeders
+                        ],
                     },
-                    'rows': [
-                        {'values': [{'userEnteredValue': {'stringValue': 'THIS PAGE IS AUTOGENERATED AND WILL BE OVERWRITTEN WHEN THERE ARE PUZZLE UPDATES.'}}]},
-                        {'values': [{'userEnteredValue': {'stringValue': 'DO NOT MAKE CHANGES HERE; COPY INFO TO ANOTHER SHEET FIRST.'}}]},
-                        {},
-                        {'values': [
-                            {'userEnteredValue': {'stringValue': 'Puzzle Link'}, 'userEnteredFormat': {'textFormat': {'bold': True}}},
-                            {'userEnteredValue': {'stringValue': 'Puzzle Name'}, 'userEnteredFormat': {'textFormat': {'bold': True}}},
-                            {'userEnteredValue': {'stringValue': 'Answer'}, 'userEnteredFormat': {'textFormat': {'bold': True}}},
-                            {'userEnteredValue': {'stringValue': 'Sheet'}, 'userEnteredFormat': {'textFormat': {'bold': True}}},
-                            {'userEnteredValue': {'stringValue': 'Slack'}, 'userEnteredFormat': {'textFormat': {'bold': True}}},
-                        ]},
-                    ] + [
-                        {'values': [
-                            {'userEnteredValue': {'formulaValue': '=HYPERLINK("%s", "puzzle")' % puzzle.url}},
-                            {'userEnteredValue': {'stringValue': puzzle.name}},
-                            {'userEnteredValue': {'stringValue': puzzle.answer}, 'userEnteredFormat': {'textFormat': {'fontFamily': 'Roboto Mono'}}},
-                            {'userEnteredValue': {'formulaValue': '=HYPERLINK("%s", "sheet")' % puzzle.sheet}},
-                            {'userEnteredValue': {'formulaValue': '=HYPERLINK("%s/app_redirect?channel=%s", "channel")' % (settings.SLACK_BASE_URL, puzzle.channel)}},
-                        ]} for puzzle in feeders
-                    ],
                 },
-            }, {
-                'autoResizeDimensions': {
-                'dimensions': {
-                    'sheetId': sheet_id,
-                    'dimension': 'COLUMNS',
-                    'startIndex': 1,
-                    'endIndex': 3,
+                {
+                    "autoResizeDimensions": {
+                        "dimensions": {
+                            "sheetId": sheet_id,
+                            "dimension": "COLUMNS",
+                            "startIndex": 1,
+                            "endIndex": 3,
+                        },
+                    },
                 },
-            },
-            }]
+            ]
         }
         self._sheets_service.spreadsheets().batchUpdate(
-            spreadsheetId=spreadsheet_id,
-            body=body
+            spreadsheetId=spreadsheet_id, body=body
         ).execute(http=http)
-        logger.info("Done updating the meta sheet for '%s' "
-                    "with feeder puzzles" % meta_puzzle)
+        logger.info(
+            "Done updating the meta sheet for '%s' " "with feeder puzzles" % meta_puzzle
+        )
 
     @staticmethod
     def update_meta_sheet_feeders(meta_puzzle):
-        '''
+        """
         Updates the input meta puzzle's spreadsheet with the
         latest feeder puzzle info
-        '''
+        """
         if not meta_puzzle.is_meta:
             return
 
@@ -213,6 +310,4 @@ class GoogleApiClient:
         # if there is more than one worker thread/process.
 
         # Update meta sheet in separate thread to avoid delaying response.
-        client._executor.submit(
-            client.__update_meta_sheet_feeders,
-            meta_puzzle)
+        client._executor.submit(client.__update_meta_sheet_feeders, meta_puzzle)

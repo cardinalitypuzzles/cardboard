@@ -26,30 +26,27 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-@login_required(login_url='/accounts/login/')
+@login_required(login_url="/accounts/login/")
 def index(request):
     form = HuntForm()
 
-    if request.method == 'POST':
+    if request.method == "POST":
         form = HuntForm(request.POST)
         if form.is_valid():
-            hunt = Hunt(
-                name=form.cleaned_data["name"],
-                url=form.cleaned_data["url"]
-            )
+            hunt = Hunt(name=form.cleaned_data["name"], url=form.cleaned_data["url"])
             hunt.save()
 
     context = {
-        'active_hunts': Hunt.objects.filter(active=True).order_by('-created_on'),
-        'finished_hunts': Hunt.objects.filter(active=False).order_by('-created_on'),
-        'form': form
+        "active_hunts": Hunt.objects.filter(active=True).order_by("-created_on"),
+        "finished_hunts": Hunt.objects.filter(active=False).order_by("-created_on"),
+        "form": form,
     }
-    return render(request, 'index.html', context)
+    return render(request, "index.html", context)
 
 
-@login_required(login_url='/accounts/login/')
+@login_required(login_url="/accounts/login/")
 def tools(request):
-    return render(request, 'tools.html')
+    return render(request, "tools.html")
 
 
 def __table_status_class(puzzle):
@@ -71,7 +68,7 @@ def __get_puzzle_class(sorted_np_pairs):
     for i, pair in enumerate(sorted_np_pairs):
         node = pair.node
         parent = pair.parent
-        treegrid_id = i+1
+        treegrid_id = i + 1
         most_recent_treegrid_id[node.puzzle.pk] = treegrid_id
         puzzle_class[i] += " treegrid-%i" % treegrid_id
         if parent and parent.puzzle != None:
@@ -86,12 +83,15 @@ def __get_puzzle_class(sorted_np_pairs):
 
 
 @require_GET
-@login_required(login_url='/accounts/login/')
+@login_required(login_url="/accounts/login/")
 def puzzles(request, pk):
     hunt = get_object_or_404(Hunt, pk=pk)
-    puzzle_objects = (hunt.puzzles.all().prefetch_related('metas')
-                                        .prefetch_related('active_users')
-                                        .prefetch_related('tags'))
+    puzzle_objects = (
+        hunt.puzzles.all()
+        .prefetch_related("metas")
+        .prefetch_related("active_users")
+        .prefetch_related("tags")
+    )
 
     sorted_np_pairs = PuzzleTree(puzzle_objects).get_sorted_node_parent_pairs()
     sorted_puzzles = [pair.node.puzzle for pair in sorted_np_pairs]
@@ -100,13 +100,23 @@ def puzzles(request, pk):
     rows = zip(sorted_puzzles, puzzle_classes)
 
     result = {
-        'data': [
+        "data": [
             [
-                puzzle.pk, puzzle.name, puzzle.url, puzzle.is_meta,
-                ['%s %s' % (user.first_name, user.last_name) for user in puzzle.active_users.all()],
-                puzzle.answer, puzzle.status, puzzle.sheet, puzzle.channel,
-                [[tag.name, tag.color] for tag in puzzle.tags.all()], '',
-                puzzle_class
+                puzzle.pk,
+                puzzle.name,
+                puzzle.url,
+                puzzle.is_meta,
+                [
+                    "%s %s" % (user.first_name, user.last_name)
+                    for user in puzzle.active_users.all()
+                ],
+                puzzle.answer,
+                puzzle.status,
+                puzzle.sheet,
+                puzzle.channel,
+                [[tag.name, tag.color] for tag in puzzle.tags.all()],
+                "",
+                puzzle_class,
             ]
             for puzzle, puzzle_class in rows
         ]
@@ -116,9 +126,8 @@ def puzzles(request, pk):
 
 
 class HuntView(LoginRequiredMixin, View):
-    login_url = '/accounts/login/'
-    redirect_field_name = 'next'
-
+    login_url = "/accounts/login/"
+    redirect_field_name = "next"
 
     def get(self, request, pk):
         if not Hunt.objects.filter(pk=pk).exists():
@@ -127,17 +136,17 @@ class HuntView(LoginRequiredMixin, View):
         hunt = get_object_or_404(Hunt, pk=pk)
         form = PuzzleForm(auto_id=False)
         context = {
-            'hunt_name': hunt.name,
-            'hunt_pk': pk,
-            'form': form,
-            'slack_base_url': settings.SLACK_BASE_URL,
+            "hunt_name": hunt.name,
+            "hunt_pk": pk,
+            "form": form,
+            "slack_base_url": settings.SLACK_BASE_URL,
         }
 
-        return render(request, 'all_puzzles.html', context)
+        return render(request, "all_puzzles.html", context)
 
     def __handle_dup_puzzle(self):
         message = "A puzzle with the given name already exists!"
-        return JsonResponse({'error': message}, status=400)
+        return JsonResponse({"error": message}, status=400)
 
     def post(self, request, pk):
         hunt = get_object_or_404(Hunt, pk=pk)
@@ -173,7 +182,8 @@ class HuntView(LoginRequiredMixin, View):
 
             if google_api_client:
                 google_api_client.add_puzzle_and_slack_links_to_sheet(
-                    puzzle_url, channel_id, sheet)
+                    puzzle_url, channel_id, sheet
+                )
 
             try:
                 puzzle = Puzzle.objects.create(
@@ -182,37 +192,46 @@ class HuntView(LoginRequiredMixin, View):
                     hunt=hunt,
                     sheet=sheet,
                     is_meta=is_meta,
-                    channel=channel_id if channel_id else name
+                    channel=channel_id if channel_id else name,
                 )
                 # Announce new puzzle is available on slack.
-                slack_client.announce_puzzle_creation(name, puzzle_url,
-                                                      channel_id, sheet,
-                                                      is_meta)
+                slack_client.announce_puzzle_creation(
+                    name, puzzle_url, channel_id, sheet, is_meta
+                )
 
             except IntegrityError as e:
                 # TODO(asdfryan): Think about cleaning up dangling sheets / slack channels.
                 # TODO(asdfryan): Think about other catchable errors.
                 return self.__handle_dup_puzzle()
         else:
-            return JsonResponse({'error': "Puzzle not created because the form "
-                                          "was invalid. "
-                                          "Make sure the URL is actually a URL."}, status=400)
+            return JsonResponse(
+                {
+                    "error": "Puzzle not created because the form "
+                    "was invalid. "
+                    "Make sure the URL is actually a URL."
+                },
+                status=400,
+            )
 
         result = [
             puzzle.pk,
             puzzle.name,
             puzzle.url,
             puzzle.is_meta,
-            ['%s %s' % (user.first_name, user.last_name) for user in puzzle.active_users.all()],
+            [
+                "%s %s" % (user.first_name, user.last_name)
+                for user in puzzle.active_users.all()
+            ],
             puzzle.answer,
             puzzle.status,
             puzzle.sheet,
             puzzle.channel,
-            [[tag.name, tag.color] for tag in puzzle.tags.all()], '',
-            'treegrid-0 even',
+            [[tag.name, tag.color] for tag in puzzle.tags.all()],
+            "",
+            "treegrid-0 even",
         ]
-        return JsonResponse({'data': result})
+        return JsonResponse({"data": result})
 
 
 if settings.DEBUG:
-    HuntView = method_decorator(csrf_exempt, name='dispatch')(HuntView)
+    HuntView = method_decorator(csrf_exempt, name="dispatch")(HuntView)
