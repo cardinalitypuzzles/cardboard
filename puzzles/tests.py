@@ -189,4 +189,3 @@ class TestPuzzle(TestCase):
             json.dumps(leave_json),
             content_type="application/json")
         self.assertEqual(list(puzzle.active_users.all()), [self._user])
-        

@@ -237,4 +237,3 @@ class SlackClient:
         except SlackApiError as e:
             _logger.warn('Encountered error unarchiving channel %s: %s'
                 % (channel_id, e))
-
