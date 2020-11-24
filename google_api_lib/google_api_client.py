@@ -92,15 +92,13 @@ class GoogleApiClient:
                                             sheet_url):
         req_body = {
             'values': [
-                ['Puzzle link', puzzle_url],
-                ['Slack channel', '%s/app_redirect?channel=%s'
-                                  % (settings.SLACK_BASE_URL, slack_channel_id)]
+                [f'=HYPERLINK("{puzzle_url}", "Puzzle Link")'],
             ]
         }
         self._sheets_service.spreadsheets().values().update(
             spreadsheetId=self.__extract_id_from_sheets_url(sheet_url),
             range='A1:B2',
-            valueInputOption='RAW',
+            valueInputOption='USER_ENTERED',
             body=req_body
         ).execute()
 
