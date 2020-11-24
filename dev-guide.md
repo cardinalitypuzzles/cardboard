@@ -55,6 +55,26 @@ To run pre-commit checks on the entire codebase without running `git commit`, ru
 pre-commit run --all-files
 ```
 
+#### Committing changes
+
+See https://github.com/git-guides/git-commit for info on commit changes with git.
+
+Please format commit messages according to https://www.conventionalcommits.org/en/v1.0.0/.
+
+For example, a basic feature addition might look like this:
+
+```
+feat: add some awesome feature
+```
+
+Or a bugfix might look like this:
+
+```
+fix(#123): squash some nasty bug
+
+This is a message body that provides more info.
+```
+
 #### <a name='database'>Setting up a local database</a>
 
 Django supports multiple databases but here we use Postgres as an example. For most OS distributions, you should be able to install it using your package manager, similar to:
