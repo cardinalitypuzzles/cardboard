@@ -207,7 +207,7 @@ def add_tag(request, pk):
         )
         if tag.is_meta:
             metapuzzle = get_object_or_404(
-                Puzzle.objects.select_for_update(), name=tag.name
+                Puzzle.objects.select_for_update(), name=tag.name, hunt=puzzle.hunt
             )
             if is_ancestor(puzzle, metapuzzle):
                 return JsonResponse(
@@ -245,7 +245,7 @@ def remove_tag(request, pk, tag_text):
         try:
             tag = puzzle.tags.get(name=tag_text)
             if tag.is_meta:
-                meta = Puzzle.objects.get(name=tag_text)
+                meta = Puzzle.objects.get(name=tag_text, hunt=puzzle.hunt)
                 # the post m2m hook will remove tag
                 puzzle.metas.remove(meta)
             else:

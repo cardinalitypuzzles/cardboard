@@ -34,13 +34,13 @@ class InvalidMetaPuzzleError(PuzzleModelError):
 
 
 class Puzzle(models.Model):
-    name = models.CharField(max_length=80, unique=True)
+    name = models.CharField(max_length=80)
     hunt = models.ForeignKey(
         "hunts.Hunt", on_delete=models.CASCADE, related_name="puzzles"
     )
     url = models.URLField(blank=True)
 
-    sheet = models.URLField(default="", unique=True)
+    sheet = models.URLField(default="", unique=True, null=True)
     notes = models.TextField(default="")
 
     SOLVING = "SOLVING"
@@ -69,6 +69,11 @@ class Puzzle(models.Model):
         get_user_model(), related_name="active_puzzles"
     )
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["name", "hunt"], name="unique_names"),
+        ]
+
     def __str__(self):
         return self.name
 
@@ -89,7 +94,9 @@ class Puzzle(models.Model):
             return
 
         if self.name != new_name:
-            if Puzzle.objects.filter(~Q(id=self.pk), Q(name=new_name)):
+            if Puzzle.objects.filter(
+                ~Q(id=self.pk), Q(hunt=self.hunt), Q(name=new_name)
+            ):
                 raise DuplicatePuzzleNameError(
                     "Name %s is already taken by another puzzle." % new_name
                 )
@@ -97,7 +104,7 @@ class Puzzle(models.Model):
         is_new_url = False
         if self.url != new_url:
             is_new_url = True
-            if Puzzle.objects.filter(~Q(id=self.pk), Q(url=new_url)):
+            if Puzzle.objects.filter(~Q(id=self.pk), Q(hunt=self.hunt), Q(url=new_url)):
                 raise DuplicatePuzzleUrlError(
                     "URL %s is already taken by another puzzle." % new_url
                 )

@@ -155,6 +155,7 @@ class HuntView(LoginRequiredMixin, View):
             # a new sheet. This is purely an optimization to avoid dangling
             # google sheets.
             already_exists = Puzzle.objects.filter(name=name).exists()
+            already_exists = Puzzle.objects.filter(name=name, hunt=hunt).exists()
             if already_exists:
                 return self.__handle_dup_puzzle()
 
@@ -163,8 +164,8 @@ class HuntView(LoginRequiredMixin, View):
             if google_api_client:
                 sheet = google_api_client.create_google_sheets(name)
             else:
-                # TODO(erwa): This should incur a warning.
-                sheet = puzzle_url
+                logger.warn("Sheet not created for puzzle %s" % name)
+                sheet = None
 
             if google_api_client:
                 google_api_client.add_puzzle_link_to_sheet(puzzle_url, sheet)
