@@ -6,7 +6,10 @@ To set up Small Board locally, you need:
 
 - Git
 - a Python environment with the packages in [requirements.txt]() installed
-- a local database (PostgreSQL or SQLite)
+  <<<<<<< HEAD
+- # a local database (PostgreSQL or SQLite)
+- a local database (e.g.: Postgres)
+  > > > > > > > 834179e... feat(pre-commit): add basic pre-commit checks
 
 #### Checking out the code
 
@@ -35,6 +38,22 @@ source venv_smallboard/bin/activate
 ```
 
 If you encounter issues during dependency installation, make sure you've installed the `python3-dev` package (and not just `python3`).
+
+#### Set up pre-commit checks
+
+The `pre-commit` tool will run linters and formatters so that you can spend more time coding and waste less time aligning indents. To set up pre-commit, run:
+
+```
+pre-commit install -t pre-commit -t commit-msg
+```
+
+After you run this command once, each time you run `git commit`, a series of checks will automatically run on modified files and inform you of any issues (sometimes fixing files for you!).
+
+To run pre-commit checks on the entire codebase without running `git commit`, run:
+
+```
+pre-commit run --all-files
+```
 
 #### <a name='database'>Setting up a local database</a>
 
