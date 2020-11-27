@@ -16,4 +16,3 @@ repos:
     rev: 20.8b1
     hooks:
       - id: black
-        exclude: ^.*/migrations/.*\.py

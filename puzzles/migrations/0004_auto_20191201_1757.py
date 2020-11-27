@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('puzzles', '0003_auto_20191201_2037'),
+        ("puzzles", "0003_auto_20191201_2037"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='puzzle',
-            name='channel',
-            field=models.CharField(default='', max_length=128, unique=True),
+            model_name="puzzle",
+            name="channel",
+            field=models.CharField(default="", max_length=128, unique=True),
         ),
         migrations.AlterField(
-            model_name='puzzle',
-            name='sheet',
-            field=models.URLField(default='', unique=True),
+            model_name="puzzle",
+            name="sheet",
+            field=models.URLField(default="", unique=True),
         ),
     ]
