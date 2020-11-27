@@ -24,7 +24,6 @@ from answers.forms import AnswerForm
 from answers.models import Answer
 from answers.views import AnswerView
 from google_api_lib.google_api_client import GoogleApiClient
-from slack_lib.slack_client import SlackClient
 
 
 logger = logging.getLogger(__name__)
@@ -65,7 +64,6 @@ def guess(request, pk):
         if created:
             puzzle.status = Puzzle.PENDING
             puzzle.save()
-            AnswerView.update_slack_with_puzzle_status(answer, answer.status)
         else:
             return JsonResponse(
                 {'error': '"%s" has already been submitted as a guess for puzzle "%s"' % (answer_text, puzzle.name)},
@@ -79,76 +77,6 @@ def guess(request, pk):
 
 if settings.DEBUG:
     guess = csrf_exempt(guess)
-
-
-@require_POST
-@csrf_exempt
-@transaction.atomic
-def slack_guess(request):
-    print("request data: " + str(request.POST))
-    slack_message = request.POST
-    if slack_message.get('token') != os.environ.get("SLACK_VERIFICATION_TOKEN"):
-        return HttpResponseForbidden()
-
-    answer_text = __sanitize_guess(slack_message.get('text'))
-    channel_id = slack_message.get('channel_id')
-    puzzle = get_object_or_404(Puzzle.objects.select_for_update(), channel=channel_id)
-    print("puzzle: " + str(puzzle))
-    if puzzle.status == Puzzle.SOLVED:
-        return HttpResponse("Puzzle is already solved!")
-
-    answer, created = Answer.objects.get_or_create(puzzle=puzzle, text=answer_text)
-    if not created:
-        return HttpResponse("The answer " + answer_text + " has already been submitted.")
-    puzzle.status = Puzzle.PENDING
-    puzzle.save()
-
-    AnswerView.update_slack_with_puzzle_status(answer, answer.status)
-
-    return HttpResponse("Answer " + answer_text + " has been submitted!")
-
-
-@require_POST
-@csrf_exempt
-@transaction.atomic
-def slack_events(request):
-    '''
-    Handles Slack member_joined_channel and member_left_channel events
-    to keep track of active users per puzzle.
-    '''
-    event = json.loads(request.body)
-    token = event.get('token')
-    # TODO(erwa): Move SLACK_VERIFICATION_TOKEN into settings.py
-    if token != os.environ.get("SLACK_VERIFICATION_TOKEN"):
-        return HttpResponseForbidden()
-
-    # one time events API verification
-    challenge = event.get('challenge')
-    if challenge:
-        return HttpResponse(challenge)
-
-    event = event.get('event')
-    print('Received Slack event:', event)
-
-    email = SlackClient.getInstance().get_user_email(event.get('user'))
-    try:
-        user = Puzzler.objects.get(email=email)
-    except Puzzler.DoesNotExist as e:
-        print('User with email', email, 'not found. Exception:', e)
-        return HttpResponse('User with email ' + email + ' not found.')
-
-    event_type = event.get('type')
-    puzzle = get_object_or_404(Puzzle.objects.select_for_update(), channel=event.get('channel'))
-
-    # we ignore the case where puzzle is accidentally marked as solved
-    # and user joins/leaves during this time
-    if puzzle.status != Puzzle.SOLVED:
-        if event_type == 'member_joined_channel':
-            puzzle.active_users.add(user)
-        elif event_type == 'member_left_channel':
-            puzzle.active_users.remove(user)
-
-    return HttpResponse('Processed ' + event_type + ' event')
 
 
 @require_POST
@@ -202,8 +130,6 @@ def edit_puzzle(request, pk):
         puzzle = get_object_or_404(Puzzle.objects.select_for_update(), pk=pk)
         try:
             puzzle.update_metadata(new_name, new_url, new_is_meta)
-            # TODO(asdfryan): Consider also renaming the slack channel to match the
-            # new puzzle name.
             metas = puzzle.metas.all()
 
         except (DuplicatePuzzleNameError, DuplicatePuzzleUrlError, InvalidMetaPuzzleError) as e:
@@ -229,7 +155,6 @@ def delete_puzzle(request, pk):
         else:
             metas = list(puzzle.metas.all())
             puzzle.delete()
-            SlackClient.getInstance().archive_channel(puzzle.channel)
 
     if metas:
         for meta in metas:

@@ -17,7 +17,7 @@ class TestAnswers(TestCase):
 
         self._puzzle = Puzzle.objects.create(
             name="test", hunt=self._test_hunt, url="fake_url.com",
-            sheet="fakesheet.com", channel="0", is_meta=False)
+            sheet="fakesheet.com", is_meta=False)
 
 
     def tearDown(self):
@@ -40,17 +40,6 @@ class TestAnswers(TestCase):
 
         sanitized = 'A1BCD2E'
         self.assertEqual([a.text for a in self._puzzle.guesses.all()], [sanitized])
-        self._puzzle.refresh_from_db()
-        self.assertEqual(self._puzzle.status, Puzzle.PENDING)
-
-
-    def test_answer_from_slack(self):
-        self.assertEqual(list(self._puzzle.guesses.all()), [])
-        self.assertEqual(self._puzzle.status, Puzzle.SOLVING)
-
-        self.client.post("/puzzles/slack_guess/", {"channel_id": "0", "text": "guess"})
-
-        self.assertEqual([a.text for a in self._puzzle.guesses.all()], ["GUESS"])
         self._puzzle.refresh_from_db()
         self.assertEqual(self._puzzle.status, Puzzle.PENDING)
 
@@ -95,7 +84,7 @@ class TestAnswers(TestCase):
     def test_deleting_puzzle(self):
         deleted_puzzle = Puzzle.objects.create(
             name="delete", hunt=self._test_hunt, url="delete.com",
-            sheet="delete.com", channel="1", is_meta=False)
+            sheet="delete.com", is_meta=False)
         guess = Answer.objects.create(puzzle=deleted_puzzle, text="guess")
         self.assertEqual(Answer.objects.filter(pk=guess.pk).exists(), True)
         deleted_puzzle.delete()

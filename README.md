@@ -11,7 +11,7 @@ For development instructions, see the [dev guide](dev-guide.md).
 
 ![overview](https://user-images.githubusercontent.com/544734/71759676-6a283b80-2e7e-11ea-82d0-f2f4fc737c71.png)
 
-The default page you see is a list of all puzzles in a table. The puzzle name is a link to the puzzle page on the hunt website. The puzzles are grouped by meta, and each puzzle has a Google spreadsheet ("Sheet" column) and Slack channel ("Slack" column) associated with it.
+The default page you see is a list of all puzzles in a table. The puzzle name is a link to the puzzle page on the hunt website. The puzzles are grouped by meta, and each puzzle has a Google spreadsheet ("Sheet" column) associated with it.
 
 In case you need to edit the puzzle name, URL, or meta status, you can use the pencil icon next to the puzzle name. Use the trash icon to delete a puzzle.
 
@@ -34,7 +34,7 @@ You login to Small Board using a Google account. If you get an error message lik
 
 ![login-error](https://user-images.githubusercontent.com/544734/71759638-0ef64900-2e7e-11ea-8362-73f789085547.png)
 
-then you should contact an admin and ask them to add you to the Google Drive hunt folder (and invite you to the Slack workspace). For more details, see the [hunt setup guide](new-hunt-setup.md#giving-a-new-user-access-to-small-board).
+then you should contact an admin and ask them to add you to the Google Drive hunt folder. For more details, see the [hunt setup guide](new-hunt-setup.md#giving-a-new-user-access-to-small-board).
 
 
 ### Adding and modifying puzzles
@@ -47,7 +47,7 @@ You must specify a name but the URL is optional. If you know the puzzle is a met
 
 In case you need to delete a puzzle (perhaps you accidentally created a duplicate), you can do so using the trash icon next to a puzzle name.
 
-When a puzzle is created, a Google Spreadsheet and Slack channel are automatically created for the puzzle. These are accessible from the links in the "Sheet" and "Slack" columns.
+When a puzzle is created, a Google Spreadsheet are automatically created for the puzzle. These are accessible from the links in the "Sheet" column.
 
 
 ### Searching
@@ -55,17 +55,6 @@ When a puzzle is created, a Google Spreadsheet and Slack channel are automatical
 As a hunt progresses, the number of puzzles can get quite large (especially for a hunt like the MIT Mystery Hunt). To make things more manageable, you can use the "Search" box in the top-right to filter puzzles. The search matches puzzle name, answer, status, or tags. For example, the following shows filtering to just the puzzles that need extraction:
 
 ![extraction](https://user-images.githubusercontent.com/544734/71759824-38fd3a80-2e81-11ea-8670-d0a1039f6502.png)
-
-
-### Answer submission and verification
-
-To submit an answer for a puzzle, you can either use the "Submit Answer" button on the website, or enter `/answer PUZZLEANSWER` in the puzzle's Slack channel. This will change the puzzle status to PENDING (causing the puzzle row to be highlighted in yellow), and the answer will be added to the Answer Queue page, which looks like this:
-
-![answer-queue](https://user-images.githubusercontent.com/544734/71759910-179d4e00-2e83-11ea-94bc-f26dd46a8a31.png)
-
-Generally, a dedicated person will monitor this Answer Queue page and submit the guesses on the actual hunt website, updating the status to SUBMITTED once submitted on the hunt site. When the team gets notified whether the answer is right or wrong, the status can be updated to CORRECT or INCORRECT. Once an answer has been marked CORRECT, the puzzle will be marked SOLVED on the main puzzles page and its status can no longer be updated there. In case this was a mistake, the status of the answer can be changed to INCORRECT to allow updates to the puzzle status on the main puzzles page.
-
-Notes (such as feedback that our guess was a partial answer) may be entered in the "Notes" field, and these will automatically be posted in the puzzle's Slack channel as well.
 
 
 ### Metas and Tags
@@ -82,15 +71,6 @@ In addition to meta tags for puzzles, users can also tag puzzles as high or low 
 ### Google Sheets integration
 
 When a puzzle is added, a Google Sheet is automatically created for it, accessible from the link under the "Sheet" column. The puzzle sheet is a clone of a template sheet, which may have some useful formulas pre-populated.
-
-
-### Slack integration
-
-![slack](https://user-images.githubusercontent.com/544734/71760119-67c9df80-2e86-11ea-9c9d-089c5535b09b.png)
-
-When a puzzle is added, a Slack channel is automatically created for it, accessible from the link under the "Slack" column. In addition to submitting answers on the website, users can also submit answers from a puzzle's Slack channel by entering `/answer PUZZLEANSWER`.
-
-When a puzzle's status is changed to CORRECT, INCORRECT, or PARTIAL, a message is posted in the puzzle's Slack channel. Also, if any "Notes" are entered for a puzzle on the Answer Queue page, these notes are posted in the Slack channel as well.
 
 
 ### Tools and References
