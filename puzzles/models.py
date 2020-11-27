@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models import Q
 from google_api_lib.google_api_client import GoogleApiClient
@@ -56,7 +57,7 @@ class Puzzle(models.Model):
 
     is_meta = models.BooleanField(default=False)
 
-    active_users = models.ManyToManyField('accounts.Puzzler', related_name="active_puzzles")
+    active_users = models.ManyToManyField(get_user_model(), related_name="active_puzzles")
 
     def __str__(self):
         return self.name
