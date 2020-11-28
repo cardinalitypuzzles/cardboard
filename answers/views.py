@@ -41,7 +41,7 @@ def update_note(request, answer_pk):
 @require_GET
 @login_required(login_url="/accounts/login/")
 def answers(request, hunt_pk):
-    hunt = get_object_or_404(Hunt, pk=hunt_pk)
+    hunt = Hunt.get_object_or_404(user=request.user, pk=hunt_pk)
     answer_objects = (
         Answer.objects.filter(puzzle__hunt__pk=hunt_pk)
         .prefetch_related("puzzle")
@@ -71,7 +71,7 @@ class AnswerView(LoginRequiredMixin, View):
     redirect_field_name = "next"
 
     def get(self, request, hunt_pk):
-        hunt = get_object_or_404(Hunt, pk=hunt_pk)
+        hunt = Hunt.get_object_or_404(user=request.user, pk=hunt_pk)
         context = {
             "hunt_pk": hunt_pk,
             "hunt_name": hunt.name,

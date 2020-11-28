@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.shortcuts import get_object_or_404
 from puzzles.models import Puzzle
 
 
@@ -12,3 +13,11 @@ class Hunt(models.Model):
 
     def __str__(self):
         return self.name
+
+    @staticmethod
+    def get_object_or_404(user=None, **kwargs):
+        hunt = get_object_or_404(Hunt, **kwargs)
+        if user and user.is_authenticated:
+            user.last_accessed_hunt = hunt
+            user.save(update_fields=['last_accessed_hunt'])
+        return hunt

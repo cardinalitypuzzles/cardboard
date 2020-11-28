@@ -3,7 +3,7 @@ from django.conf import settings
 from django.http import HttpResponseRedirect
 from django.urls import path
 
-from hunts.views import ActiveHuntRedirectView
+from hunts.views import LastAccessedHuntRedirectView
 
 app_name = "answers"
 urlpatterns = [
@@ -13,7 +13,7 @@ urlpatterns = [
     path("update_note/<int:answer_pk>", update_note, name="update_note"),
     path(
         "",
-        ActiveHuntRedirectView.as_view(pattern_name="answers:hunt_queue"),
+        LastAccessedHuntRedirectView.as_view(pattern_name="answers:hunt_queue"),
         name="queue",
     ),
 ]
