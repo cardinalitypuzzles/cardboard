@@ -30,7 +30,7 @@ class TestAnswers(TestCase):
         self._user.delete()
 
     def test_answer_queue_page(self):
-        response = self.client.get("/answers/queue/" + str(self._test_hunt.pk))
+        response = self.client.get("/answers/queue/" + str(self._test_hunt.slug))
         self.assertEqual(response.status_code, 200)
 
     def test_answer_from_smallboard(self):
@@ -50,14 +50,14 @@ class TestAnswers(TestCase):
         self.assertEqual(guess.status, Answer.NEW)
 
         self.client.post(
-            "/answers/queue/{}/{}".format(self._test_hunt.pk, guess.pk),
+            "/answers/queue/{}/{}".format(self._test_hunt.slug, guess.pk),
             {"status": Answer.SUBMITTED},
         )
         self._puzzle.refresh_from_db()
         self.assertEqual(self._puzzle.status, Puzzle.PENDING)
 
         self.client.post(
-            "/answers/queue/{}/{}".format(self._test_hunt.pk, guess.pk),
+            "/answers/queue/{}/{}".format(self._test_hunt.slug, guess.pk),
             {"status": Answer.PARTIAL},
         )
         self._puzzle.refresh_from_db()
@@ -69,14 +69,14 @@ class TestAnswers(TestCase):
         self.assertEqual(guess.response, note)
 
         self.client.post(
-            "/answers/queue/{}/{}".format(self._test_hunt.pk, guess.pk),
+            "/answers/queue/{}/{}".format(self._test_hunt.slug, guess.pk),
             {"status": Answer.INCORRECT},
         )
         self._puzzle.refresh_from_db()
         self.assertEqual(self._puzzle.status, Puzzle.SOLVING)
 
         self.client.post(
-            "/answers/queue/{}/{}".format(self._test_hunt.pk, guess.pk),
+            "/answers/queue/{}/{}".format(self._test_hunt.slug, guess.pk),
             {"status": Answer.CORRECT},
         )
         self._puzzle.refresh_from_db()
@@ -84,7 +84,7 @@ class TestAnswers(TestCase):
         self.assertEqual(self._puzzle.answer, guess.text)
 
         self.client.post(
-            "/answers/queue/{}/{}".format(self._test_hunt.pk, guess.pk),
+            "/answers/queue/{}/{}".format(self._test_hunt.slug, guess.pk),
             {"status": Answer.INCORRECT},
         )
         self._puzzle.refresh_from_db()

@@ -63,7 +63,7 @@ $(document).ready(function() {
                 let newStatus = $(this).val();
                 updateRowColor(row, newStatus);
                 data[answer_status] = newStatus;
-                $.ajax(`/answers/queue/{{hunt_pk}}/${data[id]}`, {
+                $.ajax(`/answers/queue/{{hunt_slug}}/${data[id]}`, {
                     'data': {
                         'csrfmiddlewaretoken': '{{csrf_token}}',
                         'status': newStatus
@@ -187,7 +187,7 @@ $(document).ready(function() {
     } );
 
     function reload() {
-        $.ajax('/answers/queue/{{hunt_pk}}/answers', {
+        $.ajax('/answers/queue/{{hunt_slug}}/answers', {
             'success': function(newdata) {
                 newdata = newdata['data'];
                 olddata = table.data();

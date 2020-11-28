@@ -40,10 +40,10 @@ def update_note(request, answer_pk):
 
 @require_GET
 @login_required(login_url="/accounts/login/")
-def answers(request, hunt_pk):
-    hunt = Hunt.get_object_or_404(user=request.user, pk=hunt_pk)
+def answers(request, hunt_slug):
+    hunt = Hunt.get_object_or_404(user=request.user, slug=hunt_slug)
     answer_objects = (
-        Answer.objects.filter(puzzle__hunt__pk=hunt_pk)
+        Answer.objects.filter(puzzle__hunt__slug=hunt_slug)
         .prefetch_related("puzzle")
         .order_by("-created_on")
     )
@@ -70,15 +70,15 @@ class AnswerView(LoginRequiredMixin, View):
     login_url = "/accounts/login/"
     redirect_field_name = "next"
 
-    def get(self, request, hunt_pk):
-        hunt = Hunt.get_object_or_404(user=request.user, pk=hunt_pk)
+    def get(self, request, hunt_slug):
+        hunt = Hunt.get_object_or_404(user=request.user, slug=hunt_slug)
         context = {
-            "hunt_pk": hunt_pk,
+            "hunt_slug": hunt_slug,
             "hunt_name": hunt.name,
         }
         return render(request, "queue.html", context)
 
-    def post(self, request, hunt_pk, answer_pk):
+    def post(self, request, hunt_slug, answer_pk):
         """Handles answer status update"""
         status_form = UpdateAnswerStatusForm(request.POST)
 
@@ -110,7 +110,7 @@ class AnswerView(LoginRequiredMixin, View):
             return JsonResponse(
                 {
                     "error": "Invalid form for answer %s and hunt %s"
-                    % (answer_pk, hunt_pk)
+                    % (answer_pk, hunt_slug)
                 },
                 status=400,
             )
