@@ -23,7 +23,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form id='add-puzzle' action="/hunts/{{ hunt_pk }}/" method="post">
+            <form id='add-puzzle' action="/hunts/{{ hunt_slug }}/" method="post">
                 {% csrf_token %}
                 <div class="modal-body">
                     <div class="form-group">
@@ -168,7 +168,7 @@ function redrawTable(newdata) {
 }
 
 function reload() {
-    $.ajax('/hunts/{{hunt_pk}}/puzzles', {
+    $.ajax('/hunts/{{hunt_slug}}/puzzles', {
         'success': function(newdata) {
             newdata = newdata['data'];
             let olddata = table.data();
