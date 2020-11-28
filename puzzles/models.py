@@ -40,8 +40,8 @@ class Puzzle(models.Model):
     )
     url = models.URLField(blank=True)
 
-    sheet = models.URLField(default="", unique=True, null=True)
     notes = models.TextField(default="")
+    sheet = models.URLField(default=None, unique=True, null=True, blank=True)
 
     SOLVING = "SOLVING"
     PENDING = "PENDING"
@@ -71,7 +71,9 @@ class Puzzle(models.Model):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=["name", "hunt"], name="unique_names"),
+            models.UniqueConstraint(
+                fields=["name", "hunt"], name="unique_names_per_hunt"
+            ),
         ]
 
     def __str__(self):
