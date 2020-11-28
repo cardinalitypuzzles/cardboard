@@ -26,7 +26,7 @@ urlpatterns = [
     path("accounts/", include("django.contrib.auth.urls")),
     path("accounts/", include("accounts.urls")),
     path("puzzles/", include("puzzles.urls")),
-    path("hunts/", include("hunts.urls", namespace="hunts")),
+    path("hunts/", include("hunts.urls")),
     path("answers/", include("answers.urls")),
     path("tools", views.tools, name="tools"),
     path("privacy", views.privacy, name="privacy"),
