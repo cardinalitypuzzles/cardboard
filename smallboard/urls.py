@@ -19,7 +19,7 @@ from django.http import HttpResponseRedirect
 from django.urls import path, include
 
 from . import views
-from hunts.views import ActiveHuntRedirectView
+from hunts.views import LastAccessedHuntRedirectView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -30,6 +30,6 @@ urlpatterns = [
     path("answers/", include("answers.urls")),
     path("tools", views.tools, name="tools"),
     path("privacy", views.privacy, name="privacy"),
-    path("", ActiveHuntRedirectView.as_view()),
+    path("", LastAccessedHuntRedirectView.as_view()),
     path("", include("social_django.urls", namespace="social")),
 ]

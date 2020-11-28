@@ -4,7 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.db import IntegrityError
 from django.http import JsonResponse
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views import View
@@ -81,7 +81,7 @@ def __get_puzzle_class(sorted_np_pairs):
 @require_GET
 @login_required(login_url="/accounts/login/")
 def puzzles(request, pk):
-    hunt = get_object_or_404(Hunt, pk=pk)
+    hunt = Hunt.get_object_or_404(user=request.user, pk=pk)
     puzzle_objects = (
         hunt.puzzles.all()
         .prefetch_related("metas")
@@ -128,7 +128,7 @@ class HuntView(LoginRequiredMixin, View):
         if not Hunt.objects.filter(pk=pk).exists():
             return index(request)
 
-        hunt = get_object_or_404(Hunt, pk=pk)
+        hunt = Hunt.get_object_or_404(user=request.user, pk=pk)
         form = PuzzleForm(auto_id=False)
         context = {
             "hunt_name": hunt.name,
@@ -143,7 +143,7 @@ class HuntView(LoginRequiredMixin, View):
         return JsonResponse({"error": message}, status=400)
 
     def post(self, request, pk):
-        hunt = get_object_or_404(Hunt, pk=pk)
+        hunt = Hunt.get_object_or_404(user=request.user, pk=pk)
         form = PuzzleForm(request.POST)
 
         puzzle = None
@@ -210,19 +210,22 @@ class HuntView(LoginRequiredMixin, View):
         return JsonResponse({"data": result})
 
 
-class ActiveHuntRedirectView(RedirectView):
-    pattern_name = 'hunts:all_puzzles'
+class LastAccessedHuntRedirectView(LoginRequiredMixin, RedirectView):
+    login_url = "/accounts/login/"
+    pattern_name = "hunts:all_puzzles"
 
     def get_redirect_url(self, *args, **kwargs):
-        try:
-            active_hunt = Hunt.objects.get(active=True)
-            if self.pattern_name == ActiveHuntRedirectView.pattern_name:
-                kwargs['pk'] = active_hunt.pk
-            else:
-                kwargs['hunt_pk'] = active_hunt.pk
-            return super().get_redirect_url(*args, **kwargs)
-        except Hunt.DoesNotExist:
-            return reverse('hunts:index')
+        hunt = self.request.user.last_accessed_hunt
+        if not hunt:
+            return reverse("hunts:index")
+
+        # Answer urls use pattern_name="answers:hunt_queue" and "hunt_pk" to
+        # disambiguate between answer and hunt primary keys.
+        if self.pattern_name == LastAccessedHuntRedirectView.pattern_name:
+            kwargs["pk"] = hunt.pk
+        else:
+            kwargs["hunt_pk"] = hunt.pk
+        return super().get_redirect_url(*args, **kwargs)
 
 
 if settings.DEBUG:
