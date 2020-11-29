@@ -42,6 +42,10 @@ ALLOWED_HOSTS = [
     "smallboard.herokuapp.com",
 ]
 
+# This should be turned on in production to redirect HTTP to HTTPS
+# The development web server doesn't support HTTPS, however, so do not
+# turn this on in dev.
+SECURE_SSL_REDIRECT = os.environ.get("SECURE_SSL_REDIRECT")
 
 # Application definition
 
