@@ -6,10 +6,8 @@ To set up Small Board locally, you need:
 
 - Git
 - a Python environment with the packages in [requirements.txt]() installed
-  <<<<<<< HEAD
 - # a local database (PostgreSQL or SQLite)
 - a local database (e.g.: Postgres)
-  > > > > > > > 834179e... feat(pre-commit): add basic pre-commit checks
 
 #### Checking out the code
 
@@ -229,6 +227,20 @@ python manage.py test
 ```
 
 The test environment settings are in `.env.test`. If you encounter an error `Got an error creating the test database: permission denied to create database`, make sure you run `ALTER USER myuser CREATEDB` as described above in the [Setting up a local database](#database) section.
+
+#### Test Coverage Report
+
+Test coverage measures how many lines of production code your tests actually run. It's a reasonable metric of the impact of your tests. To generate a coverage report, first run tests with this modified command:
+
+```
+coverage run --source='.' manage.py test
+```
+
+Then generate the report based on data collected by the previous command:
+
+```
+coverage report
+```
 
 ### Deployment to Heroku
 
