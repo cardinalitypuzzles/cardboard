@@ -16,8 +16,10 @@ services:
       - .:/usr/src/smallboard/
     ports:
       - 8000:8000
+    environment:
+      - DATABASE_URL=postgres://smallboard_user:smallboard_password@db/smallboard
     env_file:
-      - ./.env.docker
+      - ./.env
     depends_on:
       - db
 

@@ -50,7 +50,7 @@ docker-compose exec web python manage.py test
 
 This is pretty verbose, so on my machine I added a local alias for `smallboard-manage` to `docker-compose exec web python manage.py`. Then `smallboard-manage test` will run tests.
 
-Our docker setup reads environmental variables from .env.docker. You can add to that file to setup integrations with Google and so on.
+Our docker setup reads environmental variables from .env as described down the page.
 
 #### Manual setup
 
