@@ -1,23 +1,27 @@
 from django.db import models
 
+
 class Answer(models.Model):
     text = models.CharField(max_length=128)
-    puzzle = models.ForeignKey('puzzles.Puzzle', on_delete=models.CASCADE, related_name="guesses")
+    puzzle = models.ForeignKey(
+        "puzzles.Puzzle", on_delete=models.CASCADE, related_name="guesses"
+    )
     created_on = models.DateTimeField(auto_now_add=True)
     # for partial answers
     response = models.TextField(default="")
 
-    NEW = 'NEW'
-    SUBMITTED = 'SUBMITTED'
-    CORRECT = 'CORRECT'
-    INCORRECT = 'INCORRECT'
-    PARTIAL = 'PARTIAL'
+    NEW = "NEW"
+    SUBMITTED = "SUBMITTED"
+    CORRECT = "CORRECT"
+    INCORRECT = "INCORRECT"
+    PARTIAL = "PARTIAL"
     STATUS_CHOICES = [NEW, SUBMITTED, CORRECT, INCORRECT, PARTIAL]
 
     status = models.CharField(
         max_length=10,
         choices=[(status, status) for status in STATUS_CHOICES],
-        default=NEW)
+        default=NEW,
+    )
 
     def __str__(self):
         return '{}: "{}" ({})'.format(self.puzzle.name, self.text, self.status)
@@ -29,7 +33,6 @@ class Answer(models.Model):
             self.puzzle.set_answer(self.text)
         else:
             self.puzzle.clear_answer(self.text)
-
 
     def get_status(self):
         return self.status

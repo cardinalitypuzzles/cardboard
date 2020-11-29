@@ -8,13 +8,15 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('puzzles', '0011_auto_20191215_1018'),
+        ("puzzles", "0011_auto_20191215_1018"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='puzzle',
-            name='active_users',
-            field=models.ManyToManyField(related_name='active_puzzles', to=settings.AUTH_USER_MODEL),
+            model_name="puzzle",
+            name="active_users",
+            field=models.ManyToManyField(
+                related_name="active_puzzles", to=settings.AUTH_USER_MODEL
+            ),
         ),
     ]

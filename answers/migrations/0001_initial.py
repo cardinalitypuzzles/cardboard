@@ -9,19 +9,46 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('puzzles', '__first__'),
+        ("puzzles", "__first__"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Answer',
+            name="Answer",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('text', models.CharField(max_length=128)),
-                ('created_on', models.DateTimeField(auto_now_add=True)),
-                ('response', models.TextField(default='')),
-                ('_status', models.CharField(choices=[('NEW', 'NEW'), ('SUBMITTED', 'SUBMITTED'), ('CORRECT', 'CORRECT'), ('INCORRECT', 'INCORRECT')], default='NEW', max_length=10)),
-                ('puzzle', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='guesses', to='puzzles.Puzzle')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("text", models.CharField(max_length=128)),
+                ("created_on", models.DateTimeField(auto_now_add=True)),
+                ("response", models.TextField(default="")),
+                (
+                    "_status",
+                    models.CharField(
+                        choices=[
+                            ("NEW", "NEW"),
+                            ("SUBMITTED", "SUBMITTED"),
+                            ("CORRECT", "CORRECT"),
+                            ("INCORRECT", "INCORRECT"),
+                        ],
+                        default="NEW",
+                        max_length=10,
+                    ),
+                ),
+                (
+                    "puzzle",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="guesses",
+                        to="puzzles.Puzzle",
+                    ),
+                ),
             ],
         ),
     ]

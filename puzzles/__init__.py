@@ -1,1 +1,1 @@
-default_app_config = 'puzzles.apps.PuzzlesConfig'
+default_app_config = "puzzles.apps.PuzzlesConfig"
