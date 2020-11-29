@@ -7,14 +7,19 @@ import taggit.managers
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('taggit', '0003_taggeditem_add_unique_index'),
-        ('puzzles', '0004_auto_20191201_1757'),
+        ("taggit", "0003_taggeditem_add_unique_index"),
+        ("puzzles", "0004_auto_20191201_1757"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='puzzle',
-            name='tags',
-            field=taggit.managers.TaggableManager(help_text='A comma-separated list of tags.', through='taggit.TaggedItem', to='taggit.Tag', verbose_name='Tags'),
+            model_name="puzzle",
+            name="tags",
+            field=taggit.managers.TaggableManager(
+                help_text="A comma-separated list of tags.",
+                through="taggit.TaggedItem",
+                to="taggit.Tag",
+                verbose_name="Tags",
+            ),
         ),
     ]

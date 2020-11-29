@@ -6,13 +6,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('puzzles', '0005_puzzle_tags'),
+        ("puzzles", "0005_puzzle_tags"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='puzzle',
-            name='status',
-            field=models.CharField(choices=[('SOLVING', 'SOLVING'), ('PENDING', 'PENDING'), ('SOLVED', 'SOLVED'), ('STUCK', 'STUCK'), ('EXTRACTION', 'EXTRACTION')], default='SOLVING', max_length=10),
+            model_name="puzzle",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("SOLVING", "SOLVING"),
+                    ("PENDING", "PENDING"),
+                    ("SOLVED", "SOLVED"),
+                    ("STUCK", "STUCK"),
+                    ("EXTRACTION", "EXTRACTION"),
+                ],
+                default="SOLVING",
+                max_length=10,
+            ),
         ),
     ]

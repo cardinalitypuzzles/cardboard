@@ -6,7 +6,8 @@ To set up Small Board locally, you need:
 
 - Git
 - a Python environment with the packages in [requirements.txt]() installed
-- a local database (PostgreSQL or SQLite)
+- # a local database (PostgreSQL or SQLite)
+- a local database (e.g.: Postgres)
 
 #### Checking out the code
 
@@ -35,6 +36,22 @@ source venv_smallboard/bin/activate
 ```
 
 If you encounter issues during dependency installation, make sure you've installed the `python3-dev` package (and not just `python3`).
+
+#### Set up pre-commit checks
+
+The `pre-commit` tool will run linters and formatters so that you can spend more time coding and waste less time aligning indents. To set up pre-commit, run:
+
+```
+pre-commit install -t pre-commit -t commit-msg
+```
+
+After you run this command once, each time you run `git commit`, a series of checks will automatically run on modified files and inform you of any issues (sometimes fixing files for you!).
+
+To run pre-commit checks on the entire codebase without running `git commit`, run:
+
+```
+pre-commit run --all-files
+```
 
 #### <a name='database'>Setting up a local database</a>
 
@@ -210,6 +227,20 @@ python manage.py test
 ```
 
 The test environment settings are in `.env.test`. If you encounter an error `Got an error creating the test database: permission denied to create database`, make sure you run `ALTER USER myuser CREATEDB` as described above in the [Setting up a local database](#database) section.
+
+#### Test Coverage Report
+
+Test coverage measures how many lines of production code your tests actually run. It's a reasonable metric of the impact of your tests. To generate a coverage report, first run tests with this modified command:
+
+```
+coverage run --source='.' manage.py test
+```
+
+Then generate the report based on data collected by the previous command:
+
+```
+coverage report
+```
 
 ### Deployment to Heroku
 

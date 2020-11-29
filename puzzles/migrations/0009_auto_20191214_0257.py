@@ -8,38 +8,98 @@ import taggit.managers
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('contenttypes', '0002_remove_content_type_name'),
-        ('puzzles', '0008_auto_20191208_0317'),
+        ("contenttypes", "0002_remove_content_type_name"),
+        ("puzzles", "0008_auto_20191208_0317"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='PuzzleTag',
+            name="PuzzleTag",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100, unique=True, verbose_name='Name')),
-                ('slug', models.SlugField(max_length=100, unique=True, verbose_name='Slug')),
-                ('color', models.CharField(choices=[('primary', 'blue'), ('secondary', 'gray'), ('success', 'green'), ('danger', 'red'), ('warning', 'yellow'), ('light', 'white'), ('dark', 'black')], default='primary', max_length=10)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(max_length=100, unique=True, verbose_name="Name"),
+                ),
+                (
+                    "slug",
+                    models.SlugField(max_length=100, unique=True, verbose_name="Slug"),
+                ),
+                (
+                    "color",
+                    models.CharField(
+                        choices=[
+                            ("primary", "blue"),
+                            ("secondary", "gray"),
+                            ("success", "green"),
+                            ("danger", "red"),
+                            ("warning", "yellow"),
+                            ("light", "white"),
+                            ("dark", "black"),
+                        ],
+                        default="primary",
+                        max_length=10,
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='PuzzleTagThrough',
+            name="PuzzleTagThrough",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('object_id', models.IntegerField(db_index=True, verbose_name='Object id')),
-                ('content_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='puzzles_puzzletagthrough_tagged_items', to='contenttypes.ContentType', verbose_name='Content type')),
-                ('tag', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='tagged_items', to='puzzles.PuzzleTag')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "object_id",
+                    models.IntegerField(db_index=True, verbose_name="Object id"),
+                ),
+                (
+                    "content_type",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="puzzles_puzzletagthrough_tagged_items",
+                        to="contenttypes.ContentType",
+                        verbose_name="Content type",
+                    ),
+                ),
+                (
+                    "tag",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="tagged_items",
+                        to="puzzles.PuzzleTag",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.AlterField(
-            model_name='puzzle',
-            name='tags',
-            field=taggit.managers.TaggableManager(help_text='A comma-separated list of tags.', through='puzzles.PuzzleTagThrough', to='puzzles.PuzzleTag', verbose_name='Tags'),
+            model_name="puzzle",
+            name="tags",
+            field=taggit.managers.TaggableManager(
+                help_text="A comma-separated list of tags.",
+                through="puzzles.PuzzleTagThrough",
+                to="puzzles.PuzzleTag",
+                verbose_name="Tags",
+            ),
         ),
     ]

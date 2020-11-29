@@ -9,30 +9,70 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('hunts', '0001_initial'),
+        ("hunts", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Puzzle',
+            name="Puzzle",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=128, unique=True)),
-                ('url', models.URLField(unique=True)),
-                ('sheet', models.URLField()),
-                ('channel', models.URLField()),
-                ('notes', models.TextField(default='')),
-                ('status', models.CharField(choices=[('SOLVING', 'SOLVING'), ('PENDING', 'PENDING'), ('SOLVED', 'SOLVED'), ('STUCK', 'STUCK')], default='SOLVING', max_length=10)),
-                ('answer', models.CharField(max_length=128)),
-                ('hunt', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='puzzles', to='hunts.Hunt')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=128, unique=True)),
+                ("url", models.URLField(unique=True)),
+                ("sheet", models.URLField()),
+                ("channel", models.URLField()),
+                ("notes", models.TextField(default="")),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("SOLVING", "SOLVING"),
+                            ("PENDING", "PENDING"),
+                            ("SOLVED", "SOLVED"),
+                            ("STUCK", "STUCK"),
+                        ],
+                        default="SOLVING",
+                        max_length=10,
+                    ),
+                ),
+                ("answer", models.CharField(max_length=128)),
+                (
+                    "hunt",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="puzzles",
+                        to="hunts.Hunt",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='MetaPuzzle',
+            name="MetaPuzzle",
             fields=[
-                ('puzzle_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='puzzles.Puzzle')),
-                ('feeders', models.ManyToManyField(related_name='metas', to='puzzles.Puzzle')),
+                (
+                    "puzzle_ptr",
+                    models.OneToOneField(
+                        auto_created=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        parent_link=True,
+                        primary_key=True,
+                        serialize=False,
+                        to="puzzles.Puzzle",
+                    ),
+                ),
+                (
+                    "feeders",
+                    models.ManyToManyField(related_name="metas", to="puzzles.Puzzle"),
+                ),
             ],
-            bases=('puzzles.puzzle',),
+            bases=("puzzles.puzzle",),
         ),
     ]

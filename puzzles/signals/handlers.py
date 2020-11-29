@@ -5,6 +5,7 @@ from puzzles.puzzle_tag import PuzzleTag
 
 # Hooks for syncing metas and tags
 
+
 @receiver(pre_save, sender=Puzzle)
 def update_tags_pre_save(sender, instance, **kwargs):
     if instance.is_meta:
@@ -19,7 +20,7 @@ def update_tags_pre_save(sender, instance, **kwargs):
 
         (new_tag, _) = PuzzleTag.objects.update_or_create(
             name=instance.name,
-            defaults={'color' : PuzzleTag.BLACK, 'is_meta' : True},
+            defaults={"color": PuzzleTag.BLACK, "is_meta": True},
         )
 
         for p in puzzles_needing_new_tag:
@@ -34,7 +35,9 @@ def update_tags_post_save(sender, instance, created, **kwargs):
     # make sure puzzles that already had tag now get assigned the meta
     # this has to happen post save, since instance has to exist first
     if instance.is_meta:
-        puzzles_with_tag = Puzzle.objects.filter(tags__name__in=[instance.name]).exclude(name=instance.name)
+        puzzles_with_tag = Puzzle.objects.filter(
+            tags__name__in=[instance.name]
+        ).exclude(name=instance.name)
         for p in puzzles_with_tag:
             p.metas.add(instance)
             p.save()

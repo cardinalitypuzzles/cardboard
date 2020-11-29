@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('puzzles', '0010_puzzletag_is_meta'),
+        ("puzzles", "0010_puzzletag_is_meta"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='puzzle',
-            name='metas',
-            field=models.ManyToManyField(related_name='feeders', to='puzzles.Puzzle'),
+            model_name="puzzle",
+            name="metas",
+            field=models.ManyToManyField(related_name="feeders", to="puzzles.Puzzle"),
         ),
     ]

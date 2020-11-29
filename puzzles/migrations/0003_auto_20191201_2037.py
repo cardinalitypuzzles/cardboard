@@ -6,23 +6,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('puzzles', '0002_auto_20191128_0657'),
+        ("puzzles", "0002_auto_20191128_0657"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='puzzle',
-            name='channel',
-            field=models.CharField(default='', max_length=128),
+            model_name="puzzle",
+            name="channel",
+            field=models.CharField(default="", max_length=128),
         ),
         migrations.AlterField(
-            model_name='puzzle',
-            name='name',
+            model_name="puzzle",
+            name="name",
             field=models.CharField(max_length=80, unique=True),
         ),
         migrations.AlterField(
-            model_name='puzzle',
-            name='sheet',
-            field=models.URLField(default=''),
+            model_name="puzzle",
+            name="sheet",
+            field=models.URLField(default=""),
         ),
     ]
