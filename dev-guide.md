@@ -2,7 +2,14 @@
 
 ### Getting started
 
-To set up Small Board locally, you need:
+There are two ways to set up Small Board locally.
+
+To run Small Board in Docker, you will need:
+
+* Git
+* Docker (on Mac or Windows, install Docker Desktop; on Linux, docker and docker-compose)
+
+To run Small Board manually, you will need:
 
 - Git
 - a Python environment with the packages in [requirements.txt]() installed
@@ -17,7 +24,37 @@ To check out the code, you first need to [install Git](https://git-scm.com/book/
 git clone git@github.com:cardinalitypuzzles/smallboard.git
 ```
 
-#### Setting up a Python environment
+#### Docker setup
+
+Docker allows a simple, consistent setup of Small Board. After checking out the code, navigate to the directory and run:
+
+```
+# You can pass the -d flag to run in the background.
+# In that case, run `docker-compose logs` to view the output.
+docker-compose up
+```
+
+The first time you run this, it will build Docker images locally and then run the web server and postgres in separate containers.
+
+To run a command inside the web container, you can run
+
+```
+docker-compose exec web [command]
+```
+
+For example, to run tests, you can run
+
+```
+docker-compose exec web python manage.py test
+```
+
+This is pretty verbose, so on my machine I added a local alias for `smallboard-manage` to `docker-compose exec web python manage.py`. Then `smallboard-manage test` will run tests.
+
+Our docker setup reads environmental variables from .env.docker. You can add to that file to setup integrations with Google and so on.
+
+#### Manual setup
+
+##### Setting up a Python environment
 
 We recommend setting up an isolated virtual environment where you install the dependencies. You can set one up by following [this guide](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/#creating-a-virtual-environment). Here are the steps for Ubuntu:
 
@@ -37,23 +74,7 @@ source venv_smallboard/bin/activate
 
 If you encounter issues during dependency installation, make sure you've installed the `python3-dev` package (and not just `python3`).
 
-#### Set up pre-commit checks
-
-The `pre-commit` tool will run linters and formatters so that you can spend more time coding and waste less time aligning indents. To set up pre-commit, run:
-
-```
-pre-commit install -t pre-commit -t commit-msg
-```
-
-After you run this command once, each time you run `git commit`, a series of checks will automatically run on modified files and inform you of any issues (sometimes fixing files for you!).
-
-To run pre-commit checks on the entire codebase without running `git commit`, run:
-
-```
-pre-commit run --all-files
-```
-
-#### <a name='database'>Setting up a local database</a>
+##### <a name='database'>Setting up a local database</a>
 
 Django supports multiple databases but here we use Postgres as an example. For most OS distributions, you should be able to install it using your package manager, similar to:
 
@@ -109,7 +130,27 @@ source venv_smallboard/bin/activate
 (venv_smallboard)$ python manage.py migrate
 ```
 
-#### Copying production data to local database
+#### Local deployment
+
+Once the Python environment and database are set up and running, you can run Small Board locally using
+
+```
+(venv_smallboard)$ python manage.py runserver
+```
+
+You can view the app in your browser at [http://127.0.0.1:8000/]().
+
+#### Running Tests
+
+To run tests:
+
+```
+python manage.py test
+```
+
+The test environment settings are in `.env.test`. If you encounter an error `Got an error creating the test database: permission denied to create database`, make sure you run `ALTER USER myuser CREATEDB` as described above in the [Setting up a local database](#database) section.
+
+##### Copying production data to local database
 
 For testing and development, it can be helpful to load the production data into your local database. You can do so as follows:
 
@@ -130,7 +171,7 @@ SELECT  'DROP TABLE IF EXISTS "' || tablename || '" CASCADE;' FROM pg_tables WHE
 \i prod_db.sql
 ```
 
-#### <a name='env'>Local `.env` file: credentials, API Tokens, configuration</a>
+### <a name='env'>Local `.env` file: credentials, API Tokens, configuration</a>
 
 This app uses various secrets including Google API tokens that need to be present in the environment. Locally, you can put these in the `.env` file. In the production Heroku deployment, they're set as Config Vars at https://dashboard.heroku.com/apps/smallboard/settings. For most of these configs, you can just use the production settings. The ones you probably want to change are `DATABASE_URL`, `DJANGO_SECRET_KEY`, and `DEBUG`. You can contact a Collaborator to give you access to the Heroku Small Board settings or to share their `.env` file with you.
 
@@ -175,7 +216,7 @@ DJANGO_SECRET_KEY=...
 DEBUG=...
 ```
 
-#### Google OAuth2 login integration (optional)
+### Google OAuth2 login integration (optional)
 
 The app uses Google OAuth2 to authenticate users. If the `SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET` environment variable isn't set, the app will fall back to a "Signup" flow where users can create their own username and password. Even with Google OAuth2 enabled, you can still create superusers using `python manage.py createsuperuser`. The OAuth2 settings are configured at https://console.developers.google.com/apis/credentials?project=smallboard-test-260001.
 
@@ -183,7 +224,7 @@ You should be able to use Google OAuth2 locally as well, since the OAuth2 settin
 
 The whitelist of allowed emails is the emails of the users who have access to `GOOGLE_DRIVE_HUNT_FOLDER_ID`. If you don't have access, please message a Collaborator to be added.
 
-#### Google Sheets Integration (optional)
+### Google Sheets Integration (optional)
 
 When a puzzle is created, a Google Sheet is created that is a copy of the template specified by `GOOGLE_SHEETS_TEMPLATE_FILE_ID` (which should have some useful formulas pre-added). The copied sheet is created in the same folder as the template.
 
@@ -191,39 +232,18 @@ You need to have access to the Google Drive folder to view it. Please message a 
 
 These Google Drive and Sheets related settings can be found in [smallboard/settings.py](smallboard/settings.py).
 
-#### Local deployment
 
-Once the Python environment and database are set up and running, you can run Small Board locally using
+### Slack Integration (optional)
 
-```
-(venv_smallboard)$ python manage.py runserver
-```
+This app interacts with a slack workspace in the following ways:
 
-You can view the app in your browser at [http://127.0.0.1:8000/]().
+1. Channel creation upon puzzle creation
+2. A '/answer' command on slack that inputs answers into the big board
 
-### Running Tests
+When running locally, only 1) will work since the /answer command sends a direct
+POST request to the heroku deployment.
 
-To run tests:
-
-```
-python manage.py test
-```
-
-The test environment settings are in `.env.test`. If you encounter an error `Got an error creating the test database: permission denied to create database`, make sure you run `ALTER USER myuser CREATEDB` as described above in the [Setting up a local database](#database) section.
-
-#### Test Coverage Report
-
-Test coverage measures how many lines of production code your tests actually run. It's a reasonable metric of the impact of your tests. To generate a coverage report, first run tests with this modified command:
-
-```
-coverage run --source='.' manage.py test
-```
-
-Then generate the report based on data collected by the previous command:
-
-```
-coverage report
-```
+You can contact a Collaborator to be added to the relevant slack workspace(s).
 
 ### Deployment to Heroku
 
@@ -244,6 +264,36 @@ git push heroku master
 
 We encourage you to keep the `origin` remote as our GitHub repo and make it the default for `git push`s, and use `git push heroku master` to push to the Heroku Git servers when you are ready to deploy changes to production.
 
-#### Environment variables
+### Environment variables
 
 We rely on various secrets and tokens for Google integration, etc. These are set as Config Vars at https://dashboard.heroku.com/apps/smallboard/settings. See the [Local `.env` file](#env) section above for more details.
+
+### Set up pre-commit checks
+
+The `pre-commit` tool will run linters and formatters so that you can spend more time coding and waste less time aligning indents. To set up pre-commit, run:
+
+```
+pre-commit install -t pre-commit -t commit-msg
+```
+
+After you run this command once, each time you run `git commit`, a series of checks will automatically run on modified files and inform you of any issues (sometimes fixing files for you!).
+
+To run pre-commit checks on the entire codebase without running `git commit`, run:
+
+```
+pre-commit run --all-files
+```
+
+### Test Coverage Report
+
+Test coverage measures how many lines of production code your tests actually run. It's a reasonable metric of the impact of your tests. To generate a coverage report, first run tests with this modified command:
+
+```
+coverage run --source='.' manage.py test
+```
+
+Then generate the report based on data collected by the previous command:
+
+```
+coverage report
+```
