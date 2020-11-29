@@ -39,15 +39,11 @@ function submitAnswerHandler(e) {
 }
 $('#puzzles').on('click', '.submitanswer', submitAnswerHandler);
 
-function sanitizeGuess(guess) {
-    return guess.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
-}
-
 $('#submitanswer form').on('submit', function(e) {
     e.preventDefault();
     let pk = $(this).data('pk');
     let url = $(this).attr('action');
-    let guess = sanitizeGuess($('#guess-input').val());
+    let guess = $('#guess-input').val();
     let row = table.row(`#puzzle-${pk}`);
     let rowNode = row.node();
     let data = row.data();

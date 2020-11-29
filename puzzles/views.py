@@ -53,7 +53,8 @@ def update_status(request, pk):
 
 
 def __sanitize_guess(guess):
-    return re.sub("[^0-9A-Za-z]", "", guess).upper()
+    """Strips whitespace and converts to uppercase."""
+    return re.sub(r"\s", "", guess).upper()
 
 
 @require_POST
