@@ -80,8 +80,8 @@ def __get_puzzle_class(sorted_np_pairs):
 
 @require_GET
 @login_required(login_url="/accounts/login/")
-def puzzles(request, slug):
-    hunt = Hunt.get_object_or_404(user=request.user, slug=slug)
+def puzzles(request, hunt_slug):
+    hunt = Hunt.get_object_or_404(user=request.user, slug=hunt_slug)
     puzzle_objects = (
         hunt.puzzles.all()
         .prefetch_related("metas")
@@ -124,15 +124,15 @@ class HuntView(LoginRequiredMixin, View):
     login_url = "/accounts/login/"
     redirect_field_name = "next"
 
-    def get(self, request, slug):
-        if not Hunt.objects.filter(slug=slug).exists():
+    def get(self, request, hunt_slug):
+        if not Hunt.objects.filter(slug=hunt_slug).exists():
             return index(request)
 
-        hunt = Hunt.get_object_or_404(user=request.user, slug=slug)
+        hunt = Hunt.get_object_or_404(user=request.user, slug=hunt_slug)
         form = PuzzleForm(auto_id=False)
         context = {
             "hunt_name": hunt.name,
-            "hunt_slug": slug,
+            "hunt_slug": hunt.slug,
             "form": form,
         }
 
@@ -142,8 +142,8 @@ class HuntView(LoginRequiredMixin, View):
         message = "A puzzle with the given name already exists!"
         return JsonResponse({"error": message}, status=400)
 
-    def post(self, request, slug):
-        hunt = Hunt.get_object_or_404(user=request.user, slug=slug)
+    def post(self, request, hunt_slug):
+        hunt = Hunt.get_object_or_404(user=request.user, slug=hunt_slug)
         form = PuzzleForm(request.POST)
 
         puzzle = None
@@ -218,13 +218,7 @@ class LastAccessedHuntRedirectView(LoginRequiredMixin, RedirectView):
         hunt = self.request.user.last_accessed_hunt
         if not hunt:
             return reverse("hunts:index")
-
-        # Answer urls use pattern_name="answers:hunt_queue" and "hunt_slug" to
-        # disambiguate between answer and hunt primary keys.
-        if self.pattern_name == LastAccessedHuntRedirectView.pattern_name:
-            kwargs["slug"] = hunt.slug
-        else:
-            kwargs["hunt_slug"] = hunt.slug
+        kwargs["hunt_slug"] = hunt.slug
         return super().get_redirect_url(*args, **kwargs)
 
 
