@@ -224,7 +224,7 @@ function reload() {
 }
 
 var all_uncollapsed = false;
-function maybeExpandAll() {
+function onSearch() {
     if ( all_uncollapsed == false ) {
         all_uncollapsed = true;
         $('.tree').treegrid('expandAll');
@@ -237,6 +237,7 @@ function initTreegrid() {
             all_uncollapsed = false;
         }
     });
+    $('.tree').treegrid('renderExpander');
     if ($('.tree').hasClass( "initial-collapsed" )) {
         $('.initial-collapsed').treegrid('collapse');
     }
@@ -323,11 +324,10 @@ $(document).ready(function() {
             $(row).attr('id', `puzzle-${data[pk]}`);
             initDeleteTagHandlers(data);
         },
-        'drawCallback': function() {
-            $('#puzzles').on('draw.dt', initTreegrid);
-            $('#puzzles').on('search.dt', maybeExpandAll);
-        },
         'initComplete': function() {
+            initTreegrid();
+            $('#puzzles').on('search.dt', onSearch);
+            $('#puzzles').on('draw.dt', initTreegrid);
             reload();
         },
         'columnDefs': [
