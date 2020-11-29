@@ -151,6 +151,9 @@ test/
 *.swo
 *.swn
 
+# vim local settings
+.vimrc
+
 # Smallboard
 staticfiles/
 logfile
