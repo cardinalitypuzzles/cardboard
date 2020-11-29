@@ -24,7 +24,7 @@ class Hunt(models.Model):
     @staticmethod
     def get_object_or_404(user=None, **kwargs):
         hunt = get_object_or_404(Hunt, **kwargs)
-        if user and user.is_authenticated:
+        if user and user.is_authenticated and user.last_accessed_hunt != hunt:
             user.last_accessed_hunt = hunt
             user.save(update_fields=['last_accessed_hunt'])
         return hunt
