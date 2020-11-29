@@ -20,6 +20,8 @@ services:
       - DATABASE_URL=postgres://smallboard_user:smallboard_password@db/smallboard
     env_file:
       - ./.env
+    entrypoint:
+      - ./docker-entrypoint.sh
     depends_on:
       - db
 
