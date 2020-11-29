@@ -41,7 +41,7 @@ class TestAnswers(TestCase):
         guess = "a!@#1$%^&*() b  \t C \n d[2]{}\\'\"/?<>,. e~`"
         self.client.post("/puzzles/guess/{}/".format(self._puzzle.pk), {"text": guess})
 
-        sanitized = "A!@#1$%^&*()BCD[2]\\'\"/?<>,.E~`"
+        sanitized = "A!@#1$%^&*()BCD[2]{}\\'\"/?<>,.E~`"
         self.assertEqual([a.text for a in self._puzzle.guesses.all()], [sanitized])
         self._puzzle.refresh_from_db()
         self.assertEqual(self._puzzle.status, Puzzle.PENDING)
