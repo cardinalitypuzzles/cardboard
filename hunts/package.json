@@ -6,8 +6,8 @@
   "author": "Cardinality <cardinalitypuzzles@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "dev": "webpack --mode development ./src/index.js --output-path ./static/frontend/main.js",
-    "build": "webpack --mode production ./src/index.js --output-path ./static/frontend/main.js"
+    "dev": "webpack --mode development ./src/index.js --output-path ./static",
+    "build": "webpack --mode production ./src/index.js --output-path ./static"
   },
   "dependencies": {
     "@babel/core": "^7.12.9",
