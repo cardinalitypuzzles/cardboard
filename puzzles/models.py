@@ -123,7 +123,6 @@ class Puzzle(models.Model):
             if google_api_client:
                 google_api_client.add_puzzle_link_to_sheet(self.url, self.sheet)
 
-
     def set_answer(self, answer):
         self.answer = answer
         self.status = Puzzle.SOLVED
