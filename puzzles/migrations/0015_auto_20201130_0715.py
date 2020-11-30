@@ -6,22 +6,24 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('puzzles', '0014_remove_puzzle_channel'),
+        ("puzzles", "0014_remove_puzzle_channel"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='puzzle',
-            name='name',
+            model_name="puzzle",
+            name="name",
             field=models.CharField(max_length=80),
         ),
         migrations.AlterField(
-            model_name='puzzle',
-            name='sheet',
+            model_name="puzzle",
+            name="sheet",
             field=models.URLField(blank=True, default=None, null=True, unique=True),
         ),
         migrations.AddConstraint(
-            model_name='puzzle',
-            constraint=models.UniqueConstraint(fields=('name', 'hunt'), name='unique_names_per_hunt'),
+            model_name="puzzle",
+            constraint=models.UniqueConstraint(
+                fields=("name", "hunt"), name="unique_names_per_hunt"
+            ),
         ),
     ]
