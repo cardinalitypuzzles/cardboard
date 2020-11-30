@@ -27,6 +27,7 @@ urlpatterns = [
     path("puzzles/", include("puzzles.urls")),
     path("hunts/", include("hunts.urls")),
     path("answers/", include("answers.urls")),
+    path("tools", views.tools, name="tools"),
     path("privacy", views.privacy, name="privacy"),
     path(
         "", lambda r: HttpResponseRedirect("hunts/{}/".format(settings.ACTIVE_HUNT_ID))
