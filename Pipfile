@@ -12,6 +12,7 @@ social-auth-app-django = "*"
 django-taggit = "*"
 url-normalize = "*"
 gunicorn = "*"
+djangorestframework = "*"
 
 [dev-packages]
 pre-commit = "*"

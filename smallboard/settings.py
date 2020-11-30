@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     "answers",
     "social_django",
     "taggit",
+    "rest_framework",
 ]
 
 MIDDLEWARE = [
