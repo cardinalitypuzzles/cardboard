@@ -224,3 +224,14 @@ class LastAccessedHuntRedirectView(LoginRequiredMixin, RedirectView):
 
 if settings.DEBUG:
     HuntView = method_decorator(csrf_exempt, name="dispatch")(HuntView)
+
+
+class ReactHuntView(LoginRequiredMixin, View):
+    login_url = "/accounts/login/"
+    redirect_field_name = "next"
+
+    def get(self, request, hunt_slug):
+        if not Hunt.objects.filter(slug=hunt_slug).exists():
+            return index(request)
+
+        return render(request, "all_puzzles_react.html")
