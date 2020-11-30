@@ -14,14 +14,27 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Hunt',
+            name="Hunt",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=128)),
-                ('url', models.URLField()),
-                ('created_on', models.DateTimeField(auto_now_add=True)),
-                ('active', models.BooleanField(default=True)),
-                ('puzzlers', models.ManyToManyField(related_name='hunts', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=128)),
+                ("url", models.URLField()),
+                ("created_on", models.DateTimeField(auto_now_add=True)),
+                ("active", models.BooleanField(default=True)),
+                (
+                    "puzzlers",
+                    models.ManyToManyField(
+                        related_name="hunts", to=settings.AUTH_USER_MODEL
+                    ),
+                ),
             ],
         ),
     ]

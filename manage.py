@@ -10,9 +10,9 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 def main():
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'smallboard.settings')
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "smallboard.settings")
 
-    if 'test' in sys.argv:
+    if "test" in sys.argv:
         test_env_files = [".env.test.user", ".env.test"]
         for dotenv_file in test_env_files:
             if os.path.isfile(dotenv_file):
@@ -34,5 +34,5 @@ def main():
     execute_from_command_line(sys.argv)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

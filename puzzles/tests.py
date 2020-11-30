@@ -9,12 +9,13 @@ from .models import Puzzle, is_ancestor
 from .puzzle_tree import PuzzleTree
 from .puzzle_tag import PuzzleTag
 
-class TestPuzzle(TestCase):
 
+class TestPuzzle(TestCase):
     def setUp(self):
         self._user = Puzzler.objects.create_user(
-            username='test', email='test@ing.com', password='testingpwd')
-        self.client.login(username='test', password='testingpwd')
+            username="test", email="test@ing.com", password="testingpwd"
+        )
+        self.client.login(username="test", password="testingpwd")
 
         self._test_hunt = Hunt.objects.create(name="fake hunt", url="google.com")
         self._suffix = 0
@@ -34,8 +35,13 @@ class TestPuzzle(TestCase):
         fake_sheet = "fakesheet%i.com" % self._suffix
         self._suffix += 1
 
-        puzzle = Puzzle.objects.create(name=name, hunt=self._test_hunt, url=fake_url,
-                                       sheet=fake_sheet, is_meta=is_meta)
+        puzzle = Puzzle.objects.create(
+            name=name,
+            hunt=self._test_hunt,
+            url=fake_url,
+            sheet=fake_sheet,
+            is_meta=is_meta,
+        )
         self._puzzles.append(puzzle)
         return puzzle
 
@@ -71,12 +77,16 @@ class TestPuzzle(TestCase):
 
         puzzle_dangling = self.create_puzzle("unit_puzzle_dangling")
 
-        np_pairs = PuzzleTree([puzzle1_1, puzzle1_2, meta1, puzzle_dangling]).get_sorted_node_parent_pairs()
+        np_pairs = PuzzleTree(
+            [puzzle1_1, puzzle1_2, meta1, puzzle_dangling]
+        ).get_sorted_node_parent_pairs()
 
-        expected = ["node: unit_puzzle_dangling parent: None",
-                    "node: unit_meta1 parent: None",
-                    "node: unit_puzzle1-2 parent: unit_meta1",
-                    "node: unit_puzzle1-1 parent: unit_meta1"]
+        expected = [
+            "node: unit_puzzle_dangling parent: None",
+            "node: unit_meta1 parent: None",
+            "node: unit_puzzle1-2 parent: unit_meta1",
+            "node: unit_puzzle1-1 parent: unit_meta1",
+        ]
         self.assertEqual([pair.__str__() for pair in np_pairs], expected)
 
     def test_overlapping_metas_tree(self):
@@ -91,18 +101,21 @@ class TestPuzzle(TestCase):
         puzzle2.metas.add(meta2)
         puzzle2.metas.add(puzzle1)
 
-        np_pairs = PuzzleTree([puzzle1, puzzle2, meta1, meta2]).get_sorted_node_parent_pairs()
+        np_pairs = PuzzleTree(
+            [puzzle1, puzzle2, meta1, meta2]
+        ).get_sorted_node_parent_pairs()
 
-        expected = ["node: unit_meta1 parent: None",
-                    "node: unit_puzzle2 parent: unit_meta1",
-                    "node: unit_puzzle1 parent: unit_meta1",
-                    "node: unit_puzzle2 parent: unit_puzzle1",
-                    "node: unit_meta2 parent: None",
-                    "node: unit_puzzle2 parent: unit_meta2",
-                    "node: unit_puzzle1 parent: unit_meta2",
-                    "node: unit_puzzle2 parent: unit_puzzle1"]
+        expected = [
+            "node: unit_meta1 parent: None",
+            "node: unit_puzzle2 parent: unit_meta1",
+            "node: unit_puzzle1 parent: unit_meta1",
+            "node: unit_puzzle2 parent: unit_puzzle1",
+            "node: unit_meta2 parent: None",
+            "node: unit_puzzle2 parent: unit_meta2",
+            "node: unit_puzzle1 parent: unit_meta2",
+            "node: unit_puzzle2 parent: unit_puzzle1",
+        ]
         self.assertEqual([pair.__str__() for pair in np_pairs], expected)
-
 
     def test_meta_creates_tag(self):
         meta = self.create_puzzle("meta", True)
@@ -123,8 +136,10 @@ class TestPuzzle(TestCase):
         meta = self.create_puzzle("meta", True)
         feeder = self.create_puzzle("feeder", False)
 
-        self.client.post("/puzzles/add_tag/{}/".format(feeder.pk),
-            {"name": meta.name, "color": "primary"})
+        self.client.post(
+            "/puzzles/add_tag/{}/".format(feeder.pk),
+            {"name": meta.name, "color": "primary"},
+        )
         self.assertTrue(feeder.metas.filter(pk=meta.pk).exists())
 
         self.client.post("/puzzles/remove_tag/{}/{}".format(feeder.pk, meta.name))
@@ -145,8 +160,10 @@ class TestPuzzle(TestCase):
         feeder.metas.add(meta)
         self.assertTrue(feeder.tags.filter(name="oldname").exists())
 
-        self.client.post("/puzzles/edit/{}/".format(meta.pk),
-            {"name": "newname", "url": meta.url, "is_meta": True})
+        self.client.post(
+            "/puzzles/edit/{}/".format(meta.pk),
+            {"name": "newname", "url": meta.url, "is_meta": True},
+        )
 
         self.assertFalse(PuzzleTag.objects.filter(name="oldname").exists())
         self.assertTrue(feeder.tags.filter(name="newname").exists())

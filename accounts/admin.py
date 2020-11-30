@@ -5,10 +5,15 @@ from django.contrib.auth.admin import UserAdmin
 from .forms import PuzzlerCreationForm, PuzzlerChangeForm
 from .models import Puzzler
 
+
 class PuzzlerAdmin(UserAdmin):
     add_form = PuzzlerCreationForm
     form = PuzzlerChangeForm
     model = Puzzler
-    list_display = ['email', 'username',]
+    list_display = [
+        "email",
+        "username",
+    ]
+
 
 admin.site.register(Puzzler, PuzzlerAdmin)

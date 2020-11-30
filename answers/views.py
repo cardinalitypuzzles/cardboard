@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 @require_POST
-@login_required(login_url='/accounts/login/')
+@login_required(login_url="/accounts/login/")
 @transaction.atomic
 def update_note(request, answer_pk):
     notes_form = UpdateAnswerNotesForm(request.POST)
@@ -30,24 +30,35 @@ def update_note(request, answer_pk):
         notes_text = notes_form.cleaned_data["text"]
         answer.set_notes(notes_text)
     else:
-        return JsonResponse({'error': 'Invalid notes form for answer with id %s'
-            % answer_pk}, status=400)
+        return JsonResponse(
+            {"error": "Invalid notes form for answer with id %s" % answer_pk},
+            status=400,
+        )
 
     return JsonResponse({})
 
 
 @require_GET
-@login_required(login_url='/accounts/login/')
+@login_required(login_url="/accounts/login/")
 def answers(request, hunt_pk):
     hunt = get_object_or_404(Hunt, pk=hunt_pk)
-    answer_objects = Answer.objects.filter(puzzle__hunt__pk=hunt_pk).prefetch_related('puzzle').order_by('-created_on')
+    answer_objects = (
+        Answer.objects.filter(puzzle__hunt__pk=hunt_pk)
+        .prefetch_related("puzzle")
+        .order_by("-created_on")
+    )
 
     result = {
         "data": [
             [
-                answer.created_on, answer.puzzle.name,
-                answer.puzzle.url, answer.puzzle.is_meta, answer.text,
-                answer.status, answer.id, answer.response,
+                answer.created_on,
+                answer.puzzle.name,
+                answer.puzzle.url,
+                answer.puzzle.is_meta,
+                answer.text,
+                answer.status,
+                answer.id,
+                answer.response,
             ]
             for answer in answer_objects
         ]
@@ -56,16 +67,16 @@ def answers(request, hunt_pk):
 
 
 class AnswerView(LoginRequiredMixin, View):
-    login_url = '/accounts/login/'
-    redirect_field_name = 'next'
+    login_url = "/accounts/login/"
+    redirect_field_name = "next"
 
     def get(self, request, hunt_pk):
         hunt = get_object_or_404(Hunt, pk=hunt_pk)
         context = {
-            'hunt_pk': hunt_pk,
-            'hunt_name': hunt.name,
+            "hunt_pk": hunt_pk,
+            "hunt_name": hunt.name,
         }
-        return render(request, 'queue.html', context)
+        return render(request, "queue.html", context)
 
     def post(self, request, hunt_pk, answer_pk):
         """Handles answer status update"""
@@ -75,13 +86,19 @@ class AnswerView(LoginRequiredMixin, View):
             puzzle_already_solved = None
             status = None
             with transaction.atomic():
-                guess = get_object_or_404(Answer.objects.select_for_update(), pk=answer_pk)
+                guess = get_object_or_404(
+                    Answer.objects.select_for_update(), pk=answer_pk
+                )
                 status = status_form.cleaned_data["status"]
                 puzzle_already_solved = len(guess.puzzle.answer) > 0
                 if status == Answer.CORRECT and puzzle_already_solved:
-                    messages.warning(request,
-                        '{} was already marked as solved with the answer "{}"\n'.format(guess.puzzle, guess.puzzle.answer) +
-                        'We won\'t stop ya, but please think twice.')
+                    messages.warning(
+                        request,
+                        '{} was already marked as solved with the answer "{}"\n'.format(
+                            guess.puzzle, guess.puzzle.answer
+                        )
+                        + "We won't stop ya, but please think twice.",
+                    )
 
                 guess.set_status(status)
 
@@ -90,7 +107,12 @@ class AnswerView(LoginRequiredMixin, View):
                 for meta in metas:
                     GoogleApiClient.update_meta_sheet_feeders(meta)
         else:
-            return JsonResponse({'error': 'Invalid form for answer %s and hunt %s'
-                % (answer_pk, hunt_pk)}, status=400)
+            return JsonResponse(
+                {
+                    "error": "Invalid form for answer %s and hunt %s"
+                    % (answer_pk, hunt_pk)
+                },
+                status=400,
+            )
 
         return JsonResponse({})
