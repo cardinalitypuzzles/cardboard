@@ -100,7 +100,6 @@ $('#add-puzzle').on('submit', function(e) {
     });
 });
 
-var slack_base_url = '{{ slack_base_url }}';
 var table;
 
 // indices into data array
@@ -112,10 +111,9 @@ var pk = 0,
     answer = 5,
     puzzle_status = 6,
     sheet = 7,
-    channel = 8,
-    tags = 9,
-    metas = 10,
-    puzzle_class = 11;
+    tags = 8,
+    metas = 9,
+    puzzle_class = 10;
 
 function disableSubmit(form) {
     form.submit.disabled = true
@@ -338,21 +336,20 @@ $(document).ready(function() {
 
             {
                 'searchable': false,
-                'targets': [pk, url, is_meta, active_users, puzzle_class, sheet, channel, metas]
+                'targets': [pk, url, is_meta, active_users, puzzle_class, sheet, metas]
             },
 
             {'title': 'Name', 'targets': puzzle_name},
             {'title': 'Answer', 'targets': answer},
             {'title': 'Status', 'targets': puzzle_status},
             {'title': 'Sheet', 'targets': sheet},
-            {'title': 'Slack', 'targets': channel},
             {'title': 'Tags', 'targets': tags},
             {'title': 'Metas', 'targets': metas},
 
             {'width': '30%', 'targets': puzzle_name},
             {'width': '17.5%', 'targets': [answer, tags]},
             {'width': '80px', 'targets': metas},
-            {'width': '60px', 'targets': [sheet, channel]},
+            {'width': '60px', 'targets': [sheet]},
 
             {
                 'targets': puzzle_name,
@@ -417,16 +414,6 @@ $(document).ready(function() {
                     var result = '';
                     if (data) {
                         result = `<a href="${data}" target="_blank">Link</a>`;
-                    }
-                    return result;
-                }
-            },
-            {
-                'targets': channel,
-                'render': function(data, type, row, meta) {
-                    var result = '';
-                    if (data) {
-                        result = `<a href="${slack_base_url}/app_redirect?channel=${data}" target="_blank">Link</a>`
                     }
                     return result;
                 }

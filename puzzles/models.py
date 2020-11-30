@@ -41,7 +41,6 @@ class Puzzle(models.Model):
     url = models.URLField(blank=True)
 
     sheet = models.URLField(default="", unique=True)
-    channel = models.CharField(max_length=128, default="", unique=True)
     notes = models.TextField(default="")
 
     SOLVING = "SOLVING"
@@ -122,9 +121,7 @@ class Puzzle(models.Model):
         if is_new_url:
             google_api_client = GoogleApiClient.getInstance()
             if google_api_client:
-                google_api_client.add_puzzle_and_slack_links_to_sheet(
-                    self.url, self.channel, self.sheet
-                )
+                google_api_client.add_puzzle_link_to_sheet(self.url, self.sheet)
 
     def set_answer(self, answer):
         self.answer = answer
@@ -167,10 +164,3 @@ def is_ancestor(potential_ancestor, child):
         if is_ancestor(potential_ancestor, parent):
             return True
     return False
-
-
-def is_unassigned_channel(channel_id):
-    """
-    Returns true if channel_id is not assigned to any Puzzle object.
-    """
-    return not (Puzzle.objects.filter(channel=channel_id))

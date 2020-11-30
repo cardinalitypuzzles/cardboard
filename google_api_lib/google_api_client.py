@@ -98,9 +98,7 @@ class GoogleApiClient:
 
         return sorted(list(emails))
 
-    def add_puzzle_and_slack_links_to_sheet(
-        self, puzzle_url, slack_channel_id, sheet_url
-    ):
+    def add_puzzle_link_to_sheet(self, puzzle_url, sheet_url):
         req_body = {
             "values": [
                 [f'=HYPERLINK("{puzzle_url}", "Puzzle Link")'],
@@ -175,7 +173,7 @@ class GoogleApiClient:
                             "startRowIndex": 0,
                             "endRowIndex": 4 + len(feeders),
                             "startColumnIndex": 0,
-                            "endColumnIndex": 5,
+                            "endColumnIndex": 4,
                         },
                         "rows": [
                             {
@@ -227,12 +225,6 @@ class GoogleApiClient:
                                             "textFormat": {"bold": True}
                                         },
                                     },
-                                    {
-                                        "userEnteredValue": {"stringValue": "Slack"},
-                                        "userEnteredFormat": {
-                                            "textFormat": {"bold": True}
-                                        },
-                                    },
                                 ]
                             },
                         ]
@@ -258,12 +250,6 @@ class GoogleApiClient:
                                         "userEnteredValue": {
                                             "formulaValue": '=HYPERLINK("%s", "sheet")'
                                             % puzzle.sheet
-                                        }
-                                    },
-                                    {
-                                        "userEnteredValue": {
-                                            "formulaValue": '=HYPERLINK("%s/app_redirect?channel=%s", "channel")'
-                                            % (settings.SLACK_BASE_URL, puzzle.channel)
                                         }
                                     },
                                 ]

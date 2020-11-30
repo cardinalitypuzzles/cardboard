@@ -14,7 +14,6 @@ from google_api_lib.google_api_client import GoogleApiClient
 from hunts.models import Hunt
 from puzzles.forms import PuzzleForm
 from puzzles.models import Puzzle
-from slack_lib.slack_client import SlackClient
 
 import logging
 
@@ -30,13 +29,6 @@ def update_note(request, answer_pk):
         answer = get_object_or_404(Answer.objects.select_for_update(), pk=answer_pk)
         notes_text = notes_form.cleaned_data["text"]
         answer.set_notes(notes_text)
-        slack_client = SlackClient.getInstance()
-        puzzle_channel = answer.puzzle.channel
-        slack_client.send_message(
-            puzzle_channel,
-            "The operator has added an update regarding the answer "
-            "'%s'. Note: '%s'" % (answer.text.upper(), notes_text),
-        )
     else:
         return JsonResponse(
             {"error": "Invalid notes form for answer with id %s" % answer_pk},
@@ -86,53 +78,6 @@ class AnswerView(LoginRequiredMixin, View):
         }
         return render(request, "queue.html", context)
 
-    # TODO(erwa): Move this method out of AnswerView, as this is being used from
-    # puzzles/views.py as well
-    @staticmethod
-    def update_slack_with_puzzle_status(answer, status):
-        """
-        Sends Slack messages about answer status updates and archives/unarchives
-        puzzle channels accordingly
-        """
-        slack_client = SlackClient.getInstance()
-        puzzle_channel = answer.puzzle.channel
-        message = ""
-        if status == Answer.NEW:
-            message = "NEW answer '%s' has been guessed for puzzle '%s'." % (
-                answer.text,
-                answer.puzzle.name,
-            )
-        elif status == Answer.SUBMITTED:
-            message = "'%s' has been SUBMITTED for puzzle '%s' on the hunt website." % (
-                answer.text,
-                answer.puzzle.name,
-            )
-        elif status in [Answer.PARTIAL, Answer.INCORRECT, Answer.CORRECT]:
-            message = "'%s' for puzzle '%s' is %s!" % (
-                answer.text,
-                answer.puzzle.name,
-                status,
-            )
-        else:
-            logger.error(
-                "Unexpected status '%s' for answer '%s' for puzzle '%s'"
-                % (status, answer.text, answer.puzzle.name)
-            )
-            return
-
-        slack_client.unarchive_channel(puzzle_channel)
-        slack_client.send_message(puzzle_channel, message)
-        slack_client.send_answer_queue_message(message)
-        if status == Answer.CORRECT:
-            slack_client.announce(
-                "'%s' has been solved with the answer: "
-                "'%s' Hurray!" % (answer.puzzle.name, answer.text)
-            )
-            slack_client.archive_channel(puzzle_channel)
-        elif answer.puzzle.status == Puzzle.SOLVED:
-            # puzzle was already solved from another guess
-            slack_client.archive_channel(puzzle_channel)
-
     def post(self, request, hunt_pk, answer_pk):
         """Handles answer status update"""
         status_form = UpdateAnswerStatusForm(request.POST)
@@ -156,7 +101,6 @@ class AnswerView(LoginRequiredMixin, View):
                     )
 
                 guess.set_status(status)
-                self.update_slack_with_puzzle_status(guess, status)
 
             if puzzle_already_solved or status == Answer.CORRECT:
                 metas = guess.puzzle.metas.all()

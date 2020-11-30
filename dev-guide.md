@@ -132,7 +132,7 @@ SELECT  'DROP TABLE IF EXISTS "' || tablename || '" CASCADE;' FROM pg_tables WHE
 
 #### <a name='env'>Local `.env` file: credentials, API Tokens, configuration</a>
 
-This app uses various secrets including Google and Slack API tokens that need to be present in the environment. Locally, you can put these in the `.env` file. In the production Heroku deployment, they're set as Config Vars at https://dashboard.heroku.com/apps/smallboard/settings. For most of these configs, you can just use the production settings. The ones you probably want to change are `DATABASE_URL`, `DJANGO_SECRET_KEY`, and `DEBUG`. You can contact a Collaborator to give you access to the Heroku Small Board settings or to share their `.env` file with you.
+This app uses various secrets including Google API tokens that need to be present in the environment. Locally, you can put these in the `.env` file. In the production Heroku deployment, they're set as Config Vars at https://dashboard.heroku.com/apps/smallboard/settings. For most of these configs, you can just use the production settings. The ones you probably want to change are `DATABASE_URL`, `DJANGO_SECRET_KEY`, and `DEBUG`. You can contact a Collaborator to give you access to the Heroku Small Board settings or to share their `.env` file with you.
 
 The environment variables used by Small Board are listed below. The only required variables are `DATABASE_URL` and `ACTIVE_HUNT_ID`.
 
@@ -164,11 +164,6 @@ GOOGLE_SHEETS_TEMPLATE_FILE_ID=...
 # for Google OAuth2 login
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET=...
 
-# for Slack integration
-SLACK_BASE_URL=https://my-workspace.slack.com
-SLACK_API_TOKEN=...
-SLACK_VERIFICATION_TOKEN=...
-
 # secret used by Django framework for sessions, passwords, etc.
 # rather than use the production secret key locally, you can easily generate a new one using:
 # python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
@@ -195,18 +190,6 @@ When a puzzle is created, a Google Sheet is created that is a copy of the templa
 You need to have access to the Google Drive folder to view it. Please message a Collaborator if you don't.
 
 These Google Drive and Sheets related settings can be found in [smallboard/settings.py](smallboard/settings.py).
-
-#### Slack Integration (optional)
-
-This app interacts with a slack workspace in the following ways:
-
-1. Channel creation upon puzzle creation
-2. A '/answer' command on slack that inputs answers into the big board
-
-When running locally, only 1) will work since the /answer command sends a direct
-POST request to the heroku deployment.
-
-You can contact a Collaborator to be added to the relevant slack workspace(s).
 
 #### Local deployment
 
@@ -263,4 +246,4 @@ We encourage you to keep the `origin` remote as our GitHub repo and make it the 
 
 #### Environment variables
 
-We rely on various secrets and tokens for Google and Slack integration, etc. These are set as Config Vars at https://dashboard.heroku.com/apps/smallboard/settings. See the [Local `.env` file](#env) section above for more details.
+We rely on various secrets and tokens for Google integration, etc. These are set as Config Vars at https://dashboard.heroku.com/apps/smallboard/settings. See the [Local `.env` file](#env) section above for more details.
