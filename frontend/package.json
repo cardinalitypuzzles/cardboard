@@ -5,6 +5,10 @@
   "repository": "git@github.com:cardinalitypuzzles/smallboard.git",
   "author": "Cardinality <cardinalitypuzzles@gmail.com>",
   "license": "MIT",
+  "scripts": {
+    "dev": "webpack --mode development ./src/index.js --output-path ./static/frontend/main.js",
+    "build": "webpack --mode production ./src/index.js --output-path ./static/frontend/main.js"
+  },
   "dependencies": {
     "@babel/core": "^7.12.9",
     "@babel/preset-env": "^7.12.7",
