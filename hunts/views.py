@@ -134,9 +134,9 @@ class HuntView(LoginRequiredMixin, View):
         hunt = get_object_or_404(Hunt, pk=pk)
         form = PuzzleForm(auto_id=False)
         context = {
-            'hunt_name': hunt.name,
-            'hunt_pk': pk,
-            'form': form,
+            "hunt_name": hunt.name,
+            "hunt_pk": pk,
+            "form": form,
         }
 
         return render(request, "all_puzzles.html", context)
@@ -172,16 +172,11 @@ class HuntView(LoginRequiredMixin, View):
                 sheet = puzzle_url
 
             if google_api_client:
-                google_api_client.add_puzzle_link_to_sheet(
-                    puzzle_url, sheet)
+                google_api_client.add_puzzle_link_to_sheet(puzzle_url, sheet)
 
             try:
                 puzzle = Puzzle.objects.create(
-                    name=name,
-                    url=puzzle_url,
-                    hunt=hunt,
-                    sheet=sheet,
-                    is_meta=is_meta
+                    name=name, url=puzzle_url, hunt=hunt, sheet=sheet, is_meta=is_meta
                 )
 
             except IntegrityError as e:
@@ -210,8 +205,9 @@ class HuntView(LoginRequiredMixin, View):
             puzzle.answer,
             puzzle.status,
             puzzle.sheet,
-            [[tag.name, tag.color] for tag in puzzle.tags.all()], '',
-            'treegrid-0 even',
+            [[tag.name, tag.color] for tag in puzzle.tags.all()],
+            "",
+            "treegrid-0 even",
         ]
         return JsonResponse({"data": result})
 

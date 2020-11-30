@@ -45,7 +45,6 @@ class TestAnswers(TestCase):
         self._puzzle.refresh_from_db()
         self.assertEqual(self._puzzle.status, Puzzle.PENDING)
 
-
     def test_answer_queue_status(self):
         guess = Answer.objects.create(puzzle=self._puzzle, text="guess")
         self.assertEqual(guess.status, Answer.NEW)
