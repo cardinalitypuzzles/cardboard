@@ -28,6 +28,7 @@ urlpatterns = [
     path("puzzles/", include("puzzles.urls")),
     path("hunts/", include("hunts.urls")),
     path("answers/", include("answers.urls")),
+    path("api/", include("api.urls")),
     path("tools", views.tools, name="tools"),
     path("privacy", views.privacy, name="privacy"),
     path("", LastAccessedHuntRedirectView.as_view()),
