@@ -220,4 +220,7 @@ class ReactHuntView(LoginRequiredMixin, View):
         if not Hunt.objects.filter(pk=pk).exists():
             return index(request)
 
-        return render(request, "all_puzzles_react.html")
+        context = {
+            "hunt_pk": pk,
+        }
+        return render(request, "all_puzzles_react.html", context)

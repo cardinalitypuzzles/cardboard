@@ -1,10 +1,13 @@
 import React, { Component } from "react";
 import { render } from "react-dom";
+import { HuntViewMain } from "./hunt-view.js";
 
 class App extends Component {
     render() {
         return (
-            <b>Hello, world!</b>
+            <HuntViewMain 
+                huntId={window.CURRENT_HUNT_ID}
+            />
         );
     }
 }
