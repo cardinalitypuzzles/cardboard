@@ -1,11 +1,12 @@
 ## Small Board
 
+[![codecov](https://codecov.io/gh/cardinalitypuzzles/smallboard/branch/master/graph/badge.svg)](https://codecov.io/gh/cardinalitypuzzles/smallboard)
+
 This guide gives an overview of how to use Small Board and its features.
 
 For instructions on how to set up an existing deployment for a new hunt, see this [new hunt setup guide](new-hunt-setup.md).
 
 For development instructions, see the [dev guide](dev-guide.md).
-
 
 ### Overview
 
@@ -27,7 +28,6 @@ Clicking the "x" icon next to an existing tag will remove it from the puzzle.
 
 There is also a static "Tools and References" page linked on the navigation bar at the top that includes links to useful puzzle tools and resources.
 
-
 ### Login
 
 You login to Small Board using a Google account. If you get an error message like
@@ -35,7 +35,6 @@ You login to Small Board using a Google account. If you get an error message lik
 ![login-error](https://user-images.githubusercontent.com/544734/71759638-0ef64900-2e7e-11ea-8362-73f789085547.png)
 
 then you should contact an admin and ask them to add you to the Google Drive hunt folder. For more details, see the [hunt setup guide](new-hunt-setup.md#giving-a-new-user-access-to-small-board).
-
 
 ### Adding and modifying puzzles
 
@@ -49,13 +48,11 @@ In case you need to delete a puzzle (perhaps you accidentally created a duplicat
 
 When a puzzle is created, a Google Spreadsheet are automatically created for the puzzle. These are accessible from the links in the "Sheet" column.
 
-
 ### Searching
 
 As a hunt progresses, the number of puzzles can get quite large (especially for a hunt like the MIT Mystery Hunt). To make things more manageable, you can use the "Search" box in the top-right to filter puzzles. The search matches puzzle name, answer, status, or tags. For example, the following shows filtering to just the puzzles that need extraction:
 
 ![extraction](https://user-images.githubusercontent.com/544734/71759824-38fd3a80-2e81-11ea-8670-d0a1039f6502.png)
-
 
 ### Metas and Tags
 
@@ -67,11 +64,9 @@ Meta puzzles may also be assigned to other metas (which might be meta-metas).
 
 In addition to meta tags for puzzles, users can also tag puzzles as high or low priority, logic or word puzzles, or create new tags.
 
-
 ### Google Sheets integration
 
 When a puzzle is added, a Google Sheet is automatically created for it, accessible from the link under the "Sheet" column. The puzzle sheet is a clone of a template sheet, which may have some useful formulas pre-populated.
-
 
 ### Tools and References
 
