@@ -60,7 +60,9 @@ function reducer(state, action, previousState, instance) {
 
   if (action.type === actions.setGlobalFilter) {
     const { filterValue } = action
-    const { userFilterTypes } = instance
+    // Changed this from instance.userFilterTypes to instance.filterTypes
+    // Seems like a bug to me...
+    const { filterTypes: userFilterTypes } = instance
 
     const filterMethod = getFilterMethod(
       instance.globalFilter,
@@ -147,12 +149,25 @@ function useInstance(instance) {
     const filterableColumns = allColumns.filter(c => c.canFilter === true)
 
     // Filters top level and nested rows
+    // Ryan: I had to modify this to still show nested rows that had a
+    // filtered parent.
     const filterRows = filteredRows => {
       filteredRows = filterMethod(
         filteredRows,
         filterableColumns.map(d => d.id),
         globalFilterValue
       )
+
+      // Ryan: filter out any row whose parent is also going to be visible.
+      // If the parent is visible, this row will appear as a subRow, so
+      // no need to do something else. It's for the rows with a hidden parent
+      // that we needed this logic.
+      const filteredRowIds = new Set(filteredRows.map(row => row.id));
+      filteredRows = filteredRows.filter(
+        row => !filteredRowIds.has(
+          row.id.substr(0, row.id.lastIndexOf('.'))
+        )
+      );
 
       filteredRows.forEach(row => {
         filteredFlatRows.push(row)
@@ -167,7 +182,7 @@ function useInstance(instance) {
       return filteredRows
     }
 
-    return [filterRows(rows), filteredFlatRows, filteredRowsById]
+    return [filterRows(flatRows), filteredFlatRows, filteredRowsById]
   }, [
     manualGlobalFilter,
     globalFilterValue,
