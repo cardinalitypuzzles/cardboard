@@ -1,0 +1,24 @@
+[[source]]
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+Django = "*"
+python-dotenv = "*"
+django-heroku = "*"
+google-api-python-client = "*"
+social-auth-app-django = "*"
+django-taggit = "*"
+url-normalize = "*"
+
+[dev-packages]
+pre-commit = "*"
+black = "*"
+coverage = "*"
+
+[requires]
+python_version = "3.8"
+
+[pipenv]
+allow_prereleases = true
