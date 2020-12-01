@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from hunts.models import Hunt
-from .serializers import HuntSerializer
+from .serializers import HuntSerializer, PuzzleSerializer
 
 # Right now IsAuthenticated ensures that only logged-in users
 # can use the API, but it does not test permissions beyond that.
@@ -17,4 +17,14 @@ class HuntAPIView(APIView):
     def get(self, request, pk):
         hunt = get_object_or_404(Hunt, pk=pk)
         serializer = HuntSerializer(hunt)
+        return Response(serializer.data)
+
+
+class AllPuzzles(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        hunt = get_object_or_404(Hunt, pk=pk)
+        puzzles = hunt.puzzles.all().prefetch_related("metas").prefetch_related("tags")
+        serializer = PuzzleSerializer(puzzles, many=True)
         return Response(serializer.data)
