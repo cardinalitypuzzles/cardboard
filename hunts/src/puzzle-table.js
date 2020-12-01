@@ -1,6 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { useTable, useExpanded, useGlobalFilter } from "react-table";
+import { useTable, useExpanded } from "react-table";
+import { useGlobalFilter } from "./use-global-filter-fixed.js";
 import { matchSorter } from "match-sorter";
 
 export function PuzzleTable({ columns, data }) {
