@@ -41,7 +41,7 @@ export class HuntViewMain extends React.Component {
             .then(puzzleData => {
                 this.setState(() => {
                     return {
-                        puzzleData
+                        puzzleData: this._processPuzzleData(puzzleData),
                     };
                 });
             });
@@ -50,8 +50,29 @@ export class HuntViewMain extends React.Component {
     _tableColumns() {
         return [
             {
+                Header: "id",
+                accessor: "id",
+            },
+            {
                 Header: "Name",
                 accessor: "name",
+                Cell: ({ row, value }) =>
+                    row.canExpand ? (
+                        <span
+                            {...row.getToggleRowExpandedProps({
+                                style: {
+                                    paddingLeft: `${row.depth * 2}rem`,
+                                },
+                            })}
+                        >
+                            {row.isExpanded ? '▼' : '▶'} {value}
+                            </span>
+                    ) : (
+                        <span
+                            style={{paddingLeft: `${row.depth * 2}rem`}}>
+                            {value}
+                            </span>
+                    ),
             },
             {
                 Header: "Answer",
@@ -73,7 +94,27 @@ export class HuntViewMain extends React.Component {
                 Header: "Metas",
                 accessor: "metas",
             },
+            {
+                Header: "Feeders",
+                accessor: "feeders",
+            },
         ];
+    }
+
+    _processPuzzleData(puzzleData) {
+        const rowMap = {};
+        puzzleData.forEach(row => {
+           rowMap[row.id] = row;
+        });
+        puzzleData.forEach(row => {
+            if (row.feeders && row.feeders.length > 0) {
+                row.subRows = [];
+                row.feeders.forEach(subRowId => {
+                    row.subRows.push(rowMap[subRowId]);
+                });
+            }
+        });
+        return Object.values(rowMap).filter(row => row.metas.length == 0);
     }
 
     render() {
