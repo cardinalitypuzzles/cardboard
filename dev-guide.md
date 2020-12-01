@@ -12,7 +12,7 @@ To run Small Board in Docker, you will need:
 To run Small Board manually, you will need:
 
 - Git
-- a Python environment with the packages in [requirements.txt]() installed
+- Pipenv
 - # a local database (PostgreSQL or SQLite)
 - a local database (e.g.: Postgres)
 
@@ -56,23 +56,20 @@ Our docker setup reads environmental variables from .env as described down the p
 
 ##### Setting up a Python environment
 
-We recommend setting up an isolated virtual environment where you install the dependencies. You can set one up by following [this guide](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/#creating-a-virtual-environment). Here are the steps for Ubuntu:
-
+Start by installing [pipenv](https://pipenv.pypa.io/en/latest/install/#installing-pipenv)
+On Ubuntu, you can accomplish this by running:
 ```
-# install Python 3, venv, and Postgres packages
-sudo apt-get install python3-dev python3-venv libpq-dev
-# create a new virtual environment
-python3 -m venv venv_smallboard
+$ sudo apt install pipenv
 ```
-
-Once you've set up the new virtual environment, activate it and install Small Board's dependencies:
-
+Once you have pipenv, you can create an environment by running:
 ```
-source venv_smallboard/bin/activate
-(venv_smallboard)$ pip install -r requirements.txt
+pipenv install --dev
 ```
-
-If you encounter issues during dependency installation, make sure you've installed the `python3-dev` package (and not just `python3`).
+This creates a virtual environment and installs the dependencies and dev dependencies
+You can then activate the virtual environment by running
+```
+pipenv shell
+```
 
 ##### <a name='database'>Setting up a local database</a>
 
