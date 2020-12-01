@@ -21,12 +21,16 @@ function usePuzzleTable({ columns, data }) {
         allColumns,
         rows,
         prepareRow,
+        toggleAllRowsExpanded,
     } = useTable(
         {
             columns,
             data,
+            autoResetExpanded: false,
         },
         useExpanded);
+
+    React.useMemo(() => toggleAllRowsExpanded(true), [data]);
 
     return (
         <table {...getTableProps()}>
