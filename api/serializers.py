@@ -28,5 +28,6 @@ class PuzzleSerializer(serializers.ModelSerializer):
             "answer",
             "tags",
             "metas",
+            "feeders",
             "is_meta",
         )

@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { useTable } from "react-table";
+import { useTable, useExpanded } from "react-table";
 
 export function PuzzleTable({ columns, data }) {
     return usePuzzleTable({
@@ -21,10 +21,12 @@ function usePuzzleTable({ columns, data }) {
         allColumns,
         rows,
         prepareRow,
-    } = useTable({
-        columns,
-        data,
-    });
+    } = useTable(
+        {
+            columns,
+            data,
+        },
+        useExpanded);
 
     return (
         <table {...getTableProps()}>
