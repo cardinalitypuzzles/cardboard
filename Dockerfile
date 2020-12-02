@@ -10,6 +10,7 @@ RUN pip install --upgrade pip
 RUN pip install pipenv
 COPY Pipfile* .
 RUN pipenv lock --requirements > requirements.txt
+RUN pipenv lock -d --pre -r >> requirements.txt
 RUN pip install -r requirements.txt
 
 COPY . .
