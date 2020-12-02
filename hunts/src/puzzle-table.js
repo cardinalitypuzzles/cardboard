@@ -17,10 +17,20 @@ PuzzleTable.propTypes = {
 };
 
 function textFilterFn(rows, id, filterValue) {
+    if (!filterValue || !filterValue.length) {
+        return rows;
+    }
+
+    const words = filterValue.split(' ');
+    if (!words) {
+        return rows;
+    }
+
+    const keys = ["values.name", "values.tags", "values.status", "values.answer"];
     // Need to clone these results because this library is broken as shit
-    return matchSorter(rows, filterValue, { 
-        keys: ["values.name", "values.tags", "values.status", "values.answer"]
-    }).map(row => Object.assign({}, row));
+    return words.reduceRight(
+        (results, word) => matchSorter(results, word, { keys }),
+        rows).map(row => Object.assign({}, row));
 }
 
 textFilterFn.autoRemove = val => !val;
