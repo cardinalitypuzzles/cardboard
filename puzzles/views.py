@@ -35,9 +35,9 @@ logger = logging.getLogger(__name__)
 
 
 @login_required(login_url="/accounts/login/")
-def index(request, pk):
+def index(request, hunt_slug):
     return HttpResponseRedirect(
-        request.META.get("HTTP_REFERER", "/hunts/{}".format(pk))
+        request.META.get("HTTP_REFERER", "/hunts/{}".format(hunt_slug))
     )
 
 
