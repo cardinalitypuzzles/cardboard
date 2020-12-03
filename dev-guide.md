@@ -12,6 +12,7 @@ To run Small Board in Docker, you will need:
 To run Small Board manually, you will need:
 
 - Git
+- Python
 - Pipenv
 - # a local database (PostgreSQL or SQLite)
 - a local database (e.g.: Postgres)
@@ -56,7 +57,13 @@ Our docker setup reads environmental variables from .env as described down the p
 
 ##### Setting up a Python environment
 
-Start by installing [pipenv](https://pipenv.pypa.io/en/latest/install/#installing-pipenv)
+Begin by installing [python](https://wiki.python.org/moin/BeginnersGuide/Download) (you likely already have this installed)
+On Ubuntu, you can accomplish this by running:
+```
+$ sudo apt install python3
+```
+
+Next, install [pipenv](https://pipenv.pypa.io/en/latest/install/#installing-pipenv)
 On Ubuntu, you can accomplish this by running:
 ```
 $ sudo apt install pipenv
@@ -70,6 +77,7 @@ You can then activate the virtual environment by running
 ```
 pipenv shell
 ```
+__Going forward, assume that any commands should be run inside the virtual environment__
 
 ##### <a name='database'>Setting up a local database</a>
 
@@ -120,11 +128,8 @@ DATABASE_URL=postgres://myuser:mypass@localhost/smallboard
 Once this is set up, you'll need to run a one-time database migration to set up the database tables:
 
 ```
-# activate virtual environment
-source venv_smallboard/bin/activate
-
 # from smallboard/ root directory
-(venv_smallboard)$ python manage.py migrate
+$ python manage.py migrate
 ```
 
 #### Local deployment
@@ -132,7 +137,7 @@ source venv_smallboard/bin/activate
 Once the Python environment and database are set up and running, you can run Small Board locally using
 
 ```
-(venv_smallboard)$ python manage.py runserver
+$ python manage.py runserver
 ```
 
 You can view the app in your browser at [http://127.0.0.1:8000/]().
