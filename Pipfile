@@ -11,6 +11,7 @@ google-api-python-client = "*"
 social-auth-app-django = "*"
 django-taggit = "*"
 url-normalize = "*"
+gunicorn = "*"
 
 [dev-packages]
 pre-commit = "*"
