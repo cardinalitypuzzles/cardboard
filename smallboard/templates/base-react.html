@@ -1,0 +1,77 @@
+{% load static %}
+<html lang="en">
+    <head>
+        <title>Cardinality Smallboard</title>
+        <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}"/>
+
+        <link rel="stylesheet" href="{% static 'style.css' %}">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
+        <script src="https://kit.fontawesome.com/cddeb3e966.js" crossorigin="anonymous"></script>
+        <script crossorigin src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
+        <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+    </head>
+
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href="/">Cardinality</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mr-auto">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'tools' %}">Tools and References</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'queue' %}">Answer Queue</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+                        </li>
+                        <li class="nav-item">
+                            <div class="nav-link disabled">Logged in as
+                        {% if user.first_name %}
+                            {{user.first_name}} {{user.last_name}}
+                        {% else %}
+                            {{ user.username }}
+                        {% endif %}
+                        {% if user.email %}
+                            ({{user.email}})
+                        {% endif %}
+                            </div>
+                        </li>
+                    {% else %}
+                    {% if is_google_auth_enabled %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'social:begin' 'google-oauth2' %}">Login</a>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'signup' %}">Signup</a>
+                    </li>
+                    {% endif %}
+                {% endif %}
+                </ul>
+            </div>
+
+        </nav>
+
+        <div id='ajax-messages'></div>
+        {% for message in messages %}
+        {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+            <div class="alert alert-danger" style="white-space: pre-line" role="alert">{{ message }}</div>
+        {% endif %}
+        {% if message.level == DEFAULT_MESSAGE_LEVELS.WARNING %}
+            <div class="alert alert-warning" style="white-space: pre-line" role="alert">{{ message }}</div>
+        {% endif %}
+        {% endfor %}
+
+        {% block page_content %}{% endblock %}
+    </body>
+</html>
