@@ -9,6 +9,9 @@
     "dev": "webpack --mode development ./hunts/src/index.js --output-path ./hunts/static",
     "build": "webpack --mode production ./hunts/src/index.js --output-path ./hunts/static"
   },
+  "devDependencies": {
+    "prettier": "^2.2.1"
+  },
   "dependencies": {
     "@babel/core": "^7.12.9",
     "@babel/preset-env": "^7.12.7",

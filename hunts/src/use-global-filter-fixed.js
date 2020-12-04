@@ -1,35 +1,35 @@
-import React from 'react'
+import React from "react";
 
 import {
   actions,
   useMountedLayoutEffect,
   functionalUpdate,
   useGetLatest,
-} from 'react-table'
+} from "react-table";
 
 const filterTypes = {};
 
 // Actions
-actions.resetGlobalFilter = 'resetGlobalFilter'
-actions.setGlobalFilter = 'setGlobalFilter'
+actions.resetGlobalFilter = "resetGlobalFilter";
+actions.setGlobalFilter = "setGlobalFilter";
 
-export const useGlobalFilter = hooks => {
-  hooks.stateReducers.push(reducer)
-  hooks.useInstance.push(useInstance)
-}
+export const useGlobalFilter = (hooks) => {
+  hooks.stateReducers.push(reducer);
+  hooks.useInstance.push(useInstance);
+};
 
-useGlobalFilter.pluginName = 'useGlobalFilter'
+useGlobalFilter.pluginName = "useGlobalFilter";
 
 // Copied from utils.js in the original project
 function isFunction(a) {
-  if (typeof a === 'function') {
-    return a
+  if (typeof a === "function") {
+    return a;
   }
 }
 
 function getFirstDefined(...args) {
   for (let i = 0; i < args.length; i += 1) {
-    if (typeof args[i] !== 'undefined') {
+    if (typeof args[i] !== "undefined") {
       return args[i];
     }
   }
@@ -45,7 +45,7 @@ function getFilterMethod(filter, userFilterTypes, filterTypes) {
 }
 
 function shouldAutoRemoveFilter(autoRemove, value, column) {
-  return autoRemove ? autoRemove(value, column) : typeof value === 'undefined'
+  return autoRemove ? autoRemove(value, column) : typeof value === "undefined";
 }
 
 // End of utils.js copying
@@ -55,33 +55,33 @@ function reducer(state, action, previousState, instance) {
     return {
       ...state,
       globalFilter: instance.initialState.globalFilter || undefined,
-    }
+    };
   }
 
   if (action.type === actions.setGlobalFilter) {
-    const { filterValue } = action
+    const { filterValue } = action;
     // Changed this from instance.userFilterTypes to instance.filterTypes
     // Seems like a bug to me...
-    const { filterTypes: userFilterTypes } = instance
+    const { filterTypes: userFilterTypes } = instance;
 
     const filterMethod = getFilterMethod(
       instance.globalFilter,
       userFilterTypes || {},
       filterTypes
-    )
+    );
 
-    const newFilter = functionalUpdate(filterValue, state.globalFilter)
+    const newFilter = functionalUpdate(filterValue, state.globalFilter);
 
     //
     if (shouldAutoRemoveFilter(filterMethod.autoRemove, newFilter)) {
-      const { globalFilter, ...stateWithoutGlobalFilter } = state
-      return stateWithoutGlobalFilter
+      const { globalFilter, ...stateWithoutGlobalFilter } = state;
+      return stateWithoutGlobalFilter;
     }
 
     return {
       ...state,
       globalFilter: newFilter,
-    }
+    };
   }
 }
 
@@ -99,14 +99,14 @@ function useInstance(instance) {
     dispatch,
     autoResetGlobalFilter = true,
     disableGlobalFilter,
-  } = instance
+  } = instance;
 
   const setGlobalFilter = React.useCallback(
-    filterValue => {
-      dispatch({ type: actions.setGlobalFilter, filterValue })
+    (filterValue) => {
+      dispatch({ type: actions.setGlobalFilter, filterValue });
     },
     [dispatch]
-  )
+  );
 
   // TODO: Create a filter cache for incremental high speed multi-filtering
   // This gets pretty complicated pretty fast, since you have to maintain a
@@ -118,71 +118,69 @@ function useInstance(instance) {
     globalFilteredFlatRows,
     globalFilteredRowsById,
   ] = React.useMemo(() => {
-    if (manualGlobalFilter || typeof globalFilterValue === 'undefined') {
-      return [rows, flatRows, rowsById]
+    if (manualGlobalFilter || typeof globalFilterValue === "undefined") {
+      return [rows, flatRows, rowsById];
     }
 
-    const filteredFlatRows = []
-    const filteredRowsById = {}
+    const filteredFlatRows = [];
+    const filteredRowsById = {};
 
     const filterMethod = getFilterMethod(
       globalFilter,
       userFilterTypes || {},
       filterTypes
-    )
+    );
 
     if (!filterMethod) {
-      console.warn(`Could not find a valid 'globalFilter' option.`)
-      return rows
+      console.warn(`Could not find a valid 'globalFilter' option.`);
+      return rows;
     }
 
-    allColumns.forEach(column => {
-      const { disableGlobalFilter: columnDisableGlobalFilter } = column
+    allColumns.forEach((column) => {
+      const { disableGlobalFilter: columnDisableGlobalFilter } = column;
 
       column.canFilter = getFirstDefined(
         columnDisableGlobalFilter === true ? false : undefined,
         disableGlobalFilter === true ? false : undefined,
         true
-      )
-    })
+      );
+    });
 
-    const filterableColumns = allColumns.filter(c => c.canFilter === true)
+    const filterableColumns = allColumns.filter((c) => c.canFilter === true);
 
     // Filters top level and nested rows
     // Ryan: I had to modify this to still show nested rows that had a
     // filtered parent.
-    const filterRows = filteredRows => {
+    const filterRows = (filteredRows) => {
       filteredRows = filterMethod(
         filteredRows,
-        filterableColumns.map(d => d.id),
+        filterableColumns.map((d) => d.id),
         globalFilterValue
-      )
+      );
 
       // Ryan: filter out any row whose parent is also going to be visible.
       // If the parent is visible, this row will appear as a subRow, so
       // no need to do something else. It's for the rows with a hidden parent
       // that we needed this logic.
-      const filteredRowIds = new Set(filteredRows.map(row => row.id));
+      const filteredRowIds = new Set(filteredRows.map((row) => row.id));
       filteredRows = filteredRows.filter(
-        row => !filteredRowIds.has(
-          row.id.substr(0, row.id.lastIndexOf('.'))
-        )
+        (row) => !filteredRowIds.has(row.id.substr(0, row.id.lastIndexOf(".")))
       );
 
-      filteredRows.forEach(row => {
-        filteredFlatRows.push(row)
-        filteredRowsById[row.id] = row
+      filteredRows.forEach((row) => {
+        filteredFlatRows.push(row);
+        filteredRowsById[row.id] = row;
 
         row.subRows =
           row.subRows && row.subRows.length
             ? filterRows(row.subRows)
-            : row.subRows
-      })
+            : row.subRows;
+      });
 
-      return filteredRows
-    }
+      return filteredRows;
+    };
 
-    return [filterRows(flatRows), filteredFlatRows, filteredRowsById]
+    return [filterRows(flatRows), filteredFlatRows, filteredRowsById];
   }, [
     manualGlobalFilter,
     globalFilterValue,
@@ -193,15 +191,15 @@ function useInstance(instance) {
     flatRows,
     rowsById,
     disableGlobalFilter,
-  ])
+  ]);
 
-  const getAutoResetGlobalFilter = useGetLatest(autoResetGlobalFilter)
+  const getAutoResetGlobalFilter = useGetLatest(autoResetGlobalFilter);
 
   useMountedLayoutEffect(() => {
     if (getAutoResetGlobalFilter()) {
-      dispatch({ type: actions.resetGlobalFilter })
+      dispatch({ type: actions.resetGlobalFilter });
     }
-  }, [dispatch, manualGlobalFilter ? null : data])
+  }, [dispatch, manualGlobalFilter ? null : data]);
 
   Object.assign(instance, {
     preGlobalFilteredRows: rows,
@@ -215,5 +213,5 @@ function useInstance(instance) {
     rowsById: globalFilteredRowsById,
     setGlobalFilter,
     disableGlobalFilter,
-  })
+  });
 }
