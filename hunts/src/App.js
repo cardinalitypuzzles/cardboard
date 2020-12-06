@@ -3,13 +3,9 @@ import { render } from "react-dom";
 import { HuntViewMain } from "./HuntViewMain";
 
 class App extends Component {
-    render() {
-        return (
-            <HuntViewMain 
-                huntId={window.CURRENT_HUNT_ID}
-            />
-        );
-    }
+  render() {
+    return <HuntViewMain huntId={window.CURRENT_HUNT_ID} />;
+  }
 }
 
 export default App;
