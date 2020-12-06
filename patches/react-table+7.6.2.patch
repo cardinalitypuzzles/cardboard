@@ -38,15 +38,15 @@ index 984860e..5cd0b0e 100644
 @@ -123,10 +123,10 @@
            className = next.className,
            rest = _objectWithoutPropertiesLoose(next, ["style", "className"]);
- 
+
 -      props = _extends({}, props, {}, rest);
 +      props = _extends({}, props, rest);
- 
+
        if (style) {
 -        props.style = props.style ? _extends({}, props.style || {}, {}, style || {}) : style;
 +        props.style = props.style ? _extends({}, props.style || {}, style || {}) : style;
        }
- 
+
        if (className) {
 @@ -264,90 +264,76 @@
      var debounceRef = React.useRef({});
@@ -83,7 +83,7 @@ index 984860e..5cd0b0e 100644
 +              for (_len2 = _args2.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
 +                args[_key2] = _args2[_key2];
 +              }
- 
+
 -                if (!debounceRef.current.promise) {
 -                  debounceRef.current.promise = new Promise(function (resolve, reject) {
 -                    debounceRef.current.resolve = resolve;
@@ -96,14 +96,14 @@ index 984860e..5cd0b0e 100644
 +                  debounceRef.current.reject = reject;
 +                });
 +              }
- 
+
 -                if (debounceRef.current.timeout) {
 -                  clearTimeout(debounceRef.current.timeout);
 -                }
 +              if (debounceRef.current.timeout) {
 +                clearTimeout(debounceRef.current.timeout);
 +              }
- 
+
 -                debounceRef.current.timeout = setTimeout(
 -                /*#__PURE__*/
 -                _asyncToGenerator(
@@ -205,7 +205,7 @@ index 984860e..5cd0b0e 100644
    function makeRenderer(instance, column, meta) {
      if (meta === void 0) {
 @@ -368,11 +354,11 @@
- 
+
        return flexRender(Comp, _extends({}, instance, {
          column: column
 -      }, meta, {}, userProps));
@@ -216,7 +216,7 @@ index 984860e..5cd0b0e 100644
 -    return isReactComponent(Comp) ? React.createElement(Comp, props) : Comp;
 +    return isReactComponent(Comp) ? /*#__PURE__*/React.createElement(Comp, props) : Comp;
    }
- 
+
    function isReactComponent(component) {
 @@ -456,7 +442,7 @@
        // Make sure there is a fallback header, just in case
@@ -229,7 +229,7 @@ index 984860e..5cd0b0e 100644
      });
 @@ -2064,8 +2050,10 @@
      }
- 
+
      if (action.type === actions.setGlobalFilter) {
 -      var filterValue = action.filterValue;
 -      var userFilterTypes = instance.userFilterTypes;
@@ -239,14 +239,14 @@ index 984860e..5cd0b0e 100644
 +      var userFilterTypes = instance.filterTypes;
        var filterMethod = getFilterMethod(instance.globalFilter, userFilterTypes || {}, filterTypes);
        var newFilter = functionalUpdate(filterValue, state.globalFilter); //
- 
+
 @@ -2127,11 +2115,23 @@
        var filterableColumns = allColumns.filter(function (c) {
          return c.canFilter === true;
        }); // Filters top level and nested rows
 +      // Ryan: I had to modify this to still show nested rows that had a
 +      // filtered parent.
- 
+
        var filterRows = function filterRows(filteredRows) {
          filteredRows = filterMethod(filteredRows, filterableColumns.map(function (d) {
            return d.id;
@@ -268,14 +268,14 @@ index 984860e..5cd0b0e 100644
 @@ -2140,7 +2140,7 @@
          return filteredRows;
        };
- 
+
 -      return [filterRows(rows), filteredFlatRows, filteredRowsById];
 +      return [filterRows(flatRows), filteredFlatRows, filteredRowsById];
      }, [manualGlobalFilter, globalFilterValue, globalFilter, userFilterTypes, allColumns, rows, flatRows, rowsById, disableGlobalFilter]),
          globalFilteredRows = _React$useMemo[0],
          globalFilteredFlatRows = _React$useMemo[1],
 @@ -4148,7 +4148,7 @@
- 
+
        return _extends({}, state, {
          columnResizing: _extends({}, state.columnResizing, {
 -          columnWidths: _extends({}, state.columnResizing.columnWidths, {}, newColumnWidths)
@@ -370,19 +370,19 @@ index 14ac2ae..6211a47 100644
 --- a/node_modules/react-table/src/plugin-hooks/useGlobalFilter.js
 +++ b/node_modules/react-table/src/plugin-hooks/useGlobalFilter.js
 @@ -36,7 +36,9 @@ function reducer(state, action, previousState, instance) {
- 
+
    if (action.type === actions.setGlobalFilter) {
      const { filterValue } = action
 -    const { userFilterTypes } = instance
 +    // Changed this from instance.userFilterTypes to instance.filterTypes
 +    // Seems like a bug to me...
 +    const { filterTypes: userFilterTypes } = instance
- 
+
      const filterMethod = getFilterMethod(
        instance.globalFilter,
 @@ -123,6 +125,8 @@ function useInstance(instance) {
      const filterableColumns = allColumns.filter(c => c.canFilter === true)
- 
+
      // Filters top level and nested rows
 +    // Ryan: I had to modify this to still show nested rows that had a
 +    // filtered parent.
@@ -392,7 +392,7 @@ index 14ac2ae..6211a47 100644
 @@ -130,6 +134,17 @@ function useInstance(instance) {
          globalFilterValue
        )
- 
+
 +      // Ryan: filter out any row whose parent is also going to be visible.
 +      // If the parent is visible, this row will appear as a subRow, so
 +      // no need to do something else. It's for the rows with a hidden parent
@@ -410,7 +410,7 @@ index 14ac2ae..6211a47 100644
 @@ -143,7 +158,7 @@ function useInstance(instance) {
        return filteredRows
      }
- 
+
 -    return [filterRows(rows), filteredFlatRows, filteredRowsById]
 +    return [filterRows(flatRows), filteredFlatRows, filteredRowsById]
    }, [
