@@ -30,6 +30,13 @@ export function PuzzleTable({ columns, data }) {
     []
   );
 
+  const getRowId = React.useCallback((row, relativeIndex, parent) => {
+    if (parent) {
+      return `${parent.id}.${row.id}`;
+    } else {
+      return row.id.toString();
+    }
+  }, []);
   const {
     getTableProps,
     getTableBodyProps,
@@ -46,14 +53,14 @@ export function PuzzleTable({ columns, data }) {
       columns,
       data,
       filterTypes,
+      getRowId,
       autoResetExpanded: false,
+      autoResetGlobalFilter: false,
       globalFilter: "globalFilter",
     },
     useGlobalFilter,
     useExpanded
   );
-
-  React.useEffect(() => toggleAllRowsExpanded(true), [data]);
 
   return (
     <>
