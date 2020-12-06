@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { render } from "react-dom";
-import { HuntViewMain } from "./hunt-view.js";
+import { HuntViewMain } from "./HuntViewMain";
 
 class App extends Component {
     render() {
