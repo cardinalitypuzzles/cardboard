@@ -1,6 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { PuzzleTable } from "./puzzle-table.js";
+import { PuzzleTable } from "./puzzle-table";
+import useInterval from "@use-it/interval";
 
 const TABLE_COLUMNS = [
   {
@@ -96,9 +97,25 @@ export const HuntViewMain = (props) => {
   const [huntData, setHuntData] = React.useState(props);
   const [puzzleData, setPuzzleData] = React.useState([]);
 
+  const huntApiUrl = `/api/v1/hunt/${props.huntId}`;
+  const puzzlesApiUrl = `/api/v1/hunt/${props.huntId}/puzzles`;
+  const updatePuzzleData = () => {
+    fetch(puzzlesApiUrl)
+      .then((response) => {
+        if (response.status > 400) {
+          // TODO: error handling
+          console.error("Puzzles API failure", response);
+        }
+        return response.json();
+      })
+      .then((puzzleData) => {
+        setPuzzleData(processPuzzleData(puzzleData));
+      });
+  };
+
+  useInterval(updatePuzzleData, 10 * 1000);
+
   React.useEffect(() => {
-    const huntApiUrl = `/api/v1/hunt/${props.huntId}`;
-    const puzzlesApiUrl = `/api/v1/hunt/${props.huntId}/puzzles`;
     fetch(huntApiUrl)
       .then((response) => {
         if (response.status > 400) {
@@ -111,17 +128,7 @@ export const HuntViewMain = (props) => {
         setHuntData(huntData);
       });
 
-    fetch(puzzlesApiUrl)
-      .then((response) => {
-        if (response.status > 400) {
-          // TODO: error handling
-          console.error("Puzzles API failure", response);
-        }
-        return response.json();
-      })
-      .then((puzzleData) => {
-        setPuzzleData(processPuzzleData(puzzleData));
-      });
+    updatePuzzleData();
   }, [props.huntId]);
 
   if (huntData) {
