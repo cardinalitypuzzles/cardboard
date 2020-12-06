@@ -7,6 +7,7 @@ repos:
       - id: check-added-large-files
       - id: check-docstring-first
       - id: check-merge-conflict
+        args: [--assume-in-merge] # Always run this check, not just during git merge.
       - id: check-yaml
       - id: detect-private-key
       - id: end-of-file-fixer
