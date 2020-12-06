@@ -1,20 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { useTable, useExpanded } from "react-table";
-import { useGlobalFilter } from "./use-global-filter-fixed.js";
+import { useTable, useExpanded, useGlobalFilter } from "react-table";
 import { matchSorter } from "match-sorter";
-
-export function PuzzleTable({ columns, data }) {
-  return usePuzzleTable({
-    columns: React.useMemo(() => columns, [columns]),
-    data: React.useMemo(() => data, [data]),
-  });
-}
-
-PuzzleTable.propTypes = {
-  columns: PropTypes.array.isRequired,
-  data: PropTypes.array.isRequired,
-};
 
 function textFilterFn(rows, id, filterValue) {
   if (!filterValue || !filterValue.length) {
@@ -35,7 +22,7 @@ function textFilterFn(rows, id, filterValue) {
 
 textFilterFn.autoRemove = (val) => !val;
 
-function usePuzzleTable({ columns, data }) {
+export function PuzzleTable({ columns, data }) {
   const filterTypes = React.useMemo(
     () => ({
       globalFilter: textFilterFn,
@@ -66,7 +53,7 @@ function usePuzzleTable({ columns, data }) {
     useExpanded
   );
 
-  React.useMemo(() => toggleAllRowsExpanded(true), [data]);
+  React.useEffect(() => toggleAllRowsExpanded(true), [data]);
 
   return (
     <>
@@ -100,6 +87,11 @@ function usePuzzleTable({ columns, data }) {
     </>
   );
 }
+
+PuzzleTable.propTypes = {
+  columns: PropTypes.array.isRequired,
+  data: PropTypes.array.isRequired,
+};
 
 function GlobalFilter({ globalFilter, setGlobalFilter }) {
   const [value, setValue] = React.useState(globalFilter);

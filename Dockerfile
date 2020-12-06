@@ -13,7 +13,11 @@ RUN pip install --upgrade pip
 COPY ./requirements.txt .
 RUN pip install -r requirements.txt
 
-COPY ./package.json .
+# Install npm dependencies
+COPY ./package.json ./yarn.lock ./
+RUN yarn install
+# Install patches
+COPY ./patches ./patches
 RUN yarn install
 
 COPY . .
