@@ -7,7 +7,8 @@
   "license": "MIT",
   "scripts": {
     "dev": "webpack --mode development ./hunts/src/index.js --output-path ./hunts/static",
-    "build": "webpack --mode production ./hunts/src/index.js --output-path ./hunts/static"
+    "build": "webpack --mode production ./hunts/src/index.js --output-path ./hunts/static",
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@babel/core": "^7.12.9",
@@ -15,11 +16,16 @@
     "@babel/preset-react": "^7.12.7",
     "babel-loader": "^8.2.2",
     "match-sorter": "^6.0.1",
+    "patch-package": "^6.2.2",
+    "postinstall-postinstall": "^2.1.0",
     "prop-types": "^15.7.2",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-table": "^7.6.2",
     "webpack": "^5.9.0",
     "webpack-cli": "^4.2.0"
+  },
+  "devDependencies": {
+    "prettier": "^2.2.1"
   }
 }
