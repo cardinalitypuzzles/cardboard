@@ -23,6 +23,21 @@ function textFilterFn(rows, id, filterValue) {
 
 textFilterFn.autoRemove = (val) => !val;
 
+function rowClassName(row) {
+  switch (row.values.status) {
+    case "SOLVED":
+      return "table-success";
+    case "STUCK":
+      return "table-danger";
+    case "EXTRACTION":
+      return "table-danger";
+    case "PENDING":
+      return "table-warning";
+    default:
+      return "";
+  }
+}
+
 export function PuzzleTable({ columns, data }) {
   const filterTypes = React.useMemo(
     () => ({
@@ -81,7 +96,7 @@ export function PuzzleTable({ columns, data }) {
           {rows.map((row, i) => {
             prepareRow(row);
             return (
-              <tr {...row.getRowProps()}>
+              <tr className={rowClassName(row)} {...row.getRowProps()}>
                 {row.cells.map((cell) => {
                   return (
                     <td {...cell.getCellProps()}>{cell.render("Cell")}</td>

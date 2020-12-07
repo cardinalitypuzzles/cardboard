@@ -2,12 +2,10 @@ import React from "react";
 import PropTypes from "prop-types";
 import { PuzzleTable } from "./puzzle-table";
 import useInterval from "@use-it/interval";
+import Badge from "react-bootstrap/Badge";
+import Button from "react-bootstrap/Button";
 
 const TABLE_COLUMNS = [
-  {
-    Header: "id",
-    accessor: "id",
-  },
   {
     Header: "Name",
     accessor: "name",
@@ -29,6 +27,7 @@ const TABLE_COLUMNS = [
   {
     Header: "Answer",
     accessor: "answer",
+    Cell: ({ row, value }) => <span className="text-monospace">{value}</span>,
   },
   {
     Header: "Status",
@@ -37,18 +36,39 @@ const TABLE_COLUMNS = [
   {
     Header: "Sheet",
     accessor: "sheet",
+    Cell: ({ row, value }) =>
+      value ? (
+        <a href={value} target="_blank">
+          Link
+        </a>
+      ) : null,
   },
   {
     Header: "Tags",
     id: "tags",
+    accessor: (row) => row.tags.map(({ name }) => name).join(" "),
+    Cell: ({ row, value }) => {
+      if (row.original.tags && row.original.tags.length) {
+        return (
+          <>
+            {row.original.tags.map(({ name, color }) => (
+              <Badge pill variant={color} key={name}>
+                {name}
+              </Badge>
+            ))}
+          </>
+        );
+      } else {
+        return null;
+      }
+    },
   },
   {
     Header: "Metas",
-    accessor: "metas",
-  },
-  {
-    Header: "Feeders",
-    accessor: "feeders",
+    id: "metas",
+    Cell: ({ row, value }) => (
+      <Button variant="outline-secondary">Assign Meta</Button>
+    ),
   },
 ];
 
