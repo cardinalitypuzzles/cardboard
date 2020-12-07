@@ -231,10 +231,9 @@ class ReactHuntView(LoginRequiredMixin, View):
     redirect_field_name = "next"
 
     def get(self, request, hunt_slug):
-        if not Hunt.objects.filter(slug=hunt_slug).exists():
-            return index(request)
+        hunt = Hunt.get_object_or_404(user=request.user, slug=hunt_slug)
 
         context = {
-            "hunt_pk": pk,
+            "hunt_pk": hunt.pk,
         }
         return render(request, "all_puzzles_react.html", context)
