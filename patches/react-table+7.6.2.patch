@@ -764,4 +764,3 @@ index 80bef77..f40ee6c 100755
 +      !(row.original && row.original[manualCollapsedKey]) && !collapsed[row.id]
 
      row.canExpand = row.subRows && !!row.subRows.length
-
