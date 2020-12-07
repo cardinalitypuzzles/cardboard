@@ -73,6 +73,9 @@ export function PuzzleTable({ columns, data }) {
       autoResetExpanded: false,
       autoResetGlobalFilter: false,
       globalFilter: "globalFilter",
+      initialState: {
+        hiddenColumns: ["is_meta"],
+      },
     },
     useGlobalFilter,
     useExpanded
@@ -84,12 +87,14 @@ export function PuzzleTable({ columns, data }) {
         globalFilter={state.globalFilter}
         setGlobalFilter={setGlobalFilter}
       />
-      <Table {...getTableProps()}>
+      <Table size="sm" {...getTableProps()}>
         <thead>
           <tr>
-            {allColumns.map((column) => (
-              <th {...column.getHeaderProps()}>{column.render("Header")}</th>
-            ))}
+            {allColumns.map((column) =>
+              column.isVisible ? (
+                <th {...column.getHeaderProps()}>{column.render("Header")}</th>
+              ) : null
+            )}
           </tr>
         </thead>
         <tbody {...getTableBodyProps()}>
