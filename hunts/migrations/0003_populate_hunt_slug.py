@@ -8,6 +8,8 @@ from django.template.defaultfilters import slugify
 def save_existing_hunts(apps, schema_editor):
     Hunt = apps.get_model("hunts", "Hunt")
     for hunt in Hunt.objects.all():
+        if not hunt.slug:
+            hunt.slug = slugify(hunt.name)
         hunt.save()
 
 
