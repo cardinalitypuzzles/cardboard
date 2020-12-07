@@ -4,36 +4,83 @@ import { PuzzleTable } from "./puzzle-table";
 import useInterval from "@use-it/interval";
 import Badge from "react-bootstrap/Badge";
 import Button from "react-bootstrap/Button";
+import Dropdown from "react-bootstrap/Dropdown";
+import DropdownButton from "react-bootstrap/DropdownButton";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTimes } from "@fortawesome/free-solid-svg-icons";
+import { faEdit, faTrashAlt } from "@fortawesome/free-regular-svg-icons";
+import { faPlus, faTimes } from "@fortawesome/free-solid-svg-icons";
 
 const TABLE_COLUMNS = [
   {
     Header: "Name",
     accessor: "name",
-    Cell: ({ row, value }) =>
-      row.canExpand ? (
-        <span
-          {...row.getToggleRowExpandedProps({
-            style: {
-              paddingLeft: `${row.depth * 2}rem`,
-            },
-          })}
-        >
-          {row.isExpanded ? "▼" : "▶"} {value}
+    Cell: ({ row, value }) => (
+      <>
+        {row.canExpand ? (
+          <span
+            {...row.getToggleRowExpandedProps({
+              style: {
+                paddingLeft: `${row.depth * 2}rem`,
+              },
+            })}
+          >
+            {row.isExpanded ? "▼" : "▶"} <b>{value}</b>
+          </span>
+        ) : (
+          <span style={{ paddingLeft: `${row.depth * 2}rem` }}>
+            <b>{value}</b>
+          </span>
+        )}{" "}
+        {row.values.is_meta ? <Badge variant="dark">META</Badge> : null}
+        <span style={{ cursor: "pointer" }}>
+          <Badge pill variant="light">
+            <FontAwesomeIcon icon={faEdit} />
+          </Badge>
+        </span>{" "}
+        <span style={{ cursor: "pointer" }}>
+          <Badge pill variant="light">
+            <FontAwesomeIcon icon={faTrashAlt} />
+          </Badge>
         </span>
-      ) : (
-        <span style={{ paddingLeft: `${row.depth * 2}rem` }}>{value}</span>
-      ),
+      </>
+    ),
   },
   {
     Header: "Answer",
     accessor: "answer",
-    Cell: ({ row, value }) => <span className="text-monospace">{value}</span>,
+    Cell: ({ row, value }) =>
+      value ? (
+        <span className="text-monospace">{value}</span>
+      ) : (
+        <Button variant="outline-primary">Submit Answer</Button>
+      ),
   },
   {
     Header: "Status",
     accessor: "status",
+    Cell: ({ row, value }) =>
+      ["SOLVING", "STUCK", "EXTRACTION"].includes(value) ? (
+        <DropdownButton
+          id={`status-dropdown-${row.id}`}
+          title={value}
+          variant="outline-primary"
+        >
+          <Dropdown.Item>SOLVING</Dropdown.Item>
+          <Dropdown.Item>STUCK</Dropdown.Item>
+          <Dropdown.Item>EXTRACTION</Dropdown.Item>
+        </DropdownButton>
+      ) : (
+        value
+      ),
+  },
+  {
+    Header: "Puzzle",
+    accessor: "url",
+    Cell: ({ row, value }) => (
+      <a href={value} target="_blank">
+        Puzzle
+      </a>
+    ),
   },
   {
     Header: "Sheet",
@@ -41,7 +88,7 @@ const TABLE_COLUMNS = [
     Cell: ({ row, value }) =>
       value ? (
         <a href={value} target="_blank">
-          Link
+          Sheet
         </a>
       ) : null,
   },
@@ -50,22 +97,23 @@ const TABLE_COLUMNS = [
     id: "tags",
     accessor: (row) => row.tags.map(({ name }) => name).join(" "),
     Cell: ({ row, value }) => {
-      if (row.original.tags && row.original.tags.length) {
-        return (
-          <>
-            {row.original.tags.map(({ name, color }) => (
-              <Badge pill variant={color} key={name}>
-                {name}
-                <span style={{ marginLeft: "5px", cursor: "pointer" }}>
-                  <FontAwesomeIcon icon={faTimes} />
-                </span>
-              </Badge>
-            ))}
-          </>
-        );
-      } else {
-        return null;
-      }
+      return (
+        <>
+          {row.original.tags.map(({ name, color }) => (
+            <Badge pill variant={color} key={name}>
+              {name}
+              <span style={{ marginLeft: "5px", cursor: "pointer" }}>
+                <FontAwesomeIcon icon={faTimes} />
+              </span>
+            </Badge>
+          ))}
+          <span style={{ cursor: "pointer" }}>
+            <Badge pill variant="light">
+              <FontAwesomeIcon icon={faPlus} />
+            </Badge>
+          </span>
+        </>
+      );
     },
   },
   {
@@ -74,6 +122,10 @@ const TABLE_COLUMNS = [
     Cell: ({ row, value }) => (
       <Button variant="outline-secondary">Assign Meta</Button>
     ),
+  },
+  {
+    accessor: "is_meta",
+    id: "is_meta",
   },
 ];
 
