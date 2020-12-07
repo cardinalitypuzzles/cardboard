@@ -151,6 +151,9 @@ test/
 *.swo
 *.swn
 
+# JS source maps
+*.js.map
+
 # vim local settings
 .vimrc
 
