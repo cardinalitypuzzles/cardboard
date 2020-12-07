@@ -38,15 +38,15 @@ index 984860e..b9e8073 100644
 @@ -123,10 +123,10 @@
            className = next.className,
            rest = _objectWithoutPropertiesLoose(next, ["style", "className"]);
- 
+
 -      props = _extends({}, props, {}, rest);
 +      props = _extends({}, props, rest);
- 
+
        if (style) {
 -        props.style = props.style ? _extends({}, props.style || {}, {}, style || {}) : style;
 +        props.style = props.style ? _extends({}, props.style || {}, style || {}) : style;
        }
- 
+
        if (className) {
 @@ -264,90 +264,76 @@
      var debounceRef = React.useRef({});
@@ -83,7 +83,7 @@ index 984860e..b9e8073 100644
 +              for (_len2 = _args2.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
 +                args[_key2] = _args2[_key2];
 +              }
- 
+
 -                if (!debounceRef.current.promise) {
 -                  debounceRef.current.promise = new Promise(function (resolve, reject) {
 -                    debounceRef.current.resolve = resolve;
@@ -96,14 +96,14 @@ index 984860e..b9e8073 100644
 +                  debounceRef.current.reject = reject;
 +                });
 +              }
- 
+
 -                if (debounceRef.current.timeout) {
 -                  clearTimeout(debounceRef.current.timeout);
 -                }
 +              if (debounceRef.current.timeout) {
 +                clearTimeout(debounceRef.current.timeout);
 +              }
- 
+
 -                debounceRef.current.timeout = setTimeout(
 -                /*#__PURE__*/
 -                _asyncToGenerator(
@@ -205,7 +205,7 @@ index 984860e..b9e8073 100644
    function makeRenderer(instance, column, meta) {
      if (meta === void 0) {
 @@ -368,11 +354,11 @@
- 
+
        return flexRender(Comp, _extends({}, instance, {
          column: column
 -      }, meta, {}, userProps));
@@ -216,7 +216,7 @@ index 984860e..b9e8073 100644
 -    return isReactComponent(Comp) ? React.createElement(Comp, props) : Comp;
 +    return isReactComponent(Comp) ? /*#__PURE__*/React.createElement(Comp, props) : Comp;
    }
- 
+
    function isReactComponent(component) {
 @@ -456,7 +442,7 @@
        // Make sure there is a fallback header, just in case
@@ -241,11 +241,11 @@ index 984860e..b9e8073 100644
 @@ -604,7 +590,7 @@
          addToExpandedRows = true;
        }
- 
+
 -      row.isExpanded = row.original && row.original[manualExpandedKey] || expanded[row.id];
 +      row.isExpanded = !(row.original && row.original[manualCollapsedKey]) && !collapsed[row.id];
        row.canExpand = row.subRows && !!row.subRows.length;
- 
+
        if (addToExpandedRows) {
 @@ -1480,13 +1466,13 @@
    function reducer$1(state, action, previousState, instance) {
@@ -255,21 +255,21 @@ index 984860e..b9e8073 100644
 +        collapsed: {}
        }, state);
      }
- 
+
      if (action.type === actions.resetExpanded) {
        return _extends({}, state, {
 -        expanded: instance.initialState.expanded || {}
 +        collapsed: instance.initialState.collapsed || {}
        });
      }
- 
+
 @@ -1494,42 +1480,42 @@
        var value = action.value;
        var isAllRowsExpanded = instance.isAllRowsExpanded,
            rowsById = instance.rowsById;
 -      var expandAll = typeof value !== 'undefined' ? value : !isAllRowsExpanded;
 +      var collapseAll = typeof value !== 'undefined' ? !value : isAllRowsExpanded;
- 
+
 -      if (expandAll) {
 -        var expanded = {};
 +      if (collapseAll) {
@@ -283,13 +283,13 @@ index 984860e..b9e8073 100644
 +          collapsed: collapsed
          });
        }
- 
+
        return _extends({}, state, {
 -        expanded: {}
 +        collapsed: {}
        });
      }
- 
+
      if (action.type === actions.toggleRowExpanded) {
        var id = action.id,
            setExpanded = action.value;
@@ -297,10 +297,10 @@ index 984860e..b9e8073 100644
 -      var shouldExist = typeof setExpanded !== 'undefined' ? setExpanded : !exists;
 +      var exists = state.collapsed[id];
 +      var shouldExist = typeof setExpanded !== 'undefined' ? !setExpanded : !exists;
- 
+
        if (!exists && shouldExist) {
          var _extends2;
- 
+
          return _extends({}, state, {
 -          expanded: _extends({}, state.expanded, (_extends2 = {}, _extends2[id] = true, _extends2))
 +          collapsed: _extends({}, state.collapsed, (_extends2 = {}, _extends2[id] = true, _extends2))
@@ -312,7 +312,7 @@ index 984860e..b9e8073 100644
 +        var _state$collapsed = state.collapsed,
 +            _ = _state$collapsed[id],
 +            rest = _objectWithoutPropertiesLoose(_state$collapsed, [id].map(_toPropertyKey));
- 
+
          return _extends({}, state, {
 -          expanded: rest
 +          collapsed: rest
@@ -350,7 +350,7 @@ index 984860e..b9e8073 100644
 -    } // Bypass any effects from firing when this changes
 -
 +    var isAllRowsExpanded = Boolean(Object.keys(rowsById).length && !Object.keys(collapsed).length); // Bypass any effects from firing when this changes
- 
+
      useMountedLayoutEffect(function () {
        if (getAutoResetExpanded()) {
 @@ -1589,17 +1566,14 @@
@@ -364,7 +364,7 @@ index 984860e..b9e8073 100644
            expandSubRows: expandSubRows
          });
        }
- 
+
        return rows;
 -    }, [paginateExpandedRows, rows, manualExpandedKey, expanded, expandSubRows]);
 -    var expandedDepth = React.useMemo(function () {
@@ -385,7 +385,7 @@ index 984860e..b9e8073 100644
 @@ -1630,15 +1603,6 @@
      });
    }
- 
+
 -  function findExpandedDepth(expanded) {
 -    var maxDepth = 0;
 -    Object.keys(expanded).forEach(function (id) {
@@ -400,7 +400,7 @@ index 984860e..b9e8073 100644
        return ids.some(function (id) {
 @@ -2064,8 +2028,10 @@
      }
- 
+
      if (action.type === actions.setGlobalFilter) {
 -      var filterValue = action.filterValue;
 -      var userFilterTypes = instance.userFilterTypes;
@@ -410,14 +410,14 @@ index 984860e..b9e8073 100644
 +      var userFilterTypes = instance.filterTypes;
        var filterMethod = getFilterMethod(instance.globalFilter, userFilterTypes || {}, filterTypes);
        var newFilter = functionalUpdate(filterValue, state.globalFilter); //
- 
+
 @@ -2127,11 +2093,23 @@
        var filterableColumns = allColumns.filter(function (c) {
          return c.canFilter === true;
        }); // Filters top level and nested rows
 +      // Ryan: I had to modify this to still show nested rows that had a
 +      // filtered parent.
- 
+
        var filterRows = function filterRows(filteredRows) {
          filteredRows = filterMethod(filteredRows, filterableColumns.map(function (d) {
            return d.id;
@@ -439,14 +439,14 @@ index 984860e..b9e8073 100644
 @@ -2140,7 +2118,7 @@
          return filteredRows;
        };
- 
+
 -      return [filterRows(rows), filteredFlatRows, filteredRowsById];
 +      return [filterRows(flatRows), filteredFlatRows, filteredRowsById];
      }, [manualGlobalFilter, globalFilterValue, globalFilter, userFilterTypes, allColumns, rows, flatRows, rowsById, disableGlobalFilter]),
          globalFilteredRows = _React$useMemo[0],
          globalFilteredFlatRows = _React$useMemo[1],
 @@ -4148,7 +4126,7 @@
- 
+
        return _extends({}, state, {
          columnResizing: _extends({}, state.columnResizing, {
 -          columnWidths: _extends({}, state.columnResizing.columnWidths, {}, newColumnWidths)
@@ -557,47 +557,47 @@ index bfe4971..71dc511 100755
 +      collapsed: instance.initialState.collapsed || {},
      }
    }
- 
+
 @@ -71,47 +71,47 @@ function reducer(state, action, previousState, instance) {
      const { value } = action
      const { isAllRowsExpanded, rowsById } = instance
- 
+
 -    const expandAll = typeof value !== 'undefined' ? value : !isAllRowsExpanded
 +    const collapseAll = typeof value !== 'undefined' ? !value : isAllRowsExpanded
- 
+
 -    if (expandAll) {
 -      const expanded = {}
 +    if (collapseAll) {
 +      const collapsed = {}
- 
+
        Object.keys(rowsById).forEach(rowId => {
 -        expanded[rowId] = true
 +        collapsed[rowId] = true
        })
- 
+
        return {
          ...state,
 -        expanded,
 +        collapsed,
        }
      }
- 
+
      return {
        ...state,
 -      expanded: {},
 +      collapsed: {},
      }
    }
- 
+
    if (action.type === actions.toggleRowExpanded) {
      const { id, value: setExpanded } = action
 -    const exists = state.expanded[id]
 +    const exists = state.collapsed[id]
- 
+
      const shouldExist =
 -      typeof setExpanded !== 'undefined' ? setExpanded : !exists
 +      typeof setExpanded !== 'undefined' ? !setExpanded : !exists
- 
+
      if (!exists && shouldExist) {
        return {
          ...state,
@@ -633,17 +633,17 @@ index bfe4971..71dc511 100755
 +    state: { collapsed },
      dispatch,
    } = instance
- 
+
 @@ -142,16 +142,10 @@ function useInstance(instance) {
- 
+
    const getAutoResetExpanded = useGetLatest(autoResetExpanded)
- 
+
 -  let isAllRowsExpanded = Boolean(
 -    Object.keys(rowsById).length && Object.keys(expanded).length
 +  const isAllRowsExpanded = Boolean(
 +    Object.keys(rowsById).length && !Object.keys(collapsed).length
    )
- 
+
 -  if (isAllRowsExpanded) {
 -    if (Object.keys(rowsById).some(id => !expanded[id])) {
 -      isAllRowsExpanded = false
@@ -654,13 +654,13 @@ index bfe4971..71dc511 100755
    useMountedLayoutEffect(() => {
      if (getAutoResetExpanded()) {
 @@ -173,15 +167,11 @@ function useInstance(instance) {
- 
+
    const expandedRows = React.useMemo(() => {
      if (paginateExpandedRows) {
 -      return expandRows(rows, { manualExpandedKey, expanded, expandSubRows })
 +      return expandRows(rows, { manualCollapsedKey, collapsed, expandSubRows })
      }
- 
+
      return rows
 -  }, [paginateExpandedRows, rows, manualExpandedKey, expanded, expandSubRows])
 -
@@ -668,9 +668,9 @@ index bfe4971..71dc511 100755
 -    expanded,
 -  ])
 +  }, [paginateExpandedRows, rows, manualCollapsedKey, collapsed, expandSubRows])
- 
+
    const getInstance = useGetLatest(instance)
- 
+
 @@ -194,7 +184,6 @@ function useInstance(instance) {
      preExpandedRows: rows,
      expandedRows,
@@ -699,19 +699,19 @@ index 14ac2ae..6211a47 100644
 --- a/node_modules/react-table/src/plugin-hooks/useGlobalFilter.js
 +++ b/node_modules/react-table/src/plugin-hooks/useGlobalFilter.js
 @@ -36,7 +36,9 @@ function reducer(state, action, previousState, instance) {
- 
+
    if (action.type === actions.setGlobalFilter) {
      const { filterValue } = action
 -    const { userFilterTypes } = instance
 +    // Changed this from instance.userFilterTypes to instance.filterTypes
 +    // Seems like a bug to me...
 +    const { filterTypes: userFilterTypes } = instance
- 
+
      const filterMethod = getFilterMethod(
        instance.globalFilter,
 @@ -123,6 +125,8 @@ function useInstance(instance) {
      const filterableColumns = allColumns.filter(c => c.canFilter === true)
- 
+
      // Filters top level and nested rows
 +    // Ryan: I had to modify this to still show nested rows that had a
 +    // filtered parent.
@@ -721,7 +721,7 @@ index 14ac2ae..6211a47 100644
 @@ -130,6 +134,17 @@ function useInstance(instance) {
          globalFilterValue
        )
- 
+
 +      // Ryan: filter out any row whose parent is also going to be visible.
 +      // If the parent is visible, this row will appear as a subRow, so
 +      // no need to do something else. It's for the rows with a hidden parent
@@ -739,7 +739,7 @@ index 14ac2ae..6211a47 100644
 @@ -143,7 +158,7 @@ function useInstance(instance) {
        return filteredRows
      }
- 
+
 -    return [filterRows(rows), filteredFlatRows, filteredRowsById]
 +    return [filterRows(flatRows), filteredFlatRows, filteredRowsById]
    }, [
@@ -750,18 +750,18 @@ index 80bef77..f40ee6c 100755
 --- a/node_modules/react-table/src/utils.js
 +++ b/node_modules/react-table/src/utils.js
 @@ -249,13 +249,13 @@ export function flattenBy(arr, key) {
- 
+
  export function expandRows(
    rows,
 -  { manualExpandedKey, expanded, expandSubRows = true }
 +  { manualCollapsedKey, collapsed, expandSubRows = true }
  ) {
    const expandedRows = []
- 
+
    const handleRow = (row, addToExpandedRows = true) => {
      row.isExpanded =
 -      (row.original && row.original[manualExpandedKey]) || expanded[row.id]
 +      !(row.original && row.original[manualCollapsedKey]) && !collapsed[row.id]
- 
+
      row.canExpand = row.subRows && !!row.subRows.length
- 
+
