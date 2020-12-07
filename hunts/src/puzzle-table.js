@@ -2,6 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import { useTable, useExpanded, useGlobalFilter } from "react-table";
 import { matchSorter } from "match-sorter";
+import Table from "react-bootstrap/Table";
 
 function textFilterFn(rows, id, filterValue) {
   if (!filterValue || !filterValue.length) {
@@ -68,7 +69,7 @@ export function PuzzleTable({ columns, data }) {
         globalFilter={state.globalFilter}
         setGlobalFilter={setGlobalFilter}
       />
-      <table {...getTableProps()}>
+      <Table {...getTableProps()}>
         <thead>
           <tr>
             {allColumns.map((column) => (
@@ -90,7 +91,7 @@ export function PuzzleTable({ columns, data }) {
             );
           })}
         </tbody>
-      </table>
+      </Table>
     </>
   );
 }
