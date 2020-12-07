@@ -4,6 +4,8 @@ import { PuzzleTable } from "./puzzle-table";
 import useInterval from "@use-it/interval";
 import Badge from "react-bootstrap/Badge";
 import Button from "react-bootstrap/Button";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTimes } from "@fortawesome/free-solid-svg-icons";
 
 const TABLE_COLUMNS = [
   {
@@ -54,6 +56,9 @@ const TABLE_COLUMNS = [
             {row.original.tags.map(({ name, color }) => (
               <Badge pill variant={color} key={name}>
                 {name}
+                <span style={{ marginLeft: "5px", cursor: "pointer" }}>
+                  <FontAwesomeIcon icon={faTimes} />
+                </span>
               </Badge>
             ))}
           </>
