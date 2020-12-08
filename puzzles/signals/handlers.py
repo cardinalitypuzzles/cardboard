@@ -1,7 +1,9 @@
+from django.db import transaction
 from django.db.models.signals import pre_save, post_save, pre_delete, m2m_changed
 from django.dispatch import receiver
 from puzzles.models import Puzzle
 from puzzles.puzzle_tag import PuzzleTag
+from google_api_lib.google_api_client import GoogleApiClient
 
 # Hooks for syncing metas and tags
 
@@ -64,3 +66,29 @@ def update_tags_m2m(sender, instance, action, reverse, model, pk_set, **kwargs):
             instance.tags.remove(meta.name)
     elif action == "post_clear":
         instance.tags.filter(is_meta=True).exclude(name=instance.name).remove()
+
+
+@receiver(pre_delete, sender=Puzzle)
+def update_meta_sheets_pre_delete(sender, instance, **kwargs):
+    # Need to be careful with the closure here:
+    # instance.metas.all() will be empty after the transaction commits,
+    # so we need to copy the metas out in advance
+    metas = [meta for meta in instance.metas.all()]
+
+    def update_metas():
+        for meta in metas:
+            GoogleApiClient.update_meta_sheet_feeders(meta)
+
+    transaction.on_commit(update_metas)
+
+
+@receiver(m2m_changed, sender=Puzzle.metas.through)
+def update_meta_sheets_m2m(sender, instance, action, reverse, model, pk_set, **kwargs):
+    if action == "post_add" or action == "post_remove":
+
+        def update_metas():
+            for pk in pk_set:
+                meta = Puzzle.objects.get(pk=pk)
+                GoogleApiClient.update_meta_sheet_feeders(meta)
+
+        transaction.on_commit(update_metas)
