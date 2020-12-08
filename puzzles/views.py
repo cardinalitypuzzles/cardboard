@@ -98,8 +98,6 @@ if settings.DEBUG:
 @require_POST
 @login_required(login_url="/accounts/login/")
 def set_metas(request, pk):
-    old_metas = None
-    new_metas = None
     with transaction.atomic():
         puzzle = get_object_or_404(Puzzle.objects.select_for_update(), pk=pk)
         form = MetaPuzzleForm(request.POST, instance=puzzle)
@@ -108,7 +106,6 @@ def set_metas(request, pk):
                 {"error": "Invalid meta puzzle form submission"}, status=400
             )
 
-        old_metas = list(puzzle.metas.all())
         new_metas = form.cleaned_data["metas"]
         # Check if any additional meta would introduce a cycle. If so, then stop the whole transaction.
         for new_meta in new_metas:
@@ -123,13 +120,6 @@ def set_metas(request, pk):
                 )
 
         puzzle.metas.set(new_metas)
-
-    if new_metas:
-        for new_meta in new_metas:
-            GoogleApiClient.update_meta_sheet_feeders(new_meta)
-        for old_meta in old_metas:
-            if old_meta not in new_metas:
-                GoogleApiClient.update_meta_sheet_feeders(old_meta)
 
     return JsonResponse({})
 
@@ -169,7 +159,6 @@ def edit_puzzle(request, pk):
 @require_POST
 @login_required(login_url="/accounts/login/")
 def delete_puzzle(request, pk):
-    metas = None
     with transaction.atomic():
         puzzle = get_object_or_404(Puzzle.objects.select_for_update(), pk=pk)
         if puzzle.is_meta and Puzzle.objects.filter(metas__id=pk):
@@ -180,13 +169,7 @@ def delete_puzzle(request, pk):
                 },
                 status=400,
             )
-        else:
-            metas = list(puzzle.metas.all())
-            puzzle.delete()
-
-    if metas:
-        for meta in metas:
-            GoogleApiClient.update_meta_sheet_feeders(meta)
+        puzzle.delete()
 
     return JsonResponse({})
 
@@ -198,7 +181,6 @@ def add_tag(request, pk):
     if not form.is_valid():
         return JsonResponse({"error": "Invalid add tag form submission"}, status=400)
 
-    metapuzzle = None
     with transaction.atomic():
         puzzle = get_object_or_404(Puzzle.objects.select_for_update(), pk=pk)
         (tag, _) = PuzzleTag.objects.update_or_create(
@@ -221,9 +203,6 @@ def add_tag(request, pk):
         else:
             puzzle.tags.add(tag)
 
-    if metapuzzle:
-        GoogleApiClient.update_meta_sheet_feeders(metapuzzle)
-
     return JsonResponse({})
 
 
@@ -234,7 +213,6 @@ if settings.DEBUG:
 @require_POST
 @login_required(login_url="/accounts/login/")
 def remove_tag(request, pk, tag_text):
-    meta = None
     with transaction.atomic():
         puzzle = get_object_or_404(Puzzle.objects.select_for_update(), pk=pk)
         if puzzle.name == tag_text:
@@ -259,9 +237,6 @@ def remove_tag(request, pk, tag_text):
                 {"error": "Could not find the tag {} to remove".format(tag_text)},
                 status=400,
             )
-
-    if meta:
-        GoogleApiClient.update_meta_sheet_feeders(meta)
 
     return JsonResponse({})
 
