@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.shortcuts import render, get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -33,3 +34,19 @@ class PuzzleViewSet(viewsets.ModelViewSet):
             .prefetch_related("metas")
             .prefetch_related("tags")
         )
+
+    def destroy(self, request, pk=None, **kwargs):
+        metas = None
+        with transaction.atomic():
+            puzzle = self.get_object()
+            if not puzzle.can_delete():
+                return Response(
+                    {
+                        "detail": "Metapuzzles can only be deleted or made non-meta if no "
+                        "other puzzles are assigned to it."
+                    },
+                    status=400,
+                )
+            puzzle.delete()
+
+        return Response({})

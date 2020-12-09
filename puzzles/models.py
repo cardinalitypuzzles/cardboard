@@ -154,6 +154,9 @@ class Puzzle(models.Model):
     def has_assigned_meta(self):
         return len(self.metas.all()) > 0
 
+    def can_delete(self):
+        return not (self.is_meta and Puzzle.objects.filter(metas__id=self.pk))
+
     @staticmethod
     def maybe_truncate_name(name):
         max_allowed_length = Puzzle._meta.get_field("name").max_length
