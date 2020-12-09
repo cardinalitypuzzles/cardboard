@@ -168,7 +168,7 @@ def edit_puzzle(request, pk):
 def delete_puzzle(request, pk):
     with transaction.atomic():
         puzzle = get_object_or_404(Puzzle.objects.select_for_update(), pk=pk)
-        if puzzle.is_meta and Puzzle.objects.filter(metas__id=pk):
+        if not puzzle.can_delete():
             return JsonResponse(
                 {
                     "error": "Metapuzzles can only be deleted or made non-meta if no "
