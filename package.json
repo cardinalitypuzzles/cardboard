@@ -23,6 +23,7 @@
     "@fortawesome/react-fontawesome": "^0.1.13",
     "@use-it/interval": "^1.0.0",
     "babel-loader": "^8.2.2",
+    "js-cookie": "^2.2.1",
     "match-sorter": "^6.0.1",
     "patch-package": "^6.2.2",
     "postinstall-postinstall": "^2.1.0",

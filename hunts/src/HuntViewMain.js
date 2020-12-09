@@ -1,49 +1,28 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { PuzzleTable } from "./puzzle-table";
+import NameCell from "./NameCell";
+import { getHunt, getPuzzles, deletePuzzle } from "./api";
 import useInterval from "@use-it/interval";
 import Badge from "react-bootstrap/Badge";
 import Button from "react-bootstrap/Button";
 import Dropdown from "react-bootstrap/Dropdown";
+import Modal from "react-bootstrap/Modal";
 import DropdownButton from "react-bootstrap/DropdownButton";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEdit, faTrashAlt } from "@fortawesome/free-regular-svg-icons";
 import { faPlus, faTimes } from "@fortawesome/free-solid-svg-icons";
+
+export const HuntContext = React.createContext({
+  huntId: "",
+  handleShow: () => void 0,
+  handleClose: () => void 0,
+});
 
 const TABLE_COLUMNS = [
   {
     Header: "Name",
     accessor: "name",
-    Cell: ({ row, value }) => (
-      <>
-        {row.canExpand ? (
-          <span
-            {...row.getToggleRowExpandedProps({
-              style: {
-                paddingLeft: `${row.depth * 2}rem`,
-              },
-            })}
-          >
-            {row.isExpanded ? "▼" : "▶"} <b>{value}</b>
-          </span>
-        ) : (
-          <span style={{ paddingLeft: `${row.depth * 2}rem` }}>
-            <b>{value}</b>
-          </span>
-        )}{" "}
-        {row.values.is_meta ? <Badge variant="dark">META</Badge> : null}
-        <span style={{ cursor: "pointer" }}>
-          <Badge pill variant="light">
-            <FontAwesomeIcon icon={faEdit} />
-          </Badge>
-        </span>{" "}
-        <span style={{ cursor: "pointer" }}>
-          <Badge pill variant="light">
-            <FontAwesomeIcon icon={faTrashAlt} />
-          </Badge>
-        </span>
-      </>
-    ),
+    Cell: NameCell,
   },
   {
     Header: "Answer",
@@ -127,6 +106,10 @@ const TABLE_COLUMNS = [
     accessor: "is_meta",
     id: "is_meta",
   },
+  {
+    accessor: "id",
+    id: "id",
+  },
 ];
 
 function puzzleComparator(a, b) {
@@ -173,47 +156,47 @@ function processPuzzleData(puzzleData) {
 export const HuntViewMain = (props) => {
   const [huntData, setHuntData] = React.useState(props);
   const [puzzleData, setPuzzleData] = React.useState([]);
+  const [modalContents, setModalContents] = React.useState(null);
+  const [showModal, setShowModal] = React.useState(false);
 
-  const huntApiUrl = `/api/v1/hunt/${props.huntId}`;
-  const puzzlesApiUrl = `/api/v1/hunt/${props.huntId}/puzzles`;
   const updatePuzzleData = () => {
-    fetch(puzzlesApiUrl)
-      .then((response) => {
-        if (response.status > 400) {
-          // TODO: error handling
-          console.error("Puzzles API failure", response);
-        }
-        return response.json();
-      })
-      .then((puzzleData) => {
-        setPuzzleData(processPuzzleData(puzzleData));
-      });
+    getPuzzles(props.huntId).then((puzzleData) => {
+      setPuzzleData(processPuzzleData(puzzleData));
+    });
   };
 
   useInterval(updatePuzzleData, 10 * 1000);
 
   React.useEffect(() => {
-    fetch(huntApiUrl)
-      .then((response) => {
-        if (response.status > 400) {
-          //TODO: Some error handling should go here
-          console.error("Hunt API failure", response);
-        }
-        return response.json();
-      })
-      .then((huntData) => {
-        setHuntData(huntData);
-      });
+    getHunt(props.huntId).then((huntData) => {
+      setHuntData(huntData);
+    });
 
     updatePuzzleData();
   }, [props.huntId]);
 
+  const handleShow = ({ contents }) => {
+    setModalContents(contents);
+    setShowModal(true);
+  };
+
+  const handleClose = () => {
+    setShowModal(false);
+  };
+
   if (huntData) {
     return (
-      <div>
-        <h1>{huntData.name} - All Puzzles</h1>
-        <PuzzleTable columns={TABLE_COLUMNS} data={puzzleData} />
-      </div>
+      <HuntContext.Provider
+        value={{ huntId: props.huntId, handleShow, handleClose }}
+      >
+        <div>
+          <h1>{huntData.name} - All Puzzles</h1>
+          <PuzzleTable columns={TABLE_COLUMNS} data={puzzleData} />
+        </div>
+        <Modal show={showModal} onHide={handleClose}>
+          {modalContents}
+        </Modal>
+      </HuntContext.Provider>
     );
   } else {
     return <h1>Loading...</h1>;

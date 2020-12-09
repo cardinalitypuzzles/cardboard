@@ -74,7 +74,7 @@ export function PuzzleTable({ columns, data }) {
       autoResetGlobalFilter: false,
       globalFilter: "globalFilter",
       initialState: {
-        hiddenColumns: ["is_meta"],
+        hiddenColumns: ["is_meta", "id"],
       },
     },
     useGlobalFilter,
