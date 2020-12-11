@@ -7,7 +7,6 @@ import { hideModal } from "./modalSlice";
 import { PuzzleTable } from "./puzzle-table";
 import NameCell from "./NameCell";
 import DeletePuzzleModal from "./DeletePuzzleModal";
-import api from "./api";
 import useInterval from "@use-it/interval";
 import Badge from "react-bootstrap/Badge";
 import Button from "react-bootstrap/Button";
