@@ -21,6 +21,7 @@
     "@fortawesome/free-regular-svg-icons": "^5.15.1",
     "@fortawesome/free-solid-svg-icons": "^5.15.1",
     "@fortawesome/react-fontawesome": "^0.1.13",
+    "@reduxjs/toolkit": "^1.5.0",
     "@use-it/interval": "^1.0.0",
     "babel-loader": "^8.2.2",
     "js-cookie": "^2.2.1",
@@ -31,7 +32,9 @@
     "react": "^17.0.1",
     "react-bootstrap": "^1.4.0",
     "react-dom": "^17.0.1",
+    "react-redux": "^7.2.2",
     "react-table": "^7.6.2",
+    "regenerator-runtime": "^0.13.7",
     "webpack": "^5.9.0",
     "webpack-cli": "^4.2.0"
   }

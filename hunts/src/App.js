@@ -1,5 +1,7 @@
 import React, { Component } from "react";
 import { render } from "react-dom";
+import { Provider } from "react-redux";
+import store from "./store";
 import { HuntViewMain } from "./HuntViewMain";
 
 class App extends Component {
@@ -11,4 +13,9 @@ class App extends Component {
 export default App;
 
 const container = document.getElementById("app");
-render(<App />, container);
+render(
+  <Provider store={store}>
+    <App />
+  </Provider>,
+  container
+);

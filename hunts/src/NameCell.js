@@ -1,38 +1,15 @@
 import React from "react";
 import Badge from "react-bootstrap/Badge";
 import Button from "react-bootstrap/Button";
-import Modal from "react-bootstrap/Modal";
+import { useSelector, useDispatch } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faTrashAlt } from "@fortawesome/free-regular-svg-icons";
-import { HuntContext } from "./HuntViewMain";
-import { deletePuzzle } from "./api";
+import { deletePuzzle } from "./puzzlesSlice";
+import { showModal } from "./modalSlice";
 
-export default function ({ row, value }) {
-  const { huntId, handleShow, handleClose } = React.useContext(HuntContext);
-  const handleDelete = () => {
-    deletePuzzle(huntId, row.values.id)
-      .catch((error) => {
-        // TODO: better error handling
-        console.log(error);
-      })
-      .finally(handleClose);
-  };
-  const deletePuzzleModalContents = () => (
-    <>
-      <Modal.Header closeButton>
-        <Modal.Title>Delete {value}</Modal.Title>
-      </Modal.Header>
-      <Modal.Body>Are you sure you want to delete this puzzle?</Modal.Body>
-      <Modal.Footer>
-        <Button variant="secondary" onClick={handleClose}>
-          Cancel
-        </Button>
-        <Button variant="danger" onClick={handleDelete}>
-          Delete
-        </Button>
-      </Modal.Footer>
-    </>
-  );
+export default function NameCell({ row, value }) {
+  const { id: huntId } = useSelector((state) => state.hunt);
+  const dispatch = useDispatch();
   return (
     <>
       {row.canExpand ? (
@@ -58,7 +35,18 @@ export default function ({ row, value }) {
       </span>{" "}
       <span
         style={{ cursor: "pointer" }}
-        onClick={() => handleShow({ contents: deletePuzzleModalContents() })}
+        onClick={() =>
+          dispatch(
+            showModal({
+              type: "DELETE_PUZZLE",
+              props: {
+                huntId,
+                puzzleId: row.values.id,
+                puzzleName: value,
+              },
+            })
+          )
+        }
       >
         <Badge pill variant="light">
           <FontAwesomeIcon icon={faTrashAlt} />
