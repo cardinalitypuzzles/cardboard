@@ -1,6 +1,6 @@
 import Cookies from "js-cookie";
 
-export function getPuzzles(huntId) {
+function getPuzzles(huntId) {
   const puzzlesApiUrl = `/api/v1/hunt/${huntId}/puzzles`;
   return fetch(puzzlesApiUrl).then((response) => {
     if (response.status > 400) {
@@ -11,7 +11,7 @@ export function getPuzzles(huntId) {
   });
 }
 
-export function deletePuzzle(huntId, puzzleId) {
+function deletePuzzle(huntId, puzzleId) {
   const puzzleApiUrl = `/api/v1/hunt/${huntId}/puzzles/${puzzleId}`;
   return fetch(puzzleApiUrl, {
     method: "DELETE",
@@ -25,7 +25,7 @@ export function deletePuzzle(huntId, puzzleId) {
   });
 }
 
-export function getHunt(huntId) {
+function getHunt(huntId) {
   const huntApiUrl = `/api/v1/hunt/${huntId}`;
   return fetch(huntApiUrl).then((response) => {
     if (response.status > 400) {
@@ -35,3 +35,5 @@ export function getHunt(huntId) {
     return response.json();
   });
 }
+
+export default { getHunt, getPuzzles, deletePuzzle };
