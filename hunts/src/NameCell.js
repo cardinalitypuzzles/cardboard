@@ -4,7 +4,6 @@ import Button from "react-bootstrap/Button";
 import { useSelector, useDispatch } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faTrashAlt } from "@fortawesome/free-regular-svg-icons";
-import { deletePuzzle } from "./puzzlesSlice";
 import { showModal } from "./modalSlice";
 
 export default function NameCell({ row, value }) {
@@ -28,7 +27,23 @@ export default function NameCell({ row, value }) {
         </span>
       )}{" "}
       {row.values.is_meta ? <Badge variant="dark">META</Badge> : null}
-      <span style={{ cursor: "pointer" }}>
+      <span
+        style={{ cursor: "pointer" }}
+        onClick={() =>
+          dispatch(
+            showModal({
+              type: "EDIT_PUZZLE",
+              props: {
+                huntId,
+                puzzleId: row.values.id,
+                name: row.values.name,
+                url: row.values.url,
+                isMeta: row.values.is_meta,
+              },
+            })
+          )
+        }
+      >
         <Badge pill variant="light">
           <FontAwesomeIcon icon={faEdit} />
         </Badge>

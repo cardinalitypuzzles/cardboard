@@ -7,6 +7,7 @@ import { hideModal } from "./modalSlice";
 import { PuzzleTable } from "./puzzle-table";
 import NameCell from "./NameCell";
 import DeletePuzzleModal from "./DeletePuzzleModal";
+import EditPuzzleModal from "./EditPuzzleModal";
 import useInterval from "@use-it/interval";
 import Badge from "react-bootstrap/Badge";
 import Button from "react-bootstrap/Button";
@@ -18,6 +19,7 @@ import { faPlus, faTimes } from "@fortawesome/free-solid-svg-icons";
 
 const MODAL_COMPONENTS = {
   DELETE_PUZZLE: DeletePuzzleModal,
+  EDIT_PUZZLE: EditPuzzleModal,
 };
 
 const TABLE_COLUMNS = [

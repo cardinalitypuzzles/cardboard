@@ -28,7 +28,6 @@ from accounts.models import Puzzler
 from answers.forms import AnswerForm
 from answers.models import Answer
 from answers.views import AnswerView
-from google_api_lib.google_api_client import GoogleApiClient
 
 
 logger = logging.getLogger(__name__)
@@ -142,12 +141,10 @@ def edit_puzzle(request, pk):
     new_url = url_normalize(form.cleaned_data["url"])
     new_is_meta = form.cleaned_data["is_meta"]
 
-    metas = None
     with transaction.atomic():
         puzzle = get_object_or_404(Puzzle.objects.select_for_update(), pk=pk)
         try:
             puzzle.update_metadata(new_name, new_url, new_is_meta)
-            metas = puzzle.metas.all()
 
         except (
             DuplicatePuzzleNameError,
@@ -155,10 +152,6 @@ def edit_puzzle(request, pk):
             InvalidMetaPuzzleError,
         ) as e:
             return JsonResponse({"error": str(e)}, status=400)
-
-    if metas:
-        for meta in metas:
-            GoogleApiClient.update_meta_sheet_feeders(meta)
 
     return JsonResponse({})
 

@@ -50,3 +50,16 @@ class PuzzleViewSet(viewsets.ModelViewSet):
             puzzle.delete()
 
         return Response({})
+
+    def partial_update(self, request, pk=None, **kwargs):
+        puzzle = None
+        with transaction.atomic():
+            puzzle = self.get_object()
+            serializer = self.get_serializer(puzzle, data=request.data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            data = serializer.validated_data
+            puzzle.update_metadata(
+                new_name=data["name"], new_url=data["url"], new_is_meta=data["is_meta"]
+            )
+
+        return Response(PuzzleSerializer(puzzle).data)

@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.db import models
+from django.db import models, transaction
 from django.db.models import Q
 from google_api_lib.google_api_client import GoogleApiClient
 from answers.models import Answer
@@ -125,10 +125,15 @@ class Puzzle(models.Model):
 
         self.save()
 
-        if is_new_url:
-            google_api_client = GoogleApiClient.getInstance()
-            if google_api_client:
-                google_api_client.add_puzzle_link_to_sheet(self.url, self.sheet)
+        def update_sheets():
+            if is_new_url:
+                google_api_client = GoogleApiClient.getInstance()
+                if google_api_client:
+                    google_api_client.add_puzzle_link_to_sheet(self.url, self.sheet)
+            for meta in self.metas.all():
+                GoogleApiClient.update_meta_sheet_feeders(meta)
+
+        transaction.on_commit(update_sheets)
 
     def set_answer(self, answer):
         self.answer = answer
