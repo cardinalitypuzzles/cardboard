@@ -59,7 +59,12 @@ class PuzzleViewSet(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             data = serializer.validated_data
             puzzle.update_metadata(
-                new_name=data["name"], new_url=data["url"], new_is_meta=data["is_meta"]
+                new_name=data.get("name", puzzle.name),
+                new_url=data.get("url", puzzle.url),
+                new_is_meta=data.get("is_meta", puzzle.is_meta),
             )
+            if "status" in data:
+                puzzle.status = data["status"]
+                puzzle.save()
 
         return Response(PuzzleSerializer(puzzle).data)

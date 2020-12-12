@@ -6,6 +6,7 @@ import { fetchHunt } from "./huntSlice";
 import { hideModal } from "./modalSlice";
 import { PuzzleTable } from "./puzzle-table";
 import NameCell from "./NameCell";
+import StatusCell from "./StatusCell";
 import DeletePuzzleModal from "./DeletePuzzleModal";
 import EditPuzzleModal from "./EditPuzzleModal";
 import useInterval from "@use-it/interval";
@@ -41,20 +42,7 @@ const TABLE_COLUMNS = [
   {
     Header: "Status",
     accessor: "status",
-    Cell: ({ row, value }) =>
-      ["SOLVING", "STUCK", "EXTRACTION"].includes(value) ? (
-        <DropdownButton
-          id={`status-dropdown-${row.id}`}
-          title={value}
-          variant="outline-primary"
-        >
-          <Dropdown.Item>SOLVING</Dropdown.Item>
-          <Dropdown.Item>STUCK</Dropdown.Item>
-          <Dropdown.Item>EXTRACTION</Dropdown.Item>
-        </DropdownButton>
-      ) : (
-        value
-      ),
+    Cell: StatusCell,
   },
   {
     Header: "Puzzle",
