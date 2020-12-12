@@ -11,6 +11,7 @@ puzzle_detail = views.PuzzleViewSet.as_view(
     {
         "get": "retrieve",
         "delete": "destroy",
+        "patch": "partial_update",
     }
 )
 

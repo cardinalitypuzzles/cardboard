@@ -25,6 +25,24 @@ function deletePuzzle(huntId, puzzleId) {
   });
 }
 
+function updatePuzzle(huntId, puzzleId, data) {
+  const puzzleApiUrl = `/api/v1/hunt/${huntId}/puzzles/${puzzleId}`;
+  return fetch(puzzleApiUrl, {
+    method: "PATCH",
+    headers: {
+      "X-CSRFToken": Cookies.get("csrftoken"),
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  }).then((response) => {
+    if (response.status > 400) {
+      // TODO: error handling
+      console.error("Update puzzle API failure", response);
+    }
+    return response.json();
+  });
+}
+
 function getHunt(huntId) {
   const huntApiUrl = `/api/v1/hunt/${huntId}`;
   return fetch(huntApiUrl).then((response) => {
@@ -36,4 +54,4 @@ function getHunt(huntId) {
   });
 }
 
-export default { getHunt, getPuzzles, deletePuzzle };
+export default { getHunt, getPuzzles, deletePuzzle, updatePuzzle };
