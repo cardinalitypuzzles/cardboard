@@ -3,12 +3,13 @@ import PropTypes from "prop-types";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchPuzzles, selectPuzzleTableData } from "./puzzlesSlice";
 import { fetchHunt } from "./huntSlice";
-import { hideModal } from "./modalSlice";
+import { showModal, hideModal } from "./modalSlice";
 import { PuzzleTable } from "./puzzle-table";
 import NameCell from "./NameCell";
 import StatusCell from "./StatusCell";
 import DeletePuzzleModal from "./DeletePuzzleModal";
 import EditPuzzleModal from "./EditPuzzleModal";
+import AddPuzzleModal from "./AddPuzzleModal";
 import useInterval from "@use-it/interval";
 import Badge from "react-bootstrap/Badge";
 import Button from "react-bootstrap/Button";
@@ -21,6 +22,7 @@ import { faPlus, faTimes } from "@fortawesome/free-solid-svg-icons";
 const MODAL_COMPONENTS = {
   DELETE_PUZZLE: DeletePuzzleModal,
   EDIT_PUZZLE: EditPuzzleModal,
+  ADD_PUZZLE: AddPuzzleModal,
 };
 
 const TABLE_COLUMNS = [
@@ -125,6 +127,21 @@ export const HuntViewMain = (props) => {
   return (
     <div>
       <h1>{hunt.name} - All Puzzles</h1>
+      <Button
+        variant="primary"
+        onClick={() =>
+          dispatch(
+            showModal({
+              type: "ADD_PUZZLE",
+              props: {
+                huntId: props.huntId,
+              },
+            })
+          )
+        }
+      >
+        Add Puzzle
+      </Button>
       <PuzzleTable columns={TABLE_COLUMNS} data={tableData} />
       <Modal show={modal.show} onHide={() => dispatch(hideModal())}>
         {ModalComponent ? <ModalComponent {...modal.props} /> : null}
