@@ -6,6 +6,14 @@ import {
 } from "@reduxjs/toolkit";
 import api from "./api";
 
+export const addPuzzle = createAsyncThunk(
+  "puzzles/addPuzzle",
+  async ({ huntId, name, url, is_meta }) => {
+    const response = await api.addPuzzle(huntId, { name, url, is_meta });
+    return response;
+  }
+);
+
 export const deletePuzzle = createAsyncThunk(
   "puzzles/deletePuzzle",
   async ({ huntId, id }) => {
@@ -57,6 +65,9 @@ export const puzzlesSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: {
+    [addPuzzle.fulfilled]: (state, action) => {
+      puzzlesAdapter.addOne(state, action.payload);
+    },
     [deletePuzzle.fulfilled]: (state, action) => {
       puzzlesAdapter.removeOne(state, action.payload);
     },

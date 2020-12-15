@@ -8,6 +8,11 @@ from rest_framework import viewsets
 from hunts.models import Hunt
 from puzzles.models import Puzzle
 from .serializers import HuntSerializer, PuzzleSerializer
+from google_api_lib.google_api_client import GoogleApiClient
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 # Right now IsAuthenticated ensures that only logged-in users
 # can use the API, but it does not test permissions beyond that.
@@ -66,5 +71,32 @@ class PuzzleViewSet(viewsets.ModelViewSet):
             if "status" in data:
                 puzzle.status = data["status"]
                 puzzle.save()
+
+        return Response(PuzzleSerializer(puzzle).data)
+
+    def create(self, request, **kwargs):
+        puzzle = None
+        with transaction.atomic():
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+
+            name = serializer.validated_data["name"]
+            puzzle_url = serializer.validated_data["url"]
+            sheet = None
+            google_api_client = GoogleApiClient.getInstance()
+            if google_api_client:
+                sheet = google_api_client.create_google_sheets(name)
+            else:
+                logger.warn("Sheet not created for puzzle %s" % name)
+
+            hunt = get_object_or_404(Hunt, pk=self.kwargs["hunt_id"])
+            puzzle = serializer.save(hunt=hunt, sheet=sheet)
+
+            if google_api_client:
+                transaction.on_commit(
+                    lambda: google_api_client.add_puzzle_link_to_sheet(
+                        puzzle_url, sheet
+                    )
+                )
 
         return Response(PuzzleSerializer(puzzle).data)

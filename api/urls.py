@@ -4,6 +4,7 @@ from . import views
 puzzle_list = views.PuzzleViewSet.as_view(
     {
         "get": "list",
+        "post": "create",
     }
 )
 

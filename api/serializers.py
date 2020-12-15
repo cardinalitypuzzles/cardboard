@@ -27,7 +27,9 @@ class PuzzleSerializer(serializers.ModelSerializer):
             return None
 
         # Feeders can't have feeders
-        if not get_merged("is_meta") and len(self.instance.feeders.all()) > 0:
+        feeders_query = get_merged("feeders")
+        feeders = (feeders_query and feeders_query.all()) or []
+        if not get_merged("is_meta") and len(feeders) > 0:
             raise serializers.ValidationError(
                 "Puzzle must be a meta to have puzzles assigned."
             )
