@@ -11,7 +11,8 @@ function EditPuzzleModal({ huntId, puzzleId, name, url, isMeta }) {
   const [newUrl, setNewUrl] = React.useState(url);
   const [newIsMeta, setNewIsMeta] = React.useState(isMeta);
   const dispatch = useDispatch();
-  const onSubmit = () => {
+  const onSubmit = (e) => {
+    e.preventDefault();
     dispatch(
       updatePuzzle({
         huntId,
@@ -21,17 +22,19 @@ function EditPuzzleModal({ huntId, puzzleId, name, url, isMeta }) {
     ).finally(() => {
       dispatch(hideModal());
     });
+    return false;
   };
   return (
     <>
       <Modal.Header closeButton>
         <Modal.Title>Edit Puzzle</Modal.Title>
       </Modal.Header>
-      <Modal.Body>
-        <Form>
+      <Form onSubmit={onSubmit}>
+        <Modal.Body>
           <Form.Group controlId="editPuzzle.name">
             <Form.Label>Puzzle name</Form.Label>
             <Form.Control
+              required
               placeholder="Name"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
@@ -40,6 +43,7 @@ function EditPuzzleModal({ huntId, puzzleId, name, url, isMeta }) {
           <Form.Group controlId="editPuzzle.url">
             <Form.Label>Puzzle url</Form.Label>
             <Form.Control
+              required
               placeholder="https://www.example.com/"
               value={newUrl}
               onChange={(e) => setNewUrl(e.target.value)}
@@ -51,16 +55,16 @@ function EditPuzzleModal({ huntId, puzzleId, name, url, isMeta }) {
             checked={newIsMeta}
             onChange={(e) => setNewIsMeta(e.target.checked)}
           />
-        </Form>
-      </Modal.Body>
-      <Modal.Footer>
-        <Button variant="secondary" onClick={() => dispatch(hideModal())}>
-          Cancel
-        </Button>
-        <Button variant="primary" onClick={onSubmit}>
-          Submit
-        </Button>
-      </Modal.Footer>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => dispatch(hideModal())}>
+            Cancel
+          </Button>
+          <Button variant="primary" type="submit">
+            Submit
+          </Button>
+        </Modal.Footer>
+      </Form>
     </>
   );
 }

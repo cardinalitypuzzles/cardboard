@@ -38,7 +38,7 @@ function rowClassName(row) {
   }
 }
 
-export function PuzzleTable({ columns, data }) {
+export function PuzzleTable({ columns, data, filter }) {
   const filterTypes = React.useMemo(
     () => ({
       globalFilter: textFilterFn,
@@ -81,12 +81,9 @@ export function PuzzleTable({ columns, data }) {
     useExpanded
   );
 
+  React.useEffect(() => setGlobalFilter(filter), [filter]);
   return (
     <>
-      <GlobalFilter
-        globalFilter={state.globalFilter}
-        setGlobalFilter={setGlobalFilter}
-      />
       <Table size="sm" {...getTableProps()}>
         <thead>
           <tr>
@@ -120,20 +117,3 @@ PuzzleTable.propTypes = {
   columns: PropTypes.array.isRequired,
   data: PropTypes.array.isRequired,
 };
-
-function GlobalFilter({ globalFilter, setGlobalFilter }) {
-  const [value, setValue] = React.useState(globalFilter);
-
-  return (
-    <span>
-      <input
-        value={value || ""}
-        onChange={(e) => {
-          setValue(e.target.value);
-          setGlobalFilter(e.target.value);
-        }}
-        placeholder={"Search"}
-      />
-    </span>
-  );
-}

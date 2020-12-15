@@ -11,7 +11,8 @@ function AddPuzzleModal({ huntId }) {
   const [url, setUrl] = React.useState("");
   const [isMeta, setIsMeta] = React.useState(false);
   const dispatch = useDispatch();
-  const onSubmit = () => {
+  const onSubmit = (e) => {
+    e.preventDefault();
     dispatch(
       addPuzzle({
         huntId,
@@ -22,25 +23,29 @@ function AddPuzzleModal({ huntId }) {
     ).finally(() => {
       dispatch(hideModal());
     });
+    return false;
   };
   return (
     <>
       <Modal.Header closeButton>
         <Modal.Title>Add Puzzle</Modal.Title>
       </Modal.Header>
-      <Modal.Body>
-        <Form>
+      <Form onSubmit={onSubmit}>
+        <Modal.Body>
           <Form.Group controlId="addPuzzle.name">
             <Form.Label>Puzzle name</Form.Label>
             <Form.Control
+              required
               placeholder="Name"
               value={name}
+              autoFocus
               onChange={(e) => setName(e.target.value)}
             />
           </Form.Group>
           <Form.Group controlId="addPuzzle.url">
             <Form.Label>Puzzle url</Form.Label>
             <Form.Control
+              required
               placeholder="https://www.example.com/"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
@@ -52,16 +57,16 @@ function AddPuzzleModal({ huntId }) {
             checked={isMeta}
             onChange={(e) => setIsMeta(e.target.checked)}
           />
-        </Form>
-      </Modal.Body>
-      <Modal.Footer>
-        <Button variant="secondary" onClick={() => dispatch(hideModal())}>
-          Cancel
-        </Button>
-        <Button variant="primary" onClick={onSubmit}>
-          Add
-        </Button>
-      </Modal.Footer>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => dispatch(hideModal())}>
+            Cancel
+          </Button>
+          <Button variant="primary" type="submit">
+            Add
+          </Button>
+        </Modal.Footer>
+      </Form>
     </>
   );
 }

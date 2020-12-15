@@ -6,6 +6,7 @@ import { fetchHunt } from "./huntSlice";
 import { showModal, hideModal } from "./modalSlice";
 import { PuzzleTable } from "./puzzle-table";
 import NameCell from "./NameCell";
+import GlobalFilter from "./GlobalFilter";
 import StatusCell from "./StatusCell";
 import DeletePuzzleModal from "./DeletePuzzleModal";
 import EditPuzzleModal from "./EditPuzzleModal";
@@ -110,6 +111,7 @@ export const HuntViewMain = (props) => {
   const tableData = useSelector(selectPuzzleTableData);
   const modal = useSelector((state) => state.modal);
   const hunt = useSelector((state) => state.hunt);
+  const [filter, setFilter] = React.useState("");
   const dispatch = useDispatch();
 
   const updatePuzzleData = () => {
@@ -127,23 +129,38 @@ export const HuntViewMain = (props) => {
   return (
     <div>
       <h1>{hunt.name} - All Puzzles</h1>
-      <Button
-        variant="primary"
-        onClick={() =>
-          dispatch(
-            showModal({
-              type: "ADD_PUZZLE",
-              props: {
-                huntId: props.huntId,
-              },
-            })
-          )
-        }
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          padding: "2px",
+          alignItems: "center",
+        }}
       >
-        Add Puzzle
-      </Button>
-      <PuzzleTable columns={TABLE_COLUMNS} data={tableData} />
-      <Modal show={modal.show} onHide={() => dispatch(hideModal())}>
+        <GlobalFilter globalFilter={filter} setGlobalFilter={setFilter} />
+        <Button
+          variant="primary"
+          size="lg"
+          onClick={() =>
+            dispatch(
+              showModal({
+                type: "ADD_PUZZLE",
+                props: {
+                  huntId: props.huntId,
+                },
+              })
+            )
+          }
+        >
+          Add Puzzle
+        </Button>
+      </div>
+      <PuzzleTable columns={TABLE_COLUMNS} data={tableData} filter={filter} />
+      <Modal
+        animation={false}
+        show={modal.show}
+        onHide={() => dispatch(hideModal())}
+      >
         {ModalComponent ? <ModalComponent {...modal.props} /> : null}
       </Modal>
     </div>
