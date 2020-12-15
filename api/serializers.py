@@ -2,6 +2,8 @@ from rest_framework import serializers
 from hunts.models import Hunt
 from puzzles.models import Puzzle
 
+from url_normalize import url_normalize
+
 
 class HuntSerializer(serializers.ModelSerializer):
     class Meta:
@@ -11,9 +13,14 @@ class HuntSerializer(serializers.ModelSerializer):
 
 class PuzzleSerializer(serializers.ModelSerializer):
     tags = serializers.SerializerMethodField()
+    # Have to specify this explicitly for validate_url to run
+    url = serializers.CharField()
 
     def get_tags(self, obj):
         return [{"name": tag.name, "color": tag.color} for tag in obj.tags.all()]
+
+    def validate_url(self, url):
+        return url_normalize(url)
 
     def validate(self, data, *args, **kwargs):
         # The django rest framework validation is super clunky for validating
