@@ -6,12 +6,13 @@
   "author": "Cardinality <cardinalitypuzzles@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "dev": "webpack --mode development ./hunts/src/index.js --output-path ./hunts/static",
-    "build": "webpack --mode production ./hunts/src/index.js --output-path ./hunts/static",
+    "dev": "webpack --config webpack.dev.js ./hunts/src/index.js --output-path ./hunts/static",
+    "build": "webpack --config webpack.prod.js ./hunts/src/index.js --output-path ./hunts/static",
     "postinstall": "patch-package"
   },
   "devDependencies": {
-    "prettier": "^2.2.1"
+    "prettier": "^2.2.1",
+    "webpack-merge": "^5.7.0"
   },
   "dependencies": {
     "@babel/core": "^7.12.9",
