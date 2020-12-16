@@ -6,7 +6,7 @@ from rest_framework.views import APIView
 from rest_framework import viewsets
 
 from hunts.models import Hunt
-from puzzles.models import Puzzle
+from puzzles.models import Puzzle, PuzzleModelError
 from .serializers import HuntSerializer, PuzzleSerializer
 from google_api_lib.google_api_client import GoogleApiClient
 
@@ -58,26 +58,35 @@ class PuzzleViewSet(viewsets.ModelViewSet):
 
     def partial_update(self, request, pk=None, **kwargs):
         puzzle = None
-        with transaction.atomic():
-            puzzle = self.get_object()
-            serializer = self.get_serializer(puzzle, data=request.data, partial=True)
-            serializer.is_valid(raise_exception=True)
-            data = serializer.validated_data
-            puzzle.update_metadata(
-                new_name=data.get("name", puzzle.name),
-                new_url=data.get("url", puzzle.url),
-                new_is_meta=data.get("is_meta", puzzle.is_meta),
+        try:
+            with transaction.atomic():
+                puzzle = self.get_object()
+                serializer = self.get_serializer(
+                    puzzle, data=request.data, partial=True
+                )
+                serializer.is_valid(raise_exception=True)
+                data = serializer.validated_data
+                puzzle.update_metadata(
+                    new_name=data.get("name", puzzle.name),
+                    new_url=data.get("url", puzzle.url),
+                    new_is_meta=data.get("is_meta", puzzle.is_meta),
+                )
+                if "status" in data:
+                    puzzle.status = data["status"]
+                    puzzle.save()
+        except PuzzleModelError as e:
+            return Response(
+                {"detail": str(e)},
+                status=400,
             )
-            if "status" in data:
-                puzzle.status = data["status"]
-                puzzle.save()
 
         return Response(PuzzleSerializer(puzzle).data)
 
     def create(self, request, **kwargs):
         puzzle = None
         with transaction.atomic():
-            serializer = self.get_serializer(data=request.data)
+            hunt = get_object_or_404(Hunt, pk=self.kwargs["hunt_id"])
+            serializer = self.get_serializer(data=request.data, context={"hunt": hunt})
             serializer.is_valid(raise_exception=True)
 
             name = serializer.validated_data["name"]
@@ -89,8 +98,7 @@ class PuzzleViewSet(viewsets.ModelViewSet):
             else:
                 logger.warn("Sheet not created for puzzle %s" % name)
 
-            hunt = get_object_or_404(Hunt, pk=self.kwargs["hunt_id"])
-            puzzle = serializer.save(hunt=hunt, sheet=sheet)
+            puzzle = serializer.save(sheet=sheet)
 
             if google_api_client:
                 transaction.on_commit(
