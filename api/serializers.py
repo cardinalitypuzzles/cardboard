@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
 from hunts.models import Hunt
 from puzzles.models import Puzzle
 
@@ -11,10 +12,23 @@ class HuntSerializer(serializers.ModelSerializer):
         fields = ("id", "name", "active")
 
 
+class CurrentHuntDefault:
+    requires_context = True
+
+    def __call__(self, serializer_field):
+        return serializer_field.context.get("hunt")
+
+    def __repr__(self):
+        return "%s()" % (self.__class__.__name__)
+
+
 class PuzzleSerializer(serializers.ModelSerializer):
     tags = serializers.SerializerMethodField()
     # Have to specify this explicitly for validate_url to run
     url = serializers.CharField()
+    hunt_id = serializers.PrimaryKeyRelatedField(
+        read_only=True, default=CurrentHuntDefault()
+    )
 
     def get_tags(self, obj):
         return [{"name": tag.name, "color": tag.color} for tag in obj.tags.all()]
@@ -23,6 +37,7 @@ class PuzzleSerializer(serializers.ModelSerializer):
         return url_normalize(url)
 
     def validate(self, data, *args, **kwargs):
+        data = super().validate(data, *args, **kwargs)
         # The django rest framework validation is super clunky for validating
         # partial updates; we need to merge new values with existing ones
         # ourselves annoyingly.
@@ -73,4 +88,17 @@ class PuzzleSerializer(serializers.ModelSerializer):
             "tags",
             "metas",
             "feeders",
+        )
+
+        validators = (
+            UniqueTogetherValidator(
+                queryset=Puzzle.objects.all(),
+                fields=["hunt_id", "name"],
+                message="There is already a puzzle with this name.",
+            ),
+            UniqueTogetherValidator(
+                queryset=Puzzle.objects.all(),
+                fields=["hunt_id", "url"],
+                message="There is already a puzzle with this URL.",
+            ),
         )

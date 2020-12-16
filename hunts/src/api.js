@@ -1,14 +1,28 @@
 import Cookies from "js-cookie";
 
+function handleErrors(response) {
+  if (!response.ok) {
+    return response.json().then(
+      (json) => {
+        if (json.detail) {
+          throw new Error(json.detail);
+        } else if (json.non_field_errors) {
+          throw new Error(json.non_field_errors[0]);
+        } else {
+          throw new Error(JSON.stringify(json));
+        }
+      },
+      (err) => {
+        throw new Error("An unknown error occurred.");
+      }
+    );
+  }
+  return response.json();
+}
+
 function getPuzzles(huntId) {
   const puzzlesApiUrl = `/api/v1/hunt/${huntId}/puzzles`;
-  return fetch(puzzlesApiUrl).then((response) => {
-    if (response.status >= 400) {
-      // TODO: error handling
-      throw new Error("Get puzzles API failure");
-    }
-    return response.json();
-  });
+  return fetch(puzzlesApiUrl).then(handleErrors);
 }
 
 function addPuzzle(huntId, data) {
@@ -20,13 +34,7 @@ function addPuzzle(huntId, data) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(data),
-  }).then((response) => {
-    if (response.status >= 400) {
-      // TODO: error handling
-      throw new Error("Add puzzle API failure");
-    }
-    return response.json();
-  });
+  }).then(handleErrors);
 }
 
 function deletePuzzle(huntId, puzzleId) {
@@ -34,13 +42,7 @@ function deletePuzzle(huntId, puzzleId) {
   return fetch(puzzleApiUrl, {
     method: "DELETE",
     headers: { "X-CSRFToken": Cookies.get("csrftoken") },
-  }).then((response) => {
-    if (response.status >= 400) {
-      // TODO: error handling
-      throw new Error("Delete puzzle API failure");
-    }
-    return response.json();
-  });
+  }).then(handleErrors);
 }
 
 function updatePuzzle(huntId, puzzleId, data) {
@@ -52,24 +54,12 @@ function updatePuzzle(huntId, puzzleId, data) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(data),
-  }).then((response) => {
-    if (response.status >= 400) {
-      // TODO: error handling
-      throw new Error("Update puzzle API failure");
-    }
-    return response.json();
-  });
+  }).then(handleErrors);
 }
 
 function getHunt(huntId) {
   const huntApiUrl = `/api/v1/hunt/${huntId}`;
-  return fetch(huntApiUrl).then((response) => {
-    if (response.status >= 400) {
-      //TODO: Some error handling should go here
-      throw new Error("Get hunt API failure");
-    }
-    return response.json();
-  });
+  return fetch(huntApiUrl).then(handleErrors);
 }
 
 export default { getHunt, getPuzzles, addPuzzle, deletePuzzle, updatePuzzle };

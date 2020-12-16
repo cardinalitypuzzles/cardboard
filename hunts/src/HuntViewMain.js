@@ -4,6 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { fetchPuzzles, selectPuzzleTableData } from "./puzzlesSlice";
 import { fetchHunt } from "./huntSlice";
 import { showModal, hideModal } from "./modalSlice";
+import { hideAlert } from "./alertSlice";
 import { PuzzleTable } from "./puzzle-table";
 import NameCell from "./NameCell";
 import GlobalFilter from "./GlobalFilter";
@@ -16,6 +17,7 @@ import Badge from "react-bootstrap/Badge";
 import Button from "react-bootstrap/Button";
 import Dropdown from "react-bootstrap/Dropdown";
 import Modal from "react-bootstrap/Modal";
+import Alert from "react-bootstrap/Alert";
 import DropdownButton from "react-bootstrap/DropdownButton";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faTimes } from "@fortawesome/free-solid-svg-icons";
@@ -111,6 +113,7 @@ export const HuntViewMain = (props) => {
   const tableData = useSelector(selectPuzzleTableData);
   const modal = useSelector((state) => state.modal);
   const hunt = useSelector((state) => state.hunt);
+  const alert = useSelector((state) => state.alert);
   const [filter, setFilter] = React.useState("");
   const dispatch = useDispatch();
 
@@ -126,8 +129,23 @@ export const HuntViewMain = (props) => {
     updatePuzzleData();
   }, [props.huntId]);
 
+  React.useEffect(() => {
+    if (alert.show) {
+      const timer = setTimeout(() => dispatch(hideAlert()), 8 * 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [alert.id]);
+
   return (
     <div>
+      <Alert
+        dismissible
+        variant={alert.variant}
+        show={alert.show}
+        onClose={() => dispatch(hideAlert())}
+      >
+        {alert.text}
+      </Alert>
       <h1>{hunt.name} - All Puzzles</h1>
       <div
         style={{
