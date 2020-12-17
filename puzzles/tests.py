@@ -119,7 +119,9 @@ class TestPuzzle(TestCase):
 
     def test_meta_creates_tag(self):
         meta = self.create_puzzle("meta", True)
-        self.assertTrue(PuzzleTag.objects.filter(name=meta.name).exists())
+        self.assertTrue(
+            PuzzleTag.objects.filter(name=meta.name, hunt=meta.hunt).exists()
+        )
         self.assertTrue(meta.tags.filter(name=meta.name).exists())
         tag = meta.tags.get(name=meta.name)
         self.assertTrue(tag.is_meta)
@@ -147,11 +149,16 @@ class TestPuzzle(TestCase):
 
     def test_meta_created_after_tag(self):
         feeder = self.create_puzzle("feeder", False)
-        feeder.tags.add("Unknown Meta")
-        self.assertFalse(PuzzleTag.objects.get(name="Unknown Meta").is_meta)
+        tag = PuzzleTag.objects.create(name="Unknown Meta", hunt=feeder.hunt)
+        feeder.tags.add(tag)
+        self.assertFalse(
+            PuzzleTag.objects.get(name="Unknown Meta", hunt=feeder.hunt).is_meta
+        )
 
         meta = self.create_puzzle("Unknown Meta", True)
-        self.assertTrue(PuzzleTag.objects.get(name="Unknown Meta").is_meta)
+        self.assertTrue(
+            PuzzleTag.objects.get(name="Unknown Meta", hunt=feeder.hunt).is_meta
+        )
         self.assertTrue(feeder.metas.filter(pk=meta.pk).exists())
 
     def test_meta_puzzle_changes_affect_tags(self):
@@ -165,5 +172,7 @@ class TestPuzzle(TestCase):
             {"name": "newname", "url": meta.url, "is_meta": True},
         )
 
-        self.assertFalse(PuzzleTag.objects.filter(name="oldname").exists())
+        self.assertFalse(
+            PuzzleTag.objects.filter(name="oldname", hunt=meta.hunt).exists()
+        )
         self.assertTrue(feeder.tags.filter(name="newname").exists())

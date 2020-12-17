@@ -228,10 +228,10 @@ def remove_tag(request, pk, tag_text):
                 # the post m2m hook will remove tag
                 puzzle.metas.remove(meta)
             else:
-                puzzle.tags.remove(tag_text)
+                puzzle.tags.remove(tag)
 
             # clear db of dangling tags
-            if not tag.tagged_items.exists():
+            if not tag.puzzles.exists():
                 tag.delete()
         except ObjectDoesNotExist as e:
             return JsonResponse(

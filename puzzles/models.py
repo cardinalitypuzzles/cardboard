@@ -2,10 +2,8 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models import Q
 from google_api_lib.google_api_client import GoogleApiClient
-from taggit.managers import TaggableManager
-from taggit.models import TagBase, GenericTaggedItemBase
 from answers.models import Answer
-from .puzzle_tag import PuzzleTagThrough
+from .puzzle_tag import PuzzleTag
 
 
 class PuzzleModelError(Exception):
@@ -59,7 +57,7 @@ class Puzzle(models.Model):
     )
     answer = models.CharField(max_length=128)
 
-    tags = TaggableManager(through=PuzzleTagThrough)
+    tags = models.ManyToManyField(PuzzleTag, related_name="puzzles")
 
     metas = models.ManyToManyField("self", symmetrical=False, related_name="feeders")
 
