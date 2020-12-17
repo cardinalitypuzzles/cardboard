@@ -9,8 +9,13 @@ from rest_framework import viewsets
 from answers.models import Answer
 from chat.models import ChatRoom
 from hunts.models import Hunt
-from puzzles.models import Puzzle, PuzzleModelError
-from .serializers import AnswerSerializer, HuntSerializer, PuzzleSerializer
+from puzzles.models import Puzzle, PuzzleModelError, PuzzleTag
+from .serializers import (
+    AnswerSerializer,
+    HuntSerializer,
+    PuzzleSerializer,
+    PuzzleTagSerializer,
+)
 from google_api_lib.google_api_client import GoogleApiClient
 
 import logging
@@ -187,5 +192,40 @@ class PuzzleViewSet(viewsets.ModelViewSet):
                         puzzle_url, sheet
                     )
                 )
+
+        return Response(PuzzleSerializer(puzzle).data)
+
+
+class PuzzleTagViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = PuzzleTagSerializer
+
+    def get_queryset(self):
+        hunt_id = self.kwargs["hunt_id"]
+        return PuzzleTag.objects.filter(hunt__id=hunt_id)
+
+    def destroy(self, request, pk=None, **kwargs):
+        puzzle = None
+        with transaction.atomic():
+            tag = self.get_object()
+            puzzle = get_object_or_404(Puzzle, pk=self.kwargs["puzzle_id"])
+            if puzzle.name == tag.name:
+                return Response(
+                    {
+                        "detail": "You cannot remove a meta's tag (%s) from itself"
+                        % tag.name
+                    },
+                    status=400,
+                )
+            if tag.is_meta:
+                meta = Puzzle.objects.get(name=tag.name, hunt=puzzle.hunt)
+                # the post m2m hook will remove tag
+                puzzle.metas.remove(meta)
+            else:
+                puzzle.tags.remove(tag)
+
+            # clear db of dangling tags
+            if not tag.puzzles.exists():
+                tag.delete()
 
         return Response(PuzzleSerializer(puzzle).data)
