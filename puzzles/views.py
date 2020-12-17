@@ -185,6 +185,7 @@ def add_tag(request, pk):
         puzzle = get_object_or_404(Puzzle.objects.select_for_update(), pk=pk)
         (tag, _) = PuzzleTag.objects.update_or_create(
             name=form.cleaned_data["name"],
+            hunt=puzzle.hunt,
             defaults={"color": form.cleaned_data["color"]},
         )
         if tag.is_meta:
@@ -221,7 +222,7 @@ def remove_tag(request, pk, tag_text):
                 status=400,
             )
         try:
-            tag = puzzle.tags.get(name=tag_text)
+            tag = puzzle.tags.get(name=tag_text, hunt=puzzle.hunt)
             if tag.is_meta:
                 meta = Puzzle.objects.get(name=tag_text, hunt=puzzle.hunt)
                 # the post m2m hook will remove tag
@@ -245,7 +246,7 @@ def remove_tag(request, pk, tag_text):
 def add_tags_form(request, pk):
     puzzle = get_object_or_404(Puzzle, pk=pk)
     puzzle_tags = tag_utils.get_tags(puzzle)
-    all_tags = tag_utils.get_all_tags()
+    all_tags = tag_utils.get_all_tags(hunt=puzzle.hunt)
 
     suggestions = [t for t in all_tags.items() if t not in puzzle_tags]
     suggestions.sort(key=lambda item: (PuzzleTag.color_ordering()[item[1]], item[0]))
