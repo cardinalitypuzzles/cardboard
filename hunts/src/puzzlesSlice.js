@@ -63,6 +63,14 @@ export const editAnswer = createAsyncThunk(
   }
 );
 
+export const deletePuzzleTag = createAsyncThunk(
+  "puzzles/deletePuzzleTag",
+  async ({ huntId, puzzleId, tagId }) => {
+    const response = await api.deletePuzzleTag(huntId, puzzleId, tagId);
+    return response;
+  }
+);
+
 function puzzleComparator(a, b) {
   // Solved puzzles should appear below unsolved ones
   if (a.status == "SOLVED" && b.status != "SOLVED") {
@@ -71,9 +79,9 @@ function puzzleComparator(a, b) {
     return -1;
   }
   // Feeders before metas
-  if (a.feeders.length == 0 && b.feeders.length > 0) {
+  if (!a.is_meta && b.is_meta) {
     return -1;
-  } else if (a.feeders.length > 0 && b.feeders.length == 0) {
+  } else if (a.is_meta && !b.is_meta) {
     return 1;
   }
   // Newer puzzles before old ones
@@ -118,6 +126,12 @@ export const puzzlesSlice = createSlice({
       });
     },
     [editAnswer.fulfilled]: (state, action) => {
+      puzzlesAdapter.updateOne(state, {
+        id: action.payload.id,
+        changes: { ...action.payload },
+      });
+    },
+    [deletePuzzleTag.fulfilled]: (state, action) => {
       puzzlesAdapter.updateOne(state, {
         id: action.payload.id,
         changes: { ...action.payload },
