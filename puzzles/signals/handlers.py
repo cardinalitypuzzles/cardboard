@@ -23,13 +23,16 @@ def update_tags_pre_save(sender, instance, **kwargs):
         (new_tag, _) = PuzzleTag.objects.update_or_create(
             name=instance.name,
             defaults={"color": PuzzleTag.BLACK, "is_meta": True},
+            hunt=instance.hunt,
         )
 
         for p in puzzles_needing_new_tag:
             p.tags.add(new_tag)
 
     else:
-        PuzzleTag.objects.filter(name=instance.name).filter(is_meta=True).delete()
+        PuzzleTag.objects.filter(name=instance.name, hunt=instance.hunt).filter(
+            is_meta=True
+        ).delete()
 
 
 @receiver(post_save, sender=Puzzle)
@@ -38,20 +41,22 @@ def update_tags_post_save(sender, instance, created, **kwargs):
     # this has to happen post save, since instance has to exist first
     if instance.is_meta:
         puzzles_with_tag = Puzzle.objects.filter(
-            tags__name__in=[instance.name]
+            hunt=instance.hunt, tags__name__in=[instance.name]
         ).exclude(name=instance.name)
         for p in puzzles_with_tag:
             p.metas.add(instance)
             p.save()
 
         if created:
-            instance.tags.add(PuzzleTag.objects.get(name=instance.name))
+            instance.tags.add(
+                PuzzleTag.objects.get(name=instance.name, hunt=instance.hunt)
+            )
 
 
 @receiver(pre_delete, sender=Puzzle)
 def update_tags_pre_delete(sender, instance, **kwargs):
     if instance.is_meta:
-        PuzzleTag.objects.filter(name=instance.name).delete()
+        PuzzleTag.objects.filter(name=instance.name, hunt=instance.hunt).delete()
 
 
 @receiver(m2m_changed, sender=Puzzle.metas.through)
@@ -59,11 +64,13 @@ def update_tags_m2m(sender, instance, action, reverse, model, pk_set, **kwargs):
     if action == "post_add":
         for pk in pk_set:
             meta = Puzzle.objects.get(pk=pk)
-            instance.tags.add(meta.name)
+            meta_tag = PuzzleTag.objects.get(name=meta.name, hunt=meta.hunt)
+            instance.tags.add(meta_tag)
     elif action == "post_remove":
         for pk in pk_set:
             meta = Puzzle.objects.get(pk=pk)
-            instance.tags.remove(meta.name)
+            meta_tag = PuzzleTag.objects.get(name=meta.name, hunt=meta.hunt)
+            instance.tags.remove(meta_tag)
     elif action == "post_clear":
         instance.tags.filter(is_meta=True).exclude(name=instance.name).remove()
 

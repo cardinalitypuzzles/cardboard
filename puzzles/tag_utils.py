@@ -26,6 +26,6 @@ def get_tags(puzzle):
 
 def get_all_tags(hunt):
     all_tags = dict(
-        DEFAULT_TAGS + [(t.name, t.color) for t in Puzzle.tags.filter(hunt=hunt)]
+        DEFAULT_TAGS + [(t.name, t.color) for t in PuzzleTag.objects.filter(hunt=hunt)]
     )
     return all_tags
