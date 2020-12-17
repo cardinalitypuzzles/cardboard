@@ -45,6 +45,9 @@ class PuzzleTag(TagBase):
     color = models.CharField(max_length=10, choices=COLORS.items(), default=BLUE)
     # internal flag to know when to sync meta puzzles
     is_meta = models.BooleanField(default=False)
+    hunt = models.ForeignKey(
+        "hunts.Hunt", on_delete=models.CASCADE, related_name="puzzle_tags"
+    )
 
 
 class PuzzleTagThrough(GenericTaggedItemBase):

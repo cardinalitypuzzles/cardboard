@@ -24,6 +24,8 @@ def get_tags(puzzle):
     return puzzle_tags
 
 
-def get_all_tags():
-    all_tags = dict(DEFAULT_TAGS + [(t.name, t.color) for t in Puzzle.tags.all()])
+def get_all_tags(hunt):
+    all_tags = dict(
+        DEFAULT_TAGS + [(t.name, t.color) for t in Puzzle.tags.filter(hunt=hunt)]
+    )
     return all_tags
