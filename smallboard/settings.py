@@ -168,6 +168,13 @@ DATABASES = {}
 DATABASES["default"] = dj_database_url.config(conn_max_age=600, ssl_require=False)
 DATABASES["default"]["TEST"] = {"NAME": "test_smallboard"}
 
+# Discord API. See
+# https://support.discord.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID-
+DISCORD_API_TOKEN = os.environ.get("DISCORD_API_TOKEN", None)
+
+# Discord server ID.
+DISCORD_GUILD_ID = os.environ.get("DISCORD_GUILD_ID", None)
+
 # Google Drive API
 GOOGLE_API_AUTHN_INFO = None
 if not "GOOGLE_API_PRIVATE_KEY" in os.environ:
