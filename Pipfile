@@ -13,6 +13,7 @@ django-taggit = "*"
 url-normalize = "*"
 gunicorn = "*"
 djangorestframework = "*"
+disco-py = ">=0.0.14rc1"
 
 [dev-packages]
 pre-commit = "*"

@@ -3,8 +3,13 @@ FROM python:3.8.6-alpine
 WORKDIR /usr/src/smallboard
 
 # install psycopg2 dependencies
-RUN apk update \
-    && apk add postgresql-dev gcc python3-dev musl-dev libffi-dev
+RUN apk update && apk add \
+    build-base \
+    gcc \
+    libffi-dev \
+    musl-dev \
+    postgresql-dev \
+    python3-dev
 
 # install npm & yarn
 RUN apk add --update nodejs yarn

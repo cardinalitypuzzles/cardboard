@@ -67,6 +67,10 @@ class Puzzle(models.Model):
         get_user_model(), related_name="active_puzzles"
     )
 
+    discord_channel_id = models.CharField(
+        max_length=50, unique=True, blank=True, null=True
+    )
+
     class Meta:
         constraints = [
             models.UniqueConstraint(
