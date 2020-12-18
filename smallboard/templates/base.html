@@ -33,9 +33,11 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'tools' %}">Tools and References</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'answers:queue' %}">Answer Queue</a>
-                        </li>
+                        {% if hunt.answer_queue_enabled %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'answers:queue' %}">Answer Queue</a>
+                            </li>
+                        {% endif %}
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'logout' %}">Logout</a>
                         </li>

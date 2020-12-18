@@ -42,7 +42,7 @@ class Puzzle(models.Model):
     sheet = models.URLField(default=None, unique=True, null=True, blank=True)
 
     SOLVING = "SOLVING"
-    PENDING = "PENDING"
+    PENDING = "PENDING" # Only supported when answer_queue_enabled is True
     SOLVED = "SOLVED"
     STUCK = "STUCK"
     EXTRACTION = "EXTRACTION"
