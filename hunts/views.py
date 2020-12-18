@@ -175,7 +175,8 @@ class HuntView(LoginRequiredMixin, View):
 
             discord_client = DiscordClient.get_instance()
             if discord_client:
-                discord_channel_id = discord_client.create_channel(name)
+                channel = discord_client.create_channel(name, parent_name="Puzzles")
+                discord_channel_id = channel.id
             else:
                 discord_channel_id = None
 
