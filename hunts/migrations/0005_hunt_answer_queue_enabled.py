@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('hunts', '0004_unique_hunt_slug'),
+        ("hunts", "0004_unique_hunt_slug"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='hunt',
-            name='answer_queue_enabled',
+            model_name="hunt",
+            name="answer_queue_enabled",
             field=models.BooleanField(default=False),
         ),
     ]
