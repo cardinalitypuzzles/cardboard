@@ -29,6 +29,12 @@ answer_edit = views.AnswerViewSet.as_view(
     }
 )
 
+tag_list = views.PuzzleTagViewSet.as_view(
+    {
+        "post": "create",
+    }
+)
+
 tag_detail = views.PuzzleTagViewSet.as_view(
     {
         "get": "retrieve",
@@ -45,6 +51,9 @@ urlpatterns = [
         "v1/hunt/<int:hunt_id>/puzzles/<int:puzzle_id>/answer/<int:pk>",
         answer_edit,
         name="answer_edit",
+    ),
+    path(
+        "v1/hunt/<int:hunt_id>/puzzles/<int:puzzle_id>/tags", tag_list, name="tag_list"
     ),
     path(
         "v1/hunt/<int:hunt_id>/puzzles/<int:puzzle_id>/tags/<int:pk>",

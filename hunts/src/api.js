@@ -105,6 +105,18 @@ function deletePuzzleTag(huntId, puzzleId, tagId) {
   }).then(handleErrors);
 }
 
+function addPuzzleTag(huntId, puzzleId, data) {
+  const tagsApiUrl = `/api/v1/hunt/${huntId}/puzzles/${puzzleId}/tags`;
+  return fetch(tagsApiUrl, {
+    method: "POST",
+    headers: {
+      "X-CSRFToken": Cookies.get("csrftoken"),
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  }).then(handleErrors);
+}
+
 export default {
   getHunt,
   getPuzzles,
@@ -115,4 +127,5 @@ export default {
   deleteAnswer,
   editAnswer,
   deletePuzzleTag,
+  addPuzzleTag,
 };

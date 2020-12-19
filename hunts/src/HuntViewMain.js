@@ -17,6 +17,7 @@ import EditAnswerModal from "./EditAnswerModal";
 import EditPuzzleModal from "./EditPuzzleModal";
 import AddPuzzleModal from "./AddPuzzleModal";
 import SubmitAnswerModal from "./SubmitAnswerModal";
+import EditPuzzleTagsModal from "./EditPuzzleTagsModal";
 import useInterval from "@use-it/interval";
 import Button from "react-bootstrap/Button";
 import Dropdown from "react-bootstrap/Dropdown";
@@ -30,6 +31,7 @@ const MODAL_COMPONENTS = {
   SUBMIT_ANSWER: SubmitAnswerModal,
   DELETE_ANSWER: DeleteAnswerModal,
   EDIT_ANSWER: EditAnswerModal,
+  EDIT_TAGS: EditPuzzleTagsModal,
 };
 
 const TABLE_COLUMNS = [
