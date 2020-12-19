@@ -88,10 +88,12 @@ class PuzzleTagSerializer(serializers.ModelSerializer):
         model = PuzzleTag
         fields = ("id", "name", "color")
 
+        read_only_fields = ("id",)
+
 
 class PuzzleSerializer(serializers.ModelSerializer):
     chat_room = serializers.SerializerMethodField()
-    tags = PuzzleTagSerializer(many=True)
+    tags = PuzzleTagSerializer(many=True, required=False)
     guesses = serializers.SerializerMethodField()
     # Have to specify this explicitly for validate_url to run
     url = serializers.CharField()

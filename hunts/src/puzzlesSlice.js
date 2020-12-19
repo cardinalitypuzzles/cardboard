@@ -71,6 +71,17 @@ export const deletePuzzleTag = createAsyncThunk(
   }
 );
 
+export const addPuzzleTag = createAsyncThunk(
+  "puzzles/addPuzzleTag",
+  async ({ huntId, puzzleId, name, color }) => {
+    const response = await api.addPuzzleTag(huntId, puzzleId, {
+      name,
+      color,
+    });
+    return response;
+  }
+);
+
 function puzzleComparator(a, b) {
   // Solved puzzles should appear below unsolved ones
   if (a.status == "SOLVED" && b.status != "SOLVED") {
@@ -137,6 +148,12 @@ export const puzzlesSlice = createSlice({
         changes: { ...action.payload },
       });
     },
+    [addPuzzleTag.fulfilled]: (state, action) => {
+      puzzlesAdapter.updateOne(state, {
+        id: action.payload.id,
+        changes: { ...action.payload },
+      });
+    },
   },
 });
 
@@ -175,6 +192,22 @@ export const selectPuzzleTableData = createSelector(
     const outerRows = rowsCopy.filter((row) => row.metas.length == 0);
     outerRows.sort(puzzleComparator);
     return outerRows;
+  }
+);
+
+export const selectAllTags = createSelector(
+  [puzzlesSelectors.selectAll],
+  (puzzles) => {
+    const tags = puzzles.map((puzzle) => puzzle.tags).flat();
+    const tagIds = new Set();
+    const uniqueTags = tags.reduce(
+      (uniqueTags, tag) =>
+        tagIds.has(tag.id)
+          ? uniqueTags
+          : tagIds.add(tag.id) && [...uniqueTags, tag],
+      []
+    );
+    return uniqueTags;
   }
 );
 

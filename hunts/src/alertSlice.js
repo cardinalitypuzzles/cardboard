@@ -1,8 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-
-function isRejectedAction(action) {
-  return action.type.endsWith("rejected");
-}
+import { isRejectedAction } from "./utils";
 
 let nextId = 1;
 

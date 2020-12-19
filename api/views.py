@@ -9,7 +9,7 @@ from rest_framework import viewsets
 from answers.models import Answer
 from chat.models import ChatRoom
 from hunts.models import Hunt
-from puzzles.models import Puzzle, PuzzleModelError, PuzzleTag
+from puzzles.models import Puzzle, PuzzleModelError, PuzzleTag, is_ancestor
 from .serializers import (
     AnswerSerializer,
     HuntSerializer,
@@ -229,3 +229,35 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
                 tag.delete()
 
         return Response(PuzzleSerializer(puzzle).data)
+
+    def create(self, request, **kwargs):
+        puzzle = None
+        with transaction.atomic():
+            hunt = get_object_or_404(Hunt, pk=self.kwargs["hunt_id"])
+            puzzle = get_object_or_404(Puzzle, pk=self.kwargs["puzzle_id"])
+            serializer = self.get_serializer(data=request.data, context={"hunt": hunt})
+            serializer.is_valid(raise_exception=True)
+            (tag_name, tag_color) = (
+                serializer.validated_data["name"],
+                serializer.validated_data["color"],
+            )
+            (tag, _) = PuzzleTag.objects.update_or_create(
+                name=tag_name,
+                hunt=puzzle.hunt,
+                defaults={"color": tag_color},
+            )
+            if tag.is_meta:
+                metapuzzle = get_object_or_404(Puzzle, name=tag.name, hunt=puzzle.hunt)
+                if is_ancestor(puzzle, metapuzzle):
+                    return Response(
+                        {
+                            "detail": '"Unable to assign metapuzzle since doing so would introduce a meta-cycle."'
+                        },
+                        status=400,
+                    )
+                # the post m2m hook will add tag
+                puzzle.metas.add(metapuzzle)
+            else:
+                puzzle.tags.add(tag)
+
+            return Response(PuzzleSerializer(puzzle).data)
