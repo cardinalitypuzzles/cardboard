@@ -98,7 +98,7 @@ class PuzzleViewSet(viewsets.ModelViewSet):
             else:
                 logger.warn("Sheet not created for puzzle %s" % name)
 
-            puzzle = serializer.save(sheet=sheet)
+            puzzle = serializer.save(sheet=sheet, hunt=hunt)
 
             if google_api_client:
                 transaction.on_commit(
