@@ -1,10 +1,28 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block page_content %}
-<h2>Sign up</h2>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Sign up</button>
-</form>
+<div class="container">
+    <h2>Sign up</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        {% for field in form %}
+        <div class="form-group row">
+            <div class="col-sm-2 col-form-label">{{ field.label_tag }}</div>
+            <div class="col-sm-3">{{ field }}</div>
+
+            {% if field.help_text %}
+                <small class="form-text text-muted">{{ field.help_text|safe }}</small>
+            {% endif %}
+
+            {% for error in field.errors %}
+                <p style="color: red">{{ error }}</p>
+            {% endfor %}
+        </div>
+        {% endfor %}
+        <button class="btn btn-primary" type="submit">Sign up</button>
+    </form>
+</div>
 {% endblock %}

@@ -2,48 +2,27 @@
 {% load static %}
 
 {% block page_content %}
-
-
 <div class="container">
-    <div class="row">
-        <div class="col-sm">
+    <h2>Login</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
 
-            <h1>Cardinality Smallboard</h1>
+        {% for field in form %}
+        <div class="form-group row">
+            <div class="col-sm-2 col-form-label">{{ field.label_tag }}</div>
+            <div class="col-sm-3">{{ field }}</div>
 
-
-            <ul>
-                <li>
-                    <b>What is this?</b><br>
-                    A dashboard for managing puzzles and tracking status during a puzzle hunt, such as MIT Mystery Hunt:
-
-                    <img class="img-fluid" src="{% static 'dashboard.png' %}">
-                </li>
-                <li>
-                    <b>Why do I have to sign in?</b><br>
-                    We use Google login to ensure that users only see puzzles for the hunts they are participating in.
-                </li>
-                <li>
-                    <b>How are you using my data?</b><br>
-                    We match your email against a whitelist of emails for each hunt. The actions you take while using the smallboard (such as solving a puzzle) may be logged and attributed to your email. This data is only used for logging purposes. See <a href="{% url 'privacy'%}">here</a> for our full privacy policy.
-                </li>
-
-                <li>
-                    <b>Cool. Why does it say "Your credentials aren't allowed" when I try to sign in?</b> <br>
-                    You are currently not whitelisted for any active hunts. If you believe you should have access or would like to be whitelisted for a hunt, please email <a href="mailto:cardinalitypuzzles@gmail.com">cardinalitypuzzles@gmail.com</a>.
-                </li>
-
-            </ul>
-
-            {% if is_google_auth_enabled %}
-                <a href="{% url 'social:begin' 'google-oauth2' %}"><img src="{% static 'signin.png' %}" alt="Login with Google" ></a>
-            {% else %}
-                <form method="post">
-                    {% csrf_token %}
-                    {{ form.as_p }}
-                    <button type="submit">Login</button>
-                </form>
+            {% if field.help_text %}
+                <small class="form-text text-muted">{{ field.help_text|safe }}</small>
             {% endif %}
+
+            {% for error in field.errors %}
+                <p style="color: red">{{ error }}</p>
+            {% endfor %}
         </div>
-    </div>
+        {% endfor %}
+        <button class="btn btn-primary" type="submit">Login</button>
+    </form>
 </div>
 {% endblock %}
