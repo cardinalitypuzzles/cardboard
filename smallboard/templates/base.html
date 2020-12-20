@@ -52,11 +52,7 @@
                             </div>
                         </li>
                     {% else %}
-                    {% if is_google_auth_enabled %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'social:begin' 'google-oauth2' %}">Login</a>
-                    </li>
-                    {% else %}
+                    {% if not is_google_auth_enabled %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'login' %}">Login</a>
                     </li>
