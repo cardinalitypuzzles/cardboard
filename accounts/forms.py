@@ -4,6 +4,14 @@ from .models import Puzzler
 
 
 class PuzzlerCreationForm(UserCreationForm):
+    def __init__(self, *args, **kwargs):
+        super(PuzzlerCreationForm, self).__init__(*args, **kwargs)
+
+        for field_id in self.fields:
+            self.fields[field_id].widget.attrs = {
+                'class': 'form-control'
+            }
+
     class Meta:
         model = Puzzler
         fields = ("username", "email")
