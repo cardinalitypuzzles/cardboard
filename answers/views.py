@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 @require_POST
-@login_required(login_url="/accounts/login/")
+@login_required(login_url="/")
 @transaction.atomic
 def update_note(request, answer_pk):
     notes_form = UpdateAnswerNotesForm(request.POST)
@@ -39,7 +39,7 @@ def update_note(request, answer_pk):
 
 
 @require_GET
-@login_required(login_url="/accounts/login/")
+@login_required(login_url="/")
 def answers(request, hunt_slug):
     hunt = Hunt.get_object_or_404(user=request.user, slug=hunt_slug)
     answer_objects = (
@@ -67,7 +67,7 @@ def answers(request, hunt_slug):
 
 
 class AnswerView(LoginRequiredMixin, View):
-    login_url = "/accounts/login/"
+    login_url = "/"
     redirect_field_name = "next"
 
     def get(self, request, hunt_slug):

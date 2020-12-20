@@ -7,7 +7,7 @@ def privacy(request):
     return render(request, "privacy.html")
 
 
-@login_required(login_url="/accounts/login/")
+@login_required(login_url="/")
 def tools(request):
     return render(request, "tools.html")
 
