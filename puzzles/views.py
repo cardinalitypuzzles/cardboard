@@ -34,7 +34,7 @@ from google_api_lib.google_api_client import GoogleApiClient
 logger = logging.getLogger(__name__)
 
 
-@login_required(login_url="/accounts/login/")
+@login_required(login_url="/")
 def index(request, hunt_slug):
     return HttpResponseRedirect(
         request.META.get("HTTP_REFERER", "/hunts/{}".format(hunt_slug))
@@ -42,7 +42,7 @@ def index(request, hunt_slug):
 
 
 @require_POST
-@login_required(login_url="/accounts/login/")
+@login_required(login_url="/")
 def update_status(request, pk):
     form = StatusForm(request.POST, instance=get_object_or_404(Puzzle, pk=pk))
     if not form.is_valid():
@@ -57,7 +57,7 @@ def __sanitize_guess(guess):
 
 
 @require_POST
-@login_required(login_url="/accounts/login/")
+@login_required(login_url="/")
 @transaction.atomic
 def guess(request, pk):
     form = AnswerForm(request.POST)
@@ -96,7 +96,7 @@ if settings.DEBUG:
 
 
 @require_POST
-@login_required(login_url="/accounts/login/")
+@login_required(login_url="/")
 def set_metas(request, pk):
     with transaction.atomic():
         puzzle = get_object_or_404(Puzzle.objects.select_for_update(), pk=pk)
@@ -125,7 +125,7 @@ def set_metas(request, pk):
 
 
 @require_POST
-@login_required(login_url="/accounts/login/")
+@login_required(login_url="/")
 def edit_puzzle(request, pk):
     form = PuzzleForm(request.POST, auto_id=False)
     if not form.is_valid():
@@ -157,7 +157,7 @@ def edit_puzzle(request, pk):
 
 
 @require_POST
-@login_required(login_url="/accounts/login/")
+@login_required(login_url="/")
 def delete_puzzle(request, pk):
     with transaction.atomic():
         puzzle = get_object_or_404(Puzzle.objects.select_for_update(), pk=pk)
@@ -175,7 +175,7 @@ def delete_puzzle(request, pk):
 
 
 @require_POST
-@login_required(login_url="/accounts/login/")
+@login_required(login_url="/")
 def add_tag(request, pk):
     form = TagForm(request.POST)
     if not form.is_valid():
@@ -212,7 +212,7 @@ if settings.DEBUG:
 
 
 @require_POST
-@login_required(login_url="/accounts/login/")
+@login_required(login_url="/")
 def remove_tag(request, pk, tag_text):
     with transaction.atomic():
         puzzle = get_object_or_404(Puzzle.objects.select_for_update(), pk=pk)
@@ -242,7 +242,7 @@ def remove_tag(request, pk, tag_text):
     return JsonResponse({})
 
 
-@login_required(login_url="/accounts/login/")
+@login_required(login_url="/")
 def add_tags_form(request, pk):
     puzzle = get_object_or_404(Puzzle, pk=pk)
     puzzle_tags = tag_utils.get_tags(puzzle)
@@ -264,7 +264,7 @@ def add_tags_form(request, pk):
     return HttpResponse(html)
 
 
-@login_required(login_url="/accounts/login/")
+@login_required(login_url="/")
 def meta_select_form(request, pk):
     puzzle = get_object_or_404(Puzzle, pk=pk)
     meta_form = MetaPuzzleForm(initial={"metas": puzzle.metas.all()}, instance=puzzle)
