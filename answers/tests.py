@@ -43,7 +43,9 @@ class TestAnswers(TestCase):
         sanitized = "A!@#1$%^&*()BCD[2]{}\\'\"/?<>,.E~`"
         self.assertEqual([a.text for a in self._puzzle.guesses.all()], [sanitized])
         self._puzzle.refresh_from_db()
-        self.assertEqual(self._puzzle.status, Puzzle.PENDING)
+        # By default, answer_queue_enabled is false. In such a case, submitting
+        # an answer will change the status to SOLVED.
+        self.assertEqual(self._puzzle.status, Puzzle.SOLVED)
 
     def test_answer_queue_status(self):
         guess = Answer.objects.create(puzzle=self._puzzle, text="guess")
