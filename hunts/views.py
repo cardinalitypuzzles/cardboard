@@ -27,7 +27,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-@login_required(login_url="/accounts/login/")
+@login_required(login_url="/")
 def index(request):
     form = HuntForm()
 
@@ -79,7 +79,7 @@ def __get_puzzle_class(sorted_np_pairs):
 
 
 @require_GET
-@login_required(login_url="/accounts/login/")
+@login_required(login_url="/")
 def puzzles(request, hunt_slug):
     hunt = Hunt.get_object_or_404(user=request.user, slug=hunt_slug)
     puzzle_objects = (
@@ -121,7 +121,7 @@ def puzzles(request, hunt_slug):
 
 
 class HuntView(LoginRequiredMixin, View):
-    login_url = "/accounts/login/"
+    login_url = "/"
     redirect_field_name = "next"
 
     def get(self, request, hunt_slug):
@@ -211,7 +211,7 @@ class HuntView(LoginRequiredMixin, View):
 
 
 class LastAccessedHuntRedirectView(LoginRequiredMixin, RedirectView):
-    login_url = "/accounts/login/"
+    login_url = "/"
     pattern_name = "hunts:all_puzzles"
 
     def get_redirect_url(self, *args, **kwargs):
@@ -227,7 +227,7 @@ if settings.DEBUG:
 
 
 class ReactHuntView(LoginRequiredMixin, View):
-    login_url = "/accounts/login/"
+    login_url = "/"
     redirect_field_name = "next"
 
     def get(self, request, hunt_slug):
