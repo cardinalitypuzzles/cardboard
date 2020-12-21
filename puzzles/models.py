@@ -1,8 +1,10 @@
 from django.contrib.auth import get_user_model
 from django.db import models, transaction
 from django.db.models import Q
-from google_api_lib.google_api_client import GoogleApiClient
+from django.dispatch import receiver
+
 from answers.models import Answer
+from google_api_lib.google_api_client import GoogleApiClient
 from .puzzle_tag import PuzzleTag
 
 
@@ -65,6 +67,10 @@ class Puzzle(models.Model):
 
     active_users = models.ManyToManyField(
         get_user_model(), related_name="active_puzzles"
+    )
+
+    chat_room = models.OneToOneField(
+        "chat.ChatRoom", on_delete=models.SET_NULL, null=True
     )
 
     discord_channel_id = models.CharField(
@@ -170,6 +176,12 @@ class Puzzle(models.Model):
     def maybe_truncate_name(name):
         max_allowed_length = Puzzle._meta.get_field("name").max_length
         return name[:max_allowed_length]
+
+
+@receiver(models.signals.post_delete, sender=Puzzle)
+def delete_chat_room(sender, instance, using, **kwargs):
+    if instance.chat_room:
+        instance.chat_room.delete()
 
 
 # Used for cycle detection before adding an edge from potential ancestor to child.

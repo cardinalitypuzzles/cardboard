@@ -16,7 +16,7 @@ from url_normalize import url_normalize
 
 from .forms import HuntForm
 from .models import Hunt
-from discord.discord_client import DiscordClient
+from chat.models import ChatRoom
 from google_api_lib.google_api_client import GoogleApiClient
 from puzzles.forms import PuzzleForm
 from puzzles.models import Puzzle
@@ -173,12 +173,10 @@ class HuntView(LoginRequiredMixin, View):
             if google_api_client:
                 google_api_client.add_puzzle_link_to_sheet(puzzle_url, sheet)
 
-            discord_client = DiscordClient.get_instance()
-            if discord_client:
-                channel = discord_client.create_channel(name, parent_name="Puzzles")
-                discord_channel_id = channel.id
-            else:
-                discord_channel_id = None
+            chat_room = ChatRoom.objects.create(
+                service=settings.CHAT_DEFAULT_SERVICE, name=name
+            )
+            chat_room.create_channels()
 
             try:
                 puzzle = Puzzle.objects.create(
@@ -187,7 +185,7 @@ class HuntView(LoginRequiredMixin, View):
                     hunt=hunt,
                     sheet=sheet,
                     is_meta=is_meta,
-                    discord_channel_id=discord_channel_id,
+                    chat_room=chat_room,
                 )
 
             except IntegrityError as e:

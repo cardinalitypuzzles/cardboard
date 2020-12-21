@@ -16,7 +16,6 @@ from django.core.management.utils import get_random_secret_key
 import logging
 import os
 
-
 logger = logging.getLogger(__name__)
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -59,6 +58,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "puzzles",
     "accounts",
+    "chat",
     "hunts",
     "answers",
     "social_django",
@@ -175,6 +175,9 @@ DISCORD_API_TOKEN = os.environ.get("DISCORD_API_TOKEN", None)
 # Discord server ID.
 DISCORD_GUILD_ID = os.environ.get("DISCORD_GUILD_ID", None)
 
+# Category (folder) to contain generated channels.
+DISCORD_GUILD_CATEGORY = os.environ.get("DISCORD_GUILD_CATEGORY", "puzzles")
+
 # Google Drive API
 GOOGLE_API_AUTHN_INFO = None
 if not "GOOGLE_API_PRIVATE_KEY" in os.environ:
@@ -242,3 +245,13 @@ else:
 
 # Taggit Overrides
 TAGGIT_TAGS_FROM_STRING = "puzzles.tag_utils.to_tag"
+
+
+# Chat app settings.
+
+import discord_lib
+
+CHAT_DEFAULT_SERVICE = "DISCORD"
+CHAT_SERVICES = {
+    "DISCORD": discord_lib.DiscordChatService,
+}

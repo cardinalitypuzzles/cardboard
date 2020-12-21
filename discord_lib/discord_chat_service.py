@@ -1,44 +1,40 @@
-from django.conf import settings
-from django.template.defaultfilters import slugify
-
 from disco.api.client import APIClient
 from disco.types.channel import ChannelType
+from django.template.defaultfilters import slugify
 
-import logging
-
-logger = logging.getLogger(__name__)
-
-
-class InstantiationError(Exception):
-    pass
+from chat.service import ChatService
 
 
-class DiscordClient:
-    """
-    Singleton class wrapping Discord API functionality.
-    """
+class DiscordChatService(ChatService):
+    """Discord service proxy."""
 
-    __instance = None
+    def __init__(self, settings):
+        self._client = APIClient(settings.DISCORD_API_TOKEN)
+        self._guild_id = settings.DISCORD_GUILD_ID
+        self._parent_name = settings.DISCORD_GUILD_CATEGORY
 
-    @classmethod
-    def get_instance(cls):
-        """Return singleton client object."""
-        if not cls.__instance and cls._has_valid_settings():
-            cls.__instance = cls(settings.DISCORD_API_TOKEN, settings.DISCORD_GUILD_ID)
-        return cls.__instance
-
-    @staticmethod
-    def _has_valid_settings():
-        return (
-            settings.DISCORD_API_TOKEN is not None
-            and settings.DISCORD_GUILD_ID is not None
+    def create_text_channel(self, name):
+        channel = self.create_channel(
+            name, chan_type=ChannelType.GUILD_TEXT, parent_name=self._parent_name
         )
+        return channel.id
 
-    def __init__(self, api_token, guild_id):
-        if self.__class__.__instance:
-            raise InstantiationError("Singleton object already created.")
-        self._client = APIClient(api_token)
-        self._guild_id = guild_id
+    def delete_text_channel(self, channel_id):
+        self.delete_channel(channel_id)
+
+    def create_voice_channel(self, name):
+        channel = self.create_channel(
+            name, chan_type=ChannelType.GUILD_VOICE, parent_name=self._parent_name
+        )
+        return channel.id
+
+    def delete_voice_channel(self, channel_id):
+        self.delete_channel(channel_id)
+
+    def delete_channel(self, channel_id):
+        channels_by_id = self._client.guilds_channels_list(self._guild_id)
+        if channel_id in channels_by_id:
+            self._client.channels_delete(channels_by_id[channel_id])
 
     def create_channel(self, name, chan_type=ChannelType.GUILD_TEXT, parent_name=None):
         parent_id = None
@@ -52,7 +48,6 @@ class DiscordClient:
             slugify(name),
             parent_id=parent_id,
         )
-        logger.info("Created new channel %s", channel)
         return channel
 
     def get_channels(self, name, chan_type=ChannelType.GUILD_TEXT):
