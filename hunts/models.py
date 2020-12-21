@@ -12,6 +12,7 @@ class Hunt(models.Model):
     puzzlers = models.ManyToManyField(get_user_model(), related_name="hunts")
     active = models.BooleanField(default=True)
     slug = models.SlugField(blank=True, unique=True)
+    answer_queue_enabled = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name

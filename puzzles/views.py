@@ -66,15 +66,22 @@ def guess(request, pk):
     status_code = 200
     if form.is_valid() and puzzle.status != Puzzle.SOLVED:
         answer_text = __sanitize_guess(form.cleaned_data["text"])
-        # If answer has already been added to the queue
         answer, created = Answer.objects.get_or_create(text=answer_text, puzzle=puzzle)
         if created:
-            puzzle.status = Puzzle.PENDING
+            if puzzle.hunt.answer_queue_enabled:
+                puzzle.status = Puzzle.PENDING
+            else:
+                # If no answer queue, we assume that the submitted answer is the
+                # correct answer.
+                puzzle.status = Puzzle.SOLVED
+                answer.status = Answer.CORRECT
+                puzzle.answer = answer.text
             puzzle.save()
+        # If answer has already been added to the queue
         else:
             return JsonResponse(
                 {
-                    "error": '"%s" has already been submitted as a guess for puzzle "%s"'
+                    "error": '"%s" has already been submitted for puzzle "%s"'
                     % (answer_text, puzzle.name)
                 },
                 status=400,
