@@ -1,6 +1,5 @@
 from disco.api.client import APIClient
 from disco.types.channel import ChannelType
-from django.template.defaultfilters import slugify
 
 from chat.service import ChatService
 
@@ -45,7 +44,7 @@ class DiscordChatService(ChatService):
         channel = self._client.guilds_channels_create(
             self._guild_id,
             chan_type,
-            slugify(name),
+            name,
             parent_id=parent_id,
         )
         return channel
