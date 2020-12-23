@@ -5,7 +5,11 @@ from chat.service import ChatService
 
 
 class DiscordChatService(ChatService):
-    """Discord service proxy."""
+    """Discord service proxy.
+
+    This interface implementation should be registered in Django settings under DISCORD
+
+    """
 
     def __init__(self, settings):
         self._client = APIClient(settings.DISCORD_API_TOKEN)
@@ -21,13 +25,13 @@ class DiscordChatService(ChatService):
     def delete_text_channel(self, channel_id):
         self.delete_channel(channel_id)
 
-    def create_voice_channel(self, name):
+    def create_audio_channel(self, name):
         channel = self.create_channel(
             name, chan_type=ChannelType.GUILD_VOICE, parent_name=self._parent_name
         )
         return channel.id
 
-    def delete_voice_channel(self, channel_id):
+    def delete_audio_channel(self, channel_id):
         self.delete_channel(channel_id)
 
     def delete_channel(self, channel_id):

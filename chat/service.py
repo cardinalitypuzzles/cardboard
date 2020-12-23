@@ -2,7 +2,13 @@ from django.conf import settings
 
 
 class ChatService:
-    """Singleton interface to be implemented for various Chat service providers."""
+    """Singleton interface providing Chat channel manipulation methods.
+
+    This abstraction is meant to be used by `models.ChatRoom`, not directly by
+    developers. Implementations of this interface must be registered in Django
+    settings under a dict named `CHAT_SERVICES` (see `models.ChatRoom` for
+    details).
+    """
 
     __instances = {}
 
@@ -25,8 +31,8 @@ class ChatService:
     def delete_text_channel(self, channel_id):
         raise NotImplementedError
 
-    def create_voice_channel(self, name):
+    def create_audio_channel(self, name):
         raise NotImplementedError
 
-    def delete_voice_channel(self, channel_id):
+    def delete_audio_channel(self, channel_id):
         raise NotImplementedError
