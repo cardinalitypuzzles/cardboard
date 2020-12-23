@@ -207,6 +207,9 @@ export const selectAllTags = createSelector(
           : tagIds.add(tag.id) && [...uniqueTags, tag],
       []
     );
+    uniqueTags.sort(
+      (a, b) => a.color.localeCompare(b.color) || a.name.localeCompare(b.name)
+    );
     return uniqueTags;
   }
 );

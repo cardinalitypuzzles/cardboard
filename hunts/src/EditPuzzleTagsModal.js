@@ -9,6 +9,7 @@ import {
   selectPuzzleById,
   selectAllTags,
 } from "./puzzlesSlice";
+import { DEFAULT_TAG_COLOR, SELECTABLE_TAG_COLORS } from "./constants";
 import { hideModal } from "./modalSlice";
 import TagPill from "./TagPill";
 
@@ -19,6 +20,8 @@ function EditPuzzleTagsModal({ huntId, puzzleId }) {
   );
   const puzzleTags = useSelector(selectPuzzleTags);
   const allTags = useSelector(selectAllTags);
+  const [newTagName, setNewTagName] = React.useState("");
+  const [newTagColor, setNewTagColor] = React.useState(DEFAULT_TAG_COLOR);
   const dispatch = useDispatch();
   return (
     <>
@@ -34,6 +37,7 @@ function EditPuzzleTagsModal({ huntId, puzzleId }) {
               puzzleId={puzzleId}
               editable={false}
               key={tag.name}
+              style={{ cursor: "pointer" }}
               onClick={() =>
                 dispatch(
                   addPuzzleTag({
@@ -46,6 +50,45 @@ function EditPuzzleTagsModal({ huntId, puzzleId }) {
             />
           ))}
         </p>
+        <Form
+          onSubmit={(e) => {
+            e.preventDefault();
+            dispatch(
+              addPuzzleTag({
+                name: newTagName,
+                color: newTagColor,
+                huntId,
+                puzzleId,
+              })
+            ).then(() => {
+              setNewTagName("");
+              setNewTagColor(DEFAULT_TAG_COLOR);
+            });
+            return false;
+          }}
+        >
+          <Form.Label>Create new tag: </Form.Label>
+          <TagPill name={newTagName} color={newTagColor} editable={false} />
+          <Form.Control
+            placeholder="Logic Puzzle"
+            value={newTagName}
+            onChange={(e) => setNewTagName(e.target.value)}
+          />
+          <Form.Control
+            as="select"
+            value={newTagColor}
+            onChange={(e) => setNewTagColor(e.target.value)}
+          >
+            {SELECTABLE_TAG_COLORS.map(({ color, display }) => (
+              <option key={color} value={color}>
+                {display}
+              </option>
+            ))}
+          </Form.Control>
+          <Button variant="primary" type="submit">
+            Create
+          </Button>
+        </Form>
         <p>
           Current tags:{" "}
           {puzzleTags.map((tag) => (
