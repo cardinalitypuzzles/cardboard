@@ -6,14 +6,16 @@ There are two ways to set up Small Board locally.
 
 To run Small Board in Docker, you will need:
 
-* Git
-* Docker (on Mac or Windows, install Docker Desktop; on Linux, docker and docker-compose)
+- Git
+- Docker (on Mac or Windows, install Docker Desktop; on Linux, docker and docker-compose)
 
 To run Small Board manually, you will need:
 
 - Git
 - Python
 - Pipenv
+- [NodeJS](https://nodejs.org/en/download/package-manager/) (version 10 or later)
+- [Yarn](https://classic.yarnpkg.com/en/docs/install/)
 - # a local database (PostgreSQL or SQLite)
 - a local database (e.g.: Postgres)
 
@@ -59,25 +61,32 @@ Our docker setup reads environmental variables from .env as described down the p
 
 Begin by installing [python](https://wiki.python.org/moin/BeginnersGuide/Download) (you likely already have this installed)
 On Ubuntu, you can accomplish this by running:
+
 ```
 $ sudo apt install python3
 ```
 
 Next, install [pipenv](https://pipenv.pypa.io/en/latest/install/#installing-pipenv)
 On Ubuntu, you can accomplish this by running:
+
 ```
 $ sudo apt install pipenv
 ```
+
 Once you have pipenv, you can create an environment by running:
+
 ```
 pipenv install --dev
 ```
+
 This creates a virtual environment and installs the dependencies and dev dependencies
 You can then activate the virtual environment by running
+
 ```
 pipenv shell
 ```
-__Going forward, assume that any commands should be run inside the virtual environment__
+
+**Going forward, assume that any commands should be run inside the virtual environment**
 
 ##### <a name='database'>Setting up a local database</a>
 
@@ -141,6 +150,25 @@ $ python manage.py runserver
 ```
 
 You can view the app in your browser at [http://127.0.0.1:8000/]().
+
+##### React pages
+
+Some pages are rendered using React JS. To compile these pages, make sure you've
+installed javascript deps using `yarn`.
+
+```
+yarn install
+```
+
+Then, in a separate terminal window from the one where you run the django
+`runserver` command, build the React pages using
+
+```
+yarn run dev
+```
+
+This will start a compilation daemon that watches for local changes and
+hot-reloads them during development.
 
 #### Running Tests
 
@@ -230,7 +258,6 @@ When a puzzle is created, a Google Sheet is created that is a copy of the templa
 You need to have access to the Google Drive folder to view it. Please message a Collaborator if you don't.
 
 These Google Drive and Sheets related settings can be found in [smallboard/settings.py](smallboard/settings.py).
-
 
 ### Slack Integration (optional)
 
