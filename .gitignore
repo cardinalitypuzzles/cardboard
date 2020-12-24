@@ -140,7 +140,6 @@ credentials.json
 smallboard*.json
 
 # Testing
-test*.py
 test/
 
 # Backup files
