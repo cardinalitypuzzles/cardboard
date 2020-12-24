@@ -237,11 +237,11 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
             puzzle = get_object_or_404(Puzzle, pk=self.kwargs["puzzle_id"])
             serializer = self.get_serializer(data=request.data, context={"hunt": hunt})
             serializer.is_valid(raise_exception=True)
-            (tag_name, tag_color) = (
+            tag_name, tag_color = (
                 serializer.validated_data["name"],
                 serializer.validated_data["color"],
             )
-            (tag, _) = PuzzleTag.objects.update_or_create(
+            tag, _ = PuzzleTag.objects.update_or_create(
                 name=tag_name,
                 hunt=puzzle.hunt,
                 defaults={"color": tag_color},
