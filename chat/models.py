@@ -3,6 +3,10 @@ from django.db import models
 from django.dispatch import receiver
 
 
+def _get_default_service():
+    return settings.CHAT_DEFAULT_SERVICE
+
+
 def _get_service_choices():
     return [(p, p) for p in settings.CHAT_SERVICES.keys()]
 
@@ -37,7 +41,11 @@ class ChatRoom(models.Model):
     not the underlying ChatService interface.
     """
 
-    service = models.CharField(max_length=32, choices=_get_service_choices())
+    service = models.CharField(
+        max_length=32,
+        choices=_get_service_choices(),
+        default=_get_default_service,
+    )
     name = models.CharField(max_length=255)
 
     text_channel_id = models.CharField(max_length=255, null=True, blank=True)
