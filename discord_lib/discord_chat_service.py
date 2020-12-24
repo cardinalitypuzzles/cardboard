@@ -11,8 +11,9 @@ class DiscordChatService(ChatService):
 
     """
 
-    def __init__(self, settings):
-        self._client = APIClient(settings.DISCORD_API_TOKEN)
+    def __init__(self, settings, client=None):
+        """Accepts Django settings object and optional Discord APIClient (for testing)."""
+        self._client = client or APIClient(settings.DISCORD_API_TOKEN)
         self._guild_id = settings.DISCORD_GUILD_ID
         self._parent_name = settings.DISCORD_GUILD_CATEGORY
 
