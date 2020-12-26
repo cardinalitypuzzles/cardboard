@@ -7,13 +7,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('chat', '0003_auto_20201223_1848'),
+        ("chat", "0003_auto_20201223_1848"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='chatroom',
-            name='service',
-            field=models.CharField(choices=[('DISCORD', 'DISCORD')], default=chat.models._get_default_service, max_length=32),
+            model_name="chatroom",
+            name="service",
+            field=models.CharField(choices=[("DISCORD", "DISCORD")], default=chat.models._get_default_service, max_length=32),
         ),
     ]
