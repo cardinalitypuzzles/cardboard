@@ -37,7 +37,6 @@ class AnswerViewSet(viewsets.ModelViewSet):
         puzzle_id = self.kwargs["puzzle_id"]
         return Answer.objects.filter(puzzle__id=puzzle_id)
 
-
     def create(self, request, **kwargs):
         puzzle = None
         with transaction.atomic():
@@ -53,7 +52,7 @@ class AnswerViewSet(viewsets.ModelViewSet):
                     {
                         "detail": '"An identical answer has already been submitted for that puzzle."'
                     },
-                    status = 400,
+                    status=400,
                 )
             if hunt.answer_queue_enabled:
                 puzzle.status = Puzzle.PENDING
@@ -67,7 +66,6 @@ class AnswerViewSet(viewsets.ModelViewSet):
             puzzle.save()
 
         return Response(PuzzleSerializer(puzzle).data)
-                
 
 
 class PuzzleViewSet(viewsets.ModelViewSet):
