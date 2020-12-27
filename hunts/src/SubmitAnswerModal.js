@@ -6,7 +6,7 @@ import Form from "react-bootstrap/Form";
 import { addAnswer } from "./puzzlesSlice";
 import { hideModal } from "./modalSlice";
 
-function SubmitAnswerModal({ huntId, puzzleId, puzzleName}) {
+function SubmitAnswerModal({ huntId, puzzleId, puzzleName }) {
   const [newAnswer, setNewAnswer] = React.useState("");
   const dispatch = useDispatch();
   const onSubmit = (e) => {
