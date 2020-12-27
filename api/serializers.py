@@ -26,7 +26,7 @@ class CurrentHuntDefault:
 class AnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Answer
-        fields = "text"
+        fields = ("text", )
 
 
 class PuzzleSerializer(serializers.ModelSerializer):

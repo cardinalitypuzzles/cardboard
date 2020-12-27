@@ -6,16 +6,16 @@ import Form from "react-bootstrap/Form";
 import { addAnswer } from "./puzzlesSlice";
 import { hideModal } from "./modalSlice";
 
-function SubmitAnswerModal({ huntId, puzzleId, puzzleName, answer }) {
-  const [newAnswer, setNewAnswer] = React.useState(answer);
+function SubmitAnswerModal({ huntId, puzzleId, puzzleName}) {
+  const [newAnswer, setNewAnswer] = React.useState("");
   const dispatch = useDispatch();
   const onSubmit = (e) => {
     e.preventDefault();
     dispatch(
       addAnswer({
         huntId,
-        id: puzzleId,
-        body: { answer: newAnswer },
+        puzzleId,
+        body: { text: newAnswer },
       })
     ).finally(() => {
       dispatch(hideModal());

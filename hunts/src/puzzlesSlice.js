@@ -40,10 +40,8 @@ export const updatePuzzle = createAsyncThunk(
 
 export const addAnswer = createAsyncThunk(
   "puzzles/addAnswer",
-  async ({ huntId, id, answer }) => {
-    const response = await api.addAnswer(huntId, id, {
-      answer,
-    });
+  async ({ huntId, puzzleId, body}) => {
+    const response = await api.addAnswer(huntId, puzzleId, body);
     return response;
   }
 );

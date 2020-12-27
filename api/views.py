@@ -12,6 +12,7 @@ from .serializers import AnswerSerializer, HuntSerializer, PuzzleSerializer
 from google_api_lib.google_api_client import GoogleApiClient
 
 import logging
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -33,18 +34,23 @@ class AnswerViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = AnswerSerializer
 
+    def __sanitize_answer(self, answer):
+        """Strips whitespace and converts to uppercase."""
+        return re.sub(r"\s", "", answer).upper()
+
     def get_queryset(self):
         puzzle_id = self.kwargs["puzzle_id"]
         return Answer.objects.filter(puzzle__id=puzzle_id)
 
     def create(self, request, **kwargs):
         puzzle = None
+        logger.warn(request.data)
         with transaction.atomic():
             hunt = get_object_or_404(Hunt, pk=self.kwargs["hunt_id"])
             puzzle = get_object_or_404(Puzzle, pk=self.kwargs["puzzle_id"])
             serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
-            text = serializer.validated_data["text"]
+            text = self.__sanitize_answer(serializer.validated_data["text"])
             answer, created = Answer.objects.get_or_create(text=text, puzzle=puzzle)
             # If answer has already been added
             if not created:
@@ -101,7 +107,6 @@ class PuzzleViewSet(viewsets.ModelViewSet):
         try:
             with transaction.atomic():
                 puzzle = self.get_object()
-                logger.warn(request.data)
                 serializer = self.get_serializer(
                     puzzle, data=request.data, partial=True
                 )
