@@ -44,7 +44,6 @@ class AnswerViewSet(viewsets.ModelViewSet):
 
     def create(self, request, **kwargs):
         puzzle = None
-        logger.warn(request.data)
         with transaction.atomic():
             hunt = get_object_or_404(Hunt, pk=self.kwargs["hunt_id"])
             puzzle = get_object_or_404(Puzzle, pk=self.kwargs["puzzle_id"])
