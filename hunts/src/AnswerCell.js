@@ -10,28 +10,28 @@ export default function AnswerCell({ row, value }) {
   console.log(row);
   if (row.original.guesses === undefined || row.original.guesses.length == 0) {
     return (
-    <Button
-      variant="outline-primary"
-      onClick={() =>
-        dispatch(
-          showModal({
-            type: "SUBMIT_ANSWER",
-            props: {
-              huntId,
-              puzzleId: row.values.id,
-              puzzleName: row.values.name,
-            },
-          })
-        )
-      }
-    >
-      Submit Answer
-    </Button>
+      <Button
+        variant="outline-primary"
+        onClick={() =>
+          dispatch(
+            showModal({
+              type: "SUBMIT_ANSWER",
+              props: {
+                huntId,
+                puzzleId: row.values.id,
+                puzzleName: row.values.name,
+              },
+            })
+          )
+        }
+      >
+        Submit Answer
+      </Button>
     );
   }
   return (
     <>
-      {row.original.guesses.map(( { text }) => (
+      {row.original.guesses.map(({ text }) => (
         <>
           <span className="text-monospace">{text}</span>
           <br />
@@ -39,5 +39,4 @@ export default function AnswerCell({ row, value }) {
       ))}
     </>
   );
-  
 }

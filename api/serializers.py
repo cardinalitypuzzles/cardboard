@@ -71,8 +71,9 @@ class PuzzleSerializer(serializers.ModelSerializer):
         # Solved puzzles must have at least one correct guess, but not
         # necessarily the other way around.
         if get_merged("status") == "SOLVED" and not get_merged("guesses"):
-            raise serializers.ValidationError("Solved puzzles must have at "
-                                              "one correct guess.")
+            raise serializers.ValidationError(
+                "Solved puzzles must have at " "one correct guess."
+            )
 
         return data
 
