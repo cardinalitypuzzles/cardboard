@@ -8,24 +8,24 @@ export default function AnswerCell({ row, value }) {
   const { id: huntId } = useSelector((state) => state.hunt);
   const dispatch = useDispatch();
   return value ? (
-        <span className="text-monospace">{value}</span>
-      ) : (
-        <Button
-          variant="outline-primary"
-          onClick={() =>
-            dispatch(
-              showModal({
-                type: "SUBMIT_ANSWER",
-                props: {
-                  huntId,
-                  puzzleId: row.values.id,
-                  puzzleName: row.values.name,
-                },
-              })
-            )
-          }
-        >
-          Submit Answer
-        </Button>
-      )
+    <span className="text-monospace">{value}</span>
+  ) : (
+    <Button
+      variant="outline-primary"
+      onClick={() =>
+        dispatch(
+          showModal({
+            type: "SUBMIT_ANSWER",
+            props: {
+              huntId,
+              puzzleId: row.values.id,
+              puzzleName: row.values.name,
+            },
+          })
+        )
+      }
+    >
+      Submit Answer
+    </Button>
+  );
 }
