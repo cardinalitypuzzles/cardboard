@@ -57,6 +57,9 @@ class Puzzle(models.Model):
         choices=[(status, status) for status in ALL_STATUSES],
         default=SOLVING,
     )
+
+    # Deprecated. Use guesses instead (see answers/models.py) which points to an Answer
+    # object.
     answer = models.CharField(max_length=128)
 
     tags = models.ManyToManyField(PuzzleTag, related_name="puzzles")

@@ -38,6 +38,16 @@ export const updatePuzzle = createAsyncThunk(
   }
 );
 
+export const addAnswer = createAsyncThunk(
+  "puzzles/addAnswer",
+  async ({ huntId, id, answer }) => {
+    const response = await api.addAnswer(huntId, id, {
+      answer,
+    });
+    return response;
+  }
+);
+
 function puzzleComparator(a, b) {
   // Solved puzzles should appear below unsolved ones
   if (a.status == "SOLVED" && b.status != "SOLVED") {
@@ -75,6 +85,12 @@ export const puzzlesSlice = createSlice({
       puzzlesAdapter.setAll(state, action.payload);
     },
     [updatePuzzle.fulfilled]: (state, action) => {
+      puzzlesAdapter.updateOne(state, {
+        id: action.payload.id,
+        changes: { ...action.payload },
+      });
+    },
+    [addAnswer.fulfilled]: (state, action) => {
       puzzlesAdapter.updateOne(state, {
         id: action.payload.id,
         changes: { ...action.payload },

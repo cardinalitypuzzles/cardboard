@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
+from answers.models import Answer
 from hunts.models import Hunt
 from puzzles.models import Puzzle
 
@@ -20,6 +21,12 @@ class CurrentHuntDefault:
 
     def __repr__(self):
         return "%s()" % (self.__class__.__name__)
+
+
+class AnswerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Answer
+        fields = ("text")
 
 
 class PuzzleSerializer(serializers.ModelSerializer):

@@ -17,6 +17,8 @@ class Answer(models.Model):
     PARTIAL = "PARTIAL"
     STATUS_CHOICES = [NEW, SUBMITTED, CORRECT, INCORRECT, PARTIAL]
 
+    # Only applicable if answer queue is enabled. If answer queue is disabled, all
+    # created answers should be CORRECT.
     status = models.CharField(
         max_length=10,
         choices=[(status, status) for status in STATUS_CHOICES],
@@ -44,3 +46,10 @@ class Answer(models.Model):
 
     def get_notes(self):
         return self.response
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["text", "puzzle"], name="unique_answer_text_per_puzzle"
+            ),
+        ]

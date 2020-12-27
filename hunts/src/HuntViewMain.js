@@ -6,12 +6,14 @@ import { fetchHunt } from "./huntSlice";
 import { showModal, hideModal } from "./modalSlice";
 import { hideAlert } from "./alertSlice";
 import { PuzzleTable } from "./puzzle-table";
+import AnswerCell from "./AnswerCell";
 import NameCell from "./NameCell";
 import GlobalFilter from "./GlobalFilter";
 import StatusCell from "./StatusCell";
 import DeletePuzzleModal from "./DeletePuzzleModal";
 import EditPuzzleModal from "./EditPuzzleModal";
 import AddPuzzleModal from "./AddPuzzleModal";
+import SubmitAnswerModal from "./SubmitAnswerModal";
 import useInterval from "@use-it/interval";
 import Badge from "react-bootstrap/Badge";
 import Button from "react-bootstrap/Button";
@@ -26,6 +28,7 @@ const MODAL_COMPONENTS = {
   DELETE_PUZZLE: DeletePuzzleModal,
   EDIT_PUZZLE: EditPuzzleModal,
   ADD_PUZZLE: AddPuzzleModal,
+  SUBMIT_ANSWER: SubmitAnswerModal,
 };
 
 const TABLE_COLUMNS = [
@@ -37,12 +40,7 @@ const TABLE_COLUMNS = [
   {
     Header: "Answer",
     accessor: "answer",
-    Cell: ({ row, value }) =>
-      value ? (
-        <span className="text-monospace">{value}</span>
-      ) : (
-        <Button variant="outline-primary">Submit Answer</Button>
-      ),
+    Cell: AnswerCell,
   },
   {
     Header: "Status",

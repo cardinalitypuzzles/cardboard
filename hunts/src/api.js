@@ -57,9 +57,28 @@ function updatePuzzle(huntId, puzzleId, data) {
   }).then(handleErrors);
 }
 
+function addAnswer(huntId, puzzleId, data) {
+  const answerApiUrl = `/api/v1/hunt/${huntId}/puzzles/${puzzleId}/answer`;
+  return fetch(answerApiUrl, {
+    method: "POST",
+    headers: {
+      "X-CSRFToken": Cookies.get("csrftoken"),
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  }).then(handleErrors);
+}
+
 function getHunt(huntId) {
   const huntApiUrl = `/api/v1/hunt/${huntId}`;
   return fetch(huntApiUrl).then(handleErrors);
 }
 
-export default { getHunt, getPuzzles, addPuzzle, deletePuzzle, updatePuzzle };
+export default {
+  getHunt,
+  getPuzzles,
+  addPuzzle,
+  deletePuzzle,
+  updatePuzzle,
+  addAnswer,
+};
