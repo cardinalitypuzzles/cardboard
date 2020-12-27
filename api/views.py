@@ -5,12 +5,14 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import viewsets
 
+from answers.models import Answer
 from hunts.models import Hunt
 from puzzles.models import Puzzle, PuzzleModelError
-from .serializers import HuntSerializer, PuzzleSerializer
+from .serializers import AnswerSerializer, HuntSerializer, PuzzleSerializer
 from google_api_lib.google_api_client import GoogleApiClient
 
 import logging
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +28,49 @@ class HuntAPIView(APIView):
         hunt = get_object_or_404(Hunt, pk=pk)
         serializer = HuntSerializer(hunt)
         return Response(serializer.data)
+
+
+class AnswerViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = AnswerSerializer
+
+    def __sanitize_answer(self, answer):
+        """Strips whitespace and converts to uppercase."""
+        return re.sub(r"\s", "", answer).upper()
+
+    def get_queryset(self):
+        puzzle_id = self.kwargs["puzzle_id"]
+        return Answer.objects.filter(puzzle__id=puzzle_id)
+
+    def create(self, request, **kwargs):
+        puzzle = None
+        with transaction.atomic():
+            hunt = get_object_or_404(Hunt, pk=self.kwargs["hunt_id"])
+            puzzle = get_object_or_404(Puzzle, pk=self.kwargs["puzzle_id"])
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            text = self.__sanitize_answer(serializer.validated_data["text"])
+            answer, created = Answer.objects.get_or_create(text=text, puzzle=puzzle)
+            # If answer has already been added
+            if not created:
+                return Response(
+                    {
+                        "detail": '"An identical answer has already been submitted for that puzzle."'
+                    },
+                    status=400,
+                )
+            if hunt.answer_queue_enabled:
+                puzzle.status = Puzzle.PENDING
+            else:
+                # If no answer queue, we assume that the submitted answer is the
+                # correct answer.
+                puzzle.status = Puzzle.SOLVED
+                answer.status = Answer.CORRECT
+                puzzle.answer = answer.text
+                answer.save()
+            puzzle.save()
+
+        return Response(PuzzleSerializer(puzzle).data)
 
 
 class PuzzleViewSet(viewsets.ModelViewSet):
