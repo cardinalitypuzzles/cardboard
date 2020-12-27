@@ -39,7 +39,7 @@ const TABLE_COLUMNS = [
   },
   {
     Header: "Answer",
-    accessor: "answer",
+    accessor: (row) => row.guesses.map(({ text}) => text).join(" "),
     Cell: AnswerCell,
   },
   {

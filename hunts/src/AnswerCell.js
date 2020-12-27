@@ -7,9 +7,9 @@ import { showModal } from "./modalSlice";
 export default function AnswerCell({ row, value }) {
   const { id: huntId } = useSelector((state) => state.hunt);
   const dispatch = useDispatch();
-  return value ? (
-    <span className="text-monospace">{value}</span>
-  ) : (
+  console.log(row);
+  if (row.original.guesses === undefined || row.original.guesses.length == 0) {
+    return (
     <Button
       variant="outline-primary"
       onClick={() =>
@@ -27,5 +27,17 @@ export default function AnswerCell({ row, value }) {
     >
       Submit Answer
     </Button>
+    );
+  }
+  return (
+    <>
+      {row.original.guesses.map(( { text }) => (
+        <>
+          <span className="text-monospace">{text}</span>
+          <br />
+        </>
+      ))}
+    </>
   );
+  
 }

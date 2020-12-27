@@ -31,6 +31,7 @@ class AnswerSerializer(serializers.ModelSerializer):
 
 class PuzzleSerializer(serializers.ModelSerializer):
     tags = serializers.SerializerMethodField()
+    guesses = serializers.SerializerMethodField()
     # Have to specify this explicitly for validate_url to run
     url = serializers.CharField()
     hunt_id = serializers.PrimaryKeyRelatedField(
@@ -39,6 +40,11 @@ class PuzzleSerializer(serializers.ModelSerializer):
 
     def get_tags(self, obj):
         return [{"name": tag.name, "color": tag.color} for tag in obj.tags.all()]
+
+    def get_guesses(self, obj):
+        # Show only correct guesses.
+        guesses = obj.guesses.filter(status=Answer.CORRECT)
+        return [{"text": answer.text} for answer in guesses]
 
     def validate_url(self, url):
         return url_normalize(url)
@@ -55,18 +61,18 @@ class PuzzleSerializer(serializers.ModelSerializer):
                 return getattr(self.instance, attr)
             return None
 
-        # Feeders can't have feeders
+        # Non-metas can't have feeders
         feeders_query = get_merged("feeders")
         feeders = (feeders_query and feeders_query.all()) or []
         if not get_merged("is_meta") and len(feeders) > 0:
             raise serializers.ValidationError(
                 "Puzzle must be a meta to have puzzles assigned."
             )
-        # Answers mean solves
-        if get_merged("status") == "SOLVED" and not get_merged("answer"):
-            raise serializers.ValidationError("Solved puzzles must have answers.")
-        if get_merged("answer") and get_merged("status") != "SOLVED":
-            raise serializers.ValidationError("Puzzles with answers are solved.")
+        # Solved puzzles must have at least one correct guess, but not
+        # necessarily the other way around.
+        if get_merged("status") == "SOLVED" and not get_merged("guesses"):
+            raise serializers.ValidationError("Solved puzzles must have at "
+                                              "one correct guess.")
 
         return data
 
@@ -80,8 +86,8 @@ class PuzzleSerializer(serializers.ModelSerializer):
             "notes",
             "sheet",
             "status",
-            "answer",
             "tags",
+            "guesses",
             "metas",
             "feeders",
             "is_meta",
@@ -91,7 +97,7 @@ class PuzzleSerializer(serializers.ModelSerializer):
             "id",
             "hunt_id",
             "sheet",
-            "answer",
+            "guesses",
             "tags",
             "metas",
             "feeders",
