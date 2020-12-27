@@ -14,6 +14,10 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="chatroom",
             name="service",
-            field=models.CharField(choices=[("DISCORD", "DISCORD")], default=chat.models._get_default_service, max_length=32),
+            field=models.CharField(
+                choices=[("DISCORD", "DISCORD")],
+                default=chat.models._get_default_service,
+                max_length=32,
+            ),
         ),
     ]
