@@ -34,5 +34,9 @@ urlpatterns = [
     path("v1/hunt/<int:hunt_id>/puzzles", puzzle_list, name="puzzle_list"),
     path("v1/hunt/<int:hunt_id>/puzzles/<int:pk>", puzzle_detail, name="puzzle_detail"),
     path("v1/hunt/<int:hunt_id>/puzzles/<int:puzzle_id>/answer", answer, name="answer"),
-    path("v1/hunt/<int:hunt_id>/puzzles/<int:puzzle_id>/answer/<int:pk>", answer_edit, name="answer_edit"),
+    path(
+        "v1/hunt/<int:hunt_id>/puzzles/<int:puzzle_id>/answer/<int:pk>",
+        answer_edit,
+        name="answer_edit",
+    ),
 ]

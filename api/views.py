@@ -105,7 +105,7 @@ class AnswerViewSet(viewsets.ModelViewSet):
                 puzzle.save()
         except IntegrityError as e:
             msg = str(e)
-            if 'unique constraint' in e.message:
+            if "unique constraint" in e.message:
                 msg = "An identical answer has already been submitted for that puzzle."
             return Response(
                 {"detail": msg},

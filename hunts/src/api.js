@@ -74,7 +74,7 @@ function deleteAnswer(huntId, puzzleId, answerId) {
   return fetch(answerApiUrl, {
     method: "DELETE",
     headers: {
-      "X-CSRFToken": Cookies.get("csrftoken")
+      "X-CSRFToken": Cookies.get("csrftoken"),
     },
   }).then(handleErrors);
 }

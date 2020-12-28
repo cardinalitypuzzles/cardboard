@@ -47,7 +47,7 @@ export default function AnswerCell({ row, value }) {
                     huntId,
                     puzzleId: row.values.id,
                     answerId: id,
-                    text 
+                    text,
                   },
                 })
               )
@@ -79,7 +79,7 @@ export default function AnswerCell({ row, value }) {
           <br />
         </>
       ))}
-        <span
+      <span
         style={{ cursor: "pointer" }}
         onClick={() =>
           dispatch(
