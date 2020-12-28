@@ -5,12 +5,12 @@ import { updatePuzzle } from "./puzzlesSlice";
 import { useSelector, useDispatch } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faTrashAlt } from "@fortawesome/free-regular-svg-icons";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { showModal } from "./modalSlice";
 
 export default function AnswerCell({ row, value }) {
   const { id: huntId } = useSelector((state) => state.hunt);
   const dispatch = useDispatch();
-  console.log(row.original)
   if (row.original.guesses === undefined || row.original.guesses.length == 0) {
     return (
       <Button
@@ -42,6 +42,26 @@ export default function AnswerCell({ row, value }) {
             onClick={() =>
               dispatch(
                 showModal({
+                  type: "EDIT_ANSWER",
+                  props: {
+                    huntId,
+                    puzzleId: row.values.id,
+                    answerId: id,
+                    text 
+                  },
+                })
+              )
+            }
+          >
+            <Badge pill variant="light">
+              <FontAwesomeIcon icon={faEdit} />
+            </Badge>
+          </span>{" "}
+          <span
+            style={{ cursor: "pointer" }}
+            onClick={() =>
+              dispatch(
+                showModal({
                   type: "DELETE_ANSWER",
                   props: {
                     huntId,
@@ -59,6 +79,25 @@ export default function AnswerCell({ row, value }) {
           <br />
         </>
       ))}
+        <span
+        style={{ cursor: "pointer" }}
+        onClick={() =>
+          dispatch(
+            showModal({
+              type: "SUBMIT_ANSWER",
+              props: {
+                huntId,
+                puzzleId: row.values.id,
+                puzzleName: row.values.name,
+              },
+            })
+          )
+        }
+      >
+        <Badge pill variant="light">
+          <FontAwesomeIcon icon={faPlus} />
+        </Badge>
+      </span>
     </>
   );
 }

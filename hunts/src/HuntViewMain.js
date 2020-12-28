@@ -12,6 +12,7 @@ import GlobalFilter from "./GlobalFilter";
 import StatusCell from "./StatusCell";
 import DeleteAnswerModal from "./DeleteAnswerModal";
 import DeletePuzzleModal from "./DeletePuzzleModal";
+import EditAnswerModal from "./EditAnswerModal";
 import EditPuzzleModal from "./EditPuzzleModal";
 import AddPuzzleModal from "./AddPuzzleModal";
 import SubmitAnswerModal from "./SubmitAnswerModal";
@@ -31,7 +32,7 @@ const MODAL_COMPONENTS = {
   ADD_PUZZLE: AddPuzzleModal,
   SUBMIT_ANSWER: SubmitAnswerModal,
   DELETE_ANSWER: DeleteAnswerModal,
-  //EDIT_ANSWER: EditAnswerModal,
+  EDIT_ANSWER: EditAnswerModal,
 };
 
 const TABLE_COLUMNS = [

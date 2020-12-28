@@ -82,7 +82,7 @@ function deleteAnswer(huntId, puzzleId, answerId) {
 function editAnswer(huntId, puzzleId, answerId, data) {
   const answerApiUrl = `/api/v1/hunt/${huntId}/puzzles/${puzzleId}/answer/${answerId}`;
   return fetch(answerApiUrl, {
-    method: "POST",
+    method: "PATCH",
     headers: {
       "X-CSRFToken": Cookies.get("csrftoken"),
       "Content-Type": "application/json",
@@ -104,4 +104,5 @@ export default {
   updatePuzzle,
   addAnswer,
   deleteAnswer,
+  editAnswer,
 };

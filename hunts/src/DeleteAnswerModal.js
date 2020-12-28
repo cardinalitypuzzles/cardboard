@@ -5,7 +5,7 @@ import Button from "react-bootstrap/Button";
 import { deleteAnswer } from "./puzzlesSlice";
 import { hideModal } from "./modalSlice";
 
-function DeleteAnswerModal({ huntId, puzzleId, answerId, answerName }) {
+function DeleteAnswerModal({ huntId, puzzleId, answerId }) {
   const dispatch = useDispatch();
   const onDelete = () => {
     dispatch(deleteAnswer({ huntId, puzzleId, answerId })).finally(() => {
@@ -15,7 +15,7 @@ function DeleteAnswerModal({ huntId, puzzleId, answerId, answerName }) {
   return (
     <>
       <Modal.Header closeButton>
-        <Modal.Title>Delete {answerName}</Modal.Title>
+        <Modal.Title>Delete Answer</Modal.Title>
       </Modal.Header>
       <Modal.Body>Are you sure you want to delete this answer?</Modal.Body>
       <Modal.Footer>

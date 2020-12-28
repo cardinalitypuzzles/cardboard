@@ -95,16 +95,20 @@ class AnswerViewSet(viewsets.ModelViewSet):
         try:
             with transaction.atomic():
                 answer = self.get_object()
+                puzzle = get_object_or_404(Puzzle, pk=self.kwargs["puzzle_id"])
                 serializer = self.get_serializer(
                     answer, data=request.data, partial=True
                 )
                 serializer.is_valid(raise_exception=True)
                 text = self.__sanitize_answer(serializer.validated_data["text"])
                 answer.update(text)
+                puzzle.save()
         except IntegrityError as e:
-            # This should capture the uniqueness error.
+            msg = str(e)
+            if 'unique constraint' in e.message:
+                msg = "An identical answer has already been submitted for that puzzle."
             return Response(
-                {"detail": str(e)},
+                {"detail": msg},
                 status=400,
             )
 
