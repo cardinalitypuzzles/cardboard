@@ -1,3 +1,4 @@
+from django.db import IntegrityError
 from django.db import transaction
 from django.shortcuts import render, get_object_or_404
 from rest_framework.permissions import IsAuthenticated
@@ -69,6 +70,43 @@ class AnswerViewSet(viewsets.ModelViewSet):
                 puzzle.answer = answer.text
                 answer.save()
             puzzle.save()
+
+        return Response(PuzzleSerializer(puzzle).data)
+
+    def destroy(self, request, pk=None, **kwargs):
+        puzzle = None
+        with transaction.atomic():
+            hunt = get_object_or_404(Hunt, pk=self.kwargs["hunt_id"])
+            answer = self.get_object()
+            puzzle = get_object_or_404(Puzzle, pk=self.kwargs["puzzle_id"])
+            answer.delete()
+            # If a SOLVED puzzle has no more correct answers, revert status to SOLVING.
+            if (
+                not puzzle.guesses.filter(status=Answer.CORRECT)
+                and puzzle.status == Puzzle.SOLVED
+            ) or (not puzzle.guesses.all() and puzzle.status == Puzzle.PENDING):
+                puzzle.status = Puzzle.SOLVING
+                puzzle.save()
+
+        return Response(PuzzleSerializer(puzzle).data)
+
+    def partial_update(self, request, p=None, **kwargs):
+        puzzle = None
+        try:
+            with transaction.atomic():
+                answer = self.get_object()
+                serializer = self.get_serializer(
+                    answer, data=request.data, partial=True
+                )
+                serializer.is_valid(raise_exception=True)
+                text = self.__sanitize_answer(serializer.validated_data["text"])
+                answer.update(text)
+        except IntegrityError as e:
+            # This should capture the uniqueness error.
+            return Response(
+                {"detail": str(e)},
+                status=400,
+            )
 
         return Response(PuzzleSerializer(puzzle).data)
 

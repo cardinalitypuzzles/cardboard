@@ -69,6 +69,28 @@ function addAnswer(huntId, puzzleId, data) {
   }).then(handleErrors);
 }
 
+function deleteAnswer(huntId, puzzleId, answerId) {
+  const answerApiUrl = `/api/v1/hunt/${huntId}/puzzles/${puzzleId}/answer/${answerId}`;
+  return fetch(answerApiUrl, {
+    method: "DELETE",
+    headers: {
+      "X-CSRFToken": Cookies.get("csrftoken")
+    },
+  }).then(handleErrors);
+}
+
+function editAnswer(huntId, puzzleId, answerId, data) {
+  const answerApiUrl = `/api/v1/hunt/${huntId}/puzzles/${puzzleId}/answer/${answerId}`;
+  return fetch(answerApiUrl, {
+    method: "POST",
+    headers: {
+      "X-CSRFToken": Cookies.get("csrftoken"),
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  }).then(handleErrors);
+}
+
 function getHunt(huntId) {
   const huntApiUrl = `/api/v1/hunt/${huntId}`;
   return fetch(huntApiUrl).then(handleErrors);
@@ -81,4 +103,5 @@ export default {
   deletePuzzle,
   updatePuzzle,
   addAnswer,
+  deleteAnswer,
 };

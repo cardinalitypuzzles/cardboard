@@ -7,6 +7,7 @@ class Answer(models.Model):
         "puzzles.Puzzle", on_delete=models.CASCADE, related_name="guesses"
     )
     created_on = models.DateTimeField(auto_now_add=True)
+    updated_on = models.DateTimeField(auto_now=True)
     # for partial answers
     response = models.TextField(default="")
 
@@ -46,6 +47,10 @@ class Answer(models.Model):
 
     def get_notes(self):
         return self.response
+
+    def update(self, new_answer):
+        self.text = new_answer
+        self.save()
 
     class Meta:
         constraints = [

@@ -26,7 +26,8 @@ class CurrentHuntDefault:
 class AnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Answer
-        fields = ("text",)
+        fields = ("id", "text")
+        read_only_fields = ("id",)
 
 
 class PuzzleSerializer(serializers.ModelSerializer):
@@ -44,7 +45,7 @@ class PuzzleSerializer(serializers.ModelSerializer):
     def get_guesses(self, obj):
         # Show only correct guesses.
         guesses = obj.guesses.filter(status=Answer.CORRECT)
-        return [{"text": answer.text} for answer in guesses]
+        return AnswerSerializer(guesses, many=True).data
 
     def validate_url(self, url):
         return url_normalize(url)
