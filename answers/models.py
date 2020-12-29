@@ -48,11 +48,8 @@ class Answer(models.Model):
     def get_notes(self):
         return self.response
 
-    def update(self, new_answer):
-        self.text = new_answer
-        self.save()
-
     class Meta:
+        ordering = ('created_on',)
         constraints = [
             models.UniqueConstraint(
                 fields=["text", "puzzle"], name="unique_answer_text_per_puzzle"
