@@ -6,6 +6,8 @@ from puzzles.models import Puzzle
 
 from url_normalize import url_normalize
 
+import re
+
 
 class HuntSerializer(serializers.ModelSerializer):
     class Meta:
@@ -23,11 +25,41 @@ class CurrentHuntDefault:
         return "%s()" % (self.__class__.__name__)
 
 
+class CurrentPuzzleDefault:
+    requires_context = True
+
+    def __call__(self, serializer_field):
+        return serializer_field.context.get("puzzle")
+
+    def __repr__(self):
+        return "%s()" % (self.__class__.__name__)
+
+
 class AnswerSerializer(serializers.ModelSerializer):
+    # Have to specify this explicitly for validate_text to run.
+    text = serializers.CharField()
+    puzzle_id = serializers.PrimaryKeyRelatedField(
+        read_only=True, default=CurrentPuzzleDefault()
+    )
+
+    def __sanitize_answer(self, answer):
+        """Strips whitespace and converts to uppercase."""
+        return re.sub(r"\s", "", answer).upper()
+
+    def validate_text(self, text):
+        return self.__sanitize_answer(text)
+
     class Meta:
         model = Answer
-        fields = ("id", "text")
-        read_only_fields = ("id",)
+        fields = ("id", "text", "puzzle_id",)
+        read_only_fields = ("id", "puzzle_id",)
+        validators = (
+            UniqueTogetherValidator(
+                queryset=Answer.objects.all(),
+                fields=["text", "puzzle_id"],
+                message="There is already an identical answer for that puzzle.",
+            ),
+        )
 
 
 class PuzzleSerializer(serializers.ModelSerializer):

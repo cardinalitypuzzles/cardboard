@@ -59,6 +59,7 @@ function updatePuzzle(huntId, puzzleId, data) {
 
 function addAnswer(huntId, puzzleId, data) {
   const answerApiUrl = `/api/v1/hunt/${huntId}/puzzles/${puzzleId}/answer`;
+  console.log(data)
   return fetch(answerApiUrl, {
     method: "POST",
     headers: {
