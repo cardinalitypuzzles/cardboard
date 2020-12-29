@@ -51,8 +51,15 @@ class AnswerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Answer
-        fields = ("id", "text", "puzzle_id",)
-        read_only_fields = ("id", "puzzle_id",)
+        fields = (
+            "id",
+            "text",
+            "puzzle_id",
+        )
+        read_only_fields = (
+            "id",
+            "puzzle_id",
+        )
         validators = (
             UniqueTogetherValidator(
                 queryset=Answer.objects.all(),

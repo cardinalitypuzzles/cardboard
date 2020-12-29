@@ -43,10 +43,12 @@ class AnswerViewSet(viewsets.ModelViewSet):
         with transaction.atomic():
             hunt = get_object_or_404(Hunt, pk=self.kwargs["hunt_id"])
             puzzle = get_object_or_404(Puzzle, pk=self.kwargs["puzzle_id"])
-            serializer = self.get_serializer(data=request.data, context={"puzzle": puzzle})
+            serializer = self.get_serializer(
+                data=request.data, context={"puzzle": puzzle}
+            )
             serializer.is_valid(raise_exception=True)
             text = serializer.validated_data["text"]
-            answer= Answer(text=text, puzzle=puzzle)
+            answer = Answer(text=text, puzzle=puzzle)
             if hunt.answer_queue_enabled:
                 puzzle.status = Puzzle.PENDING
             else:
