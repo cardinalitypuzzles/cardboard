@@ -36,10 +36,9 @@ export default function AnswerCell({ row, value }) {
     <>
       {row.original.guesses.map(({ id, text }) => (
         <React.Fragment key={text}>
-          <span className="text-monospace" key={"text-${text}"}>{text}</span>
+          <span className="text-monospace">{text}</span>
           <span
             style={{ cursor: "pointer" }}
-            key={"edit-${text}"}
             onClick={() =>
               dispatch(
                 showModal({
@@ -54,13 +53,12 @@ export default function AnswerCell({ row, value }) {
               )
             }
           >
-            <Badge pill variant="light" key={"edit-btn-${text}"}>
+            <Badge pill variant="light">
               <FontAwesomeIcon icon={faEdit} />
             </Badge>
           </span>{" "}
           <span
             style={{ cursor: "pointer" }}
-            key={"delete-${text}"}
             onClick={() =>
               dispatch(
                 showModal({
@@ -74,7 +72,7 @@ export default function AnswerCell({ row, value }) {
               )
             }
           >
-            <Badge pill variant="light" key={"delete-btn-${text}"}>
+            <Badge pill variant="light">
               <FontAwesomeIcon icon={faTrashAlt} />
             </Badge>
           </span>
