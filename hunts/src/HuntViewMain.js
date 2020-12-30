@@ -69,13 +69,13 @@ const TABLE_COLUMNS = [
   {
     Header: "Chat",
     accessor: "chat_room",
-    Cell: ({ row, value }) => 
+    Cell: ({ row, value }) =>
       row.original.chat_room ? (
         <>
           <a href={row.original.chat_room.audio_invite_url} target="_blank">
             Voice
           </a>
-          <br/>
+          <br />
           <a href={row.original.chat_room.text_invite_url} target="_blank">
             Text
           </a>
