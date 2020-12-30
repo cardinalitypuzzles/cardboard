@@ -6,6 +6,7 @@ from rest_framework.views import APIView
 from rest_framework import viewsets
 
 from answers.models import Answer
+from chat.models import ChatRoom
 from hunts.models import Hunt
 from puzzles.models import Puzzle, PuzzleModelError
 from .serializers import AnswerSerializer, HuntSerializer, PuzzleSerializer
@@ -143,7 +144,12 @@ class PuzzleViewSet(viewsets.ModelViewSet):
             else:
                 logger.warn("Sheet not created for puzzle %s" % name)
 
-            puzzle = serializer.save(sheet=sheet, hunt=hunt)
+            chat_room = ChatRoom.objects.create(
+                service=settings.CHAT_DEFAULT_SERVICE, name=name
+            )
+            chat_room.create_channels()
+
+            puzzle = serializer.save(sheet=sheet, hunt=hunt, chat_room=chat_room)
 
             if google_api_client:
                 transaction.on_commit(
