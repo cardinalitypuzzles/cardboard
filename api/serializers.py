@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 from answers.models import Answer
+from chat.models import ChatRoom
 from hunts.models import Hunt
 from puzzles.models import Puzzle
 
@@ -29,13 +30,24 @@ class AnswerSerializer(serializers.ModelSerializer):
         fields = ("text",)
 
 
+class ChatRoomSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ChatRoom
+        fields = ("text_invite_url", "audio_invite_url",)
+        read_only_fields = ("text_invite_url", "audio_invite_url",)
+
+
 class PuzzleSerializer(serializers.ModelSerializer):
+    chat_room = serializers.SerializerMethodField()
     tags = serializers.SerializerMethodField()
     # Have to specify this explicitly for validate_url to run
     url = serializers.CharField()
     hunt_id = serializers.PrimaryKeyRelatedField(
         read_only=True, default=CurrentHuntDefault()
     )
+
+    def get_chat_room(self, obj):
+        return ChatRoomSerializer(obj.chat_room).data
 
     def get_tags(self, obj):
         return [{"name": tag.name, "color": tag.color} for tag in obj.tags.all()]

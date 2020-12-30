@@ -51,6 +51,9 @@ class ChatRoom(models.Model):
     text_channel_id = models.CharField(max_length=255, null=True, blank=True)
     audio_channel_id = models.CharField(max_length=255, null=True, blank=True)
 
+    text_invite_url = models.URLField(blank=True)
+    audio_invite_url = models.URLField(blank=True)
+
     class Meta:
         constraints = [
             models.UniqueConstraint(
@@ -68,7 +71,9 @@ class ChatRoom(models.Model):
         service = self.get_service()
         self.text_channel_id = service.create_text_channel(self.name)
         self.audio_channel_id = service.create_audio_channel(self.name)
-        self.save(update_fields=["text_channel_id", "audio_channel_id"])
+        self.text_invite_url = service.create_invite_link(self.text_channel_id)
+        self.audio_invite_url = service.create_invite_link(self.audio_channel_id)
+        self.save(update_fields=["text_channel_id", "audio_channel_id", "text_invite_url", "audio_invite_url"])
 
     def delete_channels(self):
         service = self.get_service()
@@ -76,11 +81,13 @@ class ChatRoom(models.Model):
         if self.text_channel_id:
             service.delete_text_channel(self.text_channel_id)
             self.text_channel_id = None
-            update_fields.append("text_channel_id")
+            self.text_invite_url = ""
+            update_fields.extend(["text_channel_id", "text_invite_url"])
         if self.audio_channel_id:
             service.delete_audio_channel(self.audio_channel_id)
             self.audio_channel_id = None
-            update_fields.append("audio_channel_id")
+            self.audio_invite_url = ""
+            update_fields.extend(["audio_channel_id", "audio_invite_url"])
         if update_fields:
             self.save(update_fields=update_fields)
 

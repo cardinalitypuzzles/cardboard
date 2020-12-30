@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import transaction
 from django.shortcuts import render, get_object_or_404
 from rest_framework.permissions import IsAuthenticated
@@ -84,6 +85,7 @@ class PuzzleViewSet(viewsets.ModelViewSet):
             Puzzle.objects.filter(hunt__id=hunt_id)
             .prefetch_related("metas")
             .prefetch_related("tags")
+            .prefetch_related("chat_room")
         )
 
     def destroy(self, request, pk=None, **kwargs):
