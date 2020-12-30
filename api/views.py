@@ -146,10 +146,14 @@ class PuzzleViewSet(viewsets.ModelViewSet):
             else:
                 logger.warn("Sheet not created for puzzle %s" % name)
 
-            chat_room = ChatRoom.objects.create(
-                service=settings.CHAT_DEFAULT_SERVICE, name=name
-            )
-            chat_room.create_channels()
+            if settings.CHAT_DEFAULT_SERVICE:
+                chat_room = ChatRoom.objects.create(
+                    service=settings.CHAT_DEFAULT_SERVICE, name=name
+                )
+                chat_room.create_channels()
+            else:
+                logger.warn("Chat room not created for puzzle %s" % name)
+                chat_room = None
 
             puzzle = serializer.save(sheet=sheet, hunt=hunt, chat_room=chat_room)
 
