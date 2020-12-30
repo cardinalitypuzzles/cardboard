@@ -33,8 +33,14 @@ class AnswerSerializer(serializers.ModelSerializer):
 class ChatRoomSerializer(serializers.ModelSerializer):
     class Meta:
         model = ChatRoom
-        fields = ("text_invite_url", "audio_invite_url",)
-        read_only_fields = ("text_invite_url", "audio_invite_url",)
+        fields = (
+            "text_invite_url",
+            "audio_invite_url",
+        )
+        read_only_fields = (
+            "text_invite_url",
+            "audio_invite_url",
+        )
 
 
 class PuzzleSerializer(serializers.ModelSerializer):

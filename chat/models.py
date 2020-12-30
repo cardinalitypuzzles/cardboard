@@ -73,7 +73,14 @@ class ChatRoom(models.Model):
         self.audio_channel_id = service.create_audio_channel(self.name)
         self.text_invite_url = service.create_invite_link(self.text_channel_id)
         self.audio_invite_url = service.create_invite_link(self.audio_channel_id)
-        self.save(update_fields=["text_channel_id", "audio_channel_id", "text_invite_url", "audio_invite_url"])
+        self.save(
+            update_fields=[
+                "text_channel_id",
+                "audio_channel_id",
+                "text_invite_url",
+                "audio_invite_url",
+            ]
+        )
 
     def delete_channels(self):
         service = self.get_service()
