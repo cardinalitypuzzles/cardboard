@@ -58,6 +58,8 @@ class AnswerViewSet(viewsets.ModelViewSet):
                 answer.status = Answer.CORRECT
                 puzzle.answer = answer.text
                 answer.save()
+                for meta in puzzle.metas.all():
+                    GoogleApiClient.update_meta_sheet_feeders(meta)
             puzzle.save()
 
         return Response(PuzzleSerializer(puzzle).data)
@@ -75,6 +77,18 @@ class AnswerViewSet(viewsets.ModelViewSet):
             ) or (not puzzle.guesses.all() and puzzle.status == Puzzle.PENDING):
                 puzzle.status = Puzzle.SOLVING
                 puzzle.save()
+
+            for meta in puzzle.metas.all():
+                GoogleApiClient.update_meta_sheet_feeders(meta)
+
+        return Response(PuzzleSerializer(puzzle).data)
+
+    def partial_update(self, request, pk=None, **kwargs):
+        super().partial_update(request, pk, **kwargs)
+
+        puzzle = get_object_or_404(Puzzle, pk=self.kwargs["puzzle_id"])
+        for meta in puzzle.metas.all():
+            GoogleApiClient.update_meta_sheet_feeders(meta)
 
         return Response(PuzzleSerializer(puzzle).data)
 

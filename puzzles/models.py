@@ -175,6 +175,9 @@ class Puzzle(models.Model):
     def can_delete(self):
         return not (self.is_meta and Puzzle.objects.filter(metas__id=self.pk))
 
+    def correct_answers(self):
+        return [answer.text for answer in self.guesses.filter(status=Answer.CORRECT)]
+
     @staticmethod
     def maybe_truncate_name(name):
         max_allowed_length = Puzzle._meta.get_field("name").max_length

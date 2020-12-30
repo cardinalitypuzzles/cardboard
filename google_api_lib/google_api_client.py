@@ -118,7 +118,10 @@ class GoogleApiClient:
         )
         spreadsheet_id = self.__extract_id_from_sheets_url(meta_puzzle.sheet)
         feeders = meta_puzzle.feeders.all()
-        feeders = sorted(feeders, key=lambda p: p.answer)
+        feeders = sorted(feeders, key=lambda p: p.name)
+        feeders_to_answers = {f: f.correct_answers() for f in feeders}
+
+        max_num_answers = max(1, max((len(v) for v in feeders_to_answers.values())))
 
         # Each thread needs its own http object because httplib2.Http()
         # is used under the hood and that is not thread safe.
@@ -160,6 +163,11 @@ class GoogleApiClient:
         )
         sheet_id = response["replies"][-1]["addSheet"]["properties"]["sheetId"]
 
+        def __get_answer_or_blank(puzzle, i):
+            if i < len(feeders_to_answers[puzzle]):
+                return feeders_to_answers[puzzle][i]
+            return ""
+
         body = {
             "requests": [
                 {
@@ -173,7 +181,7 @@ class GoogleApiClient:
                             "startRowIndex": 0,
                             "endRowIndex": 4 + len(feeders),
                             "startColumnIndex": 0,
-                            "endColumnIndex": 4,
+                            "endColumnIndex": 3 + max_num_answers,
                         },
                         "rows": [
                             {
@@ -214,18 +222,21 @@ class GoogleApiClient:
                                         },
                                     },
                                     {
-                                        "userEnteredValue": {"stringValue": "Answer"},
-                                        "userEnteredFormat": {
-                                            "textFormat": {"bold": True}
-                                        },
-                                    },
-                                    {
                                         "userEnteredValue": {"stringValue": "Sheet"},
                                         "userEnteredFormat": {
                                             "textFormat": {"bold": True}
                                         },
                                     },
                                 ]
+                                + [
+                                    {
+                                        "userEnteredValue": {"stringValue": "Answer"},
+                                        "userEnteredFormat": {
+                                            "textFormat": {"bold": True}
+                                        },
+                                    },
+                                ]
+                                * max_num_answers
                             },
                         ]
                         + [
@@ -240,18 +251,23 @@ class GoogleApiClient:
                                     {"userEnteredValue": {"stringValue": puzzle.name}},
                                     {
                                         "userEnteredValue": {
-                                            "stringValue": puzzle.answer
-                                        },
-                                        "userEnteredFormat": {
-                                            "textFormat": {"fontFamily": "Roboto Mono"}
-                                        },
-                                    },
-                                    {
-                                        "userEnteredValue": {
                                             "formulaValue": '=HYPERLINK("%s", "sheet")'
                                             % puzzle.sheet
                                         }
                                     },
+                                ]
+                                + [
+                                    {
+                                        "userEnteredValue": {
+                                            "stringValue": __get_answer_or_blank(
+                                                puzzle, i
+                                            )
+                                        },
+                                        "userEnteredFormat": {
+                                            "textFormat": {"fontFamily": "Roboto Mono"}
+                                        },
+                                    }
+                                    for i in range(max_num_answers)
                                 ]
                             }
                             for puzzle in feeders
