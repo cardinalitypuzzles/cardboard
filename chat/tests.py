@@ -24,6 +24,9 @@ class FakeChatService(ChatService):
     def delete_audio_channel(self, channel_id):
         self.audio_channels.remove(channel_id)
 
+    def create_invite_link(self, channel_id):
+        return ""
+
 
 @override_settings(
     CHAT_DEFAULT_SERVICE="DEFAULT",
