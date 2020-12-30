@@ -173,7 +173,7 @@ class HuntView(LoginRequiredMixin, View):
             if google_api_client:
                 google_api_client.add_puzzle_link_to_sheet(puzzle_url, sheet)
 
-            if settings.CHAT_DEFAULT_SERVICE is not None:
+            if settings.CHAT_DEFAULT_SERVICE:
                 chat_room = ChatRoom.objects.create(
                     service=settings.CHAT_DEFAULT_SERVICE, name=name
                 )
