@@ -49,7 +49,7 @@ class Answer(models.Model):
         return self.response
 
     class Meta:
-        ordering = ('created_on',)
+        ordering = ("created_on",)
         constraints = [
             models.UniqueConstraint(
                 fields=["text", "puzzle"], name="unique_answer_text_per_puzzle"
