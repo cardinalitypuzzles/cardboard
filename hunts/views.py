@@ -173,10 +173,14 @@ class HuntView(LoginRequiredMixin, View):
             if google_api_client:
                 google_api_client.add_puzzle_link_to_sheet(puzzle_url, sheet)
 
-            chat_room = ChatRoom.objects.create(
-                service=settings.CHAT_DEFAULT_SERVICE, name=name
-            )
-            chat_room.create_channels()
+            if settings.CHAT_DEFAULT_SERVICE:
+                chat_room = ChatRoom.objects.create(
+                    service=settings.CHAT_DEFAULT_SERVICE, name=name
+                )
+                chat_room.create_channels()
+            else:
+                logger.warn("Chat room not created for puzzle %s" % name)
+                chat_room = None
 
             try:
                 puzzle = Puzzle.objects.create(

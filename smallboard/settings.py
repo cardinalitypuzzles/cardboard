@@ -251,7 +251,14 @@ TAGGIT_TAGS_FROM_STRING = "puzzles.tag_utils.to_tag"
 
 import discord_lib
 
-CHAT_DEFAULT_SERVICE = "DISCORD"
-CHAT_SERVICES = {
-    "DISCORD": discord_lib.DiscordChatService,
-}
+if not "DISCORD_API_TOKEN" in os.environ:
+    logger.warn(
+        "No Discord API token found in environment. Automatic Discord channel creation disabled."
+    )
+    CHAT_DEFAULT_SERVICE = None
+    CHAT_SERVICES = {}
+else:
+    CHAT_DEFAULT_SERVICE = "DISCORD"
+    CHAT_SERVICES = {
+        "DISCORD": discord_lib.DiscordChatService,
+    }
