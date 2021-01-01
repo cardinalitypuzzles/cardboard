@@ -10,7 +10,9 @@ import AnswerCell from "./AnswerCell";
 import NameCell from "./NameCell";
 import GlobalFilter from "./GlobalFilter";
 import StatusCell from "./StatusCell";
+import DeleteAnswerModal from "./DeleteAnswerModal";
 import DeletePuzzleModal from "./DeletePuzzleModal";
+import EditAnswerModal from "./EditAnswerModal";
 import EditPuzzleModal from "./EditPuzzleModal";
 import AddPuzzleModal from "./AddPuzzleModal";
 import SubmitAnswerModal from "./SubmitAnswerModal";
@@ -29,6 +31,8 @@ const MODAL_COMPONENTS = {
   EDIT_PUZZLE: EditPuzzleModal,
   ADD_PUZZLE: AddPuzzleModal,
   SUBMIT_ANSWER: SubmitAnswerModal,
+  DELETE_ANSWER: DeleteAnswerModal,
+  EDIT_ANSWER: EditAnswerModal,
 };
 
 const TABLE_COLUMNS = [
@@ -39,7 +43,7 @@ const TABLE_COLUMNS = [
   },
   {
     Header: "Answer",
-    accessor: "answer",
+    accessor: (row) => row.guesses.map(({ text }) => text).join(" "),
     Cell: AnswerCell,
   },
   {

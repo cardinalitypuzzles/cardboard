@@ -41,7 +41,24 @@ export const updatePuzzle = createAsyncThunk(
 export const addAnswer = createAsyncThunk(
   "puzzles/addAnswer",
   async ({ huntId, puzzleId, body }) => {
+    console.log("hi");
     const response = await api.addAnswer(huntId, puzzleId, body);
+    return response;
+  }
+);
+
+export const deleteAnswer = createAsyncThunk(
+  "puzzles/deleteAnswer",
+  async ({ huntId, puzzleId, answerId }) => {
+    const response = await api.deleteAnswer(huntId, puzzleId, answerId);
+    return response;
+  }
+);
+
+export const editAnswer = createAsyncThunk(
+  "puzzles/editAnswer",
+  async ({ huntId, puzzleId, answerId, body }) => {
+    const response = await api.editAnswer(huntId, puzzleId, answerId, body);
     return response;
   }
 );
@@ -89,6 +106,18 @@ export const puzzlesSlice = createSlice({
       });
     },
     [addAnswer.fulfilled]: (state, action) => {
+      puzzlesAdapter.updateOne(state, {
+        id: action.payload.id,
+        changes: { ...action.payload },
+      });
+    },
+    [deleteAnswer.fulfilled]: (state, action) => {
+      puzzlesAdapter.updateOne(state, {
+        id: action.payload.id,
+        changes: { ...action.payload },
+      });
+    },
+    [editAnswer.fulfilled]: (state, action) => {
       puzzlesAdapter.updateOne(state, {
         id: action.payload.id,
         changes: { ...action.payload },

@@ -1,3 +1,4 @@
+from django.db import IntegrityError
 from django.db import transaction
 from django.shortcuts import render, get_object_or_404
 from rest_framework.permissions import IsAuthenticated
@@ -12,7 +13,6 @@ from .serializers import AnswerSerializer, HuntSerializer, PuzzleSerializer
 from google_api_lib.google_api_client import GoogleApiClient
 
 import logging
-import re
 
 logger = logging.getLogger(__name__)
 
@@ -34,9 +34,10 @@ class AnswerViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = AnswerSerializer
 
-    def __sanitize_answer(self, answer):
-        """Strips whitespace and converts to uppercase."""
-        return re.sub(r"\s", "", answer).upper()
+    @staticmethod
+    def __update_meta_sheets_for_feeder(feeder):
+        for meta in feeder.metas.all():
+            GoogleApiClient.update_meta_sheet_feeders(meta)
 
     def get_queryset(self):
         puzzle_id = self.kwargs["puzzle_id"]
@@ -47,18 +48,12 @@ class AnswerViewSet(viewsets.ModelViewSet):
         with transaction.atomic():
             hunt = get_object_or_404(Hunt, pk=self.kwargs["hunt_id"])
             puzzle = get_object_or_404(Puzzle, pk=self.kwargs["puzzle_id"])
-            serializer = self.get_serializer(data=request.data)
+            serializer = self.get_serializer(
+                data=request.data, context={"puzzle": puzzle}
+            )
             serializer.is_valid(raise_exception=True)
-            text = self.__sanitize_answer(serializer.validated_data["text"])
-            answer, created = Answer.objects.get_or_create(text=text, puzzle=puzzle)
-            # If answer has already been added
-            if not created:
-                return Response(
-                    {
-                        "detail": '"An identical answer has already been submitted for that puzzle."'
-                    },
-                    status=400,
-                )
+            text = serializer.validated_data["text"]
+            answer = Answer(text=text, puzzle=puzzle)
             if hunt.answer_queue_enabled:
                 puzzle.status = Puzzle.PENDING
             else:
@@ -68,7 +63,36 @@ class AnswerViewSet(viewsets.ModelViewSet):
                 answer.status = Answer.CORRECT
                 puzzle.answer = answer.text
                 answer.save()
+                transaction.on_commit(
+                    AnswerViewSet.__update_meta_sheets_for_feeder(puzzle)
+                )
             puzzle.save()
+
+        return Response(PuzzleSerializer(puzzle).data)
+
+    def destroy(self, request, pk=None, **kwargs):
+        puzzle = None
+        with transaction.atomic():
+            answer = self.get_object()
+            puzzle = get_object_or_404(Puzzle, pk=self.kwargs["puzzle_id"])
+            answer.delete()
+            # If a SOLVED puzzle has no more correct answers, revert status to SOLVING.
+            if (
+                not puzzle.guesses.filter(status=Answer.CORRECT)
+                and puzzle.status == Puzzle.SOLVED
+            ) or (not puzzle.guesses.all() and puzzle.status == Puzzle.PENDING):
+                puzzle.status = Puzzle.SOLVING
+                puzzle.save()
+
+            transaction.on_commit(AnswerViewSet.__update_meta_sheets_for_feeder(puzzle))
+
+        return Response(PuzzleSerializer(puzzle).data)
+
+    def partial_update(self, request, pk=None, **kwargs):
+        super().partial_update(request, pk, **kwargs)
+
+        puzzle = get_object_or_404(Puzzle, pk=self.kwargs["puzzle_id"])
+        transaction.on_commit(AnswerViewSet.__update_meta_sheets_for_feeder(puzzle))
 
         return Response(PuzzleSerializer(puzzle).data)
 
@@ -83,6 +107,7 @@ class PuzzleViewSet(viewsets.ModelViewSet):
             Puzzle.objects.filter(hunt__id=hunt_id)
             .prefetch_related("metas")
             .prefetch_related("tags")
+            .prefetch_related("guesses")
         )
 
     def destroy(self, request, pk=None, **kwargs):
