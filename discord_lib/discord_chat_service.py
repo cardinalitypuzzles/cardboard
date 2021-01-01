@@ -70,6 +70,6 @@ class DiscordChatService(ChatService):
             channel = self.create_channel(name, chan_type)
         return channel
 
-    def create_invite_link(self, channel_id):
+    def create_channel_url(self, channel_id):
         invite = self._client.channels_invites_create(channel_id, max_age=0)
-        return "https://discord.gg/{}".format(invite.code)
+        return f"https://discord.gg/{invite.code}"

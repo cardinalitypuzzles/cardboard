@@ -34,12 +34,12 @@ class ChatRoomSerializer(serializers.ModelSerializer):
     class Meta:
         model = ChatRoom
         fields = (
-            "text_invite_url",
-            "audio_invite_url",
+            "text_channel_url",
+            "audio_channel_url",
         )
         read_only_fields = (
-            "text_invite_url",
-            "audio_invite_url",
+            "text_channel_url",
+            "audio_channel_url",
         )
 
 
