@@ -179,36 +179,28 @@ DISCORD_GUILD_ID = os.environ.get("DISCORD_GUILD_ID", None)
 DISCORD_GUILD_CATEGORY = os.environ.get("DISCORD_GUILD_CATEGORY", "puzzles")
 
 # Google Drive API
-GOOGLE_API_AUTHN_INFO = None
-if not "GOOGLE_API_PRIVATE_KEY" in os.environ:
-    logger.warn(
-        "No Google Drive API key found in environment. Automatic sheets creation disabled."
-    )
-else:
+try:
     GOOGLE_API_AUTHN_INFO = {
         "type": "service_account",
-        "project_id": "smallboard-test-260001",
-        "private_key_id": "ca6bf4b1c0db884c0a0cf490839c375f63dab3af",
+        "project_id": os.environ["GOOGLE_API_PROJECT_ID"],
+        "private_key_id": os.environ["GOOGLE_API_PRIVATE_KEY_ID"],
         "private_key": os.environ["GOOGLE_API_PRIVATE_KEY"].replace("\\n", "\n"),
-        "client_email": "smallboard-test@smallboard-test-260001.iam.gserviceaccount.com",
-        "client_id": "108658192634408271921",
+        "client_email": os.environ["GOOGLE_API_CLIENT_EMAIL"],
+        "client_id": os.environ["GOOGLE_API_CLIENT_ID"],
         "auth_uri": "https://accounts.google.com/o/oauth2/auth",
         "token_uri": "https://oauth2.googleapis.com/token",
         "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-        "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/smallboard-test%40smallboard-test-260001.iam.gserviceaccount.com",
+        "client_x509_cert_url": os.environ["GOOGLE_API_X509_CERT_URL"],
     }
     GOOGLE_DRIVE_PERMISSIONS_SCOPES = ["https://www.googleapis.com/auth/drive"]
-    GOOGLE_DRIVE_HUNT_FOLDER_ID = os.environ.get("GOOGLE_DRIVE_HUNT_FOLDER_ID", None)
-    GOOGLE_SHEETS_TEMPLATE_FILE_ID = os.environ.get(
-        "GOOGLE_SHEETS_TEMPLATE_FILE_ID", None
+    GOOGLE_DRIVE_HUNT_FOLDER_ID = os.environ["GOOGLE_DRIVE_HUNT_FOLDER_ID"]
+    GOOGLE_SHEETS_TEMPLATE_FILE_ID = os.environ["GOOGLE_SHEETS_TEMPLATE_FILE_ID"]
+except KeyError as e:
+    GOOGLE_API_AUTHN_INFO = None
+    logger.warn(
+        f"No {e.args[0]} found in environment. Automatic sheets creation disabled."
     )
 
-    if not GOOGLE_DRIVE_HUNT_FOLDER_ID or not GOOGLE_SHEETS_TEMPLATE_FILE_ID:
-        GOOGLE_API_AUTHN_INFO = None
-        logger.warn(
-            "GOOGLE_DRIVE_HUNT_FOLDER_ID or GOOGLE_SHEETS_TEMPLATE_FILE_ID not set. "
-            "Automatic sheets creation disabled."
-        )
 
 AUTHENTICATION_BACKENDS = [
     "social_core.backends.google.GoogleOAuth2",
@@ -218,16 +210,14 @@ AUTHENTICATION_BACKENDS = [
 SOCIAL_AUTH_URL_NAMESPACE = "social"
 
 # smallboard client id
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = (
-    "1059136102866-hlifpp6736kpk2v2di16i1ftnf6ofkfg.apps.googleusercontent.com"
-)
-
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.environ.get(
-    "SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET", None
-)
-if not SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET:
+try:
+    SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.environ["SOCIAL_AUTH_GOOGLE_OAUTH2_KEY"]
+    SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.environ["SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET"]
+except KeyError as e:
+    SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = None
+    SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = None
     logger.warn(
-        "No SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET environment variable set. Google login will be disabled."
+        f"No {e.args[0]} environment variable set. Google login will be disabled."
     )
 
 from google_api_lib.google_api_client import GoogleApiClient
@@ -251,7 +241,14 @@ TAGGIT_TAGS_FROM_STRING = "puzzles.tag_utils.to_tag"
 
 import discord_lib
 
-CHAT_DEFAULT_SERVICE = "DISCORD"
-CHAT_SERVICES = {
-    "DISCORD": discord_lib.DiscordChatService,
-}
+if not "DISCORD_API_TOKEN" in os.environ:
+    logger.warn(
+        "No Discord API token found in environment. Automatic Discord channel creation disabled."
+    )
+    CHAT_DEFAULT_SERVICE = None
+    CHAT_SERVICES = {}
+else:
+    CHAT_DEFAULT_SERVICE = "DISCORD"
+    CHAT_SERVICES = {
+        "DISCORD": discord_lib.DiscordChatService,
+    }
