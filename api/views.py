@@ -34,6 +34,11 @@ class AnswerViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = AnswerSerializer
 
+    @staticmethod
+    def __update_meta_sheets_for_feeder(feeder):
+        for meta in feeder.metas.all():
+            GoogleApiClient.update_meta_sheet_feeders(meta)
+
     def get_queryset(self):
         puzzle_id = self.kwargs["puzzle_id"]
         return Answer.objects.filter(puzzle__id=puzzle_id)
@@ -58,8 +63,9 @@ class AnswerViewSet(viewsets.ModelViewSet):
                 answer.status = Answer.CORRECT
                 puzzle.answer = answer.text
                 answer.save()
-                for meta in puzzle.metas.all():
-                    GoogleApiClient.update_meta_sheet_feeders(meta)
+                transaction.on_commit(
+                    AnswerViewSet.__update_meta_sheets_for_feeder(puzzle)
+                )
             puzzle.save()
 
         return Response(PuzzleSerializer(puzzle).data)
@@ -78,8 +84,7 @@ class AnswerViewSet(viewsets.ModelViewSet):
                 puzzle.status = Puzzle.SOLVING
                 puzzle.save()
 
-            for meta in puzzle.metas.all():
-                GoogleApiClient.update_meta_sheet_feeders(meta)
+            transaction.on_commit(AnswerViewSet.__update_meta_sheets_for_feeder(puzzle))
 
         return Response(PuzzleSerializer(puzzle).data)
 
@@ -87,8 +92,7 @@ class AnswerViewSet(viewsets.ModelViewSet):
         super().partial_update(request, pk, **kwargs)
 
         puzzle = get_object_or_404(Puzzle, pk=self.kwargs["puzzle_id"])
-        for meta in puzzle.metas.all():
-            GoogleApiClient.update_meta_sheet_feeders(meta)
+        transaction.on_commit(AnswerViewSet.__update_meta_sheets_for_feeder(puzzle))
 
         return Response(PuzzleSerializer(puzzle).data)
 
