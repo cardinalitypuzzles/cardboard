@@ -39,8 +39,8 @@ jobs:
       - name: Build the server
         run: |
           python manage.py migrate  # Tests require initial database migration.
+          yarn build  # Build static React files before running Django collecstatic.
           python manage.py collectstatic  # Tests require static files.
-          yarn build  # Build static React files.
 
       - name: Run all tests with coverage
         run: coverage run --source='.' manage.py test
