@@ -3,7 +3,7 @@ from rest_framework.validators import UniqueTogetherValidator
 from answers.models import Answer
 from chat.models import ChatRoom
 from hunts.models import Hunt
-from puzzles.models import Puzzle
+from puzzles.models import Puzzle, PuzzleTag
 
 from url_normalize import url_normalize
 
@@ -83,9 +83,17 @@ class ChatRoomSerializer(serializers.ModelSerializer):
         )
 
 
+class PuzzleTagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PuzzleTag
+        fields = ("id", "name", "color")
+
+        read_only_fields = ("id",)
+
+
 class PuzzleSerializer(serializers.ModelSerializer):
     chat_room = serializers.SerializerMethodField()
-    tags = serializers.SerializerMethodField()
+    tags = serializers.SerializerMethodField(required=False)
     guesses = serializers.SerializerMethodField()
     # Have to specify this explicitly for validate_url to run
     url = serializers.CharField()
@@ -96,13 +104,14 @@ class PuzzleSerializer(serializers.ModelSerializer):
     def get_chat_room(self, obj):
         return ChatRoomSerializer(obj.chat_room).data
 
-    def get_tags(self, obj):
-        return [{"name": tag.name, "color": tag.color} for tag in obj.tags.all()]
-
     def get_guesses(self, obj):
         # Show only correct guesses.
         guesses = obj.guesses.filter(status=Answer.CORRECT)
         return AnswerSerializer(guesses, many=True).data
+
+    def get_tags(self, instance):
+        tags = instance.tags.all().order_by("color", "name")
+        return PuzzleTagSerializer(tags, many=True).data
 
     def validate_url(self, url):
         return url_normalize(url)

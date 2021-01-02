@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { isRejectedAction } from "./utils";
 
 export const modalSlice = createSlice({
   name: "modal",
@@ -16,6 +17,13 @@ export const modalSlice = createSlice({
     hideModal: (state) => {
       state.show = false;
     },
+  },
+  extraReducers: (builder) => {
+    builder.addMatcher(isRejectedAction, (state, action) => {
+      // On any error, the modal should close, so that the alert is visible.
+      // Might need something more precise later but this is good enough for now.
+      state.show = false;
+    });
   },
 });
 

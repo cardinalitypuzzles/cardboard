@@ -9,8 +9,13 @@ from rest_framework import viewsets
 from answers.models import Answer
 from chat.models import ChatRoom
 from hunts.models import Hunt
-from puzzles.models import Puzzle, PuzzleModelError
-from .serializers import AnswerSerializer, HuntSerializer, PuzzleSerializer
+from puzzles.models import Puzzle, PuzzleModelError, PuzzleTag, is_ancestor
+from .serializers import (
+    AnswerSerializer,
+    HuntSerializer,
+    PuzzleSerializer,
+    PuzzleTagSerializer,
+)
 from google_api_lib.google_api_client import GoogleApiClient
 
 import logging
@@ -189,3 +194,70 @@ class PuzzleViewSet(viewsets.ModelViewSet):
                 )
 
         return Response(PuzzleSerializer(puzzle).data)
+
+
+class PuzzleTagViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = PuzzleTagSerializer
+
+    def get_queryset(self):
+        hunt_id = self.kwargs["hunt_id"]
+        return PuzzleTag.objects.filter(hunt__id=hunt_id)
+
+    def destroy(self, request, pk=None, **kwargs):
+        puzzle = None
+        with transaction.atomic():
+            tag = self.get_object()
+            puzzle = get_object_or_404(Puzzle, pk=self.kwargs["puzzle_id"])
+            if puzzle.name == tag.name:
+                return Response(
+                    {
+                        "detail": "You cannot remove a meta's tag (%s) from itself"
+                        % tag.name
+                    },
+                    status=400,
+                )
+            if tag.is_meta:
+                meta = Puzzle.objects.get(name=tag.name, hunt=puzzle.hunt)
+                # the post m2m hook will remove tag
+                puzzle.metas.remove(meta)
+            else:
+                puzzle.tags.remove(tag)
+
+            # clear db of dangling tags
+            if not tag.puzzles.exists():
+                tag.delete()
+
+        return Response(PuzzleSerializer(puzzle).data)
+
+    def create(self, request, **kwargs):
+        puzzle = None
+        with transaction.atomic():
+            hunt = get_object_or_404(Hunt, pk=self.kwargs["hunt_id"])
+            puzzle = get_object_or_404(Puzzle, pk=self.kwargs["puzzle_id"])
+            serializer = self.get_serializer(data=request.data, context={"hunt": hunt})
+            serializer.is_valid(raise_exception=True)
+            tag_name, tag_color = (
+                serializer.validated_data["name"],
+                serializer.validated_data["color"],
+            )
+            tag, _ = PuzzleTag.objects.update_or_create(
+                name=tag_name,
+                hunt=puzzle.hunt,
+                defaults={"color": tag_color},
+            )
+            if tag.is_meta:
+                metapuzzle = get_object_or_404(Puzzle, name=tag.name, hunt=puzzle.hunt)
+                if is_ancestor(puzzle, metapuzzle):
+                    return Response(
+                        {
+                            "detail": '"Unable to assign metapuzzle since doing so would introduce a meta-cycle."'
+                        },
+                        status=400,
+                    )
+                # the post m2m hook will add tag
+                puzzle.metas.add(metapuzzle)
+            else:
+                puzzle.tags.add(tag)
+
+            return Response(PuzzleSerializer(puzzle).data)

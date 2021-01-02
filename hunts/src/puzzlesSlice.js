@@ -63,6 +63,25 @@ export const editAnswer = createAsyncThunk(
   }
 );
 
+export const deletePuzzleTag = createAsyncThunk(
+  "puzzles/deletePuzzleTag",
+  async ({ huntId, puzzleId, tagId }) => {
+    const response = await api.deletePuzzleTag(huntId, puzzleId, tagId);
+    return response;
+  }
+);
+
+export const addPuzzleTag = createAsyncThunk(
+  "puzzles/addPuzzleTag",
+  async ({ huntId, puzzleId, name, color }) => {
+    const response = await api.addPuzzleTag(huntId, puzzleId, {
+      name,
+      color,
+    });
+    return response;
+  }
+);
+
 function puzzleComparator(a, b) {
   // Solved puzzles should appear below unsolved ones
   if (a.status == "SOLVED" && b.status != "SOLVED") {
@@ -71,9 +90,9 @@ function puzzleComparator(a, b) {
     return -1;
   }
   // Feeders before metas
-  if (a.feeders.length == 0 && b.feeders.length > 0) {
+  if (!a.is_meta && b.is_meta) {
     return -1;
-  } else if (a.feeders.length > 0 && b.feeders.length == 0) {
+  } else if (a.is_meta && !b.is_meta) {
     return 1;
   }
   // Newer puzzles before old ones
@@ -123,6 +142,18 @@ export const puzzlesSlice = createSlice({
         changes: { ...action.payload },
       });
     },
+    [deletePuzzleTag.fulfilled]: (state, action) => {
+      puzzlesAdapter.updateOne(state, {
+        id: action.payload.id,
+        changes: { ...action.payload },
+      });
+    },
+    [addPuzzleTag.fulfilled]: (state, action) => {
+      puzzlesAdapter.updateOne(state, {
+        id: action.payload.id,
+        changes: { ...action.payload },
+      });
+    },
   },
 });
 
@@ -161,6 +192,25 @@ export const selectPuzzleTableData = createSelector(
     const outerRows = rowsCopy.filter((row) => row.metas.length == 0);
     outerRows.sort(puzzleComparator);
     return outerRows;
+  }
+);
+
+export const selectAllTags = createSelector(
+  [puzzlesSelectors.selectAll],
+  (puzzles) => {
+    const tags = puzzles.map((puzzle) => puzzle.tags).flat();
+    const tagIds = new Set();
+    const uniqueTags = tags.reduce(
+      (uniqueTags, tag) =>
+        tagIds.has(tag.id)
+          ? uniqueTags
+          : tagIds.add(tag.id) && [...uniqueTags, tag],
+      []
+    );
+    uniqueTags.sort(
+      (a, b) => a.color.localeCompare(b.color) || a.name.localeCompare(b.name)
+    );
+    return uniqueTags;
   }
 );
 

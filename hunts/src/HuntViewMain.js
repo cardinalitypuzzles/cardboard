@@ -11,20 +11,18 @@ import NameCell from "./NameCell";
 import GlobalFilter from "./GlobalFilter";
 import StatusCell from "./StatusCell";
 import DeleteAnswerModal from "./DeleteAnswerModal";
+import TagCell from "./TagCell";
 import DeletePuzzleModal from "./DeletePuzzleModal";
 import EditAnswerModal from "./EditAnswerModal";
 import EditPuzzleModal from "./EditPuzzleModal";
 import AddPuzzleModal from "./AddPuzzleModal";
 import SubmitAnswerModal from "./SubmitAnswerModal";
+import EditPuzzleTagsModal from "./EditPuzzleTagsModal";
 import useInterval from "@use-it/interval";
-import Badge from "react-bootstrap/Badge";
 import Button from "react-bootstrap/Button";
 import Dropdown from "react-bootstrap/Dropdown";
 import Modal from "react-bootstrap/Modal";
 import Alert from "react-bootstrap/Alert";
-import DropdownButton from "react-bootstrap/DropdownButton";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faTimes } from "@fortawesome/free-solid-svg-icons";
 
 const MODAL_COMPONENTS = {
   DELETE_PUZZLE: DeletePuzzleModal,
@@ -33,6 +31,7 @@ const MODAL_COMPONENTS = {
   SUBMIT_ANSWER: SubmitAnswerModal,
   DELETE_ANSWER: DeleteAnswerModal,
   EDIT_ANSWER: EditAnswerModal,
+  EDIT_TAGS: EditPuzzleTagsModal,
 };
 
 const TABLE_COLUMNS = [
@@ -90,25 +89,7 @@ const TABLE_COLUMNS = [
     Header: "Tags",
     id: "tags",
     accessor: (row) => row.tags.map(({ name }) => name).join(" "),
-    Cell: ({ row, value }) => {
-      return (
-        <>
-          {row.original.tags.map(({ name, color }) => (
-            <Badge pill variant={color} key={name}>
-              {name}
-              <span style={{ marginLeft: "5px", cursor: "pointer" }}>
-                <FontAwesomeIcon icon={faTimes} />
-              </span>
-            </Badge>
-          ))}
-          <span style={{ cursor: "pointer" }}>
-            <Badge pill variant="light">
-              <FontAwesomeIcon icon={faPlus} />
-            </Badge>
-          </span>
-        </>
-      );
-    },
+    Cell: TagCell,
   },
   {
     Header: "Metas",
