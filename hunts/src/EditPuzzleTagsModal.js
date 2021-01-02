@@ -30,25 +30,50 @@ function EditPuzzleTagsModal({ huntId, puzzleId }) {
       </Modal.Header>
       <Modal.Body>
         <p>
-          All tags:{" "}
-          {allTags.map((tag) => (
-            <TagPill
-              {...tag}
-              puzzleId={puzzleId}
-              editable={false}
-              key={tag.name}
-              style={{ cursor: "pointer" }}
-              onClick={() =>
-                dispatch(
-                  addPuzzleTag({
-                    ...tag,
-                    huntId,
-                    puzzleId,
-                  })
-                )
-              }
-            />
-          ))}
+          Add metas:
+          {allTags
+            .filter((tag) => tag.is_meta)
+            .map((tag) => (
+              <TagPill
+                {...tag}
+                puzzleId={puzzleId}
+                editable={false}
+                key={tag.name}
+                style={{ cursor: "pointer" }}
+                onClick={() =>
+                  dispatch(
+                    addPuzzleTag({
+                      ...tag,
+                      huntId,
+                      puzzleId,
+                    })
+                  )
+                }
+              />
+            ))}
+        </p>
+        <p>
+          Add tags:{" "}
+          {allTags
+            .filter((tag) => !tag.is_meta)
+            .map((tag) => (
+              <TagPill
+                {...tag}
+                puzzleId={puzzleId}
+                editable={false}
+                key={tag.name}
+                style={{ cursor: "pointer" }}
+                onClick={() =>
+                  dispatch(
+                    addPuzzleTag({
+                      ...tag,
+                      huntId,
+                      puzzleId,
+                    })
+                  )
+                }
+              />
+            ))}
         </p>
         <Form
           onSubmit={(e) => {
