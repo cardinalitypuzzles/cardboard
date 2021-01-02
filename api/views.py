@@ -70,7 +70,7 @@ class AnswerViewSet(viewsets.ModelViewSet):
                 puzzle.answer = answer.text
                 answer.save()
                 transaction.on_commit(
-                    AnswerViewSet.__update_meta_sheets_for_feeder(puzzle)
+                    lambda: AnswerViewSet.__update_meta_sheets_for_feeder(puzzle)
                 )
             puzzle.save()
 
@@ -90,7 +90,9 @@ class AnswerViewSet(viewsets.ModelViewSet):
                 puzzle.status = Puzzle.SOLVING
                 puzzle.save()
 
-            transaction.on_commit(AnswerViewSet.__update_meta_sheets_for_feeder(puzzle))
+            transaction.on_commit(
+                lambda: AnswerViewSet.__update_meta_sheets_for_feeder(puzzle)
+            )
 
         return Response(PuzzleSerializer(puzzle).data)
 
@@ -98,7 +100,9 @@ class AnswerViewSet(viewsets.ModelViewSet):
         super().partial_update(request, pk, **kwargs)
 
         puzzle = get_object_or_404(Puzzle, pk=self.kwargs["puzzle_id"])
-        transaction.on_commit(AnswerViewSet.__update_meta_sheets_for_feeder(puzzle))
+        transaction.on_commit(
+            lambda: AnswerViewSet.__update_meta_sheets_for_feeder(puzzle)
+        )
 
         return Response(PuzzleSerializer(puzzle).data)
 
