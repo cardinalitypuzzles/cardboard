@@ -178,7 +178,12 @@ export const selectPuzzleTableData = createSelector(
       if (row.feeders.length > 0) {
         row.subRows = [];
         row.feeders.forEach((subRowId) => {
-          row.subRows.push(rowMap[subRowId]);
+          // This check is needed to deal with inconsistent data:
+          // if we just deleted a puzzle, it may still appear as a feeder for
+          // another puzzle if we haven't done a full refresh of the data yet
+          if (subRowId in rowMap) {
+            row.subRows.push(rowMap[subRowId]);
+          }
         });
       }
     });
