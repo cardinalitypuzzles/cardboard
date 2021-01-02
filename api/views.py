@@ -1,4 +1,4 @@
-from django.db import IntegrityError
+from django.conf import settings
 from django.db import transaction
 from django.shortcuts import render, get_object_or_404
 from rest_framework.permissions import IsAuthenticated
@@ -7,6 +7,7 @@ from rest_framework.views import APIView
 from rest_framework import viewsets
 
 from answers.models import Answer
+from chat.models import ChatRoom
 from hunts.models import Hunt
 from puzzles.models import Puzzle, PuzzleModelError
 from .serializers import AnswerSerializer, HuntSerializer, PuzzleSerializer
@@ -107,6 +108,7 @@ class PuzzleViewSet(viewsets.ModelViewSet):
             Puzzle.objects.filter(hunt__id=hunt_id)
             .prefetch_related("metas")
             .prefetch_related("tags")
+            .prefetch_related("chat_room")
             .prefetch_related("guesses")
         )
 
@@ -168,7 +170,16 @@ class PuzzleViewSet(viewsets.ModelViewSet):
             else:
                 logger.warn("Sheet not created for puzzle %s" % name)
 
-            puzzle = serializer.save(sheet=sheet, hunt=hunt)
+            if settings.CHAT_DEFAULT_SERVICE:
+                chat_room = ChatRoom.objects.create(
+                    service=settings.CHAT_DEFAULT_SERVICE, name=name
+                )
+                chat_room.create_channels()
+            else:
+                logger.warn("Chat room not created for puzzle %s" % name)
+                chat_room = None
+
+            puzzle = serializer.save(sheet=sheet, hunt=hunt, chat_room=chat_room)
 
             if google_api_client:
                 transaction.on_commit(

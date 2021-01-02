@@ -71,6 +71,22 @@ const TABLE_COLUMNS = [
       ) : null,
   },
   {
+    Header: "Chat",
+    accessor: "chat_room",
+    Cell: ({ row, value }) =>
+      row.original.chat_room ? (
+        <>
+          <a href={row.original.chat_room.audio_channel_url} target="_blank">
+            Voice
+          </a>
+          <br />
+          <a href={row.original.chat_room.text_channel_url} target="_blank">
+            Text
+          </a>
+        </>
+      ) : null,
+  },
+  {
     Header: "Tags",
     id: "tags",
     accessor: (row) => row.tags.map(({ name }) => name).join(" "),
