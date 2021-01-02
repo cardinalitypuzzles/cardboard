@@ -8,14 +8,14 @@
         <h2>Active</h2>
         <ul>
             {% for h in active_hunts %}
-                <li><a href="{% url 'hunts:all_puzzles' h.slug %}">{{ h.name }}</a></li>
+                <li><a href="{% url 'hunts:all_puzzles_react' h.slug %}">{{ h.name }}</a></li>
             {% endfor %}
         </ul>
 
         <h2>Finished</h2>
         <ul>
             {% for h in finished_hunts %}
-                <li><a href="{% url 'hunts:all_puzzles' h.slug %}">{{ h.name }}</a></li>
+                <li><a href="{% url 'hunts:all_puzzles_react' h.slug %}">{{ h.name }}</a></li>
             {% endfor %}
         </ul>
     </div>
