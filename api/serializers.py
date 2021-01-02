@@ -96,7 +96,7 @@ class PuzzleSerializer(serializers.ModelSerializer):
     tags = serializers.SerializerMethodField(required=False)
     guesses = serializers.SerializerMethodField()
     # Have to specify this explicitly for validate_url to run
-    url = serializers.CharField()
+    url = serializers.URLField()
     hunt_id = serializers.PrimaryKeyRelatedField(
         read_only=True, default=CurrentHuntDefault()
     )
