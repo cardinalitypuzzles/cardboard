@@ -92,13 +92,6 @@ const TABLE_COLUMNS = [
     Cell: TagCell,
   },
   {
-    Header: "Metas",
-    id: "metas",
-    Cell: ({ row, value }) => (
-      <Button variant="outline-secondary">Assign Meta</Button>
-    ),
-  },
-  {
     accessor: "is_meta",
     id: "is_meta",
   },
