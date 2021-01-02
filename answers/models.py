@@ -7,6 +7,7 @@ class Answer(models.Model):
         "puzzles.Puzzle", on_delete=models.CASCADE, related_name="guesses"
     )
     created_on = models.DateTimeField(auto_now_add=True)
+    updated_on = models.DateTimeField(auto_now=True)
     # for partial answers
     response = models.TextField(default="")
 
@@ -48,6 +49,7 @@ class Answer(models.Model):
         return self.response
 
     class Meta:
+        ordering = ("created_on",)
         constraints = [
             models.UniqueConstraint(
                 fields=["text", "puzzle"], name="unique_answer_text_per_puzzle"

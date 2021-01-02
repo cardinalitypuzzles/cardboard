@@ -7,6 +7,8 @@ from puzzles.models import Puzzle
 
 from url_normalize import url_normalize
 
+import re
+
 
 class HuntSerializer(serializers.ModelSerializer):
     class Meta:
@@ -24,10 +26,48 @@ class CurrentHuntDefault:
         return "%s()" % (self.__class__.__name__)
 
 
+class CurrentPuzzleDefault:
+    requires_context = True
+
+    def __call__(self, serializer_field):
+        return serializer_field.context.get("puzzle")
+
+    def __repr__(self):
+        return "%s()" % (self.__class__.__name__)
+
+
 class AnswerSerializer(serializers.ModelSerializer):
+    # Have to specify this explicitly for validate_text to run.
+    text = serializers.CharField()
+    puzzle_id = serializers.PrimaryKeyRelatedField(
+        read_only=True, default=CurrentPuzzleDefault()
+    )
+
+    def __sanitize_answer(self, answer):
+        """Strips whitespace and converts to uppercase."""
+        return re.sub(r"\s", "", answer).upper()
+
+    def validate_text(self, text):
+        return self.__sanitize_answer(text)
+
     class Meta:
         model = Answer
-        fields = ("text",)
+        fields = (
+            "id",
+            "text",
+            "puzzle_id",
+        )
+        read_only_fields = (
+            "id",
+            "puzzle_id",
+        )
+        validators = (
+            UniqueTogetherValidator(
+                queryset=Answer.objects.all(),
+                fields=["text", "puzzle_id"],
+                message="There is already an identical answer for that puzzle.",
+            ),
+        )
 
 
 class ChatRoomSerializer(serializers.ModelSerializer):
@@ -46,6 +86,7 @@ class ChatRoomSerializer(serializers.ModelSerializer):
 class PuzzleSerializer(serializers.ModelSerializer):
     chat_room = serializers.SerializerMethodField()
     tags = serializers.SerializerMethodField()
+    guesses = serializers.SerializerMethodField()
     # Have to specify this explicitly for validate_url to run
     url = serializers.CharField()
     hunt_id = serializers.PrimaryKeyRelatedField(
@@ -57,6 +98,11 @@ class PuzzleSerializer(serializers.ModelSerializer):
 
     def get_tags(self, obj):
         return [{"name": tag.name, "color": tag.color} for tag in obj.tags.all()]
+
+    def get_guesses(self, obj):
+        # Show only correct guesses.
+        guesses = obj.guesses.filter(status=Answer.CORRECT)
+        return AnswerSerializer(guesses, many=True).data
 
     def validate_url(self, url):
         return url_normalize(url)
@@ -73,18 +119,19 @@ class PuzzleSerializer(serializers.ModelSerializer):
                 return getattr(self.instance, attr)
             return None
 
-        # Feeders can't have feeders
+        # Non-metas can't have feeders
         feeders_query = get_merged("feeders")
         feeders = (feeders_query and feeders_query.all()) or []
         if not get_merged("is_meta") and len(feeders) > 0:
             raise serializers.ValidationError(
                 "Puzzle must be a meta to have puzzles assigned."
             )
-        # Answers mean solves
-        if get_merged("status") == "SOLVED" and not get_merged("answer"):
-            raise serializers.ValidationError("Solved puzzles must have answers.")
-        if get_merged("answer") and get_merged("status") != "SOLVED":
-            raise serializers.ValidationError("Puzzles with answers are solved.")
+        # Solved puzzles must have at least one correct guess, but not
+        # necessarily the other way around.
+        if get_merged("status") == "SOLVED" and not get_merged("guesses"):
+            raise serializers.ValidationError(
+                "Solved puzzles must have at least one correct guess."
+            )
 
         return data
 
@@ -99,8 +146,8 @@ class PuzzleSerializer(serializers.ModelSerializer):
             "sheet",
             "chat_room",
             "status",
-            "answer",
             "tags",
+            "guesses",
             "metas",
             "feeders",
             "is_meta",
@@ -111,7 +158,7 @@ class PuzzleSerializer(serializers.ModelSerializer):
             "hunt_id",
             "sheet",
             "chat_room",
-            "answer",
+            "guesses",
             "tags",
             "metas",
             "feeders",

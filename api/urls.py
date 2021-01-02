@@ -22,9 +22,21 @@ answer = views.AnswerViewSet.as_view(
     }
 )
 
+answer_edit = views.AnswerViewSet.as_view(
+    {
+        "delete": "destroy",
+        "patch": "partial_update",
+    }
+)
+
 urlpatterns = [
     path("v1/hunt/<int:pk>", views.HuntAPIView.as_view(), name="hunt_api_view"),
     path("v1/hunt/<int:hunt_id>/puzzles", puzzle_list, name="puzzle_list"),
     path("v1/hunt/<int:hunt_id>/puzzles/<int:pk>", puzzle_detail, name="puzzle_detail"),
     path("v1/hunt/<int:hunt_id>/puzzles/<int:puzzle_id>/answer", answer, name="answer"),
+    path(
+        "v1/hunt/<int:hunt_id>/puzzles/<int:puzzle_id>/answer/<int:pk>",
+        answer_edit,
+        name="answer_edit",
+    ),
 ]
