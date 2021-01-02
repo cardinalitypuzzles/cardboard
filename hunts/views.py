@@ -227,7 +227,7 @@ class HuntView(LoginRequiredMixin, View):
 
 class LastAccessedHuntRedirectView(LoginRequiredMixin, RedirectView):
     login_url = "/"
-    pattern_name = "hunts:all_puzzles"
+    pattern_name = "hunts:all_puzzles_react"
 
     def get_redirect_url(self, *args, **kwargs):
         hunt = self.request.user.last_accessed_hunt
