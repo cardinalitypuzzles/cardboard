@@ -39,7 +39,6 @@ function EditPuzzleTagsModal({ huntId, puzzleId }) {
                 puzzleId={puzzleId}
                 editable={false}
                 key={tag.name}
-                style={{ cursor: "pointer" }}
                 onClick={() =>
                   dispatch(
                     addPuzzleTag({
@@ -62,7 +61,6 @@ function EditPuzzleTagsModal({ huntId, puzzleId }) {
                 puzzleId={puzzleId}
                 editable={false}
                 key={tag.name}
-                style={{ cursor: "pointer" }}
                 onClick={() =>
                   dispatch(
                     addPuzzleTag({
