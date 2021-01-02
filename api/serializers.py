@@ -86,9 +86,9 @@ class ChatRoomSerializer(serializers.ModelSerializer):
 class PuzzleTagSerializer(serializers.ModelSerializer):
     class Meta:
         model = PuzzleTag
-        fields = ("id", "name", "color")
+        fields = ("id", "name", "color", "is_meta")
 
-        read_only_fields = ("id",)
+        read_only_fields = ("id", "is_meta")
 
 
 class PuzzleSerializer(serializers.ModelSerializer):

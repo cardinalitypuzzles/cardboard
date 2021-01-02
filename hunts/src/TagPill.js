@@ -15,8 +15,12 @@ function TagPill({
 }) {
   const { id: huntId } = useSelector((state) => state.hunt);
   const dispatch = useDispatch();
+  const style = {};
+  if (onClick !== null) {
+    style.cursor = "pointer";
+  }
   return (
-    <Badge pill variant={color} key={name} onClick={onClick}>
+    <Badge pill variant={color} key={name} onClick={onClick} style={style}>
       {name}
       {editable ? (
         <span
