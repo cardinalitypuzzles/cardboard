@@ -40,6 +40,9 @@ class Puzzle(models.Model):
     )
     url = models.URLField(blank=True)
 
+    created_on = models.DateTimeField(auto_now_add=True)
+    updated_on = models.DateTimeField(auto_now=True)
+
     notes = models.TextField(default="")
     sheet = models.URLField(default=None, unique=True, null=True, blank=True)
 
@@ -148,6 +151,7 @@ class Puzzle(models.Model):
 
         transaction.on_commit(update_sheets)
 
+    # Deprecated in place of guesses (see answers/models.py).
     def set_answer(self, answer):
         self.answer = answer
         self.status = Puzzle.SOLVED
@@ -168,6 +172,14 @@ class Puzzle(models.Model):
 
     def is_solved(self):
         return self.status == Puzzle.SOLVED
+
+    def solved_time(self):
+        if not self.is_solved():
+            return None
+        solved_times = [
+            answer.created_on for answer in self.guesses.filter(status=Answer.CORRECT)
+        ]
+        return max(solved_times, default=None)
 
     def has_assigned_meta(self):
         return len(self.metas.all()) > 0
