@@ -1,7 +1,7 @@
 import json
 from unittest.mock import patch
 
-from django.test import TestCase
+from rest_framework.test import APITestCase
 
 from accounts.models import Puzzler
 from hunts.models import Hunt
@@ -11,7 +11,7 @@ from .puzzle_tree import PuzzleTree
 from .puzzle_tag import PuzzleTag
 
 
-class TestPuzzle(TestCase):
+class TestPuzzle(APITestCase):
     def setUp(self):
         self._user = Puzzler.objects.create_user(
             username="test", email="test@ing.com", password="testingpwd"
@@ -154,12 +154,15 @@ class TestPuzzle(TestCase):
         feeder = self.create_puzzle("feeder", False)
 
         self.client.post(
-            "/puzzles/add_tag/{}/".format(feeder.pk),
+            f"/api/v1/hunt/{self._test_hunt.pk}/puzzles/{feeder.pk}/tags",
             {"name": meta.name, "color": "primary"},
         )
         self.assertTrue(feeder.metas.filter(pk=meta.pk).exists())
 
-        self.client.post("/puzzles/remove_tag/{}/{}".format(feeder.pk, meta.name))
+        tag = feeder.tags.get(name=meta.name)
+        self.client.delete(
+            f"/api/v1/hunt/{self._test_hunt.pk}/puzzles/{feeder.pk}/tags/{tag.id}"
+        )
         self.assertFalse(feeder.metas.filter(pk=meta.pk).exists())
 
     def test_meta_created_after_tag(self):
@@ -182,11 +185,10 @@ class TestPuzzle(TestCase):
         feeder.metas.add(meta)
         self.assertTrue(feeder.tags.filter(name="oldname").exists())
 
-        self.client.post(
-            "/puzzles/edit/{}/".format(meta.pk),
-            {"name": "newname", "url": meta.url, "is_meta": True},
+        response = self.client.patch(
+            f"/api/v1/hunt/{self._test_hunt.pk}/puzzles/{meta.pk}",
+            {"name": "newname"},
         )
-
         self.assertFalse(
             PuzzleTag.objects.filter(name="oldname", hunt=meta.hunt).exists()
         )
