@@ -5,6 +5,7 @@ import {
   createEntityAdapter,
 } from "@reduxjs/toolkit";
 import api from "./api";
+import { DEFAULT_TAGS } from "./constants";
 
 export const addPuzzle = createAsyncThunk(
   "puzzles/addPuzzle",
@@ -203,13 +204,16 @@ export const selectPuzzleTableData = createSelector(
 export const selectAllTags = createSelector(
   [puzzlesSelectors.selectAll],
   (puzzles) => {
-    const tags = puzzles.map((puzzle) => puzzle.tags).flat();
-    const tagIds = new Set();
+    const tags = puzzles
+      .map((puzzle) => puzzle.tags)
+      .flat()
+      .concat(DEFAULT_TAGS);
+    const tagNames = new Set();
     const uniqueTags = tags.reduce(
       (uniqueTags, tag) =>
-        tagIds.has(tag.id)
+        tagNames.has(tag.name)
           ? uniqueTags
-          : tagIds.add(tag.id) && [...uniqueTags, tag],
+          : tagNames.add(tag.name) && [...uniqueTags, tag],
       []
     );
     uniqueTags.sort(
