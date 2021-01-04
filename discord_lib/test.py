@@ -116,7 +116,7 @@ class TestDiscordChatService(TestCase):
 
         self.mock_client.guilds_channels_list.return_value = {channel.id: channel}
         self.service.delete_text_channel(channel.id)
-        self.mock_client.channels_delete.assert_called_once_with(channel)
+        self.mock_client.channels_delete.assert_called_once_with(channel.id)
 
     def test_delete_audio_channel(self):
         name = "channel-name"
@@ -126,4 +126,4 @@ class TestDiscordChatService(TestCase):
 
         self.mock_client.guilds_channels_list.return_value = {channel.id: channel}
         self.service.delete_audio_channel(channel.id)
-        self.mock_client.channels_delete.assert_called_once_with(channel)
+        self.mock_client.channels_delete.assert_called_once_with(channel.id)
