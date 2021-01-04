@@ -86,7 +86,7 @@ const TABLE_COLUMNS = [
       ) : null,
   },
   {
-    Header: "Tags",
+    Header: "Tags/Metas",
     id: "tags",
     accessor: (row) => row.tags.map(({ name }) => name).join(" "),
     Cell: TagCell,
