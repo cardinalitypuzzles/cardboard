@@ -37,8 +37,9 @@ class DiscordChatService(ChatService):
 
     def delete_channel(self, channel_id):
         channels_by_id = self._client.guilds_channels_list(self._guild_id)
-        if channel_id in channels_by_id:
-            self._client.channels_delete(channels_by_id[channel_id])
+        # channel_id is a string, but the discord API returns/expects int.
+        if int(channel_id) in channels_by_id:
+            self._client.channels_delete(int(channel_id))
 
     def create_channel(self, name, chan_type=ChannelType.GUILD_TEXT, parent_name=None):
         parent_id = None
