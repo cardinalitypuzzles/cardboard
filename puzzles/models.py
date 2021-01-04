@@ -2,7 +2,6 @@ from django.contrib.auth import get_user_model
 from django.db import models, transaction
 from django.db.models import Q
 from django.dispatch import receiver
-from django.utils import timezone
 
 from answers.models import Answer
 from google_api_lib.google_api_client import GoogleApiClient
@@ -43,7 +42,6 @@ class Puzzle(models.Model):
 
     created_on = models.DateTimeField(auto_now_add=True)
     updated_on = models.DateTimeField(auto_now=True)
-    solved_on = models.DateTimeField(default=None, null=True, blank=True)
 
     notes = models.TextField(default="")
     sheet = models.URLField(default=None, unique=True, null=True, blank=True)
@@ -153,10 +151,10 @@ class Puzzle(models.Model):
 
         transaction.on_commit(update_sheets)
 
+    # Deprecated in place of guesses (see answers/models.py).
     def set_answer(self, answer):
         self.answer = answer
         self.status = Puzzle.SOLVED
-        self.solved_on = timezone.now()
         self.save()
 
     def clear_answer(self, guess):
@@ -177,6 +175,14 @@ class Puzzle(models.Model):
 
     def is_solved(self):
         return self.status == Puzzle.SOLVED
+
+    def solved_time(self):
+        if not self.is_solved():
+            return None
+        solved_times = [
+            answer.created_on for answer in self.guesses.filter(status=Answer.CORRECT)
+        ]
+        return max(solved_times, default=None)
 
     def has_assigned_meta(self):
         return len(self.metas.all()) > 0

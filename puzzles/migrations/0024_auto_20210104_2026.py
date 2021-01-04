@@ -7,24 +7,21 @@ import django.utils.timezone
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('puzzles', '0023_auto_20201221_0030'),
+        ("puzzles", "0023_auto_20201221_0030"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='puzzle',
-            name='created_on',
-            field=models.DateTimeField(auto_now_add=True, default=django.utils.timezone.now),
+            model_name="puzzle",
+            name="created_on",
+            field=models.DateTimeField(
+                auto_now_add=True, default=django.utils.timezone.now
+            ),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='puzzle',
-            name='solved_on',
-            field=models.DateTimeField(blank=True, default=None, null=True),
-        ),
-        migrations.AddField(
-            model_name='puzzle',
-            name='updated_on',
+            model_name="puzzle",
+            name="updated_on",
             field=models.DateTimeField(auto_now=True),
         ),
     ]
