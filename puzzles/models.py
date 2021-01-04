@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.db import models, transaction
 from django.db.models import Q
 from django.dispatch import receiver
+from django.utils import timezone
 
 from answers.models import Answer
 from google_api_lib.google_api_client import GoogleApiClient
@@ -39,6 +40,10 @@ class Puzzle(models.Model):
         "hunts.Hunt", on_delete=models.CASCADE, related_name="puzzles"
     )
     url = models.URLField(blank=True)
+
+    created_on = models.DateTimeField(auto_now_add=True)
+    updated_on = models.DateTimeField(auto_now=True)
+    solved_on = models.DateTimeField(default=None, null=True, blank=True)
 
     notes = models.TextField(default="")
     sheet = models.URLField(default=None, unique=True, null=True, blank=True)
@@ -151,6 +156,7 @@ class Puzzle(models.Model):
     def set_answer(self, answer):
         self.answer = answer
         self.status = Puzzle.SOLVED
+        self.solved_on = timezone.now()
         self.save()
 
     def clear_answer(self, guess):
@@ -163,6 +169,9 @@ class Puzzle(models.Model):
             self.status = Puzzle.PENDING
         else:
             self.status = Puzzle.SOLVING
+
+        if self.solved_on:
+            self.solved_on = None
 
         self.save()
 
