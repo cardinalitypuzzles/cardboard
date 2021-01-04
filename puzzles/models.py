@@ -168,9 +168,6 @@ class Puzzle(models.Model):
         else:
             self.status = Puzzle.SOLVING
 
-        if self.solved_on:
-            self.solved_on = None
-
         self.save()
 
     def is_solved(self):
