@@ -142,17 +142,17 @@ class TestDiscordChatService(TestCase):
         )
         self.mock_client.guilds_channels_list.return_value = {archived.id: archived}
         self.service.archive_channel(channel.id)
-        self.mock_client.channels_modify.assert_called_once_with(
-            channel.id, parent_id=archived.id
-        )
 
         parent = Channel(
             id=44444,
             type=ChannelType.GUILD_CATEGORY,
             name=FakeDjangoSettings.DISCORD_PUZZLE_CATEGORY,
         )
-        self.mock_client.guilds_channels_list.return_value = {parentd.id: parentd}
+        self.mock_client.guilds_channels_list.return_value = {parent.id: parent}
         self.service.unarchive_channel(channel.id)
-        self.mock_client.channels_modify.assert_called_once_with(
-            channel.id, parent_id=parent.id
+        self.mock_client.channels_modify.assert_has_calls(
+            [
+                mock.call(channel.id, parent_id=archived.id),
+                mock.call(channel.id, parent_id=parent.id),
+            ]
         )
