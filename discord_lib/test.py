@@ -142,4 +142,6 @@ class TestDiscordChatService(TestCase):
         )
         self.mock_client.guilds_channels_list.return_value = {archived.id: archived}
         self.service.archive_channel(channel.id)
-        self.mock_client.channels_modify.assert_called_once_with(channel.id, parent_id=archived.id)
+        self.mock_client.channels_modify.assert_called_once_with(
+            channel.id, parent_id=archived.id
+        )
