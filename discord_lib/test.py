@@ -9,7 +9,7 @@ class FakeDjangoSettings:
     DISCORD_API_TOKEN = "DISCORD_API_TOKEN_123"
     DISCORD_GUILD_ID = 11111
     DISCORD_PUZZLE_CATEGORY = "discord-puzzle-category"
-    DISCORD_ARCHIVED_CATEGORY = "discord-archived-category"
+    DISCORD_ARCHIVE_CATEGORY = "discord-archived-category"
 
 
 class TestDiscordChatService(TestCase):
@@ -138,7 +138,7 @@ class TestDiscordChatService(TestCase):
         archived = Channel(
             id=33333,
             type=ChannelType.GUILD_CATEGORY,
-            name=FakeDjangoSettings.DISCORD_ARCHIVED_CATEGORY,
+            name=FakeDjangoSettings.DISCORD_ARCHIVE_CATEGORY,
         )
         self.mock_client.guilds_channels_list.return_value = {archived.id: archived}
         self.service.archive_channel(channel.id)

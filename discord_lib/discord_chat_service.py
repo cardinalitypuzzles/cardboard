@@ -16,7 +16,7 @@ class DiscordChatService(ChatService):
         self._client = client or APIClient(settings.DISCORD_API_TOKEN)
         self._guild_id = settings.DISCORD_GUILD_ID
         self._puzzle_category_name = settings.DISCORD_PUZZLE_CATEGORY
-        self._archived_category_name = settings.DISCORD_ARCHIVED_CATEGORY
+        self._archived_category_name = settings.DISCORD_ARCHIVE_CATEGORY
 
     def create_text_channel(self, name):
         channel = self.create_channel(
