@@ -176,10 +176,9 @@ class Puzzle(models.Model):
     def solved_time(self):
         if not self.is_solved():
             return None
-        solved_times = [
-            answer.created_on for answer in self.guesses.filter(status=Answer.CORRECT)
-        ]
-        return max(solved_times, default=None)
+        return (
+            self.guesses.filter(status=Answer.CORRECT).latest("created_on").created_on
+        )
 
     def has_assigned_meta(self):
         return len(self.metas.all()) > 0

@@ -5,6 +5,7 @@ from django.test import TestCase
 
 from accounts.models import Puzzler
 from hunts.models import Hunt
+from answers.models import Answer
 from .models import Puzzle, is_ancestor
 from .puzzle_tree import PuzzleTree
 from .puzzle_tag import PuzzleTag
@@ -44,6 +45,20 @@ class TestPuzzle(TestCase):
         )
         self._puzzles.append(puzzle)
         return puzzle
+
+    def test_solved_time(self):
+        test_puzzle = self.create_puzzle("test_puzzle", False)
+        self.assertFalse(test_puzzle.is_solved())
+        self.assertEqual(test_puzzle.solved_time(), None)
+
+        guess1 = Answer.objects.create(text="guess1", puzzle=test_puzzle)
+        guess1.set_status(Answer.CORRECT)
+        self.assertTrue(test_puzzle.is_solved())
+        self.assertEqual(test_puzzle.solved_time(), guess1.created_on)
+
+        guess2 = Answer.objects.create(text="guess2", puzzle=test_puzzle)
+        guess2.set_status(Answer.CORRECT)
+        self.assertEqual(test_puzzle.solved_time(), guess2.created_on)
 
     def test_is_ancestor(self):
         meta1 = self.create_puzzle("unit_meta1", True)
