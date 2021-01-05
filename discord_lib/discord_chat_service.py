@@ -65,7 +65,13 @@ class DiscordChatService(ChatService):
         parent = self.get_or_create_channel(
             self._archived_category_name, ChannelType.GUILD_CATEGORY
         )
-        print(parent.id)
+        self._client.channels_modify(int(channel_id), parent_id=parent.id)
+
+    def unarchive_channel(self, channel_id):
+        # TODO(asdfryan): We need to shard archive categories (and potentially puzzle category as well).
+        parent = self.get_or_create_channel(
+            self._puzzle_category_name, ChannelType.GUILD_CATEGORY
+        )
         self._client.channels_modify(int(channel_id), parent_id=parent.id)
 
     def get_channels(self, name, chan_type=ChannelType.GUILD_TEXT):

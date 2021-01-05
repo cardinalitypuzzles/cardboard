@@ -89,6 +89,7 @@ class AnswerViewSet(viewsets.ModelViewSet):
                 and puzzle.status == Puzzle.SOLVED
             ) or (not puzzle.guesses.all() and puzzle.status == Puzzle.PENDING):
                 puzzle.status = Puzzle.SOLVING
+                puzzle.chat_room.unarchive_channels()
                 puzzle.save()
 
             transaction.on_commit(

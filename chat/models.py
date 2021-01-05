@@ -89,6 +89,13 @@ class ChatRoom(models.Model):
         if self.audio_channel_id:
             service.archive_channel(self.audio_channel_id)
 
+    def unarchive_channels(self):
+        service = self.get_service()
+        if self.text_channel_id:
+            service.unarchive_channel(self.text_channel_id)
+        if self.audio_channel_id:
+            service.unarchive_channel(self.audio_channel_id)
+
     def delete_channels(self):
         service = self.get_service()
         update_fields = []

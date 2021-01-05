@@ -129,7 +129,7 @@ class TestDiscordChatService(TestCase):
         self.service.delete_audio_channel(channel.id)
         self.mock_client.channels_delete.assert_called_once_with(channel.id)
 
-    def test_archive_channel(self):
+    def test_archive_and_unarchive_channel(self):
         name = "channel-name"
         channel = Channel(id=22222, type=ChannelType.GUILD_VOICE, name=name)
         self.mock_client.guilds_channels_create.return_value = channel
@@ -144,4 +144,15 @@ class TestDiscordChatService(TestCase):
         self.service.archive_channel(channel.id)
         self.mock_client.channels_modify.assert_called_once_with(
             channel.id, parent_id=archived.id
+        )
+
+        parent = Channel(
+            id=44444,
+            type=ChannelType.GUILD_CATEGORY,
+            name=FakeDjangoSettings.DISCORD_PUZZLE_CATEGORY,
+        )
+        self.mock_client.guilds_channels_list.return_value = {parentd.id: parentd}
+        self.service.unarchive_channel(channel.id)
+        self.mock_client.channels_modify.assert_called_once_with(
+            channel.id, parent_id=parent.id
         )
