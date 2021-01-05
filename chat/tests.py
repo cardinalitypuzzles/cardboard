@@ -9,6 +9,7 @@ class FakeChatService(ChatService):
     def __init__(self, django_settings):
         self.text_channels = set()
         self.audio_channels = set()
+        self.archived_channels = set()
 
     def create_text_channel(self, name):
         self.text_channels.add(name)
@@ -23,6 +24,13 @@ class FakeChatService(ChatService):
 
     def delete_audio_channel(self, channel_id):
         self.audio_channels.remove(channel_id)
+
+    def archive_channel(self, channel_id):
+        self.archived_channels.add(channel_id)
+
+    def unarchive_channel(self, channel_id):
+        if channel_id in self.archived_channels:
+            self.archived_channels.remove(channel_id)
 
     def create_channel_url(self, channel_id):
         return ""
@@ -66,6 +74,13 @@ class TestChatRoom(TestCase):
         self.room.delete()
         self.assertNotIn(self.room.name, self.fake_service.text_channels)
         self.assertNotIn(self.room.name, self.fake_service.audio_channels)
+
+    def test_chat_room_archive_and_unarchive(self):
+        self.room.create_channels()
+        self.room.archive_channels()
+        self.assertIn("Test Room 🧩", self.fake_service.archived_channels)
+        self.room.unarchive_channels()
+        self.assertNotIn("Test Room 🧩", self.fake_service.archived_channels)
 
 
 class TestChatService(TestCase):
