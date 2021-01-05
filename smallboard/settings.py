@@ -176,7 +176,8 @@ DISCORD_API_TOKEN = os.environ.get("DISCORD_API_TOKEN", None)
 DISCORD_GUILD_ID = os.environ.get("DISCORD_GUILD_ID", None)
 
 # Category (folder) to contain generated channels.
-DISCORD_GUILD_CATEGORY = os.environ.get("DISCORD_GUILD_CATEGORY", "puzzles")
+DISCORD_PUZZLE_CATEGORY = os.environ.get("DISCORD_PUZZLE_CATEGORY", "puzzles")
+DISCORD_ARCHIVED_CATEGORY = os.environ.get("DISCORD_ARCHIVED_CATEGORY", "archived")
 
 # Google Drive API
 try:

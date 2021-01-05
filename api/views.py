@@ -68,6 +68,7 @@ class AnswerViewSet(viewsets.ModelViewSet):
                 puzzle.status = Puzzle.SOLVED
                 answer.status = Answer.CORRECT
                 puzzle.answer = answer.text
+                puzzle.chat_room.archive_channels()
                 answer.save()
                 transaction.on_commit(
                     lambda: AnswerViewSet.__update_meta_sheets_for_feeder(puzzle)

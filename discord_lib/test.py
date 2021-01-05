@@ -8,7 +8,8 @@ from .discord_chat_service import DiscordChatService
 class FakeDjangoSettings:
     DISCORD_API_TOKEN = "DISCORD_API_TOKEN_123"
     DISCORD_GUILD_ID = 11111
-    DISCORD_GUILD_CATEGORY = "discord-guild-category"
+    DISCORD_PUZZLE_CATEGORY = "discord-puzzle-category"
+    DISCORD_ARCHIVED_CATEGORY = "discord-archived-category"
 
 
 class TestDiscordChatService(TestCase):
@@ -20,7 +21,7 @@ class TestDiscordChatService(TestCase):
         parent = Channel(
             id=22222,
             type=ChannelType.GUILD_CATEGORY,
-            name=FakeDjangoSettings.DISCORD_GUILD_CATEGORY,
+            name=FakeDjangoSettings.DISCORD_PUZZLE_CATEGORY,
         )
         self.mock_client.guilds_channels_create.return_value = parent
         name = "channel-name"
@@ -31,7 +32,7 @@ class TestDiscordChatService(TestCase):
                 mock.call(
                     FakeDjangoSettings.DISCORD_GUILD_ID,
                     ChannelType.GUILD_CATEGORY,
-                    FakeDjangoSettings.DISCORD_GUILD_CATEGORY,
+                    FakeDjangoSettings.DISCORD_PUZZLE_CATEGORY,
                     parent_id=None,
                 ),
                 # Create text channel under category created above.
@@ -48,7 +49,7 @@ class TestDiscordChatService(TestCase):
         parent = Channel(
             id=22222,
             type=ChannelType.GUILD_CATEGORY,
-            name=FakeDjangoSettings.DISCORD_GUILD_CATEGORY,
+            name=FakeDjangoSettings.DISCORD_PUZZLE_CATEGORY,
         )
         self.mock_client.guilds_channels_list.return_value = {parent.id: parent}
         name = "channel-name"
@@ -66,7 +67,7 @@ class TestDiscordChatService(TestCase):
         parent = Channel(
             id=22222,
             type=ChannelType.GUILD_CATEGORY,
-            name=FakeDjangoSettings.DISCORD_GUILD_CATEGORY,
+            name=FakeDjangoSettings.DISCORD_PUZZLE_CATEGORY,
         )
         self.mock_client.guilds_channels_create.return_value = parent
         name = "channel-name"
@@ -77,7 +78,7 @@ class TestDiscordChatService(TestCase):
                 mock.call(
                     FakeDjangoSettings.DISCORD_GUILD_ID,
                     ChannelType.GUILD_CATEGORY,
-                    FakeDjangoSettings.DISCORD_GUILD_CATEGORY,
+                    FakeDjangoSettings.DISCORD_PUZZLE_CATEGORY,
                     parent_id=None,
                 ),
                 # Create voice channel under category created above.
@@ -94,7 +95,7 @@ class TestDiscordChatService(TestCase):
         parent = Channel(
             id=22222,
             type=ChannelType.GUILD_CATEGORY,
-            name=FakeDjangoSettings.DISCORD_GUILD_CATEGORY,
+            name=FakeDjangoSettings.DISCORD_PUZZLE_CATEGORY,
         )
         self.mock_client.guilds_channels_list.return_value = {parent.id: parent}
         name = "channel-name"
@@ -127,3 +128,18 @@ class TestDiscordChatService(TestCase):
         self.mock_client.guilds_channels_list.return_value = {channel.id: channel}
         self.service.delete_audio_channel(channel.id)
         self.mock_client.channels_delete.assert_called_once_with(channel.id)
+
+    def test_archive_channel(self):
+        name = "channel-name"
+        channel = Channel(id=22222, type=ChannelType.GUILD_VOICE, name=name)
+        self.mock_client.guilds_channels_create.return_value = channel
+        self.assertEqual(self.service.create_audio_channel(name), channel.id)
+
+        archived = Channel(
+            id=33333,
+            type=ChannelType.GUILD_CATEGORY,
+            name=FakeDjangoSettings.DISCORD_ARCHIVED_CATEGORY,
+        )
+        self.mock_client.guilds_channels_list.return_value = {archived.id: archived}
+        self.service.archive_channel(channel.id)
+        self.mock_client.channels_modify.assert_called_once_with(channel.id, parent_id=archived.id)

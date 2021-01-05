@@ -15,11 +15,14 @@ class DiscordChatService(ChatService):
         """Accepts Django settings object and optional Discord APIClient (for testing)."""
         self._client = client or APIClient(settings.DISCORD_API_TOKEN)
         self._guild_id = settings.DISCORD_GUILD_ID
-        self._parent_name = settings.DISCORD_GUILD_CATEGORY
+        self._puzzle_category_name = settings.DISCORD_PUZZLE_CATEGORY
+        self._archived_category_name = settings.DISCORD_ARCHIVED_CATEGORY
 
     def create_text_channel(self, name):
         channel = self.create_channel(
-            name, chan_type=ChannelType.GUILD_TEXT, parent_name=self._parent_name
+            name,
+            chan_type=ChannelType.GUILD_TEXT,
+            parent_name=self._puzzle_category_name,
         )
         return channel.id
 
@@ -28,7 +31,9 @@ class DiscordChatService(ChatService):
 
     def create_audio_channel(self, name):
         channel = self.create_channel(
-            name, chan_type=ChannelType.GUILD_VOICE, parent_name=self._parent_name
+            name,
+            chan_type=ChannelType.GUILD_VOICE,
+            parent_name=self._puzzle_category_name,
         )
         return channel.id
 
@@ -54,6 +59,14 @@ class DiscordChatService(ChatService):
             parent_id=parent_id,
         )
         return channel
+
+    def archive_channel(self, channel_id):
+        # TODO(asdfryan): We need to shard archive categories (and potentially puzzle category as well).
+        parent = self.get_or_create_channel(
+            self._archived_category_name, ChannelType.GUILD_CATEGORY
+        )
+        print(parent.id)
+        self._client.channels_modify(int(channel_id), parent_id=parent.id)
 
     def get_channels(self, name, chan_type=ChannelType.GUILD_TEXT):
         channels_by_id = self._client.guilds_channels_list(self._guild_id)
