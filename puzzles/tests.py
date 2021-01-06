@@ -185,7 +185,7 @@ class TestPuzzle(APITestCase):
         feeder.metas.add(meta)
         self.assertTrue(feeder.tags.filter(name="oldname").exists())
 
-        response = self.client.patch(
+        self.client.patch(
             f"/api/v1/hunts/{self._test_hunt.pk}/puzzles/{meta.pk}",
             {"name": "newname"},
         )
