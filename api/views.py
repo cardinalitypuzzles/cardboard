@@ -27,13 +27,10 @@ logger = logging.getLogger(__name__)
 # TODO: per-hunt user permissions/authentication
 
 
-class HuntAPIView(APIView):
+class HuntViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
-
-    def get(self, request, pk):
-        hunt = get_object_or_404(Hunt, pk=pk)
-        serializer = HuntSerializer(hunt)
-        return Response(serializer.data)
+    serializer_class = HuntSerializer
+    queryset = Hunt.objects.all()
 
 
 class AnswerViewSet(viewsets.ModelViewSet):
