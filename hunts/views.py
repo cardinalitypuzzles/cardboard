@@ -35,7 +35,14 @@ def index(request):
     if request.method == "POST":
         form = HuntForm(request.POST)
         if form.is_valid():
-            hunt = Hunt(name=form.cleaned_data["name"], url=form.cleaned_data["url"])
+            hunt = Hunt(
+                name=form.cleaned_data["name"],
+                url=form.cleaned_data["url"],
+                start_time=form.cleaned_data["start_time"],
+                end_time=form.cleaned_data["end_time"],
+            )
+            hunt.save()
+            hunt.clean()
             hunt.save()
 
     context = {
