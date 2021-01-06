@@ -1,6 +1,12 @@
 from django.urls import path
 from . import views
 
+hunt_detail = views.HuntViewSet.as_view(
+    {
+        "get": "retrieve",
+    }
+)
+
 puzzle_list = views.PuzzleViewSet.as_view(
     {
         "get": "list",
@@ -16,13 +22,13 @@ puzzle_detail = views.PuzzleViewSet.as_view(
     }
 )
 
-answer = views.AnswerViewSet.as_view(
+answer_list = views.AnswerViewSet.as_view(
     {
         "post": "create",
     }
 )
 
-answer_edit = views.AnswerViewSet.as_view(
+answer_detail = views.AnswerViewSet.as_view(
     {
         "delete": "destroy",
         "patch": "partial_update",
@@ -43,20 +49,26 @@ tag_detail = views.PuzzleTagViewSet.as_view(
 )
 
 urlpatterns = [
-    path("v1/hunt/<int:pk>", views.HuntAPIView.as_view(), name="hunt_api_view"),
-    path("v1/hunt/<int:hunt_id>/puzzles", puzzle_list, name="puzzle_list"),
-    path("v1/hunt/<int:hunt_id>/puzzles/<int:pk>", puzzle_detail, name="puzzle_detail"),
-    path("v1/hunt/<int:hunt_id>/puzzles/<int:puzzle_id>/answer", answer, name="answer"),
+    path("v1/hunts/<int:pk>", hunt_detail, name="hunt_detail"),
+    path("v1/hunts/<int:hunt_id>/puzzles", puzzle_list, name="puzzle_list"),
     path(
-        "v1/hunt/<int:hunt_id>/puzzles/<int:puzzle_id>/answer/<int:pk>",
-        answer_edit,
-        name="answer_edit",
+        "v1/hunts/<int:hunt_id>/puzzles/<int:pk>", puzzle_detail, name="puzzle_detail"
     ),
     path(
-        "v1/hunt/<int:hunt_id>/puzzles/<int:puzzle_id>/tags", tag_list, name="tag_list"
+        "v1/hunts/<int:hunt_id>/puzzles/<int:puzzle_id>/answers",
+        answer_list,
+        name="answer_list",
     ),
     path(
-        "v1/hunt/<int:hunt_id>/puzzles/<int:puzzle_id>/tags/<int:pk>",
+        "v1/hunts/<int:hunt_id>/puzzles/<int:puzzle_id>/answers/<int:pk>",
+        answer_detail,
+        name="answer_detail",
+    ),
+    path(
+        "v1/hunts/<int:hunt_id>/puzzles/<int:puzzle_id>/tags", tag_list, name="tag_list"
+    ),
+    path(
+        "v1/hunts/<int:hunt_id>/puzzles/<int:puzzle_id>/tags/<int:pk>",
         tag_detail,
         name="tag_detail",
     ),

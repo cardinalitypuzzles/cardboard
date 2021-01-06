@@ -154,14 +154,14 @@ class TestPuzzle(APITestCase):
         feeder = self.create_puzzle("feeder", False)
 
         self.client.post(
-            f"/api/v1/hunt/{self._test_hunt.pk}/puzzles/{feeder.pk}/tags",
+            f"/api/v1/hunts/{self._test_hunt.pk}/puzzles/{feeder.pk}/tags",
             {"name": meta.name, "color": "primary"},
         )
         self.assertTrue(feeder.metas.filter(pk=meta.pk).exists())
 
         tag = feeder.tags.get(name=meta.name)
         self.client.delete(
-            f"/api/v1/hunt/{self._test_hunt.pk}/puzzles/{feeder.pk}/tags/{tag.id}"
+            f"/api/v1/hunts/{self._test_hunt.pk}/puzzles/{feeder.pk}/tags/{tag.id}"
         )
         self.assertFalse(feeder.metas.filter(pk=meta.pk).exists())
 
@@ -186,7 +186,7 @@ class TestPuzzle(APITestCase):
         self.assertTrue(feeder.tags.filter(name="oldname").exists())
 
         response = self.client.patch(
-            f"/api/v1/hunt/{self._test_hunt.pk}/puzzles/{meta.pk}",
+            f"/api/v1/hunts/{self._test_hunt.pk}/puzzles/{meta.pk}",
             {"name": "newname"},
         )
         self.assertFalse(
