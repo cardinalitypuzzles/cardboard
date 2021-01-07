@@ -68,7 +68,8 @@ class AnswerViewSet(viewsets.ModelViewSet):
                 puzzle.status = Puzzle.SOLVED
                 answer.status = Answer.CORRECT
                 puzzle.answer = answer.text
-                puzzle.chat_room.archive_channels()
+                if puzzle.chat_room:
+                    puzzle.chat_room.archive_channels()
                 answer.save()
                 transaction.on_commit(
                     lambda: AnswerViewSet.__update_meta_sheets_for_feeder(puzzle)
@@ -89,7 +90,8 @@ class AnswerViewSet(viewsets.ModelViewSet):
                 and puzzle.status == Puzzle.SOLVED
             ) or (not puzzle.guesses.all() and puzzle.status == Puzzle.PENDING):
                 puzzle.status = Puzzle.SOLVING
-                puzzle.chat_room.unarchive_channels()
+                if puzzle.chat_room:
+                    puzzle.chat_room.unarchive_channels()
                 puzzle.save()
 
             transaction.on_commit(
