@@ -26,15 +26,14 @@ class Hunt(models.Model):
             self.slug = slugify(self.name)
         super().save(*args, **kwargs)
 
-    def clean(self):
         # adds default start and end times if not provided
-        new_start_time = self.start_time
         if not self.start_time:
-            new_start_time = self.created_on
-            self.start_time = new_start_time
+            self.start_time = self.created_on
+            super().save(*args, **kwargs)
         if not self.end_time:
-            self.end_time = new_start_time + timedelta(days=3)
-
+            self.end_time = self.start_time + timedelta(days=3)
+            super().save(*args, **kwargs)
+            
     @staticmethod
     def get_object_or_404(user=None, **kwargs):
         hunt = get_object_or_404(Hunt, **kwargs)

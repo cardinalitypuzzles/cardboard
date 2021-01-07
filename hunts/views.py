@@ -42,8 +42,6 @@ def index(request):
                 end_time=form.cleaned_data["end_time"],
             )
             hunt.save()
-            hunt.clean()
-            hunt.save()
 
     context = {
         "active_hunts": Hunt.objects.filter(active=True).order_by("-created_on"),
