@@ -3,7 +3,6 @@ from django.db import models
 from django.shortcuts import get_object_or_404
 from django.template.defaultfilters import slugify
 from puzzles.models import Puzzle
-from datetime import timedelta
 
 
 class Hunt(models.Model):
@@ -25,14 +24,6 @@ class Hunt(models.Model):
         if not self.slug:
             self.slug = slugify(self.name)
         super().save(*args, **kwargs)
-
-        # adds default start and end times if not provided
-        if not self.start_time:
-            self.start_time = self.created_on
-            super().save(*args, **kwargs)
-        if not self.end_time:
-            self.end_time = self.start_time + timedelta(days=3)
-            super().save(*args, **kwargs)
 
     @staticmethod
     def get_object_or_404(user=None, **kwargs):
