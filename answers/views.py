@@ -12,7 +12,6 @@ from django.views import View
 from django.views.decorators.http import require_GET, require_POST
 from google_api_lib.google_api_client import GoogleApiClient
 from hunts.models import Hunt
-from puzzles.forms import PuzzleForm
 from puzzles.models import Puzzle
 
 import logging
