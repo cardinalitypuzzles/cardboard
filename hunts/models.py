@@ -33,7 +33,7 @@ class Hunt(models.Model):
         if not self.end_time:
             self.end_time = self.start_time + timedelta(days=3)
             super().save(*args, **kwargs)
-            
+
     @staticmethod
     def get_object_or_404(user=None, **kwargs):
         hunt = get_object_or_404(Hunt, **kwargs)
