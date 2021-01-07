@@ -202,7 +202,7 @@ def delete_chat_room(sender, instance, using, **kwargs):
 
 
 # Used for cycle detection before adding an edge from potential ancestor to child.
-# We cannot have cycles, otherwise the PuzzleTree sorting will break.
+# We cannot have cycles, otherwise the sorting will break.
 def is_ancestor(potential_ancestor, child):
     if child.pk == potential_ancestor.pk:
         return True
