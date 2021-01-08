@@ -34,7 +34,7 @@ Both Docker and manual setup read environment variables from an `.env` file. An 
 cp .env.test .env
 ```
 
-See below for more details on the `.env` file.
+See below for more details on the `.env` file. You probably want to set at least `DJANGO_SECRET_KEY` so that your session isn't invalidated each time you restart the web container.
 
 
 #### Docker setup
