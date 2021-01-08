@@ -7,7 +7,7 @@ import google_api_lib
 TEST_SHEET = "testsheet.com"
 
 
-def mock_create_google_sheets_helper(name):
+def mock_create_google_sheets_helper(self, name):
     return {"webViewLink": TEST_SHEET}
 
 
