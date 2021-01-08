@@ -6,6 +6,7 @@ from django.dispatch import receiver
 def _get_default_service():
     return settings.CHAT_DEFAULT_SERVICE
 
+
 class ChatRoom(models.Model):
     """Represents a space for users to communicate about a topic (i.e. puzzle).
 
