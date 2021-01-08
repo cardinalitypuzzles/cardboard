@@ -14,6 +14,7 @@ services:
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/usr/src/smallboard/:Z
+      - /usr/src/smallboard/node_modules
     ports:
       - 8000:8000
     environment:
