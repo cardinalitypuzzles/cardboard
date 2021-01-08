@@ -6,10 +6,7 @@ from puzzles.models import Puzzle
 from answers.models import Answer
 from .stats_utils import *
 
-from django.utils import timezone
-from datetime import timedelta
 
-# Create your tests here.
 class TestHunt(TestCase):
     def setUp(self):
         self._user = Puzzler.objects.create_user(
@@ -31,12 +28,9 @@ class TestHunt(TestCase):
         fake_url = "fakeurl%i.com" % self._suffix
         self._suffix += 1
 
-        # will be updated once start/end times are merged
         hunt = Hunt.objects.create(
             name=name,
             url=fake_url,
-            # start_time=start,
-            # end_time=end,
         )
         self._hunts.append(hunt)
         self._puzzles[name] = []
@@ -58,9 +52,7 @@ class TestHunt(TestCase):
         return puzzle
 
     def test_stats(self):
-        # will be updated once start/end times are merged
         hunt = self.create_hunt("test_hunt")
-        # hunt = self.create_hunt("test_hunt", start=timezone.now(), end=timezone.now()+timedelta(days=3))
 
         puzzle1 = self.create_puzzle("solved", hunt, False)
         puzzle2 = self.create_puzzle("unsolved_a", hunt, False)
