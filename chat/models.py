@@ -8,7 +8,7 @@ def _get_default_service():
 
 
 def _get_service_choices():
-    return [(p, p) for p in settings.CHAT_SERVICES.keys()]
+    return [("DISCORD", "DISCORD")]
 
 
 class ChatRoom(models.Model):
