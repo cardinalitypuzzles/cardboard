@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block page_content %}
+<div class="container">
+  <div class="row">
+    <div class="col-sm">
+      <h1 class="text-left">Hunt Statistics</h1>
+    </div>
+    <div class="col-sm-auto text-right align-self-center">
+      <a href="{% url 'hunts:all_puzzles_react' hunt_slug %}">Back To Hunt</a>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <p class="text-center">
+    <!-- (graph goes here) -->
+  </p>
+</div>
+
+<div class="container">
+  <div class="row text-center font-weight-bold">
+    <div class="col-sm-3">
+      Metas Solved<br>
+      <h2 class="text-primary font-weight-bold">{{ num_metas_solved }}</h2>
+    </div>
+    <div class="col-sm-3">
+      Solved<br>
+      <h2 class="text-success font-weight-bold">{{ num_solved }}</h2>
+    </div>
+    <div class="col-sm-3">
+      Unsolved<br>
+      <h2 class="text-danger font-weight-bold">{{ num_unsolved }}</h2>
+    </div>
+    <div class="col-sm-3">
+      Unlocked<br>
+      <h2 class="text-secondary font-weight-bold">{{ num_unlocked_puzzles }}</h2>
+    </div>
+  </div>
+</div>
+
+
+
+{% endblock %}

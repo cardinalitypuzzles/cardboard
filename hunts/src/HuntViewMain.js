@@ -138,7 +138,17 @@ export const HuntViewMain = (props) => {
       >
         {alert.text}
       </Alert>
-      <h1>{hunt.name} - All Puzzles</h1>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          padding: "2px",
+          alignItems: "center",
+        }}
+      >
+        <h1>{hunt.name} - All Puzzles</h1>
+        <a href={"stats"}>Hunt Statistics</a>
+      </div>
       <div
         style={{
           display: "flex",

@@ -11,4 +11,5 @@ urlpatterns = [
         name="all_puzzles",
     ),
     path("<slug:hunt_slug>/puzzles", views.puzzles),
+    path("<slug:hunt_slug>/stats", views.stats, name="stats")
 ]

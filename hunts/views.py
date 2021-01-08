@@ -16,6 +16,7 @@ from url_normalize import url_normalize
 
 from .forms import HuntForm
 from .models import Hunt
+from .stats_utils import *
 from chat.models import ChatRoom
 from google_api_lib.google_api_client import GoogleApiClient
 from puzzles.forms import PuzzleForm
@@ -120,6 +121,26 @@ def puzzles(request, hunt_slug):
 
     return JsonResponse(result)
 
+@login_required(login_url="/")
+def stats(request, hunt_slug):
+    hunt = Hunt.get_object_or_404(user=request.user, slug=hunt_slug)
+
+    num_solved = get_num_solved(hunt)
+    num_unsolved = get_num_unsolved(hunt)
+    num_unlocked_puzzles = get_num_unlocked_puzzles(hunt)
+    num_metas_solved = get_num_metas_solved(hunt)
+
+    context = {
+        "num_solved" : num_solved,
+        "num_unsolved" : num_unsolved,
+        "num_unlocked_puzzles" : num_unlocked_puzzles,
+        "num_metas_solved" : num_metas_solved,
+
+        "hunt_name" : hunt.name,
+        "hunt_slug" : hunt.slug,
+    }
+
+    return render(request, "stats.html", context=context)
 
 class HuntView(LoginRequiredMixin, View):
     login_url = "/"
