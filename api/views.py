@@ -160,11 +160,17 @@ class PuzzleViewSet(viewsets.ModelViewSet):
                     puzzle.save()
 
                 if is_new_url and google_api_lib.enabled():
-                    google_api_lib.task.add_puzzle_link_to_sheet.delay(
-                        new_url, puzzle.sheet
+                    transaction.on_commit(
+                        lambda: google_api_lib.task.add_puzzle_link_to_sheet.delay(
+                            new_url, puzzle.sheet
+                        )
                     )
                 if puzzle.is_meta:
-                    google_api_lib.task.update_meta_sheet_feeders.delay(puzzle.id)
+                    transaction.on_commit(
+                        lambda: google_api_lib.task.update_meta_sheet_feeders.delay(
+                            puzzle.id
+                        )
+                    )
 
         except PuzzleModelError as e:
             return Response(
@@ -197,8 +203,10 @@ class PuzzleViewSet(viewsets.ModelViewSet):
             puzzle = serializer.save(hunt=hunt, chat_room=chat_room)
 
             if google_api_lib.enabled():
-                google_api_lib.task.create_google_sheets.delay(
-                    puzzle.id, name, puzzle_url
+                transaction.on_commit(
+                    lambda: google_api_lib.task.create_google_sheets.delay(
+                        puzzle.id, name, puzzle_url
+                    )
                 )
             else:
                 logger.warn("Sheet not created for puzzle %s" % name)
