@@ -106,7 +106,7 @@ export function PuzzleTable({ columns, data, filter, filterSolved }) {
 
   React.useEffect(() => setGlobalFilter(filter), [filter]);
 
-  // This pattern does not spark joy, but react-table only provides and imperative filter api.
+  // This pattern does not spark joy, but react-table only provides an imperative filter api.
   React.useEffect(() => {
     setFilter("status", filterSolved);
   }, [filterSolved]);
