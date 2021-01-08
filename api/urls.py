@@ -55,20 +55,18 @@ urlpatterns = [
         "v1/hunts/<int:hunt_id>/puzzles/<int:pk>", puzzle_detail, name="puzzle_detail"
     ),
     path(
-        "v1/hunts/<int:hunt_id>/puzzles/<int:puzzle_id>/answers",
+        "v1/puzzles/<int:puzzle_id>/answers",
         answer_list,
         name="answer_list",
     ),
     path(
-        "v1/hunts/<int:hunt_id>/puzzles/<int:puzzle_id>/answers/<int:pk>",
+        "v1/puzzles/<int:puzzle_id>/answers/<int:pk>",
         answer_detail,
         name="answer_detail",
     ),
+    path("v1/puzzles/<int:puzzle_id>/tags", tag_list, name="tag_list"),
     path(
-        "v1/hunts/<int:hunt_id>/puzzles/<int:puzzle_id>/tags", tag_list, name="tag_list"
-    ),
-    path(
-        "v1/hunts/<int:hunt_id>/puzzles/<int:puzzle_id>/tags/<int:pk>",
+        "v1/puzzles/<int:puzzle_id>/tags/<int:pk>",
         tag_detail,
         name="tag_detail",
     ),
