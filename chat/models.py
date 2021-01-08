@@ -7,10 +7,6 @@ def _get_default_service():
     return settings.CHAT_DEFAULT_SERVICE
 
 
-def _get_service_choices():
-    return [(p, p) for p in settings.CHAT_SERVICES.keys()]
-
-
 class ChatRoom(models.Model):
     """Represents a space for users to communicate about a topic (i.e. puzzle).
 
@@ -41,9 +37,11 @@ class ChatRoom(models.Model):
     not the underlying ChatService interface.
     """
 
+    SERVICE_CHOICES = ["DISCORD"]
+
     service = models.CharField(
         max_length=32,
-        choices=_get_service_choices(),
+        choices=[(service, service) for service in SERVICE_CHOICES],
         default=_get_default_service,
     )
     name = models.CharField(max_length=255)
