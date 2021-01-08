@@ -35,8 +35,8 @@ class TestHunt(TestCase):
         hunt = Hunt.objects.create(
             name=name,
             url=fake_url,
-            #start_time=start,
-            #end_time=end,
+            # start_time=start,
+            # end_time=end,
         )
         self._hunts.append(hunt)
         self._puzzles[name] = []
@@ -60,7 +60,7 @@ class TestHunt(TestCase):
     def test_stats(self):
         # will be updated once start/end times are merged
         hunt = self.create_hunt("test_hunt")
-        #hunt = self.create_hunt("test_hunt", start=timezone.now(), end=timezone.now()+timedelta(days=3))
+        # hunt = self.create_hunt("test_hunt", start=timezone.now(), end=timezone.now()+timedelta(days=3))
 
         puzzle1 = self.create_puzzle("solved", hunt, False)
         puzzle2 = self.create_puzzle("unsolved_a", hunt, False)
