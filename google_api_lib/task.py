@@ -13,8 +13,7 @@ from puzzles.models import Puzzle
 logger = logging.getLogger(__name__)
 
 
-@shared_task(base=GoogleApiClientTask, bind=True)
-def create_google_sheets(self, puzzle_id, name, puzzle_url=None):
+def create_google_sheets_helper(name):
     req_body = {"name": name}
     response = (
         self._drive_service.files()
@@ -25,7 +24,12 @@ def create_google_sheets(self, puzzle_id, name, puzzle_url=None):
         )
         .execute()
     )
+    return response
 
+
+@shared_task(base=GoogleApiClientTask, bind=True)
+def create_google_sheets(self, puzzle_id, name, puzzle_url=None):
+    response = create_google_sheets_helper(name)
     sheet_url = response["webViewLink"]
     if puzzle_url:
         add_puzzle_link_to_sheet(puzzle_url, sheet_url)
