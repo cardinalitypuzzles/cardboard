@@ -23,12 +23,12 @@ function handleErrors(response) {
 }
 
 function getPuzzles(huntId) {
-  const puzzlesApiUrl =`${API_PREFIX}/hunts/${huntId}/puzzles`;
+  const puzzlesApiUrl = `${API_PREFIX}/hunts/${huntId}/puzzles`;
   return fetch(puzzlesApiUrl).then(handleErrors);
 }
 
 function addPuzzle(huntId, data) {
-  const puzzlesApiUrl =`${API_PREFIX}/hunts/${huntId}/puzzles`;
+  const puzzlesApiUrl = `${API_PREFIX}/hunts/${huntId}/puzzles`;
   return fetch(puzzlesApiUrl, {
     method: "POST",
     headers: {
@@ -40,7 +40,7 @@ function addPuzzle(huntId, data) {
 }
 
 function deletePuzzle(huntId, puzzleId) {
-  const puzzleApiUrl =`${API_PREFIX}/hunts/${huntId}/puzzles/${puzzleId}`;
+  const puzzleApiUrl = `${API_PREFIX}/hunts/${huntId}/puzzles/${puzzleId}`;
   return fetch(puzzleApiUrl, {
     method: "DELETE",
     headers: { "X-CSRFToken": Cookies.get("csrftoken") },
@@ -48,7 +48,7 @@ function deletePuzzle(huntId, puzzleId) {
 }
 
 function updatePuzzle(huntId, puzzleId, data) {
-  const puzzleApiUrl =`${API_PREFIX}/hunts/${huntId}/puzzles/${puzzleId}`;
+  const puzzleApiUrl = `${API_PREFIX}/hunts/${huntId}/puzzles/${puzzleId}`;
   return fetch(puzzleApiUrl, {
     method: "PATCH",
     headers: {
@@ -60,7 +60,7 @@ function updatePuzzle(huntId, puzzleId, data) {
 }
 
 function addAnswer(huntId, puzzleId, data) {
-  const answerApiUrl =`${API_PREFIX}/puzzles/${puzzleId}/answers`;
+  const answerApiUrl = `${API_PREFIX}/puzzles/${puzzleId}/answers`;
   console.log(data);
   return fetch(answerApiUrl, {
     method: "POST",
@@ -73,7 +73,7 @@ function addAnswer(huntId, puzzleId, data) {
 }
 
 function deleteAnswer(huntId, puzzleId, answerId) {
-  const answerApiUrl =`${API_PREFIX}/puzzles/${puzzleId}/answers/${answerId}`;
+  const answerApiUrl = `${API_PREFIX}/puzzles/${puzzleId}/answers/${answerId}`;
   return fetch(answerApiUrl, {
     method: "DELETE",
     headers: {
@@ -83,7 +83,7 @@ function deleteAnswer(huntId, puzzleId, answerId) {
 }
 
 function editAnswer(huntId, puzzleId, answerId, data) {
-  const answerApiUrl =`${API_PREFIX}/puzzles/${puzzleId}/answers/${answerId}`;
+  const answerApiUrl = `${API_PREFIX}/puzzles/${puzzleId}/answers/${answerId}`;
   return fetch(answerApiUrl, {
     method: "PATCH",
     headers: {
@@ -95,12 +95,12 @@ function editAnswer(huntId, puzzleId, answerId, data) {
 }
 
 function getHunt(huntId) {
-  const huntApiUrl =`${API_PREFIX}/hunts/${huntId}`;
+  const huntApiUrl = `${API_PREFIX}/hunts/${huntId}`;
   return fetch(huntApiUrl).then(handleErrors);
 }
 
 function deletePuzzleTag(huntId, puzzleId, tagId) {
-  const tagApiUrl =`${API_PREFIX}/puzzles/${puzzleId}/tags/${tagId}`;
+  const tagApiUrl = `${API_PREFIX}/puzzles/${puzzleId}/tags/${tagId}`;
   return fetch(tagApiUrl, {
     method: "DELETE",
     headers: { "X-CSRFToken": Cookies.get("csrftoken") },
@@ -108,7 +108,7 @@ function deletePuzzleTag(huntId, puzzleId, tagId) {
 }
 
 function addPuzzleTag(huntId, puzzleId, data) {
-  const tagsApiUrl =`${API_PREFIX}/puzzles/${puzzleId}/tags`;
+  const tagsApiUrl = `${API_PREFIX}/puzzles/${puzzleId}/tags`;
   return fetch(tagsApiUrl, {
     method: "POST",
     headers: {
