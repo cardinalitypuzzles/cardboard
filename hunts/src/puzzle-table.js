@@ -1,6 +1,11 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { useTable, useExpanded, useGlobalFilter } from "react-table";
+import {
+  useTable,
+  useExpanded,
+  useGlobalFilter,
+  useFilters,
+} from "react-table";
 import { matchSorter } from "match-sorter";
 import Table from "react-bootstrap/Table";
 
@@ -23,6 +28,19 @@ function textFilterFn(rows, id, filterValue) {
 
 textFilterFn.autoRemove = (val) => !val;
 
+function filterSolvedPuzzlesfn(rows, id, filterValue) {
+  if (!filterValue) {
+    return rows;
+  }
+
+  return rows.filter((row) => {
+    return row.values.status !== "SOLVED";
+  });
+}
+
+// If the value is empty, it should be treated as equivalent to a no-op and be removed.
+filterSolvedPuzzlesfn.autoRemove = (val) => !val;
+
 function rowClassName(row) {
   switch (row.values.status) {
     case "SOLVED":
@@ -38,10 +56,11 @@ function rowClassName(row) {
   }
 }
 
-export function PuzzleTable({ columns, data, filter }) {
+export function PuzzleTable({ columns, data, filter, filterSolved }) {
   const filterTypes = React.useMemo(
     () => ({
       globalFilter: textFilterFn,
+      solvedFilter: filterSolvedPuzzlesfn,
     }),
     []
   );
@@ -64,6 +83,7 @@ export function PuzzleTable({ columns, data, filter }) {
     flatRows,
     preGlobalFilteredRows,
     setGlobalFilter,
+    setFilter,
   } = useTable(
     {
       columns,
@@ -73,15 +93,24 @@ export function PuzzleTable({ columns, data, filter }) {
       autoResetExpanded: false,
       autoResetGlobalFilter: false,
       globalFilter: "globalFilter",
+      autoResetFilters: false,
       initialState: {
         hiddenColumns: ["is_meta", "id"],
+        filters: [],
       },
     },
     useGlobalFilter,
-    useExpanded
+    useExpanded,
+    useFilters
   );
 
   React.useEffect(() => setGlobalFilter(filter), [filter]);
+
+  // This pattern does not spark joy, but react-table only provides and imperative filter api.
+  React.useEffect(() => {
+    setFilter("status", filterSolved);
+  }, [filterSolved]);
+
   return (
     <>
       <Table size="sm" {...getTableProps()}>

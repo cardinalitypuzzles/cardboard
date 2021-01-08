@@ -49,6 +49,7 @@ const TABLE_COLUMNS = [
     Header: "Status",
     accessor: "status",
     Cell: StatusCell,
+    filter: "solvedFilter",
   },
   {
     Header: "Puzzle",
@@ -107,6 +108,7 @@ export const HuntViewMain = (props) => {
   const hunt = useSelector((state) => state.hunt);
   const alert = useSelector((state) => state.alert);
   const [filter, setFilter] = React.useState("");
+  const [filterSolved, setFilterSolved] = React.useState(false);
   const dispatch = useDispatch();
 
   const updatePuzzleData = () => {
@@ -147,7 +149,21 @@ export const HuntViewMain = (props) => {
           alignItems: "center",
         }}
       >
-        <GlobalFilter globalFilter={filter} setGlobalFilter={setFilter} />
+        <div>
+          <GlobalFilter globalFilter={filter} setGlobalFilter={setFilter} />
+          <label>
+            <input
+              style={{ margin: "0 5px 0 10px" }}
+              type="checkbox"
+              checked={filterSolved}
+              onChange={(evt) => {
+                setFilterSolved(evt.target.checked);
+              }}
+            ></input>
+            Hide Solved
+          </label>
+        </div>
+
         <Button
           variant="primary"
           size="lg"
@@ -165,7 +181,12 @@ export const HuntViewMain = (props) => {
           Add Puzzle
         </Button>
       </div>
-      <PuzzleTable columns={TABLE_COLUMNS} data={tableData} filter={filter} />
+      <PuzzleTable
+        columns={TABLE_COLUMNS}
+        data={tableData}
+        filter={filter}
+        filterSolved={filterSolved}
+      />
       <Modal
         animation={false}
         show={modal.show}
