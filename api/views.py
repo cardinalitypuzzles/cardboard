@@ -205,7 +205,8 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
     serializer_class = PuzzleTagSerializer
 
     def get_queryset(self):
-        return PuzzleTag.objects.all()
+        puzzle_id = self.kwargs["puzzle_id"]
+        return PuzzleTag.objects.filter(puzzles__id=puzzle_id)
 
     def destroy(self, request, pk=None, **kwargs):
         puzzle = None
