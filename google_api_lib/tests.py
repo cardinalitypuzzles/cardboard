@@ -8,7 +8,11 @@ TEST_SHEET = "testsheet.com"
 
 
 def mock_create_google_sheets_helper(self, name):
-    return {"webViewLink": TEST_SHEET}
+    return {"id": "0", "webViewLink": TEST_SHEET}
+
+
+def mock_transfer_ownership(file_id):
+    return
 
 
 def mock_add_puzzle_link_to_sheet(puzzle_url, sheet_url):
@@ -26,6 +30,10 @@ class TestGoogleSheets(TestCase):
     @patch(
         "google_api_lib.task.create_google_sheets_helper",
         mock_create_google_sheets_helper,
+    )
+    @patch(
+        "google_api_lib.task.transfer_ownership.delay",
+        mock_transfer_ownership,
     )
     @patch(
         "google_api_lib.task.add_puzzle_link_to_sheet", mock_add_puzzle_link_to_sheet
