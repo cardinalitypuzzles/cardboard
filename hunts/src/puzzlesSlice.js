@@ -97,16 +97,16 @@ function puzzleComparator(a, b) {
   } else if (a.is_meta && !b.is_meta) {
     return 1;
   }
-  // High-priority puzzles before non-high-priority puzzles
-  if (a.tags.some(x => x.name === 'HIGH PRIORITY') && !b.tags.some(x => x.name === 'HIGH PRIORITY')) {
+  // High-priority first
+  if (a.tags.some(x => x.name === "HIGH PRIORITY") && !b.tags.some(x => x.name === "HIGH PRIORITY")) {
     return -1;
-  } else if (!a.tags.some(x => x.name === 'HIGH PRIORITY') && b.tags.some(x => x.name === 'HIGH PRIORITY')) {
+  } else if (!a.tags.some(x => x.name === "HIGH PRIORITY") && b.tags.some(x => x.name === "HIGH PRIORITY")) {
     return 1;
   }
-  // Non-low-priority puzzles before low-priority puzzles
-  if (a.tags.some(x => x.name === 'LOW PRIORITY') && !b.tags.some(x => x.name === 'LOW PRIORITY')) {
+  // Low-priority last
+  if (a.tags.some(x => x.name === "LOW PRIORITY") && !b.tags.some(x => x.name === "LOW PRIORITY")) {
     return 1;
-  } else if (!a.tags.some(x => x.name === 'LOW PRIORITY') && b.tags.some(x => x.name === 'LOW PRIORITY')) {
+  } else if (!a.tags.some(x => x.name === "LOW PRIORITY") && b.tags.some(x => x.name === "LOW PRIORITY")) {
     return -1;
   }
   // Newer puzzles before old ones
