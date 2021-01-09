@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     "social_django",
     "taggit",
     "rest_framework",
+    "django_celery_results",
 ]
 
 MIDDLEWARE = [
@@ -154,7 +155,8 @@ LOGIN_ERROR_URL = "/"
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.SessionAuthentication",
-    ]
+    ],
+    "TEST_REQUEST_DEFAULT_FORMAT": "json",
 }
 
 # Configure Django App for Heroku.
@@ -221,12 +223,12 @@ except KeyError as e:
         f"No {e.args[0]} environment variable set. Google login will be disabled."
     )
 
-from google_api_lib.google_api_client import GoogleApiClient
+# TODO: make this a per hunt setting
+from google_api_lib import whitelist
 
-google_api_client = GoogleApiClient.getInstance()
-if google_api_client:
-    SOCIAL_AUTH_GOOGLE_OAUTH2_WHITELISTED_EMAILS = (
-        google_api_client.get_file_user_emails(GOOGLE_DRIVE_HUNT_FOLDER_ID)
+if GOOGLE_API_AUTHN_INFO is not None:
+    SOCIAL_AUTH_GOOGLE_OAUTH2_WHITELISTED_EMAILS = whitelist.get_file_user_emails(
+        GOOGLE_DRIVE_HUNT_FOLDER_ID
     )
     logger.info(
         "Whitelisted emails: " + str(SOCIAL_AUTH_GOOGLE_OAUTH2_WHITELISTED_EMAILS)
@@ -253,3 +255,10 @@ else:
     CHAT_SERVICES = {
         "DISCORD": discord_lib.DiscordChatService,
     }
+
+
+# Celery settings
+CELERY_RESULT_BACKEND = "django-db"
+CELERY_TASK_TIME_LIMIT = 60
+CELERY_TASK_TRACK_STARTED = True
+CELERY_BROKER_URL = os.environ.get("REDIS_URL", "redis://")

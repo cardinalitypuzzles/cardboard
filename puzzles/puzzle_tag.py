@@ -18,28 +18,6 @@ class PuzzleTag(models.Model):
         WHITE: "white",
         BLACK: "black",
     }
-    RESERVED = [GREEN, RED, YELLOW, BLACK]
-
-    @classmethod
-    def visible_color_choices(cls):
-        return list(filter(lambda c: c[0] not in cls.RESERVED, cls.COLORS.items()))
-
-    @classmethod
-    def color_ordering(cls):
-        return {
-            k: v
-            for v, k in enumerate(
-                [
-                    cls.RED,
-                    cls.BLACK,
-                    cls.WHITE,
-                    cls.GRAY,
-                    cls.BLUE,
-                    cls.GREEN,
-                    cls.YELLOW,
-                ]
-            )
-        }
 
     hunt = models.ForeignKey(
         "hunts.Hunt", on_delete=models.CASCADE, related_name="puzzle_tags"

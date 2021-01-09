@@ -10,9 +10,8 @@ from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.views import View
 from django.views.decorators.http import require_GET, require_POST
-from google_api_lib.google_api_client import GoogleApiClient
+import google_api_lib
 from hunts.models import Hunt
-from puzzles.forms import PuzzleForm
 from puzzles.models import Puzzle
 
 import logging
@@ -105,7 +104,7 @@ class AnswerView(LoginRequiredMixin, View):
             if puzzle_already_solved or status == Answer.CORRECT:
                 metas = guess.puzzle.metas.all()
                 for meta in metas:
-                    GoogleApiClient.update_meta_sheet_feeders(meta)
+                    google_api_lib.task.update_meta_sheet_feeders(meta)
         else:
             return JsonResponse(
                 {

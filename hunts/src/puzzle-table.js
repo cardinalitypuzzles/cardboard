@@ -47,91 +47,95 @@ function rowClassName(row) {
   }
 }
 
-export function PuzzleTable({ columns, data, filter, filterSolved }) {
-  const filterTypes = React.useMemo(
-    () => ({
-      globalFilter: textFilterFn,
-      solvedFilter: filterSolvedPuzzlesfn,
-    }),
-    []
-  );
+export const PuzzleTable = React.memo(
+  ({ columns, data, filter, filterSolved }) => {
+    const filterTypes = React.useMemo(
+      () => ({
+        globalFilter: textFilterFn,
+        solvedFilter: filterSolvedPuzzlesfn,
+      }),
+      []
+    );
 
-  const getRowId = React.useCallback((row, relativeIndex, parent) => {
-    if (parent) {
-      return `${parent.id}.${row.id}`;
-    } else {
-      return row.id.toString();
-    }
-  }, []);
-  const {
-    getTableProps,
-    getTableBodyProps,
-    allColumns,
-    rows,
-    state,
-    prepareRow,
-    toggleAllRowsExpanded,
-    flatRows,
-    preGlobalFilteredRows,
-    setGlobalFilter,
-    setFilter,
-  } = useTable(
-    {
-      columns,
-      data,
-      filterTypes,
-      getRowId,
-      autoResetExpanded: false,
-      autoResetGlobalFilter: false,
-      globalFilter: "globalFilter",
-      autoResetFilters: false,
-      initialState: {
-        hiddenColumns: ["is_meta", "id"],
-        filters: [],
+    const getRowId = React.useCallback((row, relativeIndex, parent) => {
+      if (parent) {
+        return `${parent.id}.${row.id}`;
+      } else {
+        return row.id.toString();
+      }
+    }, []);
+    const {
+      getTableProps,
+      getTableBodyProps,
+      allColumns,
+      rows,
+      state,
+      prepareRow,
+      toggleAllRowsExpanded,
+      flatRows,
+      preGlobalFilteredRows,
+      setGlobalFilter,
+      setFilter,
+    } = useTable(
+      {
+        columns,
+        data,
+        filterTypes,
+        getRowId,
+        autoResetExpanded: false,
+        autoResetGlobalFilter: false,
+        globalFilter: "globalFilter",
+        autoResetFilters: false,
+        initialState: {
+          hiddenColumns: ["is_meta", "id"],
+          filters: [],
+        },
       },
-    },
-    useGlobalFilter,
-    useExpanded,
-    useFilters
-  );
+      useGlobalFilter,
+      useExpanded,
+      useFilters
+    );
 
-  React.useEffect(() => setGlobalFilter(filter), [filter]);
+    React.useEffect(() => setGlobalFilter(filter), [filter]);
 
-  // This pattern does not spark joy, but react-table only provides an imperative filter api.
-  React.useEffect(() => {
-    setFilter("status", filterSolved);
-  }, [filterSolved]);
+    // This pattern does not spark joy, but react-table only provides an imperative filter api.
+    React.useEffect(() => {
+      setFilter("status", filterSolved);
+    }, [filterSolved]);
 
-  return (
-    <>
-      <Table size="sm" {...getTableProps()}>
-        <thead>
-          <tr>
-            {allColumns.map((column) =>
-              column.isVisible ? (
-                <th {...column.getHeaderProps()}>{column.render("Header")}</th>
-              ) : null
-            )}
-          </tr>
-        </thead>
-        <tbody {...getTableBodyProps()}>
-          {rows.map((row, i) => {
-            prepareRow(row);
-            return (
-              <tr className={rowClassName(row)} {...row.getRowProps()}>
-                {row.cells.map((cell) => {
-                  return (
-                    <td {...cell.getCellProps()}>{cell.render("Cell")}</td>
-                  );
-                })}
-              </tr>
-            );
-          })}
-        </tbody>
-      </Table>
-    </>
-  );
-}
+    return (
+      <>
+        <Table size="sm" {...getTableProps()}>
+          <thead>
+            <tr>
+              {allColumns.map((column) =>
+                column.isVisible ? (
+                  <th {...column.getHeaderProps()}>
+                    {column.render("Header")}
+                  </th>
+                ) : null
+              )}
+            </tr>
+          </thead>
+          <tbody {...getTableBodyProps()}>
+            {rows.map((row, i) => {
+              prepareRow(row);
+              return (
+                <tr className={rowClassName(row)} {...row.getRowProps()}>
+                  {row.cells.map((cell) => {
+                    return (
+                      <td {...cell.getCellProps()}>{cell.render("Cell")}</td>
+                    );
+                  })}
+                </tr>
+              );
+            })}
+          </tbody>
+        </Table>
+      </>
+    );
+  }
+);
 
 PuzzleTable.propTypes = {
   columns: PropTypes.array.isRequired,

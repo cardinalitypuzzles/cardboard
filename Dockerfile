@@ -27,5 +27,3 @@ RUN yarn install
 # Install patches
 COPY ./patches ./patches
 RUN yarn install
-
-COPY . .

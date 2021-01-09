@@ -13,7 +13,7 @@ import re
 class HuntSerializer(serializers.ModelSerializer):
     class Meta:
         model = Hunt
-        fields = ("id", "name", "active")
+        fields = ("id", "name", "active", "url")
 
 
 class CurrentHuntDefault:
