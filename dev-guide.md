@@ -18,7 +18,7 @@ To run Small Board manually, you will need:
 - [Yarn](https://classic.yarnpkg.com/en/docs/install/)
 - a local database (e.g.: PostgreSQL or SQLite)
 
-#### Checking out the code
+### Checking out the code
 
 To check out the code, you first need to [install Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git). Then you can checkout the code using:
 
@@ -37,17 +37,19 @@ cp .env.test .env
 See below for more details on the `.env` file. You probably want to set at least `DJANGO_SECRET_KEY` so that your session isn't invalidated each time you restart the web container.
 
 
-#### Docker setup
+### Docker setup
 
 Docker allows a simple, consistent setup of Small Board. After checking out the code, navigate to the directory and run:
 
 ```
 # You can pass the -d flag to run in the background.
 # In that case, run `docker-compose logs` to view the output.
-docker-compose up
+docker-compose up --build
 ```
 
 The first time you run this, it will build Docker images locally and then run the web server and postgres in separate containers.
+
+After the initial build, you may use `docker-compose up` to start Small Board without rebuilding container images. Doing a rebuild with `--build` is required after adding new library dependencies, however.
 
 To run a command inside the web container, you can run
 
@@ -63,11 +65,11 @@ docker-compose exec web python manage.py test
 
 This is pretty verbose, so on my machine I added a local alias for `smallboard-manage` to `docker-compose exec web python manage.py`. Then `smallboard-manage test` will run tests.
 
-Our docker setup reads environmental variables from .env as described down the page.
+Our docker setup reads environmental variables from .env as described earlier. This file must exist, though by default it may be empty.
 
-#### Manual setup
+### Manual setup
 
-##### Setting up a Python environment
+#### Setting up a Python environment
 
 Begin by installing [python](https://wiki.python.org/moin/BeginnersGuide/Download) (you likely already have this installed)
 On Ubuntu, you can accomplish this by running:
@@ -98,7 +100,7 @@ pipenv shell
 
 **Going forward, assume that any commands should be run inside the virtual environment**
 
-##### <a name='database'>Setting up a local database</a>
+#### <a name='database'>Setting up a local database</a>
 
 Django supports multiple databases but here we use Postgres as an example. For most OS distributions, you should be able to install it using your package manager, similar to:
 
@@ -161,7 +163,7 @@ $ python manage.py runserver
 
 You can view the app in your browser at [http://127.0.0.1:8000/]().
 
-##### React pages
+#### React pages
 
 Some pages are rendered using React JS. To compile these pages, make sure you've
 installed javascript deps using `yarn`.
@@ -190,7 +192,7 @@ python manage.py test
 
 The test environment settings are in `.env.test`. If you encounter an error `Got an error creating the test database: permission denied to create database`, make sure you run `ALTER USER myuser CREATEDB` as described above in the [Setting up a local database](#database) section.
 
-##### Copying production data to local database
+### Copying production data to local database
 
 For testing and development, it can be helpful to load the production data into your local database. You can do so as follows:
 
@@ -215,7 +217,7 @@ SELECT  'DROP TABLE IF EXISTS "' || tablename || '" CASCADE;' FROM pg_tables WHE
 
 This app uses various secrets including Google API tokens that need to be present in the environment. Locally, you can put these in the `.env` file. In the production Heroku deployment, they're set as Config Vars at https://dashboard.heroku.com/apps/smallboard/settings. For most of these configs, you can just use the production settings. The ones you probably want to change are `DATABASE_URL`, `DJANGO_SECRET_KEY`, and `DEBUG`. You can contact a Collaborator to give you access to the Heroku Small Board settings or to share their `.env` file with you.
 
-The environment variables used by Small Board are listed below. The only required variables are `DATABASE_URL`.
+The environment variables used by Small Board are listed below. The only required variables are `DATABASE_URL`. When running with Docker, there are no required variables; `DATABASE_URL` is ignored.
 
 ```
 # for connecting to the database (see "Setting up a local database" section above)
@@ -268,18 +270,6 @@ When a puzzle is created, a Google Sheet is created that is a copy of the templa
 You need to have access to the Google Drive folder to view it. Please message a Collaborator if you don't.
 
 These Google Drive and Sheets related settings can be found in [smallboard/settings.py](smallboard/settings.py).
-
-### Slack Integration (optional)
-
-This app interacts with a slack workspace in the following ways:
-
-1. Channel creation upon puzzle creation
-2. A '/answer' command on slack that inputs answers into the big board
-
-When running locally, only 1) will work since the /answer command sends a direct
-POST request to the heroku deployment.
-
-You can contact a Collaborator to be added to the relevant slack workspace(s).
 
 ### Deployment to Heroku
 
