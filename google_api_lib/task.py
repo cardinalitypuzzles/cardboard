@@ -25,20 +25,22 @@ def create_google_sheets_helper(self, name):
         )
         .execute()
     )
+    return file
 
-    # transfer new sheet ownership back to OG owner, so that scripts can run
+
+# transfer new sheet ownership back to OG owner, so that scripts can run
+@shared_task(base=GoogleApiClientTask, bind=True)
+def transfer_ownership(self, file_id):
     transfer_permission = {
         "type": "user",
         "role": "owner",
         "emailAddress": self._sheets_owner,
     }
     self._drive_service.permissions().create(
-        fileId=file["id"],
+        fileId=file_id,
         body=transfer_permission,
         transferOwnership=True,
     ).execute()
-
-    return file
 
 
 @shared_task(base=GoogleApiClientTask, bind=True)
@@ -48,7 +50,7 @@ def create_google_sheets(self, puzzle_id, name, puzzle_url=None):
     if puzzle_url:
         add_puzzle_link_to_sheet(puzzle_url, sheet_url)
     puzzle = Puzzle.objects.filter(pk=puzzle_id).update(sheet=sheet_url)
-
+    transfer_ownership.delay(response["id"])
     return sheet_url
 
 
