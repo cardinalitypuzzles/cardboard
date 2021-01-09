@@ -41,28 +41,18 @@ class SmallboardTestCase(APITestCase):
     # Tag methods
 
     def create_tag(self, puzzle_id, data):
-        return self.client.post(
-            f"/api/v1/hunts/{self._hunt.pk}/puzzles/{puzzle_id}/tags", data
-        )
+        return self.client.post(f"/api/v1/puzzles/{puzzle_id}/tags", data)
 
     def delete_tag(self, puzzle_id, pk):
-        return self.client.delete(
-            f"/api/v1/hunts/{self._hunt.pk}/puzzles/{puzzle_id}/tags/{pk}"
-        )
+        return self.client.delete(f"/api/v1/puzzles/{puzzle_id}/tags/{pk}")
 
     # Answer methods
 
     def create_answer(self, puzzle_id, data):
-        return self.client.post(
-            f"/api/v1/hunts/{self._hunt.pk}/puzzles/{puzzle_id}/answers", data
-        )
+        return self.client.post(f"/api/v1/puzzles/{puzzle_id}/answers", data)
 
     def delete_answer(self, puzzle_id, pk):
-        return self.client.delete(
-            f"/api/v1/hunts/{self._hunt.pk}/puzzles/{puzzle_id}/answers/{pk}"
-        )
+        return self.client.delete(f"/api/v1/puzzles/{puzzle_id}/answers/{pk}")
 
     def edit_answer(self, puzzle_id, pk, data):
-        return self.client.patch(
-            f"/api/v1/hunts/{self._hunt.pk}/puzzles/{puzzle_id}/answers/{pk}", data
-        )
+        return self.client.patch(f"/api/v1/puzzles/{puzzle_id}/answers/{pk}", data)
