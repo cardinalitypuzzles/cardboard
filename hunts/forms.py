@@ -39,7 +39,7 @@ class HuntForm(forms.Form):
 
             if data["end_time"] and not data["start_time"]:
                 raise forms.ValidationError(
-                    "Start time must be provided with end time."
+                    "Start time must be provided with end time.", code="missing_start"
                 )
 
             if (
@@ -47,6 +47,8 @@ class HuntForm(forms.Form):
                 and data["end_time"]
                 and data["end_time"] <= data["start_time"]
             ):
-                raise forms.ValidationError("End time must be after start time.")
+                raise forms.ValidationError(
+                    "End time must be after start time.", code="end_before_start"
+                )
 
         return data
