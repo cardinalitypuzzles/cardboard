@@ -23,6 +23,7 @@ import Button from "react-bootstrap/Button";
 import Dropdown from "react-bootstrap/Dropdown";
 import Modal from "react-bootstrap/Modal";
 import Alert from "react-bootstrap/Alert";
+import { SOLVE_STATE_FILTER_OPTIONS } from "./solveStateFilter";
 
 const MODAL_COMPONENTS = {
   DELETE_PUZZLE: DeletePuzzleModal,
@@ -108,7 +109,9 @@ export const HuntViewMain = (props) => {
   const hunt = useSelector((state) => state.hunt);
   const alert = useSelector((state) => state.alert);
   const [filter, setFilter] = React.useState("");
-  const [filterSolved, setFilterSolved] = React.useState(false);
+  const [filterSolved, setFilterSolved] = React.useState(
+    SOLVE_STATE_FILTER_OPTIONS.ALL
+  );
   const dispatch = useDispatch();
 
   const updatePuzzleData = () => {
@@ -151,16 +154,45 @@ export const HuntViewMain = (props) => {
       >
         <div>
           <GlobalFilter globalFilter={filter} setGlobalFilter={setFilter} />
+          <span>Show:</span>
           <label>
             <input
               style={{ margin: "0 5px 0 10px" }}
-              type="checkbox"
-              checked={filterSolved}
+              type="radio"
+              checked={filterSolved === SOLVE_STATE_FILTER_OPTIONS.ALL}
               onChange={(evt) => {
-                setFilterSolved(evt.target.checked);
+                if (evt.target.checked) {
+                  setFilterSolved(SOLVE_STATE_FILTER_OPTIONS.ALL);
+                }
               }}
             ></input>
-            Hide Solved
+            All
+          </label>
+          <label>
+            <input
+              style={{ margin: "0 5px 0 10px" }}
+              type="radio"
+              checked={filterSolved === SOLVE_STATE_FILTER_OPTIONS.PRIORITY}
+              onChange={(evt) => {
+                if (evt.target.checked) {
+                  setFilterSolved(SOLVE_STATE_FILTER_OPTIONS.PRIORITY);
+                }
+              }}
+            ></input>
+            Priority
+          </label>
+          <label>
+            <input
+              style={{ margin: "0 5px 0 10px" }}
+              type="radio"
+              checked={filterSolved === SOLVE_STATE_FILTER_OPTIONS.UNSOLVED}
+              onChange={(evt) => {
+                if (evt.target.checked) {
+                  setFilterSolved(SOLVE_STATE_FILTER_OPTIONS.UNSOLVED);
+                }
+              }}
+            ></input>
+            Unsolved
           </label>
         </div>
 

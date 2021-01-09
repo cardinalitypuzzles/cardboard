@@ -8,6 +8,10 @@ import {
 } from "react-table";
 import { matchSorter } from "match-sorter";
 import Table from "react-bootstrap/Table";
+import {
+  SOLVE_STATE_FILTER_OPTIONS,
+  filterSolvedPuzzlesfn,
+} from "./solveStateFilter";
 
 function textFilterFn(rows, id, filterValue) {
   if (!filterValue || !filterValue.length) {
@@ -27,19 +31,6 @@ function textFilterFn(rows, id, filterValue) {
 }
 
 textFilterFn.autoRemove = (val) => !val;
-
-function filterSolvedPuzzlesfn(rows, id, filterValue) {
-  if (!filterValue) {
-    return rows;
-  }
-
-  return rows.filter((row) => {
-    return row.values.status !== "SOLVED";
-  });
-}
-
-// If the value is empty, it should be treated as equivalent to a no-op and be removed.
-filterSolvedPuzzlesfn.autoRemove = (val) => !val;
 
 function rowClassName(row) {
   switch (row.values.status) {
