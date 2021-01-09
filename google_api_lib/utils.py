@@ -26,3 +26,10 @@ class GoogleApiClientTask(Task):
         self._sheets_service = googleapiclient.discovery.build(
             "sheets", "v4", credentials=self._credentials
         )
+
+        template = (
+            self._drive_service.files()
+            .get(fileId=settings.GOOGLE_SHEETS_TEMPLATE_FILE_ID, fields="owners")
+            .execute()
+        )
+        self._sheets_owner = template["owners"][0]["emailAddress"]

@@ -15,16 +15,30 @@ logger = logging.getLogger(__name__)
 
 def create_google_sheets_helper(self, name):
     req_body = {"name": name}
-    response = (
+    # copy template sheet
+    file = (
         self._drive_service.files()
         .copy(
             fileId=settings.GOOGLE_SHEETS_TEMPLATE_FILE_ID,
             body=req_body,
-            fields="webViewLink",
+            fields="id,webViewLink",
         )
         .execute()
     )
-    return response
+
+    # transfer new sheet ownership back to OG owner, so that scripts can run
+    transfer_permission = {
+        "type": "user",
+        "role": "owner",
+        "emailAddress": self._sheets_owner,
+    }
+    self._drive_service.permissions().create(
+        fileId=file["id"],
+        body=transfer_permission,
+        transferOwnership=True,
+    ).execute()
+
+    return file
 
 
 @shared_task(base=GoogleApiClientTask, bind=True)
