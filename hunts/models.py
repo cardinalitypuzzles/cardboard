@@ -9,6 +9,9 @@ class Hunt(models.Model):
     name = models.CharField(max_length=128)
     url = models.URLField()
     created_on = models.DateTimeField(auto_now_add=True)
+    start_time = models.DateTimeField(default=None, blank=True, null=True)
+    end_time = models.DateTimeField(default=None, blank=True, null=True)
+
     puzzlers = models.ManyToManyField(get_user_model(), related_name="hunts")
     active = models.BooleanField(default=True)
     slug = models.SlugField(blank=True, unique=True)
