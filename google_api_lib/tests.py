@@ -11,7 +11,7 @@ def mock_create_google_sheets_helper(self, name):
     return {"id": "0", "webViewLink": TEST_SHEET}
 
 
-def mock_transfer_ownership(file_id):
+def mock_transfer_ownership(file):
     return
 
 
