@@ -16,8 +16,7 @@ To run Small Board manually, you will need:
 - Pipenv
 - [NodeJS](https://nodejs.org/en/download/package-manager/) (version 10 or later)
 - [Yarn](https://classic.yarnpkg.com/en/docs/install/)
-- # a local database (PostgreSQL or SQLite)
-- a local database (e.g.: Postgres)
+- a local database (e.g.: PostgreSQL or SQLite)
 
 #### Checking out the code
 
@@ -26,6 +25,17 @@ To check out the code, you first need to [install Git](https://git-scm.com/book/
 ```
 git clone git@github.com:cardinalitypuzzles/smallboard.git
 ```
+
+### Set up an `.env` file
+
+Both Docker and manual setup read environment variables from an `.env` file. An example `.env.test` file is provided, which you should copy to `.env`:
+
+```
+cp .env.test .env
+```
+
+See below for more details on the `.env` file. You probably want to set at least `DJANGO_SECRET_KEY` so that your session isn't invalidated each time you restart the web container.
+
 
 #### Docker setup
 

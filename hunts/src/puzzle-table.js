@@ -38,7 +38,7 @@ function rowClassName(row) {
   }
 }
 
-export function PuzzleTable({ columns, data, filter }) {
+export const PuzzleTable = React.memo(({ columns, data, filter }) => {
   const filterTypes = React.useMemo(
     () => ({
       globalFilter: textFilterFn,
@@ -111,7 +111,7 @@ export function PuzzleTable({ columns, data, filter }) {
       </Table>
     </>
   );
-}
+});
 
 PuzzleTable.propTypes = {
   columns: PropTypes.array.isRequired,
