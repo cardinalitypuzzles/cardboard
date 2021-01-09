@@ -41,18 +41,6 @@ def create_google_sheets_helper(self, name):
     return file
 
 
-def transfer_ownership(self, file_id):
-    response = (
-        self._drive_service.permissions()
-        .create(
-            fileId=file_id,
-            body=req_body,
-            fields="webViewLink",
-        )
-        .execute()
-    )
-
-
 @shared_task(base=GoogleApiClientTask, bind=True)
 def create_google_sheets(self, puzzle_id, name, puzzle_url=None):
     response = create_google_sheets_helper(self, name)
