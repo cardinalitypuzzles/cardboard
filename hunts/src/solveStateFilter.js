@@ -12,8 +12,17 @@ function isSolved(tableRow) {
   return !isUnsolved(tableRow);
 }
 
-function hasUnsolvedChildren(tableRow) {
-  return tableRow.subRows.filter(isUnsolved).length !== 0;
+function getDescendants(tableRow) {
+  const allChildren = [tableRow];
+  for (let i = 0; i < allChildren.length; i++) {
+    const current = allChildren[i];
+    Array.prototype.push.apply(allChildren, current.subRows);
+  }
+  return allChildren;
+}
+
+function hasUnsolvedDescendants(tableRow) {
+  return getDescendants(tableRow).filter(isUnsolved).length !== 0;
 }
 
 export function filterSolvedPuzzlesfn(rows, id, filterValue) {
@@ -28,7 +37,7 @@ export function filterSolvedPuzzlesfn(rows, id, filterValue) {
         // Explicitly exclude this row.
         rowIdsToExclude.add(row.id);
         // Also exclude its children.
-        row.subRows.forEach((subRow) => {
+        getDescendants(row).forEach((subRow) => {
           rowIdsToExclude.add(subRow.id);
         });
       }
@@ -38,7 +47,7 @@ export function filterSolvedPuzzlesfn(rows, id, filterValue) {
 
   if (filterValue === SOLVE_STATE_FILTER_OPTIONS.UNSOLVED) {
     return rows.filter((row) => {
-      return isUnsolved(row) || hasUnsolvedChildren(row);
+      return isUnsolved(row) || hasUnsolvedDescendants(row);
     });
   }
 }

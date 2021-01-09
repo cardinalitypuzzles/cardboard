@@ -8,10 +8,7 @@ import {
 } from "react-table";
 import { matchSorter } from "match-sorter";
 import Table from "react-bootstrap/Table";
-import {
-  SOLVE_STATE_FILTER_OPTIONS,
-  filterSolvedPuzzlesfn,
-} from "./solveStateFilter";
+import { filterSolvedPuzzlesfn } from "./solveStateFilter";
 
 function textFilterFn(rows, id, filterValue) {
   if (!filterValue || !filterValue.length) {
