@@ -85,7 +85,6 @@ export const addPuzzleTag = createAsyncThunk(
 
 function puzzleComparator(a, b) {
   // Solved puzzles should appear below unsolved ones
-  console.log(a);
   if (a.status == "SOLVED" && b.status != "SOLVED") {
     return 1;
   } else if (b.status == "SOLVED" && a.status != "SOLVED") {
