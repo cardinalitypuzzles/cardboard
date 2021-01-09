@@ -25,7 +25,9 @@ class HuntFormTests(TestCase):
 
         form = HuntForm(data)
         self.assertFalse(form.is_valid())
-        self.assertEqual(form.non_field_errors(),['Start time must be provided with end time.'])
+        self.assertEqual(
+            form.non_field_errors(), ["Start time must be provided with end time."]
+        )
 
     def test_times_end_before_start(self):
         # Start and end time inputs come from the SplitDateTimeWidget
@@ -40,4 +42,6 @@ class HuntFormTests(TestCase):
 
         form = HuntForm(data)
         self.assertFalse(form.is_valid())
-        self.assertEqual(form.non_field_errors(),["End time must be after start time."])
+        self.assertEqual(
+            form.non_field_errors(), ["End time must be after start time."]
+        )
