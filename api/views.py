@@ -71,6 +71,12 @@ class AnswerViewSet(viewsets.ModelViewSet):
                 transaction.on_commit(
                     lambda: AnswerViewSet.__update_meta_sheets_for_feeder(puzzle)
                 )
+                if google_api_lib.enabled() and puzzle.sheet:
+                    transaction.on_commit(
+                        lambda: google_api_lib.task.rename_sheet.delay(
+                            sheet_url=puzzle.sheet, name=f"[SOLVED] {puzzle.name}"
+                        )
+                    )
             puzzle.save()
 
         return Response(PuzzleSerializer(puzzle).data)
@@ -89,6 +95,13 @@ class AnswerViewSet(viewsets.ModelViewSet):
                 puzzle.status = Puzzle.SOLVING
                 if puzzle.chat_room:
                     puzzle.chat_room.unarchive_channels()
+                if puzzle.sheet and google_api_lib.enabled():
+                    transaction.on_commit(
+                        lambda: google_api_lib.task.rename_sheet.delay(
+                            sheet_url=puzzle.sheet, name=puzzle.name
+                        )
+                    )
+
                 puzzle.save()
 
             transaction.on_commit(
