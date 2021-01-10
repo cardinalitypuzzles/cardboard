@@ -11,7 +11,7 @@
     "postinstall": "patch-package"
   },
   "devDependencies": {
-    "prettier": "2.2.1",
+    "prettier": "^2.2.1",
     "webpack-merge": "^5.7.0"
   },
   "dependencies": {
