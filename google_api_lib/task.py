@@ -81,6 +81,24 @@ def add_puzzle_link_to_sheet(self, puzzle_url, sheet_url):
     ).execute()
 
 
+@shared_task(base=GoogleApiClientTask, bind=True)
+def rename_sheet(self, sheet_url, name):
+    requests = [
+        {
+            "updateSpreadsheetProperties": {
+                "properties": {
+                    "title": name,
+                },
+                "fields": "title",
+            }
+        }
+    ]
+    body = {"requests": requests}
+    self.sheets_service().spreadsheets().batchUpdate(
+        spreadsheetId=extract_id_from_sheets_url(sheet_url), body=body
+    ).execute()
+
+
 @shared_task(base=GoogleApiClientTask, bind=True, rate_limit="1/m")
 def update_meta_sheet_feeders(self, puzzle_id):
     """
