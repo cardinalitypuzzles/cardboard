@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import transaction
+from django.db.models import Prefetch
 from django.shortcuts import render, get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -115,10 +116,16 @@ class PuzzleViewSet(viewsets.ModelViewSet):
         hunt_id = self.kwargs["hunt_id"]
         return (
             Puzzle.objects.filter(hunt__id=hunt_id)
-            .prefetch_related("metas")
+            .select_related("chat_room")
+            .prefetch_related("metas", "feeders")
             .prefetch_related("tags")
-            .prefetch_related("chat_room")
-            .prefetch_related("guesses")
+            .prefetch_related(
+                Prefetch(
+                    "guesses",
+                    queryset=Answer.objects.filter(status=Answer.CORRECT),
+                    to_attr="_prefetched_correct_answers",
+                )
+            )
         )
 
     def destroy(self, request, pk=None, **kwargs):
