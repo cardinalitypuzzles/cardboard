@@ -10,6 +10,7 @@ class FakeDjangoSettings:
     DISCORD_GUILD_ID = 11111
     DISCORD_PUZZLE_CATEGORY = "discord-puzzle-category"
     DISCORD_ARCHIVE_CATEGORY = "discord-archived-category"
+    DISCORD_PUZZLE_ANNOUNCEMENTS_CHANNEL = 12345
 
 
 class TestDiscordChatService(TestCase):
@@ -155,4 +156,11 @@ class TestDiscordChatService(TestCase):
                 mock.call(channel.id, parent_id=archived.id),
                 mock.call(channel.id, parent_id=parent.id),
             ]
+        )
+
+    def test_announce(self):
+        self.service.announce("test message")
+        self.mock_client.channels_messages_create.assert_called_once_with(
+            FakeDjangoSettings.DISCORD_PUZZLE_ANNOUNCEMENTS_CHANNEL,
+            content="test message",
         )

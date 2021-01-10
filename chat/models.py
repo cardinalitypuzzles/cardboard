@@ -110,6 +110,15 @@ class ChatRoom(models.Model):
         if update_fields:
             self.save(update_fields=update_fields)
 
+    def send_message(self, msg):
+        if self.text_channel_id:
+            service = self.get_service()
+            service.send_message(self.text_channel_id, msg)
+
+    def announce(self, msg):
+        service = self.get_service()
+        service.announce(msg)
+
 
 @receiver(models.signals.pre_delete, sender=ChatRoom)
 def delete_chat_room_channels(sender, instance, using, **kwargs):

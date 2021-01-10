@@ -17,6 +17,15 @@ class DiscordChatService(ChatService):
         self._guild_id = settings.DISCORD_GUILD_ID
         self._puzzle_category_name = settings.DISCORD_PUZZLE_CATEGORY
         self._archived_category_name = settings.DISCORD_ARCHIVE_CATEGORY
+        self._puzzle_announcements_id = settings.DISCORD_PUZZLE_ANNOUNCEMENTS_CHANNEL
+
+    def send_message(self, channel_id, msg):
+        self._client.channels_messages_create(channel_id, content=msg)
+
+    def announce(self, msg):
+        print(f'announcement channel id:{self._puzzle_announcements_id}')
+        if self._puzzle_announcements_id:
+            self.send_message(self._puzzle_announcements_id, msg)
 
     def create_text_channel(self, name):
         channel = self.create_channel(
