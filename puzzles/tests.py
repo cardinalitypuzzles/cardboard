@@ -135,3 +135,8 @@ class TestPuzzle(APITestCase):
             PuzzleTag.objects.filter(name="oldname", hunt=meta.hunt).exists()
         )
         self.assertTrue(feeder.tags.filter(name="newname").exists())
+
+    def test_sheets_redirect(self):
+        puzzle = self.create_puzzle("test_redirects", False)
+        response = self.client.get(f"/puzzles/sheets/{puzzle.pk}", follow=False)
+        self.assertEqual(response["Location"], puzzle.sheet)
