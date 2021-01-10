@@ -258,7 +258,12 @@ else:
 
 
 # Celery settings
+
 CELERY_RESULT_BACKEND = "django-db"
 CELERY_TASK_TIME_LIMIT = 60
 CELERY_TASK_TRACK_STARTED = True
 CELERY_BROKER_URL = os.environ.get("REDIS_URL", "redis://")
+
+CELERY_TASK_ROUTES = {
+    "google_api_lib.task.create_google_sheets": {"queue": "cgs_queue"}
+}
