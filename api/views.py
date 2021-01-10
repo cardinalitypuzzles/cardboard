@@ -68,7 +68,7 @@ class AnswerViewSet(viewsets.ModelViewSet):
                 if puzzle.chat_room:
                     puzzle.chat_room.archive_channels()
                     msg = f"{puzzle.name} has been solved with {answer.text}!"
-                    puzzle.chat_room.announce(msg)
+                    puzzle.chat_room.get_service().announce(msg)
                     puzzle.chat_room.send_message(msg)
                 answer.save()
                 transaction.on_commit(
@@ -206,7 +206,7 @@ class PuzzleViewSet(viewsets.ModelViewSet):
                 )
                 chat_room.create_channels()
                 msg = f"{name} has been unlocked!"
-                chat_room.announce(msg)
+                chat_room.get_service().announce(msg)
                 chat_room.send_message(msg)
             else:
                 logger.warn("Chat room not created for puzzle %s" % name)

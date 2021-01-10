@@ -11,7 +11,6 @@ class FakeChatService(ChatService):
         self.audio_channels = set()
         self.archived_channels = set()
         self.messages = set()
-        self.announcements = set()
 
     def create_text_channel(self, name):
         self.text_channels.add(name)
@@ -39,9 +38,6 @@ class FakeChatService(ChatService):
 
     def send_message(self, channel_id, msg):
         self.messages.add(msg)
-
-    def announce(self, msg):
-        self.announcements.add(msg)
 
 
 @override_settings(
@@ -94,9 +90,7 @@ class TestChatRoom(TestCase):
         self.room.create_channels()
         msg = "Test Room 🧩"
         self.room.send_message(msg)
-        self.room.announce(msg)
         self.assertIn(msg, self.fake_service.messages)
-        self.assertIn(msg, self.fake_service.announcements)
 
 
 class TestChatService(TestCase):
