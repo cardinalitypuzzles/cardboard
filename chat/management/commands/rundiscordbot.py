@@ -18,7 +18,7 @@ async def on_ready():
 async def on_message(message):
     if message.author == client.user:
         return
-    print(f'Received message "{message.content}"')
+    print(f'{message.channel}/{message.author}: "{message.content}"')
     if message.content.startswith("!puzzles"):
         subcommand = parse_subcommand(message.content) or "unsolved"
         await handle_subcommand(message, subcommand)
@@ -42,27 +42,36 @@ async def send_puzzles_unsolved(message):
     puzzles = await sync_to_async(list)(
         Puzzle.objects.filter(Q(status=Puzzle.SOLVING) | Q(status=Puzzle.PENDING))
     )
-    await send_puzzles(message, puzzles, "Unsolved puzzles:")
+    await send_puzzles(message, puzzles, "Unsolved puzzles")
 
 
 async def send_puzzles_solved(message):
     puzzles = await sync_to_async(list)(Puzzle.objects.filter(status=Puzzle.SOLVED))
-    await send_puzzles(message, puzzles, "Solved puzzles:")
+    await send_puzzles(message, puzzles, "Solved puzzles")
 
 
 async def send_puzzles_stuck(message):
     puzzles = await sync_to_async(list)(
         Puzzle.objects.filter(Q(status=Puzzle.STUCK) | Q(status=Puzzle.EXTRACTION))
     )
-    await send_puzzles(message, puzzles, "Stuck puzzles:")
+    await send_puzzles(message, puzzles, "Stuck puzzles")
 
 
-async def send_puzzles(message, puzzles, first_line):
+async def send_puzzles(message, puzzles, title):
     print(f"Sending puzzles {puzzles}")
-    lines = [first_line]
+    embed = discord.Embed()
+    lines = []
     for p in puzzles:
-        lines.append(f"- {p.name}")
-    await message.channel.send("\n".join(lines))
+        line = "- "
+        if p.is_solved():
+            line += f"[{p.answer}] "
+        line += f"[{p.name}]({p.url})" if p.url else p.name
+        if p.sheet:
+            line += f" ([sheet]({p.sheet}))"
+        lines.append(line)
+    print(f"lines: {lines}")
+    embed.add_field(name=title, value="\n".join(lines))
+    await message.channel.send(embed=embed)
 
 
 class Command(BaseCommand):
