@@ -24,6 +24,8 @@ import Dropdown from "react-bootstrap/Dropdown";
 import Modal from "react-bootstrap/Modal";
 import Alert from "react-bootstrap/Alert";
 import { SOLVE_STATE_FILTER_OPTIONS } from "./solveStateFilter";
+import { addOrRemoveTag } from "./tagFilter";
+import TagPill from "./TagPill";
 
 const MODAL_COMPONENTS = {
   DELETE_PUZZLE: DeletePuzzleModal,
@@ -90,7 +92,7 @@ const TABLE_COLUMNS = [
   {
     Header: "Tags/Metas",
     id: "tags",
-    accessor: (row) => row.tags.map(({ name }) => name).join(" "),
+    accessor: "tags",
     Cell: TagCell,
   },
   {
@@ -112,6 +114,11 @@ export const HuntViewMain = (props) => {
   const [filterSolved, setFilterSolved] = React.useState(
     SOLVE_STATE_FILTER_OPTIONS.ALL
   );
+  let [filterTags, setFilterTags] = React.useState([]);
+  // Passing this closure around might be expensive? I doubt it's that bad though.
+  const addOrRemoveFilterTag = tag => {
+    setFilterTags(addOrRemoveTag(filterTags, tag));
+  };
   const dispatch = useDispatch();
 
   const updatePuzzleData = () => {
@@ -195,6 +202,19 @@ export const HuntViewMain = (props) => {
             Unsolved
           </label>
         </div>
+        <div>
+          {filterTags.length > 0 ? 'Viewing puzzles with tags: ' : ''}
+          {filterTags.map(({ name, color, id }) => {
+            return <TagPill
+              name={name}
+              color={color}
+              id={id}
+              puzzleId={null}
+              key={name}
+              onDelete={function () {addOrRemoveFilterTag({ name, color, id })}}
+            />;
+          })}
+        </div>
 
         <Button
           variant="primary"
@@ -218,6 +238,8 @@ export const HuntViewMain = (props) => {
         data={tableData}
         filter={filter}
         filterSolved={filterSolved}
+        filterTags={filterTags}
+        addOrRemoveFilterTag={addOrRemoveFilterTag}
       />
       <Modal
         animation={false}

@@ -11,6 +11,7 @@ function TagPill({
   id,
   puzzleId,
   editable = true,
+  onDelete = null,
   onClick = null,
 }) {
   const { id: huntId } = useSelector((state) => state.hunt);
@@ -22,9 +23,9 @@ function TagPill({
   return (
     <Badge pill variant={color} key={name} onClick={onClick} style={style}>
       {name}
-      {editable ? (
+      {(onDelete || editable) ? (
         <span
-          onClick={() =>
+          onClick={onDelete || (() =>
             dispatch(deletePuzzleTag({ huntId, puzzleId, tagId: id })).then(
               (action) => {
                 if (action.payload && action.payload.is_meta) {
@@ -35,7 +36,7 @@ function TagPill({
                   dispatch(fetchPuzzles(huntId));
                 }
               }
-            )
+            ))
           }
           style={{ marginLeft: "5px", cursor: "pointer" }}
         >
