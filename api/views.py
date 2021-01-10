@@ -16,7 +16,7 @@ from .serializers import (
     PuzzleSerializer,
     PuzzleTagSerializer,
 )
-from google_api_lib.google_api_client import GoogleApiClient
+import google_api_lib.task
 
 import logging
 
@@ -40,7 +40,7 @@ class AnswerViewSet(viewsets.ModelViewSet):
     @staticmethod
     def __update_meta_sheets_for_feeder(feeder):
         for meta in feeder.metas.all():
-            GoogleApiClient.update_meta_sheet_feeders(meta)
+            google_api_lib.task.update_meta_sheet_feeders.delay(meta.id)
 
     def get_queryset(self):
         puzzle_id = self.kwargs["puzzle_id"]
@@ -49,7 +49,6 @@ class AnswerViewSet(viewsets.ModelViewSet):
     def create(self, request, **kwargs):
         puzzle = None
         with transaction.atomic():
-            hunt = get_object_or_404(Hunt, pk=self.kwargs["hunt_id"])
             puzzle = get_object_or_404(Puzzle, pk=self.kwargs["puzzle_id"])
             serializer = self.get_serializer(
                 data=request.data, context={"puzzle": puzzle}
@@ -57,7 +56,7 @@ class AnswerViewSet(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             text = serializer.validated_data["text"]
             answer = Answer(text=text, puzzle=puzzle)
-            if hunt.answer_queue_enabled:
+            if puzzle.hunt.answer_queue_enabled:
                 puzzle.status = Puzzle.PENDING
             else:
                 # If no answer queue, we assume that the submitted answer is the
@@ -148,14 +147,30 @@ class PuzzleViewSet(viewsets.ModelViewSet):
                 )
                 serializer.is_valid(raise_exception=True)
                 data = serializer.validated_data
+                new_url = data.get("url", puzzle.url)
+                is_new_url = new_url != puzzle.url
                 puzzle.update_metadata(
                     new_name=data.get("name", puzzle.name),
-                    new_url=data.get("url", puzzle.url),
+                    new_url=new_url,
                     new_is_meta=data.get("is_meta", puzzle.is_meta),
                 )
                 if "status" in data:
                     puzzle.status = data["status"]
                     puzzle.save()
+
+                if is_new_url and google_api_lib.enabled():
+                    transaction.on_commit(
+                        lambda: google_api_lib.task.add_puzzle_link_to_sheet.delay(
+                            new_url, puzzle.sheet
+                        )
+                    )
+                if puzzle.is_meta:
+                    transaction.on_commit(
+                        lambda: google_api_lib.task.update_meta_sheet_feeders.delay(
+                            puzzle.id
+                        )
+                    )
+
         except PuzzleModelError as e:
             return Response(
                 {"detail": str(e)},
@@ -174,11 +189,6 @@ class PuzzleViewSet(viewsets.ModelViewSet):
             name = serializer.validated_data["name"]
             puzzle_url = serializer.validated_data["url"]
             sheet = None
-            google_api_client = GoogleApiClient.getInstance()
-            if google_api_client:
-                sheet = google_api_client.create_google_sheets(name)
-            else:
-                logger.warn("Sheet not created for puzzle %s" % name)
 
             if settings.CHAT_DEFAULT_SERVICE:
                 chat_room = ChatRoom.objects.create(
@@ -189,14 +199,16 @@ class PuzzleViewSet(viewsets.ModelViewSet):
                 logger.warn("Chat room not created for puzzle %s" % name)
                 chat_room = None
 
-            puzzle = serializer.save(sheet=sheet, hunt=hunt, chat_room=chat_room)
+            puzzle = serializer.save(hunt=hunt, chat_room=chat_room)
 
-            if google_api_client:
+            if google_api_lib.enabled():
                 transaction.on_commit(
-                    lambda: google_api_client.add_puzzle_link_to_sheet(
-                        puzzle_url, sheet
+                    lambda: google_api_lib.task.create_google_sheets.delay(
+                        puzzle.id, name, puzzle_url
                     )
                 )
+            else:
+                logger.warn("Sheet not created for puzzle %s" % name)
 
         return Response(PuzzleSerializer(puzzle).data)
 
@@ -206,8 +218,8 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
     serializer_class = PuzzleTagSerializer
 
     def get_queryset(self):
-        hunt_id = self.kwargs["hunt_id"]
-        return PuzzleTag.objects.filter(hunt__id=hunt_id)
+        puzzle_id = self.kwargs["puzzle_id"]
+        return PuzzleTag.objects.filter(puzzles__id=puzzle_id)
 
     def destroy(self, request, pk=None, **kwargs):
         puzzle = None
@@ -238,9 +250,10 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
     def create(self, request, **kwargs):
         puzzle = None
         with transaction.atomic():
-            hunt = get_object_or_404(Hunt, pk=self.kwargs["hunt_id"])
             puzzle = get_object_or_404(Puzzle, pk=self.kwargs["puzzle_id"])
-            serializer = self.get_serializer(data=request.data, context={"hunt": hunt})
+            serializer = self.get_serializer(
+                data=request.data, context={"hunt": puzzle.hunt}
+            )
             serializer.is_valid(raise_exception=True)
             tag_name, tag_color = (
                 serializer.validated_data["name"],

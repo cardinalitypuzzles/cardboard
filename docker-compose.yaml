@@ -9,6 +9,8 @@ services:
       - POSTGRES_USER=smallboard_user
       - POSTGRES_PASSWORD=smallboard_password
       - POSTGRES_DB=smallboard
+  redis:
+    image: redis:alpine
   web:
     build: .
     command: python manage.py runserver 0.0.0.0:8000
@@ -19,12 +21,25 @@ services:
       - 8000:8000
     environment:
       - DATABASE_URL=postgres://smallboard_user:smallboard_password@db/smallboard
+      - REDIS_URL=redis://redis:6379
     env_file:
       - ./.env
     entrypoint:
       - ./docker-entrypoint.sh
     depends_on:
       - db
+      - redis
+  celery:
+    build: .
+    command: celery -A smallboard worker -l info
+    volumes:
+      - .:/usr/src/smallboard/:Z
+    environment:
+      - DATABASE_URL=postgres://smallboard_user:smallboard_password@db/smallboard
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - db
+      - redis
 
 volumes:
   postgres_data:
