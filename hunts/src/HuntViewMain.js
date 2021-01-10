@@ -23,6 +23,7 @@ import Button from "react-bootstrap/Button";
 import Dropdown from "react-bootstrap/Dropdown";
 import Modal from "react-bootstrap/Modal";
 import Alert from "react-bootstrap/Alert";
+import { SOLVE_STATE_FILTER_OPTIONS } from "./solveStateFilter";
 
 const MODAL_COMPONENTS = {
   DELETE_PUZZLE: DeletePuzzleModal,
@@ -49,6 +50,7 @@ const TABLE_COLUMNS = [
     Header: "Status",
     accessor: "status",
     Cell: StatusCell,
+    filter: "solvedFilter",
   },
   {
     Header: "Puzzle",
@@ -107,6 +109,9 @@ export const HuntViewMain = (props) => {
   const hunt = useSelector((state) => state.hunt);
   const alert = useSelector((state) => state.alert);
   const [filter, setFilter] = React.useState("");
+  const [filterSolved, setFilterSolved] = React.useState(
+    SOLVE_STATE_FILTER_OPTIONS.ALL
+  );
   const dispatch = useDispatch();
 
   const updatePuzzleData = () => {
@@ -147,7 +152,50 @@ export const HuntViewMain = (props) => {
           alignItems: "center",
         }}
       >
-        <GlobalFilter globalFilter={filter} setGlobalFilter={setFilter} />
+        <div>
+          <GlobalFilter globalFilter={filter} setGlobalFilter={setFilter} />
+          <span>Show:</span>
+          <label>
+            <input
+              style={{ margin: "0 5px 0 10px" }}
+              type="radio"
+              checked={filterSolved === SOLVE_STATE_FILTER_OPTIONS.ALL}
+              onChange={(evt) => {
+                if (evt.target.checked) {
+                  setFilterSolved(SOLVE_STATE_FILTER_OPTIONS.ALL);
+                }
+              }}
+            ></input>
+            All
+          </label>
+          <label>
+            <input
+              style={{ margin: "0 5px 0 10px" }}
+              type="radio"
+              checked={filterSolved === SOLVE_STATE_FILTER_OPTIONS.PRIORITY}
+              onChange={(evt) => {
+                if (evt.target.checked) {
+                  setFilterSolved(SOLVE_STATE_FILTER_OPTIONS.PRIORITY);
+                }
+              }}
+            ></input>
+            Priority
+          </label>
+          <label>
+            <input
+              style={{ margin: "0 5px 0 10px" }}
+              type="radio"
+              checked={filterSolved === SOLVE_STATE_FILTER_OPTIONS.UNSOLVED}
+              onChange={(evt) => {
+                if (evt.target.checked) {
+                  setFilterSolved(SOLVE_STATE_FILTER_OPTIONS.UNSOLVED);
+                }
+              }}
+            ></input>
+            Unsolved
+          </label>
+        </div>
+
         <Button
           variant="primary"
           size="lg"
@@ -165,7 +213,12 @@ export const HuntViewMain = (props) => {
           Add Puzzle
         </Button>
       </div>
-      <PuzzleTable columns={TABLE_COLUMNS} data={tableData} filter={filter} />
+      <PuzzleTable
+        columns={TABLE_COLUMNS}
+        data={tableData}
+        filter={filter}
+        filterSolved={filterSolved}
+      />
       <Modal
         animation={false}
         show={modal.show}
