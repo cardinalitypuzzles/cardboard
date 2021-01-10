@@ -3,6 +3,7 @@ from django.db import models
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.template.defaultfilters import slugify
+from django.utils import timezone
 from puzzles.models import Puzzle
 
 
@@ -45,3 +46,28 @@ class Hunt(models.Model):
 
     def get_num_metas_solved(self):
         return self.puzzles.filter(Q(status=Puzzle.SOLVED), Q(is_meta=True)).count()
+
+    def get_solves_per_hour(self):
+        current_time = timezone.now()
+        if self.end_time:
+            current_time = min(current_time, self.end_time)
+        if not self.start_time or self.start_time >= current_time:
+            return "N/A"
+
+        solved = self.get_num_solved()
+        hours_elapsed = (current_time - self.start_time).total_seconds() / 3600
+        return "{:.2f}".format(round(solved / hours_elapsed, 2))
+
+    def get_minutes_per_solve(self):
+        solved = self.get_num_solved()
+        if solved == 0:
+            return "N/A"
+
+        current_time = timezone.now()
+        if self.end_time:
+            current_time = min(current_time, self.end_time)
+        if not self.start_time or self.start_time >= current_time:
+            return "N/A"
+
+        minutes_elapsed = (current_time - self.start_time).total_seconds() / 60
+        return "{:.2f}".format(round(minutes_elapsed / solved, 2))

@@ -1,10 +1,13 @@
 from django.test import TestCase
+from django.utils import timezone
 
 from accounts.models import Puzzler
 from .models import Hunt
 from .forms import HuntForm
 from puzzles.models import Puzzle
 from answers.models import Answer
+
+from datetime import timedelta
 
 
 class TestHunt(TestCase):
@@ -31,6 +34,8 @@ class TestHunt(TestCase):
         hunt = Hunt.objects.create(
             name=name,
             url=fake_url,
+            start_time=start,
+            end_time=end,
         )
         self._hunts.append(hunt)
         self._puzzles[name] = []
@@ -76,6 +81,28 @@ class TestHunt(TestCase):
         self.assertEqual(hunt.get_num_unsolved(), 3)
         self.assertEqual(hunt.get_num_unlocked(), 5)
         self.assertEqual(hunt.get_num_metas_solved(), 1)
+
+    def test_time_stats(self):
+        hunt_untimed = self.create_hunt("hunt_untimed")
+        self.assertEqual(hunt_untimed.get_minutes_per_solve(), "N/A")
+        self.assertEqual(hunt_untimed.get_solves_per_hour(), "N/A")
+
+        start_time = timezone.now() - timedelta(hours=1)
+        end_time = start_time + timedelta(days=100)
+        hunt_timed = self.create_hunt("hunt_timed", start=start_time, end=end_time)
+        self.assertEqual(hunt_timed.get_minutes_per_solve(), "N/A")
+        self.assertEqual(hunt_timed.get_solves_per_hour(), "0.00")
+
+        puzzle = self.create_puzzle("test_puzzle", hunt_timed, False)
+        guess = Answer.objects.create(text="guess", puzzle=puzzle)
+        guess.set_status(Answer.CORRECT)
+
+        solve_time = puzzle.solved_time() - hunt_timed.start_time
+        minutes_elapsed = solve_time.total_seconds() / 60
+        mps_string = "{:.2f}".format(round(minutes_elapsed, 2))
+        sph_string = "{:.2f}".format(round(1 / (minutes_elapsed / 60), 2))
+        self.assertEqual(hunt_timed.get_minutes_per_solve(), mps_string)
+        self.assertEqual(hunt_timed.get_solves_per_hour(), sph_string)
 
 
 class HuntFormTests(TestCase):
