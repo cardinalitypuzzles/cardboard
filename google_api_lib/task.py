@@ -13,32 +13,35 @@ from puzzles.models import Puzzle
 logger = logging.getLogger(__name__)
 
 
+# helper function that can be mocked for testing
 def create_google_sheets_helper(self, name):
     req_body = {"name": name}
     # copy template sheet
     file = (
-        self._drive_service.files()
+        self.drive_service()
+        .files()
         .copy(
             fileId=settings.GOOGLE_SHEETS_TEMPLATE_FILE_ID,
             body=req_body,
-            fields="id,webViewLink",
+            fields="id,webViewLink,permissions",
         )
         .execute()
     )
+    return file
 
-    # transfer new sheet ownership back to OG owner, so that scripts can run
-    transfer_permission = {
-        "type": "user",
-        "role": "owner",
-        "emailAddress": self._sheets_owner,
-    }
-    self._drive_service.permissions().create(
+
+# transfer new sheet ownership back to OG owner, so that scripts can run
+@shared_task(base=GoogleApiClientTask, bind=True)
+def transfer_ownership(self, file):
+    permission = next(
+        p for p in file["permissions"] if p["emailAddress"] == self._sheets_owner
+    )
+    self.drive_service().permissions().update(
         fileId=file["id"],
-        body=transfer_permission,
+        permissionId=permission["id"],
+        body={"role": "owner"},
         transferOwnership=True,
     ).execute()
-
-    return file
 
 
 @shared_task(base=GoogleApiClientTask, bind=True)
@@ -48,7 +51,7 @@ def create_google_sheets(self, puzzle_id, name, puzzle_url=None):
     if puzzle_url:
         add_puzzle_link_to_sheet(puzzle_url, sheet_url)
     puzzle = Puzzle.objects.filter(pk=puzzle_id).update(sheet=sheet_url)
-
+    transfer_ownership.delay(response)
     return sheet_url
 
 
@@ -70,7 +73,7 @@ def add_puzzle_link_to_sheet(self, puzzle_url, sheet_url):
             [f'=HYPERLINK("{puzzle_url}", "Puzzle Link")'],
         ]
     }
-    self._sheets_service.spreadsheets().values().update(
+    self.sheets_service().spreadsheets().values().update(
         spreadsheetId=extract_id_from_sheets_url(sheet_url),
         range="A1:B2",
         valueInputOption="USER_ENTERED",
@@ -111,7 +114,8 @@ def update_meta_sheet_feeders(self, puzzle_id):
     # Ref: https://github.com/googleapis/google-api-python-client/blob/master/docs/thread_safety.md
     http = _auth.authorized_http(self._credentials)
     response = (
-        self._sheets_service.spreadsheets()
+        self.sheets_service()
+        .spreadsheets()
         .get(
             spreadsheetId=spreadsheet_id,
             fields="sheets.properties.title,sheets.properties.sheetId",
@@ -136,7 +140,8 @@ def update_meta_sheet_feeders(self, puzzle_id):
         }
     )
     response = (
-        self._sheets_service.spreadsheets()
+        self.sheets_service()
+        .spreadsheets()
         .batchUpdate(
             spreadsheetId=spreadsheet_id,
             body={"requests": requests},
@@ -255,7 +260,7 @@ def update_meta_sheet_feeders(self, puzzle_id):
             },
         ]
     }
-    self._sheets_service.spreadsheets().batchUpdate(
+    self.sheets_service().spreadsheets().batchUpdate(
         spreadsheetId=spreadsheet_id, body=body
     ).execute(http=http)
     logger.info(
