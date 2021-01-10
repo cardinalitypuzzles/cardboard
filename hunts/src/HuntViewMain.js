@@ -176,19 +176,6 @@ export const HuntViewMain = (props) => {
                 }
               }}
             ></input>
-            Priority
-          </label>
-          <label>
-            <input
-              style={{ margin: "0 5px 0 10px" }}
-              type="radio"
-              checked={filterSolved === SOLVE_STATE_FILTER_OPTIONS.UNSOLVED}
-              onChange={(evt) => {
-                if (evt.target.checked) {
-                  setFilterSolved(SOLVE_STATE_FILTER_OPTIONS.UNSOLVED);
-                }
-              }}
-            ></input>
             Unsolved
           </label>
         </div>
