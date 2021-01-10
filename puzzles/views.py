@@ -1,4 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
@@ -22,9 +23,10 @@ def redirect_to_sheet(request, puzzle_pk):
     if puzzle.sheet:
         return HttpResponseRedirect(puzzle.sheet)
     else:
+
         messages.error(
             request,
             f"Sheets does not exist yet for {puzzle.name}.\n"
-            f"Please wait a few minutes. If you have been waiting for a while, please ping @devs",
+            f"Please wait a few minutes. If you have been waiting for a while, please ping @{settings.DISCORD_DEVS_ROLE}",
         )
         return redirect("/", {"hunt_pk": puzzle.hunt.pk})
