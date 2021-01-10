@@ -235,7 +235,7 @@ export const selectAllTags = createSelector(
   }
 );
 
-export const getNumUnlocked = createSelector(
+export const selectNumUnlocked = createSelector(
   [puzzlesSelectors.selectAll],
   (puzzles) => {
     const count = puzzles.reduce((count, puzzle) => count + 1, 0);
@@ -243,7 +243,7 @@ export const getNumUnlocked = createSelector(
   }
 );
 
-export const getNumSolved = createSelector(
+export const selectNumSolved = createSelector(
   [puzzlesSelectors.selectAll],
   (puzzles) => {
     const count = puzzles.reduce(
@@ -254,7 +254,7 @@ export const getNumSolved = createSelector(
   }
 );
 
-export const getNumUnsolved = createSelector(
+export const selectNumUnsolved = createSelector(
   [puzzlesSelectors.selectAll],
   (puzzles) => {
     const count = puzzles.reduce(
@@ -265,7 +265,7 @@ export const getNumUnsolved = createSelector(
   }
 );
 
-export const getNumMetasSolved = createSelector(
+export const selectNumMetasSolved = createSelector(
   [puzzlesSelectors.selectAll],
   (puzzles) => {
     const count = puzzles.reduce(

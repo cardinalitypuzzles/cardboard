@@ -1,15 +1,23 @@
 import React from "react";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  selectNumUnlocked,
+  selectNumSolved,
+  selectNumUnsolved,
+  selectNumMetasSolved,
+} from "./puzzlesSlice";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 
-function HuntViewHeader({
-  hunt,
-  numMetasSolved,
-  numSolved,
-  numUnsolved,
-  numUnlocked,
-}) {
+function HuntViewHeader({ hunt }) {
+  const dispatch = useDispatch();
+
+  const numUnlocked = useSelector(selectNumUnlocked);
+  const numSolved = useSelector(selectNumSolved);
+  const numUnsolved = useSelector(selectNumUnsolved);
+  const numMetasSolved = useSelector(selectNumMetasSolved);
+
   return (
     <div>
       <div
