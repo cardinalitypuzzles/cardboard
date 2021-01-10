@@ -72,8 +72,8 @@ class AnswerViewSet(viewsets.ModelViewSet):
                         msg = f"{puzzle.name} has been solved with {answer.text}!"
                         puzzle.chat_room.get_service().announce(msg)
                         puzzle.chat_room.send_message(msg)
-                    except:
-                        logger.warn("Chat operations failed.")
+                    except Exception as e:
+                        logger.warn(f"Chat operations failed with error: {e}")
                 answer.save()
                 transaction.on_commit(
                     lambda: AnswerViewSet._maybe_update_meta_sheets_for_feeder(puzzle)
@@ -103,8 +103,8 @@ class AnswerViewSet(viewsets.ModelViewSet):
                 if puzzle.chat_room:
                     try:
                         puzzle.chat_room.unarchive_channels()
-                    except:
-                        logger.warn("Chat operations failed.")
+                    except Exception as e:
+                        logger.warn(f"Chat operations failed with error: {e}")
                 if puzzle.sheet and google_api_lib.enabled():
                     transaction.on_commit(
                         lambda: google_api_lib.task.rename_sheet.delay(
@@ -229,8 +229,8 @@ class PuzzleViewSet(viewsets.ModelViewSet):
                     msg = f"{name} has been unlocked!"
                     chat_room.get_service().announce(msg)
                     chat_room.send_message(msg)
-                except:
-                    logger.warn("Chat operations failed.")
+                except Exception as e:
+                    logger.warn(f"Chat operations failed with error: {e}")
             else:
                 logger.warn("Chat room not created for puzzle %s" % name)
                 chat_room = None
