@@ -57,7 +57,7 @@ def stats(request, hunt_slug):
 
     return render(request, "stats.html", context=context)
 
-  
+
 class LastAccessedHuntRedirectView(LoginRequiredMixin, RedirectView):
     login_url = "/"
     pattern_name = "hunts:all_puzzles_react"

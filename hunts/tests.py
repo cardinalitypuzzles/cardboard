@@ -13,7 +13,7 @@ class TestHunt(TestCase):
             username="test", email="test@ing.com", password="testingpwd"
         )
         self.client.login(username="test", password="testingpwd")
-        
+
         self._suffix = 0
         self._hunts = []
         self._puzzles = {}
@@ -76,7 +76,7 @@ class TestHunt(TestCase):
         self.assertEqual(hunt.get_num_unsolved(), 3)
         self.assertEqual(hunt.get_num_unlocked(), 5)
         self.assertEqual(hunt.get_num_metas_solved(), 1)
-        
+
 
 class HuntFormTests(TestCase):
     def setUp(self):
@@ -84,7 +84,7 @@ class HuntFormTests(TestCase):
             username="test", email="test@ing.com", password="testingpwd"
         )
         self.client.login(username="test", password="testingpwd")
-  
+
     def tearDown(self):
         self._user.delete()
 
