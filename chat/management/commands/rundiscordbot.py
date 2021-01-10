@@ -34,7 +34,7 @@ async def handle_subcommand(message, subcommand):
         "unsolved": send_puzzles_unsolved,
         "solved": send_puzzles_solved,
         "stuck": send_puzzles_stuck,
-    }.get(subcommand)
+    }.get(subcommand, send_help)
     await handle(message)
 
 
@@ -71,6 +71,14 @@ async def send_puzzles(message, puzzles, title):
         lines.append(line)
     print(f"lines: {lines}")
     embed.add_field(name=title, value="\n".join(lines))
+    await message.channel.send(embed=embed)
+
+
+async def send_help(message):
+    print("Sending help message")
+    embed = discord.Embed(title="Cardi-P", description="Ahoy mateys, puzzle bot here!")
+    commands = ["!puzzles", "!puzzles solved", "!puzzles stuck"]
+    embed.add_field(name="Commands", value=", ".join(f"`{c}`" for c in commands))
     await message.channel.send(embed=embed)
 
 
