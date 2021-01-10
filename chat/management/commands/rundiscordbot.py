@@ -79,7 +79,18 @@ async def send_puzzles(message, puzzles, title):
             line += f" ([sheet]({p.sheet}))"
         lines.append(line)
     print(f"lines: {lines}")
-    embed.add_field(name=title, value="\n".join(lines))
+    chunk_lines = []
+    chunk_length = 0
+    for line in lines:
+        line_length = len(line)
+        if (chunk_length + line_length) >= 1024:
+            embed.add_field(name=title, value="\n".join(chunk_lines))
+            chunk_lines = []
+            chunk_length = 0
+        chunk_lines.append(line)
+        chunk_length += line_length
+    if chunk_lines:
+        embed.add_field(name=title, value="\n".join(chunk_lines))
     await message.channel.send(embed=embed)
 
 
