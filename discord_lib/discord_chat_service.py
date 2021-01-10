@@ -1,3 +1,4 @@
+from collections import defaultdict
 from disco.api.client import APIClient
 from disco.types.channel import ChannelType
 
@@ -10,6 +11,8 @@ class DiscordChatService(ChatService):
     This interface implementation should be registered in Django settings under DISCORD
 
     """
+
+    MAX_CHANNELS_PER_CATEGORY = 50
 
     def __init__(self, settings, client=None):
         """Accepts Django settings object and optional Discord APIClient (for testing)."""
@@ -46,11 +49,36 @@ class DiscordChatService(ChatService):
         if int(channel_id) in channels_by_id:
             self._client.channels_delete(int(channel_id))
 
+    def get_or_create_category(self, category_name):
+        """
+        Returns category that has fewer than 50 children channels. If none
+        exists, a new one is created.
+        """
+        channels_by_id = self._client.guilds_channels_list(self._guild_id)
+        num_children_per_parent = defaultdict(int)
+        category_channels = []
+        for c in channels_by_id.values():
+            if c.name == category_name and c.type == ChannelType.GUILD_CATEGORY:
+                category_channels.append(c)
+            if c.parent_id:
+                num_children_per_parent[c.parent_id] += 1
+
+        for parent in category_channels:
+            if num_children_per_parent[parent.id] < self.MAX_CHANNELS_PER_CATEGORY:
+                return parent
+
+        return self._client.guilds_channels_create(
+            self._guild_id,
+            ChannelType.GUILD_CATEGORY,
+            category_name,
+            parent_id=None,
+        )
+
     def create_channel(self, name, chan_type=ChannelType.GUILD_TEXT, parent_name=None):
         parent_id = None
         if parent_name:
             # Use a Discord category as the parent folder for this channel.
-            parent = self.get_or_create_channel(parent_name, ChannelType.GUILD_CATEGORY)
+            parent = self.get_or_create_category(parent_name)
             parent_id = parent.id
         channel = self._client.guilds_channels_create(
             self._guild_id,
@@ -61,17 +89,11 @@ class DiscordChatService(ChatService):
         return channel
 
     def archive_channel(self, channel_id):
-        # TODO(asdfryan): We need to shard archive categories (and potentially puzzle category as well).
-        parent = self.get_or_create_channel(
-            self._archived_category_name, ChannelType.GUILD_CATEGORY
-        )
+        parent = self.get_or_create_category(self._archived_category_name)
         self._client.channels_modify(int(channel_id), parent_id=parent.id)
 
     def unarchive_channel(self, channel_id):
-        # TODO(asdfryan): We need to shard archive categories (and potentially puzzle category as well).
-        parent = self.get_or_create_channel(
-            self._puzzle_category_name, ChannelType.GUILD_CATEGORY
-        )
+        parent = self.get_or_create_category(self._puzzle_category_name)
         self._client.channels_modify(int(channel_id), parent_id=parent.id)
 
     def get_channels(self, name, chan_type=ChannelType.GUILD_TEXT):
