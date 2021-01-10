@@ -185,6 +185,11 @@ DISCORD_PUZZLE_ANNOUNCEMENTS_CHANNEL = os.environ.get(
 )
 DISCORD_DEVS_ROLE = os.environ.get("DISCORD_DEVS_ROLE", "dev")
 
+# Discord Bot settings
+
+# TODO(akirabaruah): This is a hack. Find a better way to set the bot's hunt.
+BOT_ACTIVE_HUNT = os.environ.get("BOT_ACTIVE_HUNT", None)
+
 # Google Drive API
 try:
     GOOGLE_API_AUTHN_INFO = {
