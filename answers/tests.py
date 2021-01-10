@@ -39,9 +39,7 @@ class TestAnswers(TestCase):
 
         guess = "a!@#1$%^&*() b  \t C \n d[2]{}\\'\"/?<>,. e~`"
         self.client.post(
-            "/api/v1/hunts/{}/puzzles/{}/answers".format(
-                self._test_hunt.pk, self._puzzle.pk
-            ),
+            "/api/v1/puzzles/{}/answers".format(self._puzzle.pk),
             {"text": guess},
         )
 

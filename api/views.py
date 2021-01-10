@@ -49,7 +49,6 @@ class AnswerViewSet(viewsets.ModelViewSet):
     def create(self, request, **kwargs):
         puzzle = None
         with transaction.atomic():
-            hunt = get_object_or_404(Hunt, pk=self.kwargs["hunt_id"])
             puzzle = get_object_or_404(Puzzle, pk=self.kwargs["puzzle_id"])
             serializer = self.get_serializer(
                 data=request.data, context={"puzzle": puzzle}
@@ -57,7 +56,7 @@ class AnswerViewSet(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             text = serializer.validated_data["text"]
             answer = Answer(text=text, puzzle=puzzle)
-            if hunt.answer_queue_enabled:
+            if puzzle.hunt.answer_queue_enabled:
                 puzzle.status = Puzzle.PENDING
             else:
                 # If no answer queue, we assume that the submitted answer is the
@@ -219,8 +218,8 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
     serializer_class = PuzzleTagSerializer
 
     def get_queryset(self):
-        hunt_id = self.kwargs["hunt_id"]
-        return PuzzleTag.objects.filter(hunt__id=hunt_id)
+        puzzle_id = self.kwargs["puzzle_id"]
+        return PuzzleTag.objects.filter(puzzles__id=puzzle_id)
 
     def destroy(self, request, pk=None, **kwargs):
         puzzle = None
@@ -251,9 +250,10 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
     def create(self, request, **kwargs):
         puzzle = None
         with transaction.atomic():
-            hunt = get_object_or_404(Hunt, pk=self.kwargs["hunt_id"])
             puzzle = get_object_or_404(Puzzle, pk=self.kwargs["puzzle_id"])
-            serializer = self.get_serializer(data=request.data, context={"hunt": hunt})
+            serializer = self.get_serializer(
+                data=request.data, context={"hunt": puzzle.hunt}
+            )
             serializer.is_valid(raise_exception=True)
             tag_name, tag_color = (
                 serializer.validated_data["name"],
