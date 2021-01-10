@@ -83,15 +83,6 @@ export const addPuzzleTag = createAsyncThunk(
   }
 );
 
-function priority(row) {
-  if (row.tags.some((x) => x.name === "HIGH PRIORITY")) {
-    return -1;
-  } else if (row.tags.some((x) => x.name === "LOW PRIORITY")) {
-    return 1;
-  }
-  return 0;
-}
-
 function puzzleComparator(a, b) {
   // Solved puzzles should appear below unsolved ones
   if (a.status == "SOLVED" && b.status != "SOLVED") {
@@ -106,8 +97,16 @@ function puzzleComparator(a, b) {
     return 1;
   }
   // High-priority before untagged before low-priority
-  if (priority(a) != priority(b)) {
-    return priority(a) - priority(b);
+  function priority(row) {
+    if (row.tags.some((x) => x.name === "HIGH PRIORITY")) {
+      return 1;
+    } else if (row.tags.some((x) => x.name === "LOW PRIORITY")) {
+      return -1;
+    }
+    return 0;
+  }
+  if (priority(b) != priority(a)) {
+    return priority(b) - priority(a);
   }
   // Newer puzzles before old ones
   // TODO: once creation times are added to puzzles, use those instead
