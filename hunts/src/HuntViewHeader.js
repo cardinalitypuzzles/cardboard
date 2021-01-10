@@ -34,19 +34,15 @@ function HuntViewHeader({
         </Row>
         <Row className="text-center font-weight-bold">
           <Col xs={1} className="text-primary">
-            {hunt.num_metas_solved}
             {numMetasSolved}
           </Col>
           <Col xs={1} className="text-success">
-            {hunt.num_solved}
             {numSolved}
           </Col>
           <Col xs={1} className="text-danger">
-            {hunt.num_unsolved}
             {numUnsolved}
           </Col>
           <Col xs={1} className="text-secondary">
-            {hunt.num_unlocked}
             {numUnlocked}
           </Col>
         </Row>
