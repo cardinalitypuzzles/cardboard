@@ -37,6 +37,8 @@ services:
     environment:
       - DATABASE_URL=postgres://smallboard_user:smallboard_password@db/smallboard
       - REDIS_URL=redis://redis:6379
+    env_file:
+      - ./.env
     depends_on:
       - db
       - redis
