@@ -86,7 +86,8 @@ def update_meta_sheets_pre_delete(sender, instance, **kwargs):
         for meta in metas:
             google_api_lib.task.update_meta_sheet_feeders.delay(meta.id)
 
-    transaction.on_commit(update_metas)
+    if google_api_lib.enabled():
+        transaction.on_commit(update_metas)
 
 
 @receiver(m2m_changed, sender=Puzzle.metas.through)
@@ -98,4 +99,5 @@ def update_meta_sheets_m2m(sender, instance, action, reverse, model, pk_set, **k
                 meta = Puzzle.objects.get(pk=pk)
                 google_api_lib.task.update_meta_sheet_feeders.delay(meta.id)
 
-        transaction.on_commit(update_metas)
+        if google_api_lib.enabled():
+            transaction.on_commit(update_metas)

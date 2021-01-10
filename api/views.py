@@ -39,9 +39,10 @@ class AnswerViewSet(viewsets.ModelViewSet):
     serializer_class = AnswerSerializer
 
     @staticmethod
-    def __update_meta_sheets_for_feeder(feeder):
-        for meta in feeder.metas.all():
-            google_api_lib.task.update_meta_sheet_feeders.delay(meta.id)
+    def _maybe_update_meta_sheets_for_feeder(feeder):
+        if google_api_lib.enabled():
+            for meta in feeder.metas.all():
+                google_api_lib.task.update_meta_sheet_feeders.delay(meta.id)
 
     def get_queryset(self):
         puzzle_id = self.kwargs["puzzle_id"]
@@ -72,7 +73,7 @@ class AnswerViewSet(viewsets.ModelViewSet):
                     puzzle.chat_room.send_message(msg)
                 answer.save()
                 transaction.on_commit(
-                    lambda: AnswerViewSet.__update_meta_sheets_for_feeder(puzzle)
+                    lambda: AnswerViewSet._maybe_update_meta_sheets_for_feeder(puzzle)
                 )
             puzzle.save()
 
@@ -95,7 +96,7 @@ class AnswerViewSet(viewsets.ModelViewSet):
                 puzzle.save()
 
             transaction.on_commit(
-                lambda: AnswerViewSet.__update_meta_sheets_for_feeder(puzzle)
+                lambda: AnswerViewSet._maybe_update_meta_sheets_for_feeder(puzzle)
             )
 
         return Response(PuzzleSerializer(puzzle).data)
@@ -105,7 +106,7 @@ class AnswerViewSet(viewsets.ModelViewSet):
 
         puzzle = get_object_or_404(Puzzle, pk=self.kwargs["puzzle_id"])
         transaction.on_commit(
-            lambda: AnswerViewSet.__update_meta_sheets_for_feeder(puzzle)
+            lambda: AnswerViewSet._maybe_update_meta_sheets_for_feeder(puzzle)
         )
 
         return Response(PuzzleSerializer(puzzle).data)
@@ -174,7 +175,7 @@ class PuzzleViewSet(viewsets.ModelViewSet):
                             new_url, puzzle.sheet
                         )
                     )
-                if puzzle.is_meta:
+                if puzzle.is_meta and google_api_lib.enabled():
                     transaction.on_commit(
                         lambda: google_api_lib.task.update_meta_sheet_feeders.delay(
                             puzzle.id

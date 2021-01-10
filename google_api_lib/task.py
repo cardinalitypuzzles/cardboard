@@ -88,13 +88,8 @@ def update_meta_sheet_feeders(self, puzzle_id):
     latest feeder puzzle info
     """
     meta_puzzle = Puzzle.objects.get(pk=puzzle_id)
-    if not meta_puzzle.is_meta:
+    if not meta_puzzle.is_meta or not meta_puzzle.sheet:
         return
-
-    # TODO(erwa): Use work queue and separate process for running tasks.
-    # See https://github.com/cardinalitypuzzles/smallboard/pull/140
-    # for discussion. Need to use locking to prevent race conditions
-    # if there is more than one worker thread/process.
 
     logger.info(
         "Starting updating the meta sheet for '%s' " "with feeder puzzles" % meta_puzzle
