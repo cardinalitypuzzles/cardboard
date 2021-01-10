@@ -1,10 +1,16 @@
 from .test_helpers import SmallboardTestCase
+from django.test import override_settings
 from rest_framework import status
 from puzzles.models import Puzzle, PuzzleTag
 
 TEST_URL = "https://smallboard.test/"
 
 
+# Disable all chat features for the purposes of this unit test.
+@override_settings(
+    CHAT_DEFAULT_SERVICE=None,
+    CHAT_SERVICES={},
+)
 class ApiTests(SmallboardTestCase):
     def test_get_hunt(self):
         response = self.get_hunt()
