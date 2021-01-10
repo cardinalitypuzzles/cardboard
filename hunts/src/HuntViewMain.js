@@ -19,6 +19,9 @@ import AddPuzzleModal from "./AddPuzzleModal";
 import SubmitAnswerModal from "./SubmitAnswerModal";
 import EditPuzzleTagsModal from "./EditPuzzleTagsModal";
 import useInterval from "@use-it/interval";
+import Container from "react-bootstrap/Container";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
 import Dropdown from "react-bootstrap/Dropdown";
 import Modal from "react-bootstrap/Modal";
@@ -112,12 +115,16 @@ export const HuntViewMain = (props) => {
   const updatePuzzleData = () => {
     dispatch(fetchPuzzles(props.huntId));
   };
+  const updateHuntData = () => {
+    dispatch(fetchHunt(props.huntId));
+  }
 
   useInterval(updatePuzzleData, 10 * 1000);
+  useInterval(updateHuntData, 10 * 1000);
 
   const ModalComponent = MODAL_COMPONENTS[modal.type];
   React.useEffect(() => {
-    dispatch(fetchHunt(props.huntId));
+    updateHuntData();
     updatePuzzleData();
   }, [props.huntId]);
 
@@ -149,6 +156,20 @@ export const HuntViewMain = (props) => {
         <h1>{hunt.name} - All Puzzles</h1>
         <a href={"stats"}>Hunt Statistics</a>
       </div>
+      <Container fluid>
+        <Row className="text-center font-weight-bold small">
+          <Col xs={1} className="text-nowrap">Metas Solved</Col>
+          <Col xs={1}>Solved</Col>
+          <Col xs={1}>Unsolved</Col>
+          <Col xs={1}>Unlocked</Col>
+        </Row>
+        <Row className="text-center font-weight-bold">
+          <Col xs={1} className="text-primary">{hunt.num_metas_solved}</Col>
+          <Col xs={1} className="text-success">{hunt.num_solved}</Col>
+          <Col xs={1} className="text-danger">{hunt.num_unsolved}</Col>
+          <Col xs={1} className="text-secondary">{hunt.num_unlocked}</Col>
+        </Row>
+      </Container>
       <div
         style={{
           display: "flex",

@@ -4,7 +4,6 @@ from accounts.models import Puzzler
 from .models import Hunt
 from puzzles.models import Puzzle
 from answers.models import Answer
-from .stats_utils import *
 
 
 class TestHunt(TestCase):
@@ -72,7 +71,7 @@ class TestHunt(TestCase):
         self.assertTrue(meta.is_solved())
         self.assertFalse(feeder.is_solved())
 
-        self.assertEqual(get_num_solved(hunt), 2)
-        self.assertEqual(get_num_unsolved(hunt), 3)
-        self.assertEqual(get_num_unlocked_puzzles(hunt), 5)
-        self.assertEqual(get_num_metas_solved(hunt), 1)
+        self.assertEqual(hunt.get_num_solved(), 2)
+        self.assertEqual(hunt.get_num_unsolved(), 3)
+        self.assertEqual(hunt.get_num_unlocked(), 5)
+        self.assertEqual(hunt.get_num_metas_solved(), 1)

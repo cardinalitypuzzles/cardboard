@@ -11,9 +11,35 @@ import re
 
 
 class HuntSerializer(serializers.ModelSerializer):
+    num_solved = serializers.SerializerMethodField()
+    num_unsolved = serializers.SerializerMethodField()
+    num_unlocked = serializers.SerializerMethodField()
+    num_metas_solved = serializers.SerializerMethodField()
+
+    def get_num_solved(self, obj):
+        return obj.get_num_solved()
+
+    def get_num_unsolved(self, obj):
+        return obj.get_num_unsolved()
+
+    def get_num_unlocked(self, obj):
+        return obj.get_num_unlocked()
+
+    def get_num_metas_solved(self, obj):
+        return obj.get_num_metas_solved()
+
     class Meta:
         model = Hunt
-        fields = ("id", "name", "active", "url")
+        fields = (
+            "id",
+            "name",
+            "active",
+            "url",
+            "num_solved",
+            "num_unsolved",
+            "num_unlocked",
+            "num_metas_solved",
+        )
 
 
 class CurrentHuntDefault:

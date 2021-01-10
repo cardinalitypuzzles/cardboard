@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.template.defaultfilters import slugify
 from puzzles.models import Puzzle
@@ -29,3 +30,15 @@ class Hunt(models.Model):
             user.last_accessed_hunt = hunt
             user.save(update_fields=["last_accessed_hunt"])
         return hunt
+
+    def get_num_solved(self):
+        return self.puzzles.filter(status=Puzzle.SOLVED).count()
+
+    def get_num_unsolved(self):
+        return self.puzzles.filter(~Q(status=Puzzle.SOLVED)).count()
+
+    def get_num_unlocked(self):
+        return self.puzzles.count()
+
+    def get_num_metas_solved(self):
+        return self.puzzles.filter(Q(status=Puzzle.SOLVED), Q(is_meta=True)).count()
