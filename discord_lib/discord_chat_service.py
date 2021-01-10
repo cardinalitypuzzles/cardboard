@@ -50,7 +50,7 @@ class DiscordChatService(ChatService):
 
     def get_or_create_category(self, category_name):
         """
-        Returns category that has fewer than 50 children channels. If none
+        Returns category that has fewer than _max_channels_per_category. If none
         exists, a new one is created.
         """
         channels_by_id = self._client.guilds_channels_list(self._guild_id)
