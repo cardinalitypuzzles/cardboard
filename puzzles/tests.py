@@ -140,3 +140,11 @@ class TestPuzzle(APITestCase):
         puzzle = self.create_puzzle("test_redirects", False)
         response = self.client.get(f"/puzzles/sheets/{puzzle.pk}", follow=False)
         self.assertEqual(response["Location"], puzzle.sheet)
+
+        response = self.client.get(f"/puzzles/sheets/0", follow=False)
+        self.assertEqual(response["Location"], "/")
+
+        Puzzle.objects.select_for_update().filter(id=puzzle.pk).update(sheet=None)
+
+        response = self.client.get(f"/puzzles/sheets/{puzzle.pk}", follow=False)
+        self.assertEqual(response["Location"], "/")
