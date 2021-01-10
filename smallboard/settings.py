@@ -180,7 +180,9 @@ DISCORD_GUILD_ID = os.environ.get("DISCORD_GUILD_ID", None)
 # Category (folder) to contain generated channels.
 DISCORD_PUZZLE_CATEGORY = os.environ.get("DISCORD_PUZZLE_CATEGORY", "puzzles")
 DISCORD_ARCHIVE_CATEGORY = os.environ.get("DISCORD_ARCHIVE_CATEGORY", "archive")
-DISCORD_PUZZLE_ANNOUNCEMENTS_CHANNEL = os.environ.get("DISCORD_PUZZLE_ANNOUNCEMENTS_CHANNEL", None)
+DISCORD_PUZZLE_ANNOUNCEMENTS_CHANNEL = os.environ.get(
+    "DISCORD_PUZZLE_ANNOUNCEMENTS_CHANNEL", None
+)
 
 # Google Drive API
 try:
