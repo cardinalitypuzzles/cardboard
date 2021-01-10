@@ -8,6 +8,7 @@ import { hideAlert } from "./alertSlice";
 import { PuzzleTable } from "./puzzle-table";
 import AnswerCell from "./AnswerCell";
 import NameCell from "./NameCell";
+import HuntViewHeader from "./HuntViewHeader";
 import GlobalFilter from "./GlobalFilter";
 import StatusCell from "./StatusCell";
 import DeleteAnswerModal from "./DeleteAnswerModal";
@@ -19,9 +20,6 @@ import AddPuzzleModal from "./AddPuzzleModal";
 import SubmitAnswerModal from "./SubmitAnswerModal";
 import EditPuzzleTagsModal from "./EditPuzzleTagsModal";
 import useInterval from "@use-it/interval";
-import Container from "react-bootstrap/Container";
-import Row from "react-bootstrap/Row";
-import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
 import Dropdown from "react-bootstrap/Dropdown";
 import Modal from "react-bootstrap/Modal";
@@ -145,41 +143,7 @@ export const HuntViewMain = (props) => {
       >
         {alert.text}
       </Alert>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          padding: "2px",
-          alignItems: "center",
-        }}
-      >
-        <h1>{hunt.name} - All Puzzles</h1>
-        <a href={"stats"}>Hunt Statistics</a>
-      </div>
-      <Container fluid>
-        <Row className="text-center font-weight-bold small">
-          <Col xs={1} className="text-nowrap">
-            Metas Solved
-          </Col>
-          <Col xs={1}>Solved</Col>
-          <Col xs={1}>Unsolved</Col>
-          <Col xs={1}>Unlocked</Col>
-        </Row>
-        <Row className="text-center font-weight-bold">
-          <Col xs={1} className="text-primary">
-            {hunt.num_metas_solved}
-          </Col>
-          <Col xs={1} className="text-success">
-            {hunt.num_solved}
-          </Col>
-          <Col xs={1} className="text-danger">
-            {hunt.num_unsolved}
-          </Col>
-          <Col xs={1} className="text-secondary">
-            {hunt.num_unlocked}
-          </Col>
-        </Row>
-      </Container>
+      <HuntViewHeader hunt={hunt} />
       <div
         style={{
           display: "flex",
