@@ -3,5 +3,5 @@ from .views import redirect_to_sheet
 
 app_name = "puzzles"
 urlpatterns = [
-    path("sheets/<int:puzzle_pk>", redirect_to_sheet, name="puzzle_sheet_redirect"),
+    path("s/<int:puzzle_pk>", redirect_to_sheet, name="puzzle_sheet_redirect"),
 ]
