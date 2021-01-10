@@ -1,7 +1,14 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { useSelector, useDispatch } from "react-redux";
-import { fetchPuzzles, selectPuzzleTableData } from "./puzzlesSlice";
+import {
+  fetchPuzzles,
+  selectPuzzleTableData,
+  getNumUnlocked,
+  getNumSolved,
+  getNumUnsolved,
+  getNumMetasSolved,
+} from "./puzzlesSlice";
 import { fetchHunt } from "./huntSlice";
 import { showModal, hideModal } from "./modalSlice";
 import { hideAlert } from "./alertSlice";
@@ -110,6 +117,11 @@ export const HuntViewMain = (props) => {
   const [filter, setFilter] = React.useState("");
   const dispatch = useDispatch();
 
+  const numUnlocked = useSelector(getNumUnlocked);
+  const numSolved = useSelector(getNumSolved);
+  const numUnsolved = useSelector(getNumUnsolved);
+  const numMetasSolved = useSelector(getNumMetasSolved);
+
   const updatePuzzleData = () => {
     dispatch(fetchPuzzles(props.huntId));
   };
@@ -143,7 +155,13 @@ export const HuntViewMain = (props) => {
       >
         {alert.text}
       </Alert>
-      <HuntViewHeader hunt={hunt} />
+      <HuntViewHeader
+        hunt={hunt}
+        numMetasSolved={numMetasSolved}
+        numSolved={numSolved}
+        numUnsolved={numUnsolved}
+        numUnlocked={numUnlocked}
+      />
       <div
         style={{
           display: "flex",

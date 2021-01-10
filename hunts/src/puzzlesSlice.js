@@ -235,6 +235,48 @@ export const selectAllTags = createSelector(
   }
 );
 
+export const getNumUnlocked = createSelector(
+  [puzzlesSelectors.selectAll],
+  (puzzles) => {
+    const count = puzzles.reduce((count, puzzle) => count + 1, 0);
+    return count;
+  }
+);
+
+export const getNumSolved = createSelector(
+  [puzzlesSelectors.selectAll],
+  (puzzles) => {
+    const count = puzzles.reduce(
+      (count, puzzle) => (puzzle.status == "SOLVED" ? count + 1 : count),
+      0
+    );
+    return count;
+  }
+);
+
+export const getNumUnsolved = createSelector(
+  [puzzlesSelectors.selectAll],
+  (puzzles) => {
+    const count = puzzles.reduce(
+      (count, puzzle) => (puzzle.status != "SOLVED" ? count + 1 : count),
+      0
+    );
+    return count;
+  }
+);
+
+export const getNumMetasSolved = createSelector(
+  [puzzlesSelectors.selectAll],
+  (puzzles) => {
+    const count = puzzles.reduce(
+      (count, puzzle) =>
+        puzzle.status == "SOLVED" && puzzle.is_meta ? count + 1 : count,
+      0
+    );
+    return count;
+  }
+);
+
 export const { selectById: selectPuzzleById } = puzzlesSelectors;
 export const { reducers } = puzzlesSlice.actions;
 
