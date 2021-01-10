@@ -59,7 +59,7 @@ function updatePuzzle(huntId, puzzleId, data) {
   }).then(handleErrors);
 }
 
-function addAnswer(huntId, puzzleId, data) {
+function addAnswer(puzzleId, data) {
   const answerApiUrl = `${API_PREFIX}/puzzles/${puzzleId}/answers`;
   console.log(data);
   return fetch(answerApiUrl, {
@@ -72,7 +72,7 @@ function addAnswer(huntId, puzzleId, data) {
   }).then(handleErrors);
 }
 
-function deleteAnswer(huntId, puzzleId, answerId) {
+function deleteAnswer(puzzleId, answerId) {
   const answerApiUrl = `${API_PREFIX}/puzzles/${puzzleId}/answers/${answerId}`;
   return fetch(answerApiUrl, {
     method: "DELETE",
@@ -82,7 +82,7 @@ function deleteAnswer(huntId, puzzleId, answerId) {
   }).then(handleErrors);
 }
 
-function editAnswer(huntId, puzzleId, answerId, data) {
+function editAnswer(puzzleId, answerId, data) {
   const answerApiUrl = `${API_PREFIX}/puzzles/${puzzleId}/answers/${answerId}`;
   return fetch(answerApiUrl, {
     method: "PATCH",
@@ -99,7 +99,7 @@ function getHunt(huntId) {
   return fetch(huntApiUrl).then(handleErrors);
 }
 
-function deletePuzzleTag(huntId, puzzleId, tagId) {
+function deletePuzzleTag(puzzleId, tagId) {
   const tagApiUrl = `${API_PREFIX}/puzzles/${puzzleId}/tags/${tagId}`;
   return fetch(tagApiUrl, {
     method: "DELETE",
@@ -107,7 +107,7 @@ function deletePuzzleTag(huntId, puzzleId, tagId) {
   }).then(handleErrors);
 }
 
-function addPuzzleTag(huntId, puzzleId, data) {
+function addPuzzleTag(puzzleId, data) {
   const tagsApiUrl = `${API_PREFIX}/puzzles/${puzzleId}/tags`;
   return fetch(tagsApiUrl, {
     method: "POST",

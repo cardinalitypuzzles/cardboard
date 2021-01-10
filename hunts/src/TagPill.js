@@ -25,7 +25,7 @@ function TagPill({
       {editable ? (
         <span
           onClick={() =>
-            dispatch(deletePuzzleTag({ huntId, puzzleId, tagId: id })).then(
+            dispatch(deletePuzzleTag({ puzzleId, tagId: id })).then(
               (action) => {
                 if (action.payload && action.payload.is_meta) {
                   // Deleting meta tags may affect the state of other puzzles
