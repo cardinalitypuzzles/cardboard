@@ -22,6 +22,10 @@ class ApiTests(SmallboardTestCase):
                 "name": self._hunt.name,
                 "url": self._hunt.url,
                 "active": self._hunt.active,
+                "num_solved": 0,
+                "num_unsolved": 0,
+                "num_unlocked": 0,
+                "num_metas_solved": 0,
             },
         )
 
