@@ -9,6 +9,7 @@ import {
 import { matchSorter } from "match-sorter";
 import Table from "react-bootstrap/Table";
 import { filterSolvedPuzzlesfn } from "./solveStateFilter";
+import { filterPuzzlesByTagfn } from "./tagFilter";
 
 function textFilterFn(rows, id, filterValue) {
   if (!filterValue || !filterValue.length) {
@@ -44,11 +45,12 @@ function rowClassName(row) {
 }
 
 export const PuzzleTable = React.memo(
-  ({ columns, data, filter, filterSolved }) => {
+  ({ columns, data, filter, filterSolved, filterTags, addOrRemoveFilterTag }) => {
     const filterTypes = React.useMemo(
       () => ({
         globalFilter: textFilterFn,
         solvedFilter: filterSolvedPuzzlesfn,
+        tagsFilter: filterPuzzlesByTagfn
       }),
       []
     );
@@ -99,6 +101,10 @@ export const PuzzleTable = React.memo(
       setFilter("status", filterSolved);
     }, [filterSolved]);
 
+    React.useEffect(() => {
+      setFilter("tags", filterTags);
+    }, [filterTags]);
+
     return (
       <>
         <Table size="sm" {...getTableProps()}>
@@ -116,6 +122,7 @@ export const PuzzleTable = React.memo(
           <tbody {...getTableBodyProps()}>
             {rows.map((row, i) => {
               prepareRow(row);
+              row.original.addOrRemoveFilterTag = addOrRemoveFilterTag;
               return (
                 <tr className={rowClassName(row)} {...row.getRowProps()}>
                   {row.cells.map((cell) => {
