@@ -12,14 +12,13 @@ class DiscordChatService(ChatService):
 
     """
 
-    MAX_CHANNELS_PER_CATEGORY = 50
-
-    def __init__(self, settings, client=None):
+    def __init__(self, settings, client=None, max_channels_per_category=50):
         """Accepts Django settings object and optional Discord APIClient (for testing)."""
         self._client = client or APIClient(settings.DISCORD_API_TOKEN)
         self._guild_id = settings.DISCORD_GUILD_ID
         self._puzzle_category_name = settings.DISCORD_PUZZLE_CATEGORY
         self._archived_category_name = settings.DISCORD_ARCHIVE_CATEGORY
+        self._max_channels_per_category = max_channels_per_category
 
     def create_text_channel(self, name):
         channel = self.create_channel(
@@ -64,7 +63,7 @@ class DiscordChatService(ChatService):
                 num_children_per_parent[c.parent_id] += 1
 
         for parent in category_channels:
-            if num_children_per_parent[parent.id] < self.MAX_CHANNELS_PER_CATEGORY:
+            if num_children_per_parent[parent.id] < self._max_channels_per_category:
                 return parent
 
         return self._client.guilds_channels_create(
