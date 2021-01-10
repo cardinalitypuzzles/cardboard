@@ -5,10 +5,10 @@ import Button from "react-bootstrap/Button";
 import { deleteAnswer } from "./puzzlesSlice";
 import { hideModal } from "./modalSlice";
 
-function DeleteAnswerModal({ huntId, puzzleId, answerId }) {
+function DeleteAnswerModal({ puzzleId, answerId }) {
   const dispatch = useDispatch();
   const onDelete = () => {
-    dispatch(deleteAnswer({ huntId, puzzleId, answerId })).finally(() => {
+    dispatch(deleteAnswer({ puzzleId, answerId })).finally(() => {
       dispatch(hideModal());
     });
   };

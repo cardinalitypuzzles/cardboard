@@ -13,7 +13,7 @@ import { DEFAULT_TAG_COLOR, SELECTABLE_TAG_COLORS } from "./constants";
 import { hideModal } from "./modalSlice";
 import TagPill from "./TagPill";
 
-function EditPuzzleTagsModal({ huntId, puzzleId }) {
+function EditPuzzleTagsModal({ puzzleId }) {
   const selectPuzzleTags = React.useMemo(
     () => (state) => selectPuzzleById(state, puzzleId)["tags"],
     [puzzleId]
@@ -43,7 +43,6 @@ function EditPuzzleTagsModal({ huntId, puzzleId }) {
                   dispatch(
                     addPuzzleTag({
                       ...tag,
-                      huntId,
                       puzzleId,
                     })
                   )
@@ -65,7 +64,6 @@ function EditPuzzleTagsModal({ huntId, puzzleId }) {
                   dispatch(
                     addPuzzleTag({
                       ...tag,
-                      huntId,
                       puzzleId,
                     })
                   )
@@ -80,7 +78,6 @@ function EditPuzzleTagsModal({ huntId, puzzleId }) {
               addPuzzleTag({
                 name: newTagName,
                 color: newTagColor,
-                huntId,
                 puzzleId,
               })
             ).then(() => {

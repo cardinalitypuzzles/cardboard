@@ -41,41 +41,40 @@ export const updatePuzzle = createAsyncThunk(
 
 export const addAnswer = createAsyncThunk(
   "puzzles/addAnswer",
-  async ({ huntId, puzzleId, body }) => {
-    console.log("hi");
-    const response = await api.addAnswer(huntId, puzzleId, body);
+  async ({ puzzleId, body }) => {
+    const response = await api.addAnswer(puzzleId, body);
     return response;
   }
 );
 
 export const deleteAnswer = createAsyncThunk(
   "puzzles/deleteAnswer",
-  async ({ huntId, puzzleId, answerId }) => {
-    const response = await api.deleteAnswer(huntId, puzzleId, answerId);
+  async ({ puzzleId, answerId }) => {
+    const response = await api.deleteAnswer(puzzleId, answerId);
     return response;
   }
 );
 
 export const editAnswer = createAsyncThunk(
   "puzzles/editAnswer",
-  async ({ huntId, puzzleId, answerId, body }) => {
-    const response = await api.editAnswer(huntId, puzzleId, answerId, body);
+  async ({ puzzleId, answerId, body }) => {
+    const response = await api.editAnswer(puzzleId, answerId, body);
     return response;
   }
 );
 
 export const deletePuzzleTag = createAsyncThunk(
   "puzzles/deletePuzzleTag",
-  async ({ huntId, puzzleId, tagId }) => {
-    const response = await api.deletePuzzleTag(huntId, puzzleId, tagId);
+  async ({ puzzleId, tagId }) => {
+    const response = await api.deletePuzzleTag(puzzleId, tagId);
     return response;
   }
 );
 
 export const addPuzzleTag = createAsyncThunk(
   "puzzles/addPuzzleTag",
-  async ({ huntId, puzzleId, name, color }) => {
-    const response = await api.addPuzzleTag(huntId, puzzleId, {
+  async ({ puzzleId, name, color }) => {
+    const response = await api.addPuzzleTag(puzzleId, {
       name,
       color,
     });
