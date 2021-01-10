@@ -67,6 +67,9 @@ class AnswerViewSet(viewsets.ModelViewSet):
                 puzzle.answer = answer.text
                 if puzzle.chat_room:
                     puzzle.chat_room.archive_channels()
+                    msg = f"{puzzle.name} has been solved with {answer.text}!"
+                    puzzle.chat_room.get_service().announce(msg)
+                    puzzle.chat_room.send_message(msg)
                 answer.save()
                 transaction.on_commit(
                     lambda: AnswerViewSet.__update_meta_sheets_for_feeder(puzzle)
@@ -202,6 +205,9 @@ class PuzzleViewSet(viewsets.ModelViewSet):
                     service=settings.CHAT_DEFAULT_SERVICE, name=name
                 )
                 chat_room.create_channels()
+                msg = f"{name} has been unlocked!"
+                chat_room.get_service().announce(msg)
+                chat_room.send_message(msg)
             else:
                 logger.warn("Chat room not created for puzzle %s" % name)
                 chat_room = None
