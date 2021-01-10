@@ -4,7 +4,6 @@ from django.db.models import Q
 from django.dispatch import receiver
 
 from answers.models import Answer
-from google_api_lib.google_api_client import GoogleApiClient
 from .puzzle_tag import PuzzleTag
 
 
@@ -117,9 +116,7 @@ class Puzzle(models.Model):
                     "Name %s is already taken by another puzzle." % new_name
                 )
 
-        is_new_url = False
         if self.url != new_url:
-            is_new_url = True
             if Puzzle.objects.filter(~Q(id=self.pk), Q(hunt=self.hunt), Q(url=new_url)):
                 raise DuplicatePuzzleUrlError(
                     "URL %s is already taken by another puzzle." % new_url
@@ -141,17 +138,6 @@ class Puzzle(models.Model):
 
         self.save()
 
-        def update_sheets():
-            if is_new_url:
-                google_api_client = GoogleApiClient.getInstance()
-                if google_api_client:
-                    google_api_client.add_puzzle_link_to_sheet(self.url, self.sheet)
-            for meta in self.metas.all():
-                GoogleApiClient.update_meta_sheet_feeders(meta)
-
-        transaction.on_commit(update_sheets)
-
-    # Deprecated in place of guesses (see answers/models.py).
     def set_answer(self, answer):
         self.answer = answer
         self.status = Puzzle.SOLVED
@@ -202,7 +188,7 @@ def delete_chat_room(sender, instance, using, **kwargs):
 
 
 # Used for cycle detection before adding an edge from potential ancestor to child.
-# We cannot have cycles, otherwise the PuzzleTree sorting will break.
+# We cannot have cycles, otherwise the sorting will break.
 def is_ancestor(potential_ancestor, child):
     if child.pk == potential_ancestor.pk:
         return True

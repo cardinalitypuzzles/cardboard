@@ -96,6 +96,18 @@ function puzzleComparator(a, b) {
   } else if (a.is_meta && !b.is_meta) {
     return 1;
   }
+  // High-priority before untagged before low-priority
+  function priority(row) {
+    if (row.tags.some((x) => x.name === "HIGH PRIORITY")) {
+      return 1;
+    } else if (row.tags.some((x) => x.name === "LOW PRIORITY")) {
+      return -1;
+    }
+    return 0;
+  }
+  if (priority(b) != priority(a)) {
+    return priority(b) - priority(a);
+  }
   // Newer puzzles before old ones
   // TODO: once creation times are added to puzzles, use those instead
   return b.id - a.id;

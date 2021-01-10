@@ -1,0 +1,6 @@
+coverage:
+  status:
+    project:
+      default:
+        # allow changes to drop code coverage by at most this much
+        threshold: 0.1%
