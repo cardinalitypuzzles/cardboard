@@ -30,6 +30,7 @@ def parse_subcommand(message_content):
 
 
 async def handle_subcommand(message, subcommand):
+    # Dispatch corresponding message response or default to help text.
     handle = {
         "unsolved": send_puzzles_unsolved,
         "solved": send_puzzles_solved,
@@ -40,19 +41,27 @@ async def handle_subcommand(message, subcommand):
 
 async def send_puzzles_unsolved(message):
     puzzles = await sync_to_async(list)(
-        Puzzle.objects.filter(Q(status=Puzzle.SOLVING) | Q(status=Puzzle.PENDING))
+        Puzzle.objects.filter(
+            Q(hunt=settings.BOT_ACTIVE_HUNT),
+            Q(status=Puzzle.SOLVING) | Q(status=Puzzle.PENDING),
+        )
     )
     await send_puzzles(message, puzzles, "Unsolved puzzles")
 
 
 async def send_puzzles_solved(message):
-    puzzles = await sync_to_async(list)(Puzzle.objects.filter(status=Puzzle.SOLVED))
+    puzzles = await sync_to_async(list)(
+        Puzzle.objects.filter(hunt=settings.BOT_ACTIVE_HUNT, status=Puzzle.SOLVED)
+    )
     await send_puzzles(message, puzzles, "Solved puzzles")
 
 
 async def send_puzzles_stuck(message):
     puzzles = await sync_to_async(list)(
-        Puzzle.objects.filter(Q(status=Puzzle.STUCK) | Q(status=Puzzle.EXTRACTION))
+        Puzzle.objects.filter(
+            Q(hunt=settings.BOT_ACTIVE_HUNT),
+            Q(status=Puzzle.STUCK) | Q(status=Puzzle.EXTRACTION),
+        )
     )
     await send_puzzles(message, puzzles, "Stuck puzzles")
 
