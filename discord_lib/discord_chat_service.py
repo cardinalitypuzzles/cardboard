@@ -23,7 +23,6 @@ class DiscordChatService(ChatService):
         self._client.channels_messages_create(channel_id, content=msg)
 
     def announce(self, msg):
-        print(f"announcement channel id:{self._puzzle_announcements_id}")
         if self._puzzle_announcements_id:
             self.send_message(self._puzzle_announcements_id, msg)
 
