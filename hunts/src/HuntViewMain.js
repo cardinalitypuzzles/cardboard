@@ -77,10 +77,6 @@ const TABLE_COLUMNS = [
     Cell: ({ row, value }) =>
       row.original.chat_room ? (
         <>
-          <a href={row.original.chat_room.audio_channel_url} target="_blank">
-            Voice
-          </a>
-          <br />
           <a href={row.original.chat_room.text_channel_url} target="_blank">
             Text
           </a>
