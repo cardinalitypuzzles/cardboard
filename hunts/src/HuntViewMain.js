@@ -8,6 +8,7 @@ import { hideAlert } from "./alertSlice";
 import { PuzzleTable } from "./puzzle-table";
 import AnswerCell from "./AnswerCell";
 import NameCell from "./NameCell";
+import HuntViewHeader from "./HuntViewHeader";
 import GlobalFilter from "./GlobalFilter";
 import StatusCell from "./StatusCell";
 import DeleteAnswerModal from "./DeleteAnswerModal";
@@ -139,7 +140,7 @@ export const HuntViewMain = (props) => {
       >
         {alert.text}
       </Alert>
-      <h1>{hunt.name} - All Puzzles</h1>
+      <HuntViewHeader hunt={hunt} />
       <div
         style={{
           display: "flex",
