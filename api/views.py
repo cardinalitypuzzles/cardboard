@@ -67,10 +67,13 @@ class AnswerViewSet(viewsets.ModelViewSet):
                 answer.status = Answer.CORRECT
                 puzzle.answer = answer.text
                 if puzzle.chat_room:
-                    puzzle.chat_room.archive_channels()
-                    msg = f"{puzzle.name} has been solved with {answer.text}!"
-                    puzzle.chat_room.get_service().announce(msg)
-                    puzzle.chat_room.send_message(msg)
+                    try:
+                        puzzle.chat_room.archive_channels()
+                        msg = f"{puzzle.name} has been solved with {answer.text}!"
+                        puzzle.chat_room.get_service().announce(msg)
+                        puzzle.chat_room.send_message(msg)
+                    except:
+                        logger.warn("Chat operations failed.")
                 answer.save()
                 transaction.on_commit(
                     lambda: AnswerViewSet._maybe_update_meta_sheets_for_feeder(puzzle)
@@ -98,7 +101,10 @@ class AnswerViewSet(viewsets.ModelViewSet):
             ) or (not puzzle.guesses.all() and puzzle.status == Puzzle.PENDING):
                 puzzle.status = Puzzle.SOLVING
                 if puzzle.chat_room:
-                    puzzle.chat_room.unarchive_channels()
+                    try:
+                        puzzle.chat_room.unarchive_channels()
+                    except:
+                        logger.warn("Chat operations failed.")
                 if puzzle.sheet and google_api_lib.enabled():
                     transaction.on_commit(
                         lambda: google_api_lib.task.rename_sheet.delay(
@@ -218,10 +224,13 @@ class PuzzleViewSet(viewsets.ModelViewSet):
                 chat_room = ChatRoom.objects.create(
                     service=settings.CHAT_DEFAULT_SERVICE, name=name
                 )
-                chat_room.create_channels()
-                msg = f"{name} has been unlocked!"
-                chat_room.get_service().announce(msg)
-                chat_room.send_message(msg)
+                try:
+                    chat_room.create_channels()
+                    msg = f"{name} has been unlocked!"
+                    chat_room.get_service().announce(msg)
+                    chat_room.send_message(msg)
+                except:
+                    logger.warn("Chat operations failed.")
             else:
                 logger.warn("Chat room not created for puzzle %s" % name)
                 chat_room = None
