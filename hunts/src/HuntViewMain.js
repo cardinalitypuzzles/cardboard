@@ -117,7 +117,7 @@ export const HuntViewMain = (props) => {
   };
   const updateHuntData = () => {
     dispatch(fetchHunt(props.huntId));
-  }
+  };
 
   useInterval(updatePuzzleData, 10 * 1000);
   useInterval(updateHuntData, 10 * 1000);
@@ -158,16 +158,26 @@ export const HuntViewMain = (props) => {
       </div>
       <Container fluid>
         <Row className="text-center font-weight-bold small">
-          <Col xs={1} className="text-nowrap">Metas Solved</Col>
+          <Col xs={1} className="text-nowrap">
+            Metas Solved
+          </Col>
           <Col xs={1}>Solved</Col>
           <Col xs={1}>Unsolved</Col>
           <Col xs={1}>Unlocked</Col>
         </Row>
         <Row className="text-center font-weight-bold">
-          <Col xs={1} className="text-primary">{hunt.num_metas_solved}</Col>
-          <Col xs={1} className="text-success">{hunt.num_solved}</Col>
-          <Col xs={1} className="text-danger">{hunt.num_unsolved}</Col>
-          <Col xs={1} className="text-secondary">{hunt.num_unlocked}</Col>
+          <Col xs={1} className="text-primary">
+            {hunt.num_metas_solved}
+          </Col>
+          <Col xs={1} className="text-success">
+            {hunt.num_solved}
+          </Col>
+          <Col xs={1} className="text-danger">
+            {hunt.num_unsolved}
+          </Col>
+          <Col xs={1} className="text-secondary">
+            {hunt.num_unlocked}
+          </Col>
         </Row>
       </Container>
       <div
