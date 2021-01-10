@@ -170,6 +170,7 @@ class TestDiscordChatService(TestCase):
         self.mock_client.channels_messages_create.assert_called_once_with(
             FakeDjangoSettings.DISCORD_PUZZLE_ANNOUNCEMENTS_CHANNEL,
             content="test message",
+        )
 
     def test_create_channel_category_full(self):
         parent1 = Channel(
