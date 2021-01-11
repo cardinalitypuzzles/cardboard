@@ -19,7 +19,7 @@ function TagCell({ row, value }) {
           id={id}
           puzzleId={puzzleId}
           key={name}
-          onClick={function () {row.original.addOrRemoveFilterTag({ name, color, id })}}
+          onClick={function () {row.original.toggleTagInFilter({ name, color, id })}}
         />
       ))}
       <span

@@ -36,7 +36,8 @@ function TagPill({
         <span
           onClick={
             onDelete ||
-            (() =>
+            ((e) => {
+              e.stopPropagation();
               dispatch(deletePuzzleTag({ puzzleId, tagId: id })).then(
                 (action) => {
                   if (action.payload && action.payload.is_meta) {
@@ -47,7 +48,8 @@ function TagPill({
                     dispatch(fetchPuzzles(huntId));
                   }
                 }
-              ))
+              );
+            })
           }
           style={{ marginLeft: "5px", cursor: "pointer" }}
         >

@@ -7,18 +7,27 @@ function getDescendants(tableRow) {
   return allChildren;
 }
 
-export function addOrRemoveTag(tagList, tag) {
-  let tagInList = tagList.filter(x => ['name', 'color', 'id'].every(key => x[key] === tag[key]))[0];
-  return (tagInList !== undefined) ? tagList.filter((i) => i !== tagInList) : tagList.concat(tag);
+function isMatchingTagInFilter(tagList, tag) {
+  return tagList.find(x => ['name', 'color', 'id'].every(key => x[key] === tag[key]));
 }
 
-export function filterPuzzlesByTagfn(rows, id, filterValue) {
-  let requiredRowIDs = rows.filter((row) => {
+function filterWithTagAdded(tagList, tag) {
+  return tagList.concat([tag]);
+}
+
+export function filterWithTagRemoved(tagList, tag) {
+  return tagList.filter(x => !(['name', 'color', 'id'].every(key => x[key] === tag[key])));
+}
+
+export function filterWithTagToggled(tagList, tag) {
+  // Returns a version of the filter tag list with the tag added
+  // if the tag is not in the filter already, otherwise returns
+  // a version with the tag removed.
+  return isMatchingTagInFilter(tagList, tag) ? filterWithTagRemoved(tagList, tag) : filterWithTagAdded(tagList, tag);
+}
+
+export function filterPuzzlesByTagFn(rows, id, tagList) {
+  return rows.filter((row) => {
     return tagList.length === 0 || tagList.some(tag => row.original.tags.map(x => x.id).includes(tag.id));
-  }).map(row => row.id);
-  // Show metas with puzzles with tags we want? Not sure if this is a good idea.
-  let shownRows = rows.filter((row) => {
-    return getDescendants(row).some(x => requiredRowIDs.includes(x.id));
   });
-  return shownRows;
 }

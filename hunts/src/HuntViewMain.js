@@ -26,7 +26,7 @@ import Modal from "react-bootstrap/Modal";
 import Alert from "react-bootstrap/Alert";
 import { SOLVE_STATE_FILTER_OPTIONS } from "./solveStateFilter";
 import { SHEET_REDIRECT_BASE } from "./constants";
-import { addOrRemoveTag } from "./tagFilter";
+import { filterWithTagRemoved, filterWithTagToggled } from "./tagFilter";
 import TagPill from "./TagPill";
 
 const MODAL_COMPONENTS = {
@@ -93,6 +93,7 @@ const TABLE_COLUMNS = [
     id: "tags",
     accessor: "tags",
     Cell: TagCell,
+    filter: "tagsFilter",
   },
   {
     accessor: "is_meta",
@@ -115,8 +116,11 @@ export const HuntViewMain = (props) => {
   );
   let [filterTags, setFilterTags] = React.useState([]);
   // Passing this closure around might be expensive? I doubt it's that bad though.
-  const addOrRemoveFilterTag = (tag) => {
-    setFilterTags(addOrRemoveTag(filterTags, tag));
+  const removeTagFromFilter = (tag) => {
+    setFilterTags(filterWithTagRemoved(filterTags, tag));
+  };
+  const toggleTagInFilter = (tag) => {
+    setFilterTags(filterWithTagToggled(filterTags, tag));
   };
   const dispatch = useDispatch();
 
@@ -231,7 +235,7 @@ export const HuntViewMain = (props) => {
                 puzzleId={null}
                 key={name}
                 onDelete={function () {
-                  addOrRemoveFilterTag({ name, color, id });
+                  removeTagFromFilter({ name, color, id });
                 }}
               />
             );
@@ -261,7 +265,7 @@ export const HuntViewMain = (props) => {
         filter={filter}
         filterSolved={filterSolved}
         filterTags={filterTags}
-        addOrRemoveFilterTag={addOrRemoveFilterTag}
+        toggleTagInFilter={toggleTagInFilter}
       />
       <Modal
         animation={false}
