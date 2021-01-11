@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block page_content %}
+<!-- header -->
 <div class="container">
   <div class="row">
     <div class="col-sm">
@@ -12,12 +13,117 @@
   </div>
 </div>
 
-<div class="container">
-  <p class="text-center">
-    <!-- (graph goes here) -->
-  </p>
-</div>
+<!-- chart -->
+{% if use_chart %}
+{{ chart_data.0 | json_script:"labels" }}
+{{ chart_data.1 | json_script:"solveTimes" }}
+{{ chart_data.2 | json_script:"solveCounts" }}
+{{ chart_data.3 | json_script:"isMeta" }}
+<div class="container justify-content-center" style="height:45vh; width:60vw">
+  <canvas id="progressChart"></canvas>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+  <script>
+    var solveTimes = JSON.parse(document.getElementById("solveTimes").textContent);
+    var solveCounts = JSON.parse(document.getElementById("solveCounts").textContent);
+    var dataPoints = [];
+    for (i = 0; i < solveTimes.length; i++) {
+      dataPoints.push({x:solveTimes[i], y:solveCounts[i]});
+    };
 
+    var pointBackgroundColors = [];
+    var pointRadii = [];
+    var pointHoverRadii = [];
+    var isMeta = JSON.parse(document.getElementById("isMeta").textContent);
+    for (i = 0; i < isMeta.length; i++) {
+      if (isMeta[i]) {
+        pointBackgroundColors.push("#0275d8"); // bootstrap primary (blue)
+        pointRadii.push(6);
+        pointHoverRadii.push(7);
+      } else {
+        pointBackgroundColors.push("rgba(0,0,0,0.1)");
+        pointRadii.push(0);
+        pointHoverRadii.push(0);
+      }
+    }
+
+    var ctx = document.getElementById("progressChart");
+    var progressChart = new Chart(ctx, {
+      type: "scatter",
+      data: {
+        datasets: [
+          {
+            labels: JSON.parse(document.getElementById("labels").textContent),
+            data: dataPoints,
+            showLine: true,
+            steppedLine: true,
+            borderColor: "#c41e3a", // cardinal red!
+            borderWidth: 2,
+            pointBorderWidth: 1,
+            pointBackgroundColor: pointBackgroundColors,
+            pointRadius: pointRadii,
+            pointHoverRadius: pointHoverRadii,
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          xAxes: [{
+            type: "time",
+            time: {
+              unit: "minute",
+              stepSize: 15,
+              displayFormats: {
+                day: "dd",
+                hour: "dd hA",
+                minute: "dd h:mm a",
+              },
+              parser: function (timeInput) {
+                return moment(timeInput) //.utcOffset("-0500") // Eastern Time
+              }
+            },
+            ticks: {
+              maxTicksLimit: 11,
+            },
+          }],
+          yAxes: [{
+            ticks: {
+              beginAtZero: true,
+              callback: function(value) {if (value % 1 === 0) {return value;}},
+              maxTicksLimit: 9,
+            },
+            scaleLabel: {
+              display: true,
+              labelString: "Solved",
+              fontStyle: "bold"
+            }
+          }]
+        },
+        animation: {
+          duration: 0
+        },
+        legend: {
+          display: false
+        },
+        tooltips: {
+          filter: function(tooltipItem, data) {
+            return isMeta[tooltipItem.index];
+          },
+          callbacks: {
+            label: function(tooltipItem, data) {
+              var label = data.datasets[0].labels[tooltipItem.index];
+              return label + ": " + moment(tooltipItem.xLabel).format("dd h:mm a");
+            },
+          },
+        },
+      }
+    });
+  </script>
+</div>
+{% endif %}
+
+<!-- main stats -->
 <div class="container">
   <div class="row text-center font-weight-bold">
     <div class="col-sm-3">
@@ -39,7 +145,8 @@
   </div>
 </div>
 
-<div class="container pt-5">
+<!-- time stats and meta solve tables -->
+<div class="container pt-3">
   <div class="row justify-content-center">
     <div class="col-sm-6">
         <table class="table table-hover">
