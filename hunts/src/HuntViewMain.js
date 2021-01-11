@@ -131,7 +131,11 @@ export const HuntViewMain = (props) => {
   }, [alert.id]);
 
   return (
-    <div>
+    <div
+      style={{
+        margin: "0 20px",
+      }}
+    >
       <Alert
         dismissible
         variant={alert.variant}
