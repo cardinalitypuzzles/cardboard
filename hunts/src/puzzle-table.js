@@ -19,8 +19,7 @@ function textFilterFn(rows, id, filterValue) {
   if (!words) {
     return rows;
   }
-
-  const keys = ["values.name", "values.tags", "values.status", "values.answer"];
+  const keys = ["values.name", "values.tags", "values.status", "values.Answer"];
   // Need to clone these results because this library is broken as shit
   return words
     .reduceRight((results, word) => matchSorter(results, word, { keys }), rows)
