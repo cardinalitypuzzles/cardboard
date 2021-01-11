@@ -169,7 +169,10 @@ export const HuntViewMain = (props) => {
             <input
               style={{ margin: "0 5px 0 10px" }}
               type="radio"
-              checked={filterSolved === SOLVE_STATE_FILTER_OPTIONS.PRIORITY}
+              checked={
+                filterSolved === SOLVE_STATE_FILTER_OPTIONS.PRIORITY ||
+                filterSolved === SOLVE_STATE_FILTER_OPTIONS.UNSOLVED
+              }
               onChange={(evt) => {
                 if (evt.target.checked) {
                   setFilterSolved(SOLVE_STATE_FILTER_OPTIONS.PRIORITY);
@@ -178,6 +181,24 @@ export const HuntViewMain = (props) => {
             ></input>
             Unsolved
           </label>
+          {(filterSolved === SOLVE_STATE_FILTER_OPTIONS.PRIORITY ||
+            filterSolved === SOLVE_STATE_FILTER_OPTIONS.UNSOLVED) && (
+            <label>
+              <input
+                style={{ margin: "0 5px 0 10px" }}
+                type="checkbox"
+                checked={filterSolved === SOLVE_STATE_FILTER_OPTIONS.UNSOLVED}
+                onChange={(evt) => {
+                  if (evt.target.checked) {
+                    setFilterSolved(SOLVE_STATE_FILTER_OPTIONS.UNSOLVED);
+                  } else {
+                    setFilterSolved(SOLVE_STATE_FILTER_OPTIONS.PRIORITY);
+                  }
+                }}
+              ></input>
+              Include unsolved w/ solved metas
+            </label>
+          )}
         </div>
 
         <Button
