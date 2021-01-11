@@ -9,7 +9,8 @@ RUN apk update && apk add \
     libffi-dev \
     musl-dev \
     postgresql-dev \
-    python3-dev
+    python3-dev \
+    tzdata
 
 # install npm & yarn
 RUN apk add --update nodejs yarn
