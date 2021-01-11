@@ -99,7 +99,7 @@ def rename_sheet(self, sheet_url, name):
     ).execute()
 
 
-@shared_task(base=GoogleApiClientTask, bind=True, rate_limit="1/m")
+@shared_task(base=GoogleApiClientTask, bind=True)
 def update_meta_sheet_feeders(self, puzzle_id):
     """
     Updates the input meta puzzle's spreadsheet with the
