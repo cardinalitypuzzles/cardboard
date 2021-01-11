@@ -41,41 +41,40 @@ export const updatePuzzle = createAsyncThunk(
 
 export const addAnswer = createAsyncThunk(
   "puzzles/addAnswer",
-  async ({ huntId, puzzleId, body }) => {
-    console.log("hi");
-    const response = await api.addAnswer(huntId, puzzleId, body);
+  async ({ puzzleId, body }) => {
+    const response = await api.addAnswer(puzzleId, body);
     return response;
   }
 );
 
 export const deleteAnswer = createAsyncThunk(
   "puzzles/deleteAnswer",
-  async ({ huntId, puzzleId, answerId }) => {
-    const response = await api.deleteAnswer(huntId, puzzleId, answerId);
+  async ({ puzzleId, answerId }) => {
+    const response = await api.deleteAnswer(puzzleId, answerId);
     return response;
   }
 );
 
 export const editAnswer = createAsyncThunk(
   "puzzles/editAnswer",
-  async ({ huntId, puzzleId, answerId, body }) => {
-    const response = await api.editAnswer(huntId, puzzleId, answerId, body);
+  async ({ puzzleId, answerId, body }) => {
+    const response = await api.editAnswer(puzzleId, answerId, body);
     return response;
   }
 );
 
 export const deletePuzzleTag = createAsyncThunk(
   "puzzles/deletePuzzleTag",
-  async ({ huntId, puzzleId, tagId }) => {
-    const response = await api.deletePuzzleTag(huntId, puzzleId, tagId);
+  async ({ puzzleId, tagId }) => {
+    const response = await api.deletePuzzleTag(puzzleId, tagId);
     return response;
   }
 );
 
 export const addPuzzleTag = createAsyncThunk(
   "puzzles/addPuzzleTag",
-  async ({ huntId, puzzleId, name, color }) => {
-    const response = await api.addPuzzleTag(huntId, puzzleId, {
+  async ({ puzzleId, name, color }) => {
+    const response = await api.addPuzzleTag(puzzleId, {
       name,
       color,
     });
@@ -235,7 +234,7 @@ export const selectAllTags = createSelector(
   }
 );
 
-export const getNumUnlocked = createSelector(
+export const selectNumUnlocked = createSelector(
   [puzzlesSelectors.selectAll],
   (puzzles) => {
     const count = puzzles.reduce((count, puzzle) => count + 1, 0);
@@ -243,7 +242,7 @@ export const getNumUnlocked = createSelector(
   }
 );
 
-export const getNumSolved = createSelector(
+export const selectNumSolved = createSelector(
   [puzzlesSelectors.selectAll],
   (puzzles) => {
     const count = puzzles.reduce(
@@ -254,7 +253,7 @@ export const getNumSolved = createSelector(
   }
 );
 
-export const getNumUnsolved = createSelector(
+export const selectNumUnsolved = createSelector(
   [puzzlesSelectors.selectAll],
   (puzzles) => {
     const count = puzzles.reduce(
@@ -265,7 +264,7 @@ export const getNumUnsolved = createSelector(
   }
 );
 
-export const getNumMetasSolved = createSelector(
+export const selectNumMetasSolved = createSelector(
   [puzzlesSelectors.selectAll],
   (puzzles) => {
     const count = puzzles.reduce(

@@ -61,7 +61,7 @@ class ApiTests(SmallboardTestCase):
                 "url": TEST_URL,
                 "notes": "",
                 "sheet": None,
-                "chat_room": {},
+                "chat_room": None,
                 "status": "SOLVING",
                 "tags": [],
                 "guesses": [],

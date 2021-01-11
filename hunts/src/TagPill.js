@@ -10,6 +10,8 @@ function TagPill({
   color,
   id,
   puzzleId,
+  selected = false,
+  faded = false,
   editable = true,
   onClick = null,
 }) {
@@ -19,13 +21,20 @@ function TagPill({
   if (onClick !== null) {
     style.cursor = "pointer";
   }
+  if (selected) {
+    style.border = "2px solid #5BC0DE";
+    style.boxShadow = "0 0 2px #5BC0DE";
+  }
+  if (faded) {
+    style.opacity = 0.5;
+  }
   return (
     <Badge pill variant={color} key={name} onClick={onClick} style={style}>
       {name}
       {editable ? (
         <span
           onClick={() =>
-            dispatch(deletePuzzleTag({ huntId, puzzleId, tagId: id })).then(
+            dispatch(deletePuzzleTag({ puzzleId, tagId: id })).then(
               (action) => {
                 if (action.payload && action.payload.is_meta) {
                   // Deleting meta tags may affect the state of other puzzles

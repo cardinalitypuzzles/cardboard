@@ -27,6 +27,7 @@ urlpatterns = [
     path("hunts/", include("hunts.urls")),
     path("answers/", include("answers.urls")),
     path("api/", include("api.urls")),
+    path("puzzles/", include("puzzles.urls")),
     path("tools", views.tools, name="tools"),
     path("privacy", views.privacy, name="privacy"),
     path("", views.home, name="home"),

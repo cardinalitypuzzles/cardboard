@@ -10,6 +10,7 @@ class FakeChatService(ChatService):
         self.text_channels = set()
         self.audio_channels = set()
         self.archived_channels = set()
+        self.messages = set()
 
     def create_text_channel(self, name):
         self.text_channels.add(name)
@@ -34,6 +35,9 @@ class FakeChatService(ChatService):
 
     def create_channel_url(self, channel_id):
         return ""
+
+    def send_message(self, channel_id, msg):
+        self.messages.add(msg)
 
 
 @override_settings(
@@ -82,6 +86,12 @@ class TestChatRoom(TestCase):
         self.room.unarchive_channels()
         self.assertNotIn("Test Room 🧩", self.fake_service.archived_channels)
 
+    def test_send_message_and_announce(self):
+        self.room.create_channels()
+        msg = "Test Room 🧩"
+        self.room.send_message(msg)
+        self.assertIn(msg, self.fake_service.messages)
+
 
 class TestChatService(TestCase):
     def test_base_chat_service_constructor_raises_error(self):
@@ -100,4 +110,7 @@ class TestChatService(TestCase):
                 continue
             with self.assertRaises(NotImplementedError):
                 func = service.__getattribute__(f)
-                func("channel-name-or-id")
+                if f == "send_message":
+                    func("channel-name-or-id", "msg")
+                else:
+                    func("channel-name-or-id")

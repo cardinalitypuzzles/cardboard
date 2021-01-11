@@ -31,6 +31,7 @@ import Button from "react-bootstrap/Button";
 import Dropdown from "react-bootstrap/Dropdown";
 import Modal from "react-bootstrap/Modal";
 import Alert from "react-bootstrap/Alert";
+import { SOLVE_STATE_FILTER_OPTIONS } from "./solveStateFilter";
 
 const MODAL_COMPONENTS = {
   DELETE_PUZZLE: DeletePuzzleModal,
@@ -57,6 +58,7 @@ const TABLE_COLUMNS = [
     Header: "Status",
     accessor: "status",
     Cell: StatusCell,
+    filter: "solvedFilter",
   },
   {
     Header: "Puzzle",
@@ -83,10 +85,6 @@ const TABLE_COLUMNS = [
     Cell: ({ row, value }) =>
       row.original.chat_room ? (
         <>
-          <a href={row.original.chat_room.audio_channel_url} target="_blank">
-            Voice
-          </a>
-          <br />
           <a href={row.original.chat_room.text_channel_url} target="_blank">
             Text
           </a>
@@ -115,6 +113,9 @@ export const HuntViewMain = (props) => {
   const hunt = useSelector((state) => state.hunt);
   const alert = useSelector((state) => state.alert);
   const [filter, setFilter] = React.useState("");
+  const [filterSolved, setFilterSolved] = React.useState(
+    SOLVE_STATE_FILTER_OPTIONS.ALL
+  );
   const dispatch = useDispatch();
 
   const numUnlocked = useSelector(getNumUnlocked);
@@ -142,7 +143,11 @@ export const HuntViewMain = (props) => {
   }, [alert.id]);
 
   return (
-    <div>
+    <div
+      style={{
+        margin: "0 20px",
+      }}
+    >
       <Alert
         dismissible
         variant={alert.variant}
@@ -151,13 +156,7 @@ export const HuntViewMain = (props) => {
       >
         {alert.text}
       </Alert>
-      <HuntViewHeader
-        hunt={hunt}
-        numMetasSolved={numMetasSolved}
-        numSolved={numSolved}
-        numUnsolved={numUnsolved}
-        numUnlocked={numUnlocked}
-      />
+      <HuntViewHeader hunt={hunt} />
       <div
         style={{
           display: "flex",
@@ -166,7 +165,50 @@ export const HuntViewMain = (props) => {
           alignItems: "center",
         }}
       >
-        <GlobalFilter globalFilter={filter} setGlobalFilter={setFilter} />
+        <div>
+          <GlobalFilter globalFilter={filter} setGlobalFilter={setFilter} />
+          <span>Show:</span>
+          <label>
+            <input
+              style={{ margin: "0 5px 0 10px" }}
+              type="radio"
+              checked={filterSolved === SOLVE_STATE_FILTER_OPTIONS.ALL}
+              onChange={(evt) => {
+                if (evt.target.checked) {
+                  setFilterSolved(SOLVE_STATE_FILTER_OPTIONS.ALL);
+                }
+              }}
+            ></input>
+            All
+          </label>
+          <label>
+            <input
+              style={{ margin: "0 5px 0 10px" }}
+              type="radio"
+              checked={filterSolved === SOLVE_STATE_FILTER_OPTIONS.PRIORITY}
+              onChange={(evt) => {
+                if (evt.target.checked) {
+                  setFilterSolved(SOLVE_STATE_FILTER_OPTIONS.PRIORITY);
+                }
+              }}
+            ></input>
+            Priority
+          </label>
+          <label>
+            <input
+              style={{ margin: "0 5px 0 10px" }}
+              type="radio"
+              checked={filterSolved === SOLVE_STATE_FILTER_OPTIONS.UNSOLVED}
+              onChange={(evt) => {
+                if (evt.target.checked) {
+                  setFilterSolved(SOLVE_STATE_FILTER_OPTIONS.UNSOLVED);
+                }
+              }}
+            ></input>
+            Unsolved
+          </label>
+        </div>
+
         <Button
           variant="primary"
           size="lg"
@@ -184,7 +226,12 @@ export const HuntViewMain = (props) => {
           Add Puzzle
         </Button>
       </div>
-      <PuzzleTable columns={TABLE_COLUMNS} data={tableData} filter={filter} />
+      <PuzzleTable
+        columns={TABLE_COLUMNS}
+        data={tableData}
+        filter={filter}
+        filterSolved={filterSolved}
+      />
       <Modal
         animation={false}
         show={modal.show}

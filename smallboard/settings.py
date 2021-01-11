@@ -180,6 +180,15 @@ DISCORD_GUILD_ID = os.environ.get("DISCORD_GUILD_ID", None)
 # Category (folder) to contain generated channels.
 DISCORD_PUZZLE_CATEGORY = os.environ.get("DISCORD_PUZZLE_CATEGORY", "puzzles")
 DISCORD_ARCHIVE_CATEGORY = os.environ.get("DISCORD_ARCHIVE_CATEGORY", "archive")
+DISCORD_PUZZLE_ANNOUNCEMENTS_CHANNEL = os.environ.get(
+    "DISCORD_PUZZLE_ANNOUNCEMENTS_CHANNEL", None
+)
+DISCORD_DEVS_ROLE = os.environ.get("DISCORD_DEVS_ROLE", "dev")
+
+# Discord Bot settings
+
+# TODO(akirabaruah): This is a hack. Find a better way to set the bot's hunt.
+BOT_ACTIVE_HUNT = os.environ.get("BOT_ACTIVE_HUNT", None)
 
 # Google Drive API
 try:
@@ -262,3 +271,23 @@ CELERY_RESULT_BACKEND = "django-db"
 CELERY_TASK_TIME_LIMIT = 60
 CELERY_TASK_TRACK_STARTED = True
 CELERY_BROKER_URL = os.environ.get("REDIS_URL", "redis://")
+CELERY_BROKER_TRANSPORT_OPTIONS = {"max_retries": 3}
+CELERY_BROKER_POOL_LIMIT = 2
+CELERY_REDIS_MAX_CONNECTIONS = 2  # Only for sending results, not enqueueing tasks
+
+# Logging configuration
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console"],
+            "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
+        },
+    },
+}

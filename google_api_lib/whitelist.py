@@ -5,7 +5,7 @@ from celery import shared_task
 @shared_task(base=GoogleApiClientTask, bind=True)
 def get_file_user_emails(self, file_id):
     response = (
-        self._drive_service.files().get(fileId=file_id, fields="permissions").execute()
+        self.drive_service().files().get(fileId=file_id, fields="permissions").execute()
     )
 
     permissions = response["permissions"]

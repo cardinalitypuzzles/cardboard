@@ -101,10 +101,11 @@ class AnswerView(LoginRequiredMixin, View):
 
                 guess.set_status(status)
 
-            if puzzle_already_solved or status == Answer.CORRECT:
-                metas = guess.puzzle.metas.all()
-                for meta in metas:
-                    google_api_lib.task.update_meta_sheet_feeders(meta)
+            if google_api_lib.enabled():
+                if puzzle_already_solved or status == Answer.CORRECT:
+                    metas = guess.puzzle.metas.all()
+                    for meta in metas:
+                        google_api_lib.task.update_meta_sheet_feeders(meta)
         else:
             return JsonResponse(
                 {

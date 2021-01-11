@@ -28,6 +28,7 @@ class PuzzleTag(models.Model):
     is_meta = models.BooleanField(default=False)
 
     class Meta:
+        ordering = ("color", "name")
         constraints = [
             models.UniqueConstraint(
                 fields=["name", "hunt"], name="unique_tag_names_per_hunt"

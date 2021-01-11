@@ -36,3 +36,18 @@ class ChatService:
 
     def delete_audio_channel(self, channel_id):
         raise NotImplementedError
+
+    def create_channel_url(self, channel_id):
+        raise NotImplementedError
+
+    def archive_channels(self, channel_id):
+        raise NotImplementedError
+
+    def unarchive_channels(self, channel_id):
+        raise NotImplementedError
+
+    def send_message(self, channel_id, msg):
+        raise NotImplementedError
+
+    def announce(self, msg):
+        raise NotImplementedError

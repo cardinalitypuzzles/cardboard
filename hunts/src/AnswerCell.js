@@ -9,7 +9,6 @@ import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { showModal } from "./modalSlice";
 
 export default function AnswerCell({ row, value }) {
-  const { id: huntId } = useSelector((state) => state.hunt);
   const dispatch = useDispatch();
   if (row.original.guesses === undefined || row.original.guesses.length == 0) {
     return (
@@ -20,7 +19,6 @@ export default function AnswerCell({ row, value }) {
             showModal({
               type: "SUBMIT_ANSWER",
               props: {
-                huntId,
                 puzzleId: row.values.id,
                 puzzleName: row.values.name,
               },
@@ -44,7 +42,6 @@ export default function AnswerCell({ row, value }) {
                 showModal({
                   type: "EDIT_ANSWER",
                   props: {
-                    huntId,
                     puzzleId: row.values.id,
                     answerId: id,
                     text,
@@ -64,7 +61,6 @@ export default function AnswerCell({ row, value }) {
                 showModal({
                   type: "DELETE_ANSWER",
                   props: {
-                    huntId,
                     puzzleId: row.values.id,
                     answerId: id,
                   },
@@ -86,7 +82,6 @@ export default function AnswerCell({ row, value }) {
             showModal({
               type: "SUBMIT_ANSWER",
               props: {
-                huntId,
                 puzzleId: row.values.id,
                 puzzleName: row.values.name,
               },

@@ -97,8 +97,8 @@ class PuzzleTagSerializer(serializers.ModelSerializer):
 
 
 class PuzzleSerializer(serializers.ModelSerializer):
-    chat_room = serializers.SerializerMethodField()
-    tags = serializers.SerializerMethodField(required=False)
+    chat_room = ChatRoomSerializer(required=False)
+    tags = PuzzleTagSerializer(required=False, many=True)
     guesses = serializers.SerializerMethodField()
     # Have to specify this explicitly for validate_url to run
     url = serializers.CharField()
@@ -106,17 +106,13 @@ class PuzzleSerializer(serializers.ModelSerializer):
         read_only=True, default=CurrentHuntDefault()
     )
 
-    def get_chat_room(self, obj):
-        return ChatRoomSerializer(obj.chat_room).data
-
     def get_guesses(self, obj):
         # Show only correct guesses.
+        if hasattr(obj, "_prefetched_correct_answers"):
+            return AnswerSerializer(obj._prefetched_correct_answers, many=True).data
+
         guesses = obj.guesses.filter(status=Answer.CORRECT)
         return AnswerSerializer(guesses, many=True).data
-
-    def get_tags(self, instance):
-        tags = instance.tags.all().order_by("color", "name")
-        return PuzzleTagSerializer(tags, many=True).data
 
     def validate_url(self, url):
         return url_normalize(url)

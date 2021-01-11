@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import transaction
+from django.db.models import Prefetch
 from django.shortcuts import render, get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -38,9 +39,10 @@ class AnswerViewSet(viewsets.ModelViewSet):
     serializer_class = AnswerSerializer
 
     @staticmethod
-    def __update_meta_sheets_for_feeder(feeder):
-        for meta in feeder.metas.all():
-            google_api_lib.task.update_meta_sheet_feeders.delay(meta.id)
+    def _maybe_update_meta_sheets_for_feeder(feeder):
+        if google_api_lib.enabled():
+            for meta in feeder.metas.all():
+                google_api_lib.task.update_meta_sheet_feeders.delay(meta.id)
 
     def get_queryset(self):
         puzzle_id = self.kwargs["puzzle_id"]
@@ -65,11 +67,23 @@ class AnswerViewSet(viewsets.ModelViewSet):
                 answer.status = Answer.CORRECT
                 puzzle.answer = answer.text
                 if puzzle.chat_room:
-                    puzzle.chat_room.archive_channels()
+                    try:
+                        puzzle.chat_room.archive_channels()
+                        msg = f"{puzzle.name} has been solved with {answer.text}!"
+                        puzzle.chat_room.get_service().announce(msg)
+                        puzzle.chat_room.send_message(msg)
+                    except Exception as e:
+                        logger.warn(f"Chat operations failed with error: {e}")
                 answer.save()
                 transaction.on_commit(
-                    lambda: AnswerViewSet.__update_meta_sheets_for_feeder(puzzle)
+                    lambda: AnswerViewSet._maybe_update_meta_sheets_for_feeder(puzzle)
                 )
+                if google_api_lib.enabled() and puzzle.sheet:
+                    transaction.on_commit(
+                        lambda: google_api_lib.task.rename_sheet.delay(
+                            sheet_url=puzzle.sheet, name=f"[SOLVED] {puzzle.name}"
+                        )
+                    )
             puzzle.save()
 
         return Response(PuzzleSerializer(puzzle).data)
@@ -87,11 +101,21 @@ class AnswerViewSet(viewsets.ModelViewSet):
             ) or (not puzzle.guesses.all() and puzzle.status == Puzzle.PENDING):
                 puzzle.status = Puzzle.SOLVING
                 if puzzle.chat_room:
-                    puzzle.chat_room.unarchive_channels()
+                    try:
+                        puzzle.chat_room.unarchive_channels()
+                    except Exception as e:
+                        logger.warn(f"Chat operations failed with error: {e}")
+                if puzzle.sheet and google_api_lib.enabled():
+                    transaction.on_commit(
+                        lambda: google_api_lib.task.rename_sheet.delay(
+                            sheet_url=puzzle.sheet, name=puzzle.name
+                        )
+                    )
+
                 puzzle.save()
 
             transaction.on_commit(
-                lambda: AnswerViewSet.__update_meta_sheets_for_feeder(puzzle)
+                lambda: AnswerViewSet._maybe_update_meta_sheets_for_feeder(puzzle)
             )
 
         return Response(PuzzleSerializer(puzzle).data)
@@ -101,7 +125,7 @@ class AnswerViewSet(viewsets.ModelViewSet):
 
         puzzle = get_object_or_404(Puzzle, pk=self.kwargs["puzzle_id"])
         transaction.on_commit(
-            lambda: AnswerViewSet.__update_meta_sheets_for_feeder(puzzle)
+            lambda: AnswerViewSet._maybe_update_meta_sheets_for_feeder(puzzle)
         )
 
         return Response(PuzzleSerializer(puzzle).data)
@@ -115,10 +139,16 @@ class PuzzleViewSet(viewsets.ModelViewSet):
         hunt_id = self.kwargs["hunt_id"]
         return (
             Puzzle.objects.filter(hunt__id=hunt_id)
-            .prefetch_related("metas")
+            .select_related("chat_room")
+            .prefetch_related("metas", "feeders")
             .prefetch_related("tags")
-            .prefetch_related("chat_room")
-            .prefetch_related("guesses")
+            .prefetch_related(
+                Prefetch(
+                    "guesses",
+                    queryset=Answer.objects.filter(status=Answer.CORRECT),
+                    to_attr="_prefetched_correct_answers",
+                )
+            )
         )
 
     def destroy(self, request, pk=None, **kwargs):
@@ -164,7 +194,7 @@ class PuzzleViewSet(viewsets.ModelViewSet):
                             new_url, puzzle.sheet
                         )
                     )
-                if puzzle.is_meta:
+                if puzzle.is_meta and google_api_lib.enabled():
                     transaction.on_commit(
                         lambda: google_api_lib.task.update_meta_sheet_feeders.delay(
                             puzzle.id
@@ -194,7 +224,13 @@ class PuzzleViewSet(viewsets.ModelViewSet):
                 chat_room = ChatRoom.objects.create(
                     service=settings.CHAT_DEFAULT_SERVICE, name=name
                 )
-                chat_room.create_channels()
+                try:
+                    chat_room.create_channels()
+                    msg = f"{name} has been unlocked!"
+                    chat_room.get_service().announce(msg)
+                    chat_room.send_message(msg)
+                except Exception as e:
+                    logger.warn(f"Chat operations failed with error: {e}")
             else:
                 logger.warn("Chat room not created for puzzle %s" % name)
                 chat_room = None
