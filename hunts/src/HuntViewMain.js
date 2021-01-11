@@ -1,14 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { useSelector, useDispatch } from "react-redux";
-import {
-  fetchPuzzles,
-  selectPuzzleTableData,
-  getNumUnlocked,
-  getNumSolved,
-  getNumUnsolved,
-  getNumMetasSolved,
-} from "./puzzlesSlice";
+import { fetchPuzzles, selectPuzzleTableData } from "./puzzlesSlice";
 import { fetchHunt } from "./huntSlice";
 import { showModal, hideModal } from "./modalSlice";
 import { hideAlert } from "./alertSlice";
