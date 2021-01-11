@@ -110,12 +110,7 @@ export const HuntViewMain = (props) => {
     SOLVE_STATE_FILTER_OPTIONS.ALL
   );
   const dispatch = useDispatch();
-
-  const numUnlocked = useSelector(getNumUnlocked);
-  const numSolved = useSelector(getNumSolved);
-  const numUnsolved = useSelector(getNumUnsolved);
-  const numMetasSolved = useSelector(getNumMetasSolved);
-
+  
   const updatePuzzleData = () => {
     dispatch(fetchPuzzles(props.huntId));
   };
