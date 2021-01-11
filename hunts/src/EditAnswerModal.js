@@ -31,6 +31,7 @@ function EditAnswerModal({ puzzleId, answerId, text }) {
         <Modal.Body>
           <Form.Control
             required
+            autoFocus
             placeholder="Answer"
             value={newAnswer}
             onChange={(e) => setNewAnswer(e.target.value)}
