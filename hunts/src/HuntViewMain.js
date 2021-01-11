@@ -133,7 +133,7 @@ export const HuntViewMain = (props) => {
   return (
     <div
       style={{
-        margin: "0 30px",
+        margin: "0 20px",
       }}
     >
       <Alert
