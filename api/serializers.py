@@ -100,6 +100,7 @@ class PuzzleSerializer(serializers.ModelSerializer):
     chat_room = ChatRoomSerializer(required=False)
     tags = PuzzleTagSerializer(required=False, many=True)
     guesses = serializers.SerializerMethodField()
+    sheet = serializers.SerializerMethodField()
     # Have to specify this explicitly for validate_url to run
     url = serializers.CharField()
     hunt_id = serializers.PrimaryKeyRelatedField(
@@ -113,6 +114,9 @@ class PuzzleSerializer(serializers.ModelSerializer):
 
         guesses = obj.guesses.filter(status=Answer.CORRECT)
         return AnswerSerializer(guesses, many=True).data
+
+    def get_sheet(self, obj):
+        return bool(obj.sheet)
 
     def validate_url(self, url):
         return url_normalize(url)

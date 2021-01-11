@@ -60,7 +60,7 @@ class ApiTests(SmallboardTestCase):
                 "hunt_id": self._hunt.pk,
                 "url": TEST_URL,
                 "notes": "",
-                "sheet": None,
+                "sheet": False,
                 "chat_room": None,
                 "status": "SOLVING",
                 "tags": [],
