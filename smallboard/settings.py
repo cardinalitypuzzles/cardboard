@@ -268,3 +268,20 @@ CELERY_TASK_TRACK_STARTED = True
 CELERY_BROKER_URL = os.environ.get("REDIS_URL", "redis://")
 CELERY_BROKER_TRANSPORT_OPTIONS = {"max_retries": 3}
 CELERY_REDIS_MAX_CONNECTIONS = 2
+
+# Logging configuration
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console"],
+            "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
+        },
+    },
+}
