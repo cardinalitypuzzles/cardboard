@@ -47,6 +47,7 @@ const TABLE_COLUMNS = [
     Header: "Answer",
     accessor: (row) => row.guesses.map(({ text }) => text).join(" "),
     Cell: AnswerCell,
+    id: "answer",
   },
   {
     Header: "Status",
