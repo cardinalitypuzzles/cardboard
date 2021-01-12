@@ -112,5 +112,7 @@ class TestChatService(TestCase):
                 func = service.__getattribute__(f)
                 if f == "send_message":
                     func("channel-name-or-id", "msg")
+                elif f == "handle_tag_added" or f == "handle_tag_removed":
+                    func("puzzle", "tag")
                 else:
                     func("channel-name-or-id")
