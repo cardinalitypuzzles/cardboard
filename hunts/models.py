@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404
 from django.template.defaultfilters import slugify
 from django.utils import timezone
 from puzzles.models import Puzzle
+from datetime import timedelta
 
 
 class Hunt(models.Model):
@@ -47,27 +48,72 @@ class Hunt(models.Model):
     def get_num_metas_solved(self):
         return self.puzzles.filter(Q(status=Puzzle.SOLVED), Q(is_meta=True)).count()
 
-    def get_solves_per_hour(self):
-        current_time = timezone.now()
+    def get_num_metas_unsolved(self):
+        return self.puzzles.filter(~Q(status=Puzzle.SOLVED), Q(is_meta=True)).count()
+
+    # Gets the number of puzzles that are either solved or have a solved meta via DFS.
+    def get_progression(self):
+        solved_puzzles = self.puzzles.filter(status=Puzzle.SOLVED)
+        solved_puzzle_ids = {p.id for p in solved_puzzles}
+        puzzles_to_check = [p for p in solved_puzzles]
+
+        while len(puzzles_to_check) > 0:
+            next_puzzle = puzzles_to_check.pop()
+            if next_puzzle.is_meta:
+                for feeder in next_puzzle.feeders.all():
+                    if feeder.id not in solved_puzzle_ids:
+                        solved_puzzle_ids.add(feeder.id)
+                        puzzles_to_check.append(feeder)
+
+        return len(solved_puzzle_ids)
+
+    # Returns a list of solved meta names and solve times in [name, time] pairs.
+    # Solve times are given in dd hh:mm (am/pm) format (e.g., Fr 4:00 pm).
+    def get_meta_solve_list(self):
+        solved_metas = self.puzzles.filter(Q(status=Puzzle.SOLVED), Q(is_meta=True))
+        sorted_solved_metas = sorted(solved_metas, key=lambda x: x.solved_time())
+
+        return [[p.name, p.solved_time()] for p in sorted_solved_metas]
+
+    # Returns ends of the time interval for the time stats (6 hrs or entire hunt)
+    # and # of solves within the interval.
+    def time_stats_helper(self, recent=False):
+        interval_end = timezone.now()
         if self.end_time:
-            current_time = min(current_time, self.end_time)
-        if not self.start_time or self.start_time >= current_time:
-            return "N/A"
+            interval_end = min(interval_end, self.end_time)
+        if not self.start_time or self.start_time >= interval_end:
+            return None
+
+        interval_start = self.start_time
+        if recent:
+            interval_start = max(interval_start, interval_end - timedelta(hours=6))
 
         solved = self.get_num_solved()
-        hours_elapsed = (current_time - self.start_time).total_seconds() / 3600
+        if recent:
+            solved_puzzles = self.puzzles.filter(Q(status=Puzzle.SOLVED))
+            solved = len(
+                [x for x in solved_puzzles if x.solved_time() >= interval_start]
+            )
+
+        return solved, interval_start, interval_end
+
+    def get_solves_per_hour(self, recent=False):
+        time_stats_info = self.time_stats_helper(recent=recent)
+        if not time_stats_info:
+            return "N/A"
+        solved, interval_start, interval_end = time_stats_info
+
+        hours_elapsed = (interval_end - interval_start).total_seconds() / 3600
         return "{:.2f}".format(round(solved / hours_elapsed, 2))
 
-    def get_minutes_per_solve(self):
-        solved = self.get_num_solved()
+    def get_minutes_per_solve(self, recent=False):
+        time_stats_info = self.time_stats_helper(recent=recent)
+        if not time_stats_info:
+            return "N/A"
+        solved, interval_start, interval_end = time_stats_info
+
         if solved == 0:
             return "N/A"
 
-        current_time = timezone.now()
-        if self.end_time:
-            current_time = min(current_time, self.end_time)
-        if not self.start_time or self.start_time >= current_time:
-            return "N/A"
-
-        minutes_elapsed = (current_time - self.start_time).total_seconds() / 60
+        minutes_elapsed = (interval_end - interval_start).total_seconds() / 60
         return "{:.2f}".format(round(minutes_elapsed / solved, 2))

@@ -65,6 +65,7 @@ class TestHunt(TestCase):
         meta = self.create_puzzle("meta", hunt, True)
         feeder = self.create_puzzle("feeder", hunt, False)
         feeder.metas.add(meta)
+        self.assertEqual(hunt.get_num_metas_unsolved(), 1)
 
         guess_puzzle1 = Answer.objects.create(text="guess1", puzzle=puzzle1)
         guess_puzzle1.set_status(Answer.CORRECT)
@@ -81,6 +82,9 @@ class TestHunt(TestCase):
         self.assertEqual(hunt.get_num_unsolved(), 3)
         self.assertEqual(hunt.get_num_unlocked(), 5)
         self.assertEqual(hunt.get_num_metas_solved(), 1)
+        self.assertEqual(hunt.get_num_metas_unsolved(), 0)
+
+        self.assertEqual(hunt.get_progression(), 3)
 
     def test_time_stats(self):
         hunt_untimed = self.create_hunt("hunt_untimed")

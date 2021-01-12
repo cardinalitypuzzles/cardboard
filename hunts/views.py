@@ -45,16 +45,26 @@ def stats(request, hunt_slug):
     num_unsolved = hunt.get_num_unsolved()
     num_unlocked = hunt.get_num_unlocked()
     num_metas_solved = hunt.get_num_metas_solved()
+    num_metas_unsolved = hunt.get_num_metas_unsolved()
     solves_per_hour = hunt.get_solves_per_hour()
     minutes_per_solve = hunt.get_minutes_per_solve()
+    solves_per_hour_recent = hunt.get_solves_per_hour(recent=True)
+    minutes_per_solve_recent = hunt.get_minutes_per_solve(recent=True)
+    meta_names_and_times = hunt.get_meta_solve_list()
+    progression = hunt.get_progression()
 
     context = {
         "num_solved": num_solved,
         "num_unsolved": num_unsolved,
         "num_unlocked": num_unlocked,
         "num_metas_solved": num_metas_solved,
+        "num_metas_unsolved": num_metas_unsolved,
         "solves_per_hour": solves_per_hour,
         "minutes_per_solve": minutes_per_solve,
+        "solves_per_hour_recent": solves_per_hour_recent,
+        "minutes_per_solve_recent": minutes_per_solve_recent,
+        "meta_names_and_times": meta_names_and_times,
+        "progression": progression,
         "hunt_name": hunt.name,
         "hunt_slug": hunt.slug,
     }
