@@ -7,6 +7,9 @@ def _get_default_service():
     return settings.CHAT_DEFAULT_SERVICE
 
 
+SERVICE_CHOICES = ["DISCORD"]
+
+
 class ChatRoom(models.Model):
     """Represents a space for users to communicate about a topic (i.e. puzzle).
 
@@ -36,8 +39,6 @@ class ChatRoom(models.Model):
     Django models and views should interface with this ChatRoom model directly,
     not the underlying ChatService interface.
     """
-
-    SERVICE_CHOICES = ["DISCORD"]
 
     service = models.CharField(
         max_length=32,
@@ -114,6 +115,22 @@ class ChatRoom(models.Model):
         if self.text_channel_id:
             service = self.get_service()
             service.send_message(self.text_channel_id, msg)
+
+
+class ChatRole(models.Model):
+    """Represents group permissions on a chat platform (like a Discord role)."""
+
+    hunt = models.ForeignKey(
+        "hunts.Hunt", on_delete=models.CASCADE, related_name="chat_roles"
+    )
+    service = models.CharField(
+        max_length=32,
+        choices=[(service, service) for service in SERVICE_CHOICES],
+        default=_get_default_service,
+    )
+
+    name = models.CharField(max_length=100)
+    role_id = models.CharField(max_length=255)
 
 
 @receiver(models.signals.pre_delete, sender=ChatRoom)

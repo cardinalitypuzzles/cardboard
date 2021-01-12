@@ -121,3 +121,13 @@ class DiscordChatService(ChatService):
 
     def create_channel_url(self, channel_id):
         return f"https://discord.com/channels/{self._guild_id}/{channel_id}"
+
+    def handle_tag_added(self, puzzle, tag):
+        from chat.models import ChatRole
+
+        role = ChatRole.objects.filter(name__iexact=tag.name).first()
+        if role is not None:
+            self.announce(f"{puzzle.name} was tagged with <@&{role.role_id}>")
+
+    def handle_tag_removed(self, puzzle, tag):
+        pass
