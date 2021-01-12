@@ -8,10 +8,10 @@ from googleapiclient import _auth
 
 from celery import shared_task
 from .utils import GoogleApiClientTask
+from smallboard.settings import TaskPriority
 from puzzles.models import Puzzle
 
 logger = logging.getLogger(__name__)
-
 
 # helper function that can be mocked for testing
 def create_google_sheets_helper(self, name):
@@ -44,7 +44,7 @@ def transfer_ownership(self, file):
     ).execute()
 
 
-@shared_task(base=GoogleApiClientTask, bind=True)
+@shared_task(base=GoogleApiClientTask, bind=True, priority=TaskPriority.HIGH.value)
 def create_google_sheets(self, puzzle_id, name, puzzle_url=None):
     response = create_google_sheets_helper(self, name)
     sheet_url = response["webViewLink"]
@@ -138,7 +138,7 @@ def __clear_sheet(sheets_service, http, spreadsheet_id, sheet_id):
     ).execute(http=http)
 
 
-@shared_task(base=GoogleApiClientTask, bind=True)
+@shared_task(base=GoogleApiClientTask, bind=True, priority=TaskPriority.LOW.value)
 def update_meta_sheet_feeders(self, puzzle_id):
     """
     Updates the input meta puzzle's spreadsheet with the
