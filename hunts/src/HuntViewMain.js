@@ -26,7 +26,7 @@ import Modal from "react-bootstrap/Modal";
 import Alert from "react-bootstrap/Alert";
 import { SOLVE_STATE_FILTER_OPTIONS } from "./solveStateFilter";
 import { SHEET_REDIRECT_BASE } from "./constants";
-import { filterWithTagRemoved, filterWithTagToggled } from "./tagFilter";
+import { filterWithTagToggled } from "./tagFilter";
 import TagPill from "./TagPill";
 
 const MODAL_COMPONENTS = {
@@ -91,7 +91,7 @@ const TABLE_COLUMNS = [
   {
     Header: "Tags/Metas",
     id: "tags",
-    accessor: "tags",
+    accessor: (row) => row.tags.map(({ name }) => name).join(" "),
     Cell: TagCell,
     filter: "tagsFilter",
   },
@@ -115,10 +115,6 @@ export const HuntViewMain = (props) => {
     SOLVE_STATE_FILTER_OPTIONS.ALL
   );
   let [filterTags, setFilterTags] = React.useState([]);
-  // Passing this closure around might be expensive? I doubt it's that bad though.
-  const removeTagFromFilter = (tag) => {
-    setFilterTags(filterWithTagRemoved(filterTags, tag));
-  };
   const toggleTagInFilter = (tag) => {
     setFilterTags(filterWithTagToggled(filterTags, tag));
   };
@@ -227,6 +223,7 @@ export const HuntViewMain = (props) => {
         <div>
           {filterTags.length > 0 ? "Viewing puzzles with tags: " : ""}
           {filterTags.map(({ name, color, id }) => {
+            // This use of toggleTagInFilter will always delete the tag, never add it.
             return (
               <TagPill
                 name={name}
@@ -235,7 +232,7 @@ export const HuntViewMain = (props) => {
                 puzzleId={null}
                 key={name}
                 onDelete={function () {
-                  removeTagFromFilter({ name, color, id });
+                  toggleTagInFilter({ name, color, id });
                 }}
               />
             );
