@@ -4,6 +4,7 @@ import {
   createAsyncThunk,
   createEntityAdapter,
 } from "@reduxjs/toolkit";
+import { selectHuntId } from "./huntSlice";
 import api from "./api";
 import { DEFAULT_TAGS } from "./constants";
 
@@ -65,20 +66,20 @@ export const editAnswer = createAsyncThunk(
 
 export const deletePuzzleTag = createAsyncThunk(
   "puzzles/deletePuzzleTag",
-  async ({ puzzleId, tagId }) => {
-    const response = await api.deletePuzzleTag(puzzleId, tagId);
-    return response;
+  async ({ puzzleId, tagId }, thunkApi) => {
+    await api.deletePuzzleTag(puzzleId, tagId);
+    return api.getPuzzles(selectHuntId(thunkApi.getState()));
   }
 );
 
 export const addPuzzleTag = createAsyncThunk(
   "puzzles/addPuzzleTag",
-  async ({ puzzleId, name, color }) => {
-    const response = await api.addPuzzleTag(puzzleId, {
+  async ({ puzzleId, name, color }, thunkApi) => {
+    await api.addPuzzleTag(puzzleId, {
       name,
       color,
     });
-    return response;
+    return api.getPuzzles(selectHuntId(thunkApi.getState()));
   }
 );
 
@@ -155,16 +156,10 @@ export const puzzlesSlice = createSlice({
       });
     },
     [deletePuzzleTag.fulfilled]: (state, action) => {
-      puzzlesAdapter.updateOne(state, {
-        id: action.payload.id,
-        changes: { ...action.payload },
-      });
+      puzzlesAdapter.setAll(state, action.payload);
     },
     [addPuzzleTag.fulfilled]: (state, action) => {
-      puzzlesAdapter.updateOne(state, {
-        id: action.payload.id,
-        changes: { ...action.payload },
-      });
+      puzzlesAdapter.setAll(state, action.payload);
     },
   },
 });

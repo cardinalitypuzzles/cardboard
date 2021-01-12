@@ -1,4 +1,8 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import {
+  createSlice,
+  createAsyncThunk,
+  createSelector,
+} from "@reduxjs/toolkit";
 import api from "./api";
 
 export const fetchHunt = createAsyncThunk("hunt/fetchHunt", async (huntId) => {
@@ -24,3 +28,7 @@ export const huntSlice = createSlice({
 export const { reducers } = huntSlice.actions;
 
 export default huntSlice.reducer;
+
+const selectHunt = (state) => state.hunt;
+
+export const selectHuntId = createSelector([selectHunt], (hunt) => hunt.id);
