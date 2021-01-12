@@ -165,11 +165,11 @@ class PuzzleViewSet(viewsets.ModelViewSet):
                 )
             puzzle.delete()
             if google_api_lib.enabled() and puzzle.sheet:
-                    transaction.on_commit(
-                        lambda: google_api_lib.task.rename_sheet.delay(
-                            sheet_url=puzzle.sheet, name=f"[DELETED] {puzzle.name}"
-                        )
+                transaction.on_commit(
+                    lambda: google_api_lib.task.rename_sheet.delay(
+                        sheet_url=puzzle.sheet, name=f"[DELETED] {puzzle.name}"
                     )
+                )
 
         return Response({})
 
