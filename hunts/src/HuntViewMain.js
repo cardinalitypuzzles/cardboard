@@ -65,7 +65,7 @@ const TABLE_COLUMNS = [
   },
   {
     Header: "Sheet",
-    accessor: "sheet",
+    accessor: "has_sheet",
     Cell: ({ row, value }) =>
       value ? (
         <a href={`${SHEET_REDIRECT_BASE}/${row.original.id}`} target="_blank">
