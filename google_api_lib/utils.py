@@ -1,10 +1,17 @@
 from django.conf import settings
+from enum import Enum
 import googleapiclient
 import googleapiclient.discovery
 import googleapiclient.errors
 from google.oauth2 import service_account
 
 from celery import Task
+
+
+class Priority(Enum):
+    HIGH = 0
+    MED = 5
+    LOW = 9
 
 
 def enabled():

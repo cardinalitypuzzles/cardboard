@@ -267,6 +267,8 @@ else:
 
 
 # Celery settings
+from google_api_lib.utils import Priority
+
 CELERY_RESULT_BACKEND = "django-db"
 CELERY_TASK_TIME_LIMIT = 60
 CELERY_TASK_TRACK_STARTED = True
@@ -274,6 +276,7 @@ CELERY_BROKER_URL = os.environ.get("REDIS_URL", "redis://")
 CELERY_BROKER_TRANSPORT_OPTIONS = {"max_retries": 3}
 CELERY_BROKER_POOL_LIMIT = 1
 CELERY_REDIS_MAX_CONNECTIONS = 1  # Only for sending results, not enqueueing tasks
+CELERY_TASK_DEFAULT_PRIORITY = Priority.MED.value
 
 # Logging configuration
 LOGGING = {
