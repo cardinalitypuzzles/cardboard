@@ -76,7 +76,7 @@ def update_tags_m2m(sender, instance, action, reverse, model, pk_set, **kwargs):
 
 
 @receiver(pre_delete, sender=Puzzle)
-def update_meta_sheets_pre_delete(sender, instance, **kwargs):
+def update_sheets_pre_delete(sender, instance, **kwargs):
     # Need to be careful with the closure here:
     # instance.metas.all() will be empty after the transaction commits,
     # so we need to copy the metas out in advance
