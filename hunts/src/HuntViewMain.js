@@ -25,6 +25,7 @@ import Dropdown from "react-bootstrap/Dropdown";
 import Modal from "react-bootstrap/Modal";
 import Alert from "react-bootstrap/Alert";
 import { SOLVE_STATE_FILTER_OPTIONS } from "./solveStateFilter";
+import { SHEET_REDIRECT_BASE } from "./constants";
 
 const MODAL_COMPONENTS = {
   DELETE_PUZZLE: DeletePuzzleModal,
@@ -64,10 +65,10 @@ const TABLE_COLUMNS = [
   },
   {
     Header: "Sheet",
-    accessor: "sheet",
+    accessor: "has_sheet",
     Cell: ({ row, value }) =>
       value ? (
-        <a href={value} target="_blank">
+        <a href={`${SHEET_REDIRECT_BASE}/${row.original.id}`} target="_blank">
           Sheet
         </a>
       ) : null,

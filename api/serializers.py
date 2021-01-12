@@ -100,6 +100,7 @@ class PuzzleSerializer(serializers.ModelSerializer):
     chat_room = ChatRoomSerializer(required=False)
     tags = PuzzleTagSerializer(required=False, many=True)
     guesses = serializers.SerializerMethodField()
+    has_sheet = serializers.SerializerMethodField()
     # Have to specify this explicitly for validate_url to run
     url = serializers.CharField()
     hunt_id = serializers.PrimaryKeyRelatedField(
@@ -113,6 +114,9 @@ class PuzzleSerializer(serializers.ModelSerializer):
 
         guesses = obj.guesses.filter(status=Answer.CORRECT)
         return AnswerSerializer(guesses, many=True).data
+
+    def get_has_sheet(self, obj):
+        return bool(obj.sheet)
 
     def validate_url(self, url):
         return url_normalize(url)
@@ -153,7 +157,7 @@ class PuzzleSerializer(serializers.ModelSerializer):
             "hunt_id",
             "url",
             "notes",
-            "sheet",
+            "has_sheet",
             "chat_room",
             "status",
             "tags",
@@ -166,7 +170,7 @@ class PuzzleSerializer(serializers.ModelSerializer):
         read_only_fields = (
             "id",
             "hunt_id",
-            "sheet",
+            "has_sheet",
             "chat_room",
             "guesses",
             "tags",

@@ -15,3 +15,5 @@ export const DEFAULT_TAGS = [
   { name: "SLOG", color: "secondary" },
   { name: "INTERACTIVE", color: "primary" },
 ];
+
+export const SHEET_REDIRECT_BASE = "/puzzles/s";
