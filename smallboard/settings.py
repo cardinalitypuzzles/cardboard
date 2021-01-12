@@ -270,7 +270,7 @@ else:
 from enum import Enum
 
 
-class Priority(Enum):
+class TaskPriority(Enum):
     HIGH = 0
     MED = 5
     LOW = 9
@@ -283,7 +283,7 @@ CELERY_BROKER_URL = os.environ.get("REDIS_URL", "redis://")
 CELERY_BROKER_TRANSPORT_OPTIONS = {"max_retries": 3, "queue_order_strategy": "priority"}
 CELERY_BROKER_POOL_LIMIT = 1
 CELERY_REDIS_MAX_CONNECTIONS = 1  # Only for sending results, not enqueueing tasks
-CELERY_TASK_DEFAULT_PRIORITY = Priority.MED.value
+CELERY_TASK_DEFAULT_PRIORITY = TaskPriority.MED.value
 
 # Logging configuration
 LOGGING = {
