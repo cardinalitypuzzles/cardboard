@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load tz %}
 
 {% block page_content %}
 <div class="container">
@@ -61,7 +62,7 @@
       <table class="table table-hover">
         <tbody>
           <tr>
-            <td><b>Progression</b> (solves + puzzles w/ solved metas)</td>
+            <td>Progression (solves + puzzles w/ solved metas)</td>
             <th class="text-right text-success">{{ progression }}</th>
           </tr>
           <tr>
@@ -73,11 +74,11 @@
             <th class="text-right">{{ minutes_per_solve }}</th>
           </tr>
           <tr>
-            <td>Solves per Hour (past 6 hrs)</td>
+            <td>Solves per Hour (last 6 hrs)</td>
             <th class="text-right">{{ solves_per_hour_recent }}</th>
           </tr>
           <tr class="border-bottom">
-            <td>Minutes per Solve (past 6 hrs)</td>
+            <td>Minutes per Solve (last 6 hrs)</td>
             <th class="text-right">{{ minutes_per_solve_recent }}</th>
           </tr>
         </tbody>
@@ -86,13 +87,13 @@
     <div class="col-sm-6">
       <table class="table table-hover">
         <thead class="text-center">
-          <th colspan="2">Metas Solved</th>
+          <th colspan="2">Metas Solved (ET)</th>
         </thead>
         <tbody>
           {% for meta_solve in meta_names_and_times %}
           <tr class="border-bottom">
             <td class="text-primary">{{ meta_solve.0 }}</td>
-            <td class="text-right">{{ meta_solve.1 | date:"D h:i A" }}</td>
+            <td class="text-right">{{ meta_solve.1 | localtime | date:"D h:i A" }}</td>
           </tr>
           {% endfor %}
         </tbody>
