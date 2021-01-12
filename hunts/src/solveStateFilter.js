@@ -1,7 +1,7 @@
 export const SOLVE_STATE_FILTER_OPTIONS = {
   ALL: 0,
-  UNSOLVED: 1,
-  UNSOLVED_WITH_SOLVED_METAS: 2,
+  UNSOLVED: 1, // Excludes solved feeders and everything below them.
+  UNSOLVED_WITH_SOLVED_METAS: 2, // Includes unsolved feeders with solved metas.
 };
 
 function isUnsolved(tableRow) {
