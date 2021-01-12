@@ -89,6 +89,13 @@ def update_meta_sheets_pre_delete(sender, instance, **kwargs):
     if google_api_lib.enabled():
         transaction.on_commit(update_metas)
 
+        if instance.sheet:
+            transaction.on_commit(
+                lambda: google_api_lib.task.rename_sheet.delay(
+                    sheet_url=instance.sheet, name=f"[DELETED] {instance.name}"
+                )
+            )
+
 
 @receiver(m2m_changed, sender=Puzzle.metas.through)
 def update_meta_sheets_m2m(sender, instance, action, reverse, model, pk_set, **kwargs):
