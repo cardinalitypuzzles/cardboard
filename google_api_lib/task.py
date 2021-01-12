@@ -7,7 +7,8 @@ from django.conf import settings
 from googleapiclient import _auth
 
 from celery import shared_task
-from .utils import GoogleApiClientTask, Priority
+from .utils import GoogleApiClientTask
+from smallboard.settings import Priority
 from puzzles.models import Puzzle
 
 logger = logging.getLogger(__name__)

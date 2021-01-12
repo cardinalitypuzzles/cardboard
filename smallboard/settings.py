@@ -267,7 +267,14 @@ else:
 
 
 # Celery settings
-from google_api_lib.utils import Priority
+from enum import Enum
+
+
+class Priority(Enum):
+    HIGH = 0
+    MED = 5
+    LOW = 9
+
 
 CELERY_RESULT_BACKEND = "django-db"
 CELERY_TASK_TIME_LIMIT = 60
