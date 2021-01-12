@@ -170,29 +170,36 @@ export const HuntViewMain = (props) => {
               style={{ margin: "0 5px 0 10px" }}
               type="radio"
               checked={
-                filterSolved === SOLVE_STATE_FILTER_OPTIONS.PRIORITY ||
-                filterSolved === SOLVE_STATE_FILTER_OPTIONS.UNSOLVED
+                filterSolved === SOLVE_STATE_FILTER_OPTIONS.UNSOLVED ||
+                filterSolved ===
+                  SOLVE_STATE_FILTER_OPTIONS.UNSOLVED_WITH_SOLVED_METAS
               }
               onChange={(evt) => {
                 if (evt.target.checked) {
-                  setFilterSolved(SOLVE_STATE_FILTER_OPTIONS.PRIORITY);
+                  setFilterSolved(SOLVE_STATE_FILTER_OPTIONS.UNSOLVED);
                 }
               }}
             ></input>
             Unsolved
           </label>
-          {(filterSolved === SOLVE_STATE_FILTER_OPTIONS.PRIORITY ||
-            filterSolved === SOLVE_STATE_FILTER_OPTIONS.UNSOLVED) && (
+          {(filterSolved === SOLVE_STATE_FILTER_OPTIONS.UNSOLVED ||
+            filterSolved ===
+              SOLVE_STATE_FILTER_OPTIONS.UNSOLVED_WITH_SOLVED_METAS) && (
             <label>
               <input
                 style={{ margin: "0 5px 0 10px" }}
                 type="checkbox"
-                checked={filterSolved === SOLVE_STATE_FILTER_OPTIONS.UNSOLVED}
+                checked={
+                  filterSolved ===
+                  SOLVE_STATE_FILTER_OPTIONS.UNSOLVED_WITH_SOLVED_METAS
+                }
                 onChange={(evt) => {
                   if (evt.target.checked) {
-                    setFilterSolved(SOLVE_STATE_FILTER_OPTIONS.UNSOLVED);
+                    setFilterSolved(
+                      SOLVE_STATE_FILTER_OPTIONS.UNSOLVED_WITH_SOLVED_METAS
+                    );
                   } else {
-                    setFilterSolved(SOLVE_STATE_FILTER_OPTIONS.PRIORITY);
+                    setFilterSolved(SOLVE_STATE_FILTER_OPTIONS.UNSOLVED);
                   }
                 }}
               ></input>
