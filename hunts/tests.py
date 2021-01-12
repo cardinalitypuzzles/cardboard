@@ -6,6 +6,7 @@ from .models import Hunt
 from .forms import HuntForm
 from puzzles.models import Puzzle
 from answers.models import Answer
+from .chart_utils import *
 
 from datetime import timedelta
 
@@ -103,6 +104,57 @@ class TestHunt(TestCase):
         sph_string = "{:.2f}".format(round(1 / (minutes_elapsed / 60), 2))
         self.assertEqual(hunt_timed.get_minutes_per_solve(), mps_string)
         self.assertEqual(hunt_timed.get_solves_per_hour(), sph_string)
+
+    def test_chart_utils(self):
+        hunt_untimed = self.create_hunt("hunt_untimed")
+        self.assertFalse(can_use_chart(hunt_untimed))
+        hunt_future = self.create_hunt(
+            "hunt_future", start=timezone.now() + timedelta(days=100)
+        )
+        self.assertFalse(can_use_chart(hunt_future))
+
+        meta_name = "puzzle_meta"
+        solved_name = "puzzle_solved"
+        unsolved_name = "puzzle_unsolved"
+
+        hunt_current = self.create_hunt(
+            "hunt_current",
+            start=timezone.now(),
+            end=timezone.now() + timedelta(days=100),
+        )
+        puzzle_unsolved = self.create_puzzle(unsolved_name, hunt_current, False)
+        puzzle_solved = self.create_puzzle(solved_name, hunt_current, False)
+        guess_solved = Answer.objects.create(text="guess", puzzle=puzzle_solved)
+        guess_solved.set_status(Answer.CORRECT)
+        self.assertEqual(puzzle_solved.status, Puzzle.SOLVED)
+        puzzle_meta = self.create_puzzle(meta_name, hunt_current, True)
+        guess_meta = Answer.objects.create(text="guess", puzzle=puzzle_meta)
+        guess_meta.set_status(Answer.CORRECT)
+        self.assertEqual(puzzle_meta.status, Puzzle.SOLVED)
+
+        labels, times, counts, is_meta = get_chart_data(hunt_current)
+        self.assertEqual(labels, ["Start", solved_name, meta_name, "Now"])
+        self.assertEqual(
+            times[:3],
+            [
+                hunt_current.start_time.isoformat(),
+                puzzle_solved.solved_time().isoformat(),
+                puzzle_meta.solved_time().isoformat(),
+            ],
+        )
+        self.assertEqual(counts, [0, 1, 2, 2])
+        self.assertEqual(is_meta, [False, False, True, False])
+
+        hunt_past = self.create_hunt(
+            "hunt_past",
+            start=timezone.now() - timedelta(days=100),
+            end=timezone.now() - timedelta(days=1),
+        )
+        solve_after_end = self.create_puzzle(solved_name, hunt_past, False)
+        labels, times, counts, is_meta = get_chart_data(hunt_past)
+        self.assertEqual(
+            times, [hunt_past.start_time.isoformat(), hunt_past.end_time.isoformat()]
+        )
 
 
 class HuntFormTests(TestCase):
