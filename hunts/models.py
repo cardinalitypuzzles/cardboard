@@ -60,18 +60,18 @@ class Hunt(models.Model):
             FROM puzzles_puzzle
             WHERE (status = 'SOLVED' AND hunt_id = %s)
             UNION
-            (
+            SELECT * FROM (
                 WITH progression_ids AS (
                     SELECT id FROM progression_puzzles
                 )
                 SELECT Metas.from_puzzle_id
                 FROM puzzles_puzzle_metas Metas
                 WHERE Metas.to_puzzle_id IN (SELECT * FROM progression_ids)
-            )
+            ) AS progression_update
         )
         SELECT id FROM progression_puzzles
         """
-        progression_ids = Hunt.objects.raw(query.replace("\n", " "), [str(self.pk)])
+        progression_ids = Hunt.objects.raw(query, [str(self.pk)])
         return len(list(progression_ids))
 
     # Returns a list of solved meta names and solve times in [name, time] pairs.
