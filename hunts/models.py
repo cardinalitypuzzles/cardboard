@@ -71,7 +71,7 @@ class Hunt(models.Model):
         )
         SELECT id FROM progression_puzzles
         """
-        progression_ids = Hunt.objects.raw(query, [str(self.pk)])
+        progression_ids = Hunt.objects.raw(query.replace("\n", " "), [str(self.pk)])
         return len(list(progression_ids))
 
     # Returns a list of solved meta names and solve times in [name, time] pairs.
