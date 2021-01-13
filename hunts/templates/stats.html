@@ -1,7 +1,13 @@
 {% extends "base.html" %}
 {% load tz %}
 
+{% block head_content %}
+<!-- refresh (every minute) -->
+<meta http-equiv="refresh" content="60">
+{% endblock %}
+
 {% block page_content %}
+
 <!-- header -->
 <div class="container">
   <div class="row">
