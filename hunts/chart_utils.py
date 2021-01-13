@@ -6,15 +6,9 @@ from puzzles.models import Puzzle
 
 def can_use_chart(hunt):
     if not hunt.start_time:
-        if hunt.get_num_unlocked() == 0:
-            return False
-        else:
-            return True
+        return hunt.get_num_unlocked() > 0
 
-    if timezone.now() <= hunt.start_time:
-        return False
-
-    return True
+    return timezone.now() > hunt.start_time
 
 
 # Returns a tuple of lists of solved puzzle data, sorted by puzzle solve time.
