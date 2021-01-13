@@ -71,8 +71,8 @@ class Hunt(models.Model):
                 )
             )
             SELECT id FROM progression_puzzles
-            """
-            % self.pk
+            """,
+            [self.pk],
         )
         return len(list(progression_ids))
 
