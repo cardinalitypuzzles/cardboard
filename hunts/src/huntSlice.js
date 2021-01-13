@@ -17,6 +17,7 @@ export const huntSlice = createSlice({
     [fetchHunt.fulfilled]: (state, action) => {
       state.id = action.payload.id;
       state.name = action.payload.name;
+      state.has_drive = action.payload.has_drive;
     },
   },
 });
