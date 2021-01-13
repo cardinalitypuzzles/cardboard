@@ -53,21 +53,15 @@ class Hunt(models.Model):
 
     # Gets the number of puzzles that are either solved or feed into a solved meta.
     def get_progression(self):
-        # the second WITH is a workaround psql error: recursive reference in a subquery
         query = """
         WITH RECURSIVE progression_puzzles (id) AS (
             SELECT id
             FROM puzzles_puzzle
             WHERE (status = 'SOLVED' AND hunt_id = %s)
             UNION
-            SELECT * FROM (
-                WITH progression_ids AS (
-                    SELECT id FROM progression_puzzles
-                )
-                SELECT Metas.from_puzzle_id
-                FROM puzzles_puzzle_metas Metas
-                WHERE Metas.to_puzzle_id IN (SELECT * FROM progression_ids)
-            ) AS progression_update
+            SELECT Metas.from_puzzle_id
+            FROM puzzles_puzzle_metas Metas
+            INNER JOIN progression_puzzles ON progression_puzzles.id = Metas.to_puzzle_id
         )
         SELECT id FROM progression_puzzles
         """
