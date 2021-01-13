@@ -105,13 +105,8 @@ class TestHunt(TestCase):
         self.assertEqual(hunt_timed.get_minutes_per_solve(), mps_string)
         self.assertEqual(hunt_timed.get_solves_per_hour(), sph_string)
 
-    def test_chart_utils(self):
-        meta_name = "puzzle_meta"
-        solved_name = "puzzle_solved"
+    def test_chart_utils_untimed(self):
         unsolved_name = "puzzle_unsolved"
-        start_pt_name = "Start"
-        cur_pt_name = "Now"
-        end_pt_name = "End"
 
         # test behavior for a hunt with no start time
         hunt_untimed = self.create_hunt("hunt_untimed")
@@ -123,6 +118,13 @@ class TestHunt(TestCase):
         self.assertIsNotNone(chart_data)
         labels, times, counts, is_meta = chart_data
         self.assertEqual(times[0], puzzle_unsolved.created_on.isoformat())
+
+    def test_chart_utils(self):
+        meta_name = "puzzle_meta"
+        solved_name = "puzzle_solved"
+        unsolved_name = "puzzle_unsolved"
+        start_pt_name = "Start"
+        cur_pt_name = "Now"
 
         # test behavior for a future hunt
         hunt_future = self.create_hunt(
@@ -160,7 +162,28 @@ class TestHunt(TestCase):
         self.assertEqual(counts, [0, 1, 2, 2])
         self.assertEqual(is_meta, [False, False, True, False])
 
+        # test get_chart_data() with unlocks
+        labels, times, counts = get_chart_data(hunt_current, unlocks=True)
+        self.assertEqual(
+            labels, [start_pt_name, unsolved_name, solved_name, meta_name, cur_pt_name]
+        )
+        self.assertEqual(
+            times[:4],
+            [
+                hunt_current.start_time.isoformat(),
+                puzzle_unsolved.created_on.isoformat(),
+                puzzle_solved.created_on.isoformat(),
+                puzzle_meta.created_on.isoformat(),
+            ],
+        )
+        self.assertEqual(counts, [0, 1, 2, 3, 3])
+
+    def test_chart_utils_past(self):
         # test behavior when hunt.end_time is in the past
+        solved_name = "puzzle_solved"
+        start_pt_name = "Start"
+        end_pt_name = "End"
+
         hunt_past = self.create_hunt(
             "hunt_past",
             start=timezone.now() - timedelta(days=100),

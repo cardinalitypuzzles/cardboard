@@ -17,12 +17,12 @@ def can_use_chart(hunt):
     return True
 
 
-# Returns a tuple of lists of solved puzzle data, all sorted in order of puzzle solve time.
+# Returns a tuple of lists of solved puzzle data, sorted by puzzle solve time.
 # labels: Names of solved puzzles
 # times: Solve times of solved puzzles, in ISO 8601 format strings
-# counts: Cumulative count of solves at the time of that puzzle's solve (inclusive)
+# counts: Total solves/unlocks at the time of that puzzle's solve/unlock (inclusive)
 # is_meta: Whether the solved puzzle is meta (list of booleans)
-def get_chart_data(hunt):
+def get_chart_data(hunt, unlocks=False):
 
     # if start_time not given, use first puzzle creation time
     # (use can_use_chart() to check beforehand)
@@ -39,25 +39,37 @@ def get_chart_data(hunt):
     if hunt.end_time:
         chart_end_time = min(chart_end_time, hunt.end_time)
 
-    queryset = hunt.puzzles.filter(status=Puzzle.SOLVED)
-    solved_counts = queryset.count()
-    sorted_puzzles = sorted(queryset, key=lambda x: x.solved_time())
+    if unlocks:
+        queryset = hunt.puzzles.all()
+        sorted_puzzles = queryset.order_by("created_on")
+    else:
+        queryset = hunt.puzzles.filter(status=Puzzle.SOLVED)
+        sorted_puzzles = sorted(queryset, key=lambda x: x.solved_time())
+    total_count = queryset.count()
 
     for i, puzzle in enumerate(sorted_puzzles):
-        if puzzle.solved_time() > chart_end_time:
-            solved_counts = i
+        if (not unlocks and puzzle.solved_time() > chart_end_time) or (
+            unlocks and puzzle.created_on > chart_end_time
+        ):
+            total_count = i
             break
         labels.append(puzzle.name)
-        times.append(puzzle.solved_time().isoformat())
+        if unlocks:
+            times.append(puzzle.created_on.isoformat())
+        else:
+            times.append(puzzle.solved_time().isoformat())
         counts.append(i + 1)
-        is_meta.append(puzzle.is_meta)
+        if not unlocks:
+            is_meta.append(puzzle.is_meta)
 
     if hunt.end_time and chart_end_time < hunt.end_time:
         labels.append("Now")
     else:
         labels.append("End")
     times.append(chart_end_time.isoformat())
-    counts.append(solved_counts)
+    counts.append(total_count)
     is_meta.append(False)
 
+    if unlocks:
+        return (labels, times, counts)
     return (labels, times, counts, is_meta)
