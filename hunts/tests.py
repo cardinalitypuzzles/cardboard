@@ -6,6 +6,7 @@ from .models import Hunt
 from .forms import HuntForm
 from puzzles.models import Puzzle
 from answers.models import Answer
+from .chart_utils import *
 
 from datetime import timedelta
 
@@ -107,6 +108,97 @@ class TestHunt(TestCase):
         sph_string = "{:.2f}".format(round(1 / (minutes_elapsed / 60), 2))
         self.assertEqual(hunt_timed.get_minutes_per_solve(), mps_string)
         self.assertEqual(hunt_timed.get_solves_per_hour(), sph_string)
+
+    def test_chart_utils_untimed(self):
+        unsolved_name = "puzzle_unsolved"
+
+        # test behavior for a hunt with no start time
+        hunt_untimed = self.create_hunt("hunt_untimed")
+        self.assertFalse(can_use_chart(hunt_untimed))
+
+        puzzle_unsolved = self.create_puzzle(unsolved_name, hunt_untimed, False)
+        self.assertTrue(can_use_chart(hunt_untimed))
+        chart_data = get_chart_data(hunt_untimed)
+        self.assertIsNotNone(chart_data)
+        labels, times, counts, is_meta = chart_data
+        self.assertEqual(times[0], puzzle_unsolved.created_on.isoformat())
+
+    def test_chart_utils(self):
+        meta_name = "puzzle_meta"
+        solved_name = "puzzle_solved"
+        unsolved_name = "puzzle_unsolved"
+        start_pt_name = "Start"
+        cur_pt_name = "Now"
+
+        # test behavior for a future hunt
+        hunt_future = self.create_hunt(
+            "hunt_future", start=timezone.now() + timedelta(days=100)
+        )
+        self.assertFalse(can_use_chart(hunt_future))
+
+        # test behavior for a current hunt w/ unsolved, solved, and meta puzzles
+        hunt_current = self.create_hunt(
+            "hunt_current",
+            start=timezone.now(),
+            end=timezone.now() + timedelta(days=100),
+        )
+        puzzle_unsolved = self.create_puzzle(unsolved_name, hunt_current, False)
+        puzzle_solved = self.create_puzzle(solved_name, hunt_current, False)
+        guess_solved = Answer.objects.create(text="guess", puzzle=puzzle_solved)
+        guess_solved.set_status(Answer.CORRECT)
+        self.assertEqual(puzzle_solved.status, Puzzle.SOLVED)
+        puzzle_meta = self.create_puzzle(meta_name, hunt_current, True)
+        guess_meta = Answer.objects.create(text="guess", puzzle=puzzle_meta)
+        guess_meta.set_status(Answer.CORRECT)
+        self.assertEqual(puzzle_meta.status, Puzzle.SOLVED)
+
+        # test get_chart_data()
+        labels, times, counts, is_meta = get_chart_data(hunt_current)
+        self.assertEqual(labels, [start_pt_name, solved_name, meta_name, cur_pt_name])
+        self.assertEqual(
+            times[:3],
+            [
+                hunt_current.start_time.isoformat(),
+                puzzle_solved.solved_time().isoformat(),
+                puzzle_meta.solved_time().isoformat(),
+            ],
+        )
+        self.assertEqual(counts, [0, 1, 2, 2])
+        self.assertEqual(is_meta, [False, False, True, False])
+
+        # test get_chart_data() with unlocks
+        labels, times, counts = get_chart_data(hunt_current, unlocks=True)
+        self.assertEqual(
+            labels, [start_pt_name, unsolved_name, solved_name, meta_name, cur_pt_name]
+        )
+        self.assertEqual(
+            times[:4],
+            [
+                hunt_current.start_time.isoformat(),
+                puzzle_unsolved.created_on.isoformat(),
+                puzzle_solved.created_on.isoformat(),
+                puzzle_meta.created_on.isoformat(),
+            ],
+        )
+        self.assertEqual(counts, [0, 1, 2, 3, 3])
+
+    def test_chart_utils_past(self):
+        # test behavior when hunt.end_time is in the past
+        solved_name = "puzzle_solved"
+        start_pt_name = "Start"
+        end_pt_name = "End"
+
+        hunt_past = self.create_hunt(
+            "hunt_past",
+            start=timezone.now() - timedelta(days=100),
+            end=timezone.now() - timedelta(days=1),
+        )
+        solve_after_end = self.create_puzzle(solved_name, hunt_past, False)
+        labels, times, counts, is_meta = get_chart_data(hunt_past)
+        self.assertEqual(labels, [start_pt_name, end_pt_name])
+        self.assertEqual(
+            times, [hunt_past.start_time.isoformat(), hunt_past.end_time.isoformat()]
+        )
 
 
 class HuntFormTests(TestCase):

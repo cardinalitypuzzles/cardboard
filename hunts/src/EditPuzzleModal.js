@@ -35,6 +35,7 @@ function EditPuzzleModal({ huntId, puzzleId, name, url, isMeta }) {
             <Form.Label>Puzzle name</Form.Label>
             <Form.Control
               required
+              autoFocus
               placeholder="Name"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}

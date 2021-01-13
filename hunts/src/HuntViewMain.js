@@ -25,6 +25,7 @@ import Dropdown from "react-bootstrap/Dropdown";
 import Modal from "react-bootstrap/Modal";
 import Alert from "react-bootstrap/Alert";
 import { SOLVE_STATE_FILTER_OPTIONS } from "./solveStateFilter";
+import { SHEET_REDIRECT_BASE } from "./constants";
 
 const MODAL_COMPONENTS = {
   DELETE_PUZZLE: DeletePuzzleModal,
@@ -46,6 +47,7 @@ const TABLE_COLUMNS = [
     Header: "Answer",
     accessor: (row) => row.guesses.map(({ text }) => text).join(" "),
     Cell: AnswerCell,
+    id: "answer",
   },
   {
     Header: "Status",
@@ -64,10 +66,10 @@ const TABLE_COLUMNS = [
   },
   {
     Header: "Sheet",
-    accessor: "sheet",
+    accessor: "has_sheet",
     Cell: ({ row, value }) =>
       value ? (
-        <a href={value} target="_blank">
+        <a href={`${SHEET_REDIRECT_BASE}/${row.original.id}`} target="_blank">
           Sheet
         </a>
       ) : null,
@@ -173,20 +175,11 @@ export const HuntViewMain = (props) => {
             <input
               style={{ margin: "0 5px 0 10px" }}
               type="radio"
-              checked={filterSolved === SOLVE_STATE_FILTER_OPTIONS.PRIORITY}
-              onChange={(evt) => {
-                if (evt.target.checked) {
-                  setFilterSolved(SOLVE_STATE_FILTER_OPTIONS.PRIORITY);
-                }
-              }}
-            ></input>
-            Priority
-          </label>
-          <label>
-            <input
-              style={{ margin: "0 5px 0 10px" }}
-              type="radio"
-              checked={filterSolved === SOLVE_STATE_FILTER_OPTIONS.UNSOLVED}
+              checked={
+                filterSolved === SOLVE_STATE_FILTER_OPTIONS.UNSOLVED ||
+                filterSolved ===
+                  SOLVE_STATE_FILTER_OPTIONS.UNSOLVED_WITH_SOLVED_METAS
+              }
               onChange={(evt) => {
                 if (evt.target.checked) {
                   setFilterSolved(SOLVE_STATE_FILTER_OPTIONS.UNSOLVED);
@@ -195,6 +188,30 @@ export const HuntViewMain = (props) => {
             ></input>
             Unsolved
           </label>
+          {(filterSolved === SOLVE_STATE_FILTER_OPTIONS.UNSOLVED ||
+            filterSolved ===
+              SOLVE_STATE_FILTER_OPTIONS.UNSOLVED_WITH_SOLVED_METAS) && (
+            <label>
+              <input
+                style={{ margin: "0 5px 0 10px" }}
+                type="checkbox"
+                checked={
+                  filterSolved ===
+                  SOLVE_STATE_FILTER_OPTIONS.UNSOLVED_WITH_SOLVED_METAS
+                }
+                onChange={(evt) => {
+                  if (evt.target.checked) {
+                    setFilterSolved(
+                      SOLVE_STATE_FILTER_OPTIONS.UNSOLVED_WITH_SOLVED_METAS
+                    );
+                  } else {
+                    setFilterSolved(SOLVE_STATE_FILTER_OPTIONS.UNSOLVED);
+                  }
+                }}
+              ></input>
+              Include unsolved w/ solved metas
+            </label>
+          )}
         </div>
 
         <Button

@@ -7,6 +7,7 @@ from django.views.generic.base import RedirectView
 
 from .forms import HuntForm
 from .models import Hunt
+from .chart_utils import *
 
 import logging
 
@@ -53,6 +54,12 @@ def stats(request, hunt_slug):
     meta_names_and_times = hunt.get_meta_solve_list()
     progression = hunt.get_progression()
 
+    chart_solve_data = None
+    chart_unlock_data = None
+    if can_use_chart(hunt):
+        chart_solve_data = get_chart_data(hunt, unlocks=False)
+        chart_unlock_data = get_chart_data(hunt, unlocks=True)
+
     context = {
         "num_solved": num_solved,
         "num_unsolved": num_unsolved,
@@ -67,6 +74,8 @@ def stats(request, hunt_slug):
         "progression": progression,
         "hunt_name": hunt.name,
         "hunt_slug": hunt.slug,
+        "chart_solve_data": chart_solve_data,
+        "chart_unlock_data": chart_unlock_data,
     }
 
     return render(request, "stats.html", context=context)
