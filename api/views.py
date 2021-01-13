@@ -281,6 +281,11 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
             if not tag.puzzles.exists():
                 tag.delete()
 
+            if puzzle.chat_room:
+                transaction.on_commit(
+                    lambda: puzzle.chat_room.handle_tag_removed(puzzle, tag)
+                )
+
         return Response(PuzzleSerializer(puzzle).data)
 
     def create(self, request, **kwargs):
@@ -314,4 +319,9 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
             else:
                 puzzle.tags.add(tag)
 
-            return Response(PuzzleSerializer(puzzle).data)
+            if puzzle.chat_room:
+                transaction.on_commit(
+                    lambda: puzzle.chat_room.handle_tag_added(puzzle, tag)
+                )
+
+        return Response(PuzzleSerializer(puzzle).data)

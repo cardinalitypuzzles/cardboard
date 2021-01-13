@@ -27,6 +27,9 @@ class PuzzleTag(models.Model):
     # internal flag to know when to sync meta puzzles
     is_meta = models.BooleanField(default=False)
 
+    def __str__(self):
+        return self.name
+
     class Meta:
         ordering = ("color", "name")
         constraints = [
