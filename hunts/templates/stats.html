@@ -24,6 +24,7 @@
 {{ chart_unlock_data.2 | json_script:"unlockCounts" }}
 <div class="container justify-content-center" style="height:45vh; width:60vw">
   <canvas id="progressChart"></canvas>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js" charset="utf-8"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
   <script>
     var solveTimes = JSON.parse(document.getElementById("solveTimes").textContent);
@@ -55,8 +56,6 @@
         pointHoverRadii.push(0);
       }
     }
-
-    //disable tooltips for unlocks (see StackOverflow 43118408)
 
     var ctx = document.getElementById("progressChart");
     var progressChart = new Chart(ctx, {
