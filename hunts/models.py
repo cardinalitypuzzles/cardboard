@@ -58,7 +58,7 @@ class Hunt(models.Model):
             WITH RECURSIVE progression_puzzles (id) AS (
                 SELECT id
                 FROM puzzles_puzzle
-                WHERE status = 'SOLVED' AND hunt_id = %d
+                WHERE status = 'SOLVED' AND hunt_id = %s
                 UNION
                 (
                     -- workaround psql error: recursive reference in a subquery
@@ -72,7 +72,7 @@ class Hunt(models.Model):
             )
             SELECT id FROM progression_puzzles
             """,
-            [self.pk],
+            [str(self.pk)],
         )
         return len(list(progression_ids))
 
