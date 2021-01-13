@@ -116,6 +116,12 @@ class ChatRoom(models.Model):
             service = self.get_service()
             service.send_message(self.text_channel_id, msg)
 
+    def handle_tag_added(self, puzzle, tag):
+        self.get_service().handle_tag_added(self, puzzle, tag)
+
+    def handle_tag_removed(self, puzzle, tag):
+        self.get_service().handle_tag_removed(self, puzzle, tag)
+
 
 class ChatRole(models.Model):
     """Represents group permissions on a chat platform (like a Discord role)."""

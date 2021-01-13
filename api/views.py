@@ -283,9 +283,7 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
 
             if puzzle.chat_room:
                 transaction.on_commit(
-                    lambda: puzzle.chat_room.get_service().handle_tag_removed(
-                        puzzle, tag
-                    )
+                    lambda: puzzle.chat_room.handle_tag_removed(puzzle, tag)
                 )
 
         return Response(PuzzleSerializer(puzzle).data)
@@ -323,7 +321,7 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
 
             if puzzle.chat_room:
                 transaction.on_commit(
-                    lambda: puzzle.chat_room.get_service().handle_tag_added(puzzle, tag)
+                    lambda: puzzle.chat_room.handle_tag_added(puzzle, tag)
                 )
 
         return Response(PuzzleSerializer(puzzle).data)
