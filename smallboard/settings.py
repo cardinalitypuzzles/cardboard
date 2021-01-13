@@ -232,19 +232,6 @@ except KeyError as e:
         f"No {e.args[0]} environment variable set. Google login will be disabled."
     )
 
-# TODO: make this a per hunt setting
-from google_api_lib import whitelist
-
-if GOOGLE_API_AUTHN_INFO is not None:
-    SOCIAL_AUTH_GOOGLE_OAUTH2_WHITELISTED_EMAILS = whitelist.get_file_user_emails(
-        GOOGLE_DRIVE_HUNT_FOLDER_ID
-    )
-    logger.info(
-        "Whitelisted emails: " + str(SOCIAL_AUTH_GOOGLE_OAUTH2_WHITELISTED_EMAILS)
-    )
-else:
-    logger.warn("Google Drive integration not set up. All emails will be accepted.")
-
 # Taggit Overrides
 TAGGIT_TAGS_FROM_STRING = "puzzles.tag_utils.to_tag"
 

@@ -7,7 +7,7 @@ from django.conf import settings
 from googleapiclient import _auth
 
 from celery import shared_task
-from .utils import GoogleApiClientTask
+from .utils import GoogleApiClientTask, extract_id_from_sheets_url
 from smallboard.settings import TaskPriority
 from puzzles.models import Puzzle
 
@@ -55,17 +55,6 @@ def create_google_sheets(self, puzzle_id, name, puzzle_url=None):
     return sheet_url
 
 
-def extract_id_from_sheets_url(url):
-    """
-    Assumes `url` is of the form
-    https://docs.google.com/spreadsheets/d/<ID>/edit...
-    and returns the <ID> portion
-    """
-    start = url.find("/d/") + 3
-    end = url.find("/edit")
-    return url[start:end]
-
-
 @shared_task(base=GoogleApiClientTask, bind=True)
 def add_puzzle_link_to_sheet(self, puzzle_url, sheet_url):
     req_body = {
@@ -73,8 +62,12 @@ def add_puzzle_link_to_sheet(self, puzzle_url, sheet_url):
             [f'=HYPERLINK("{puzzle_url}", "Puzzle Link")'],
         ]
     }
+    spreadsheet_id = extract_id_from_sheets_url(sheet_url)
+    if not spreadsheet_id:
+        logger.error(f"Error extracting ID: {sheet_url}")
+        return
     self.sheets_service().spreadsheets().values().update(
-        spreadsheetId=extract_id_from_sheets_url(sheet_url),
+        spreadsheetId=spreadsheet_id,
         range="A1:B2",
         valueInputOption="USER_ENTERED",
         body=req_body,
@@ -94,8 +87,13 @@ def rename_sheet(self, sheet_url, name):
         }
     ]
     body = {"requests": requests}
+    spreadsheet_id = extract_id_from_sheets_url(sheet_url)
+    if not spreadsheet_id:
+        logger.error(f"Error extracting ID: {sheet_url}")
+        return
+
     self.sheets_service().spreadsheets().batchUpdate(
-        spreadsheetId=extract_id_from_sheets_url(sheet_url), body=body
+        spreadsheetId=spreadsheet_id, body=body
     ).execute()
 
 
@@ -152,6 +150,10 @@ def update_meta_sheet_feeders(self, puzzle_id):
         "Starting updating the meta sheet for '%s' " "with feeder puzzles" % meta_puzzle
     )
     spreadsheet_id = extract_id_from_sheets_url(meta_puzzle.sheet)
+    if not spreadsheet_id:
+        logger.error(f"Error extracting ID: {meta_puzzle.sheet}")
+        return
+
     feeders = meta_puzzle.feeders.all()
     feeders = sorted(feeders, key=lambda p: p.name)
     feeders_to_answers = {f: f.correct_answers() for f in feeders}

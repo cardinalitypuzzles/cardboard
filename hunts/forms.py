@@ -32,6 +32,13 @@ class HuntForm(forms.Form):
         required=False,
     )
 
+    google_drive_hunt_folder_url = forms.URLField(
+        widget=forms.TextInput(attrs={"class": "form-control", "placeholder": "URL"})
+    )
+    google_sheets_template_file_url = forms.URLField(
+        widget=forms.TextInput(attrs={"class": "form-control", "placeholder": "URL"})
+    )
+
     def clean(self):
         data = super().clean()
 

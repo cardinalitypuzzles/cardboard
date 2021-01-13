@@ -5,10 +5,42 @@ import googleapiclient.errors
 from google.oauth2 import service_account
 
 from celery import Task
+import re
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def enabled():
     return settings.GOOGLE_API_AUTHN_INFO is not None
+
+
+def extract_id_from_sheets_url(url):
+    """
+    Assumes `url` is of the form
+    https://docs.google.com/spreadsheets/d/<ID>/...
+    and returns the <ID> portion
+    """
+    pattern = ".*docs\.google\.com\/spreadsheets\/d\/([-\w]+).*"
+    m = re.search(pattern, url)
+    if m is None:
+        logger.error(f"Invalid url: {url}")
+        return ""
+    return m.group(1)
+
+
+def extract_id_from_drive_folder_url(url):
+    """
+    Assumes `url` is of the form
+    https://drive.google.com/drive/u/2/folders/<ID>/..
+    and returns the <ID> portion
+    """
+    pattern = ".*drive\.google\.com\/drive\/u\/2\/folders\/([-\w]+).*"
+    m = re.search(pattern, url)
+    if m is None:
+        logger.error(f"Invalid url: {url}")
+        return ""
+    return m.group(1)
 
 
 class GoogleApiClientTask(Task):
