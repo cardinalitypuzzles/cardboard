@@ -116,11 +116,11 @@ class ChatRoom(models.Model):
             service = self.get_service()
             service.send_message(self.text_channel_id, msg)
 
-    def handle_tag_added(self, puzzle, tag):
-        self.get_service().handle_tag_added(self, puzzle, tag)
+    def handle_tag_added(self, puzzle, tag_name):
+        self.get_service().handle_tag_added(puzzle, tag_name)
 
-    def handle_tag_removed(self, puzzle, tag):
-        self.get_service().handle_tag_removed(self, puzzle, tag)
+    def handle_tag_removed(self, puzzle, tag_name):
+        self.get_service().handle_tag_removed(puzzle, tag_name)
 
 
 class ChatRole(models.Model):

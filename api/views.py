@@ -18,6 +18,7 @@ from .serializers import (
     PuzzleTagSerializer,
 )
 import google_api_lib.task
+import chat.tasks
 
 import logging
 
@@ -67,13 +68,11 @@ class AnswerViewSet(viewsets.ModelViewSet):
                 answer.status = Answer.CORRECT
                 puzzle.answer = answer.text
                 if puzzle.chat_room:
-                    try:
-                        puzzle.chat_room.archive_channels()
-                        msg = f"{puzzle.name} has been solved with {answer.text}!"
-                        puzzle.chat_room.get_service().announce(msg)
-                        puzzle.chat_room.send_message(msg)
-                    except Exception as e:
-                        logger.warn(f"Chat operations failed with error: {e}")
+                    transaction.on_commit(
+                        lambda: chat.tasks.handle_puzzle_solved.delay(
+                            puzzle.id, answer.text
+                        )
+                    )
                 answer.save()
                 transaction.on_commit(
                     lambda: AnswerViewSet._maybe_update_meta_sheets_for_feeder(puzzle)
@@ -101,10 +100,9 @@ class AnswerViewSet(viewsets.ModelViewSet):
             ) or (not puzzle.guesses.all() and puzzle.status == Puzzle.PENDING):
                 puzzle.status = Puzzle.SOLVING
                 if puzzle.chat_room:
-                    try:
-                        puzzle.chat_room.unarchive_channels()
-                    except Exception as e:
-                        logger.warn(f"Chat operations failed with error: {e}")
+                    transaction.on_commit(
+                        lambda: chat.tasks.handle_puzzle_unsolved.delay(puzzle_id)
+                    )
                 if puzzle.sheet and google_api_lib.enabled():
                     transaction.on_commit(
                         lambda: google_api_lib.task.rename_sheet.delay(
@@ -224,13 +222,9 @@ class PuzzleViewSet(viewsets.ModelViewSet):
                 chat_room = ChatRoom.objects.create(
                     service=settings.CHAT_DEFAULT_SERVICE, name=name
                 )
-                try:
-                    chat_room.create_channels()
-                    msg = f"{name} has been unlocked!"
-                    chat_room.get_service().announce(msg)
-                    chat_room.send_message(msg)
-                except Exception as e:
-                    logger.warn(f"Chat operations failed with error: {e}")
+                transaction.on_commit(
+                    lambda: chat.tasks.create_chat_for_puzzle.delay(puzzle.id)
+                )
             else:
                 logger.warn("Chat room not created for puzzle %s" % name)
                 chat_room = None
@@ -283,7 +277,7 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
 
             if puzzle.chat_room:
                 transaction.on_commit(
-                    lambda: puzzle.chat_room.handle_tag_removed(puzzle, tag)
+                    lambda: chat.tasks.handle_tag_removed.delay(puzzle.id, tag.name)
                 )
 
         return Response(PuzzleSerializer(puzzle).data)
@@ -321,7 +315,7 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
 
             if puzzle.chat_room:
                 transaction.on_commit(
-                    lambda: puzzle.chat_room.handle_tag_added(puzzle, tag)
+                    lambda: chat.tasks.handle_tag_added.delay(puzzle.id, tag.name)
                 )
 
         return Response(PuzzleSerializer(puzzle).data)

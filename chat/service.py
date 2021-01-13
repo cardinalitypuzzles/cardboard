@@ -52,8 +52,8 @@ class ChatService:
     def announce(self, msg):
         raise NotImplementedError
 
-    def handle_tag_added(self, puzzle, tag):
+    def handle_tag_added(self, puzzle, tag_name):
         raise NotImplementedError
 
-    def handle_tag_removed(self, puzzle, tag):
+    def handle_tag_removed(self, puzzle, tag_name):
         raise NotImplementedError
