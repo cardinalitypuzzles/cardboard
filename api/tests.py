@@ -22,6 +22,7 @@ class ApiTests(SmallboardTestCase):
                 "name": self._hunt.name,
                 "url": self._hunt.url,
                 "active": self._hunt.active,
+                "has_drive": True
             },
         )
 
