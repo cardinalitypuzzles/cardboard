@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block page_content %}
+<!-- header -->
 <div class="container">
   <div class="row">
     <div class="col-sm">
@@ -12,12 +13,143 @@
   </div>
 </div>
 
-<div class="container">
-  <p class="text-center">
-    <!-- (graph goes here) -->
-  </p>
-</div>
+<!-- chart -->
+{% if chart_solve_data != None %}
+{{ chart_solve_data.0 | json_script:"solveLabels" }}
+{{ chart_solve_data.1 | json_script:"solveTimes" }}
+{{ chart_solve_data.2 | json_script:"solveCounts" }}
+{{ chart_solve_data.3 | json_script:"isMeta" }}
+{{ chart_unlock_data.0 | json_script:"unlockLabels" }}
+{{ chart_unlock_data.1 | json_script:"unlockTimes" }}
+{{ chart_unlock_data.2 | json_script:"unlockCounts" }}
+<div class="container justify-content-center" style="height:45vh; width:60vw">
+  <canvas id="progressChart"></canvas>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+  <script>
+    var solveTimes = JSON.parse(document.getElementById("solveTimes").textContent);
+    var solveCounts = JSON.parse(document.getElementById("solveCounts").textContent);
+    var solveDataPoints = [];
+    for (i = 0; i < solveTimes.length; i++) {
+      solveDataPoints.push({x:solveTimes[i], y:solveCounts[i]});
+    };
 
+    var unlockTimes = JSON.parse(document.getElementById("unlockTimes").textContent);
+    var unlockCounts = JSON.parse(document.getElementById("unlockCounts").textContent);
+    var unlockDataPoints = [];
+    for (i = 0; i < unlockTimes.length; i++) {
+      unlockDataPoints.push({x:unlockTimes[i], y:unlockCounts[i]});
+    }
+
+    var pointBackgroundColors = [];
+    var pointRadii = [];
+    var pointHoverRadii = [];
+    var isMeta = JSON.parse(document.getElementById("isMeta").textContent);
+    for (i = 0; i < isMeta.length; i++) {
+      if (isMeta[i]) {
+        pointBackgroundColors.push("#4c7cfc"); // bootstrap primary (blue)
+        pointRadii.push(6);
+        pointHoverRadii.push(7);
+      } else {
+        pointBackgroundColors.push("rgba(0,0,0,0.1)");
+        pointRadii.push(0);
+        pointHoverRadii.push(0);
+      }
+    }
+
+    //disable tooltips for unlocks (see StackOverflow 43118408)
+
+    var ctx = document.getElementById("progressChart");
+    var progressChart = new Chart(ctx, {
+      type: "scatter",
+      data: {
+        datasets: [
+          { // solves dataset
+            label: "Solved",
+            labels: JSON.parse(document.getElementById("solveLabels").textContent),
+            data: solveDataPoints,
+            showLine: true,
+            steppedLine: true,
+            borderColor: "#67a74a", // boostrap success (green)
+            backgroundColor: "rgba(103, 167, 74, 0.1)", // same color, just translucent
+            borderWidth: 2,
+            pointBorderWidth: 1,
+            pointBackgroundColor: pointBackgroundColors,
+            pointRadius: pointRadii,
+            pointHoverRadius: pointHoverRadii,
+          },
+          { // unlocks dataset
+            label: "Unlocked",
+            labels: JSON.parse(document.getElementById("solveLabels").textContent),
+            data: unlockDataPoints,
+            showLine: true,
+            steppedLine: true,
+            borderColor: "#6f757d", // boostrap secondary (gray)
+            borderWidth: 2,
+            pointBorderWidth: 0,
+            pointRadius: 0,
+            pointHoverRadius: 0,
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          xAxes: [{
+            type: "time",
+            time: {
+              unit: "minute",
+              stepSize: 15,
+              displayFormats: {
+                day: "dd",
+                hour: "dd hA",
+                minute: "dd h:mm a",
+              },
+            },
+            ticks: {
+              maxTicksLimit: 12,
+            },
+          }],
+          yAxes: [{
+            ticks: {
+              beginAtZero: true,
+              // Callback ensures that only integers are used as puzzle count tickmarks.
+              callback: function(value) {if (value % 1 === 0) {return value;}},
+              maxTicksLimit: 9,
+            },
+            scaleLabel: {
+              display: true,
+              labelString: "Puzzles",
+              fontStyle: "bold"
+            }
+          }]
+        },
+        animation: {
+          duration: 0
+        },
+        legend: {
+          display: false
+        },
+        tooltips: {
+          // Only tooltips for solved metas are displayed.
+          filter: function(tooltipItem, data) {
+            return (tooltipItem.datasetIndex === 0 && isMeta[tooltipItem.index]);
+          },
+          callbacks: {
+            // Formats time labels in "dd h:mm a" (e.g., Fr 4:00 pm) format.
+            label: function(tooltipItem, data) {
+              var label = data.datasets[0].labels[tooltipItem.index];
+              return label + ": " + moment(tooltipItem.xLabel).format("dd h:mm a");
+            },
+          },
+        },
+      }
+    });
+  </script>
+</div>
+{% endif %}
+
+<!-- main stats -->
 <div class="container">
   <div class="row text-center font-weight-bold">
     <div class="col-sm-3">
@@ -39,21 +171,22 @@
   </div>
 </div>
 
-<div class="container pt-5">
+<!-- time stats and meta solve tables -->
+<div class="container pt-3">
   <div class="row justify-content-center">
     <div class="col-sm-6">
-        <table class="table table-hover">
-          <tbody>
-            <tr>
-              <td>Solves per Hour</td>
-              <th class="text-right">{{ solves_per_hour }}</th>
-            </tr>
-            <tr class="border-bottom">
-              <td>Minutes per Solve</td>
-              <th class="text-right">{{ minutes_per_solve }}</th>
-            </tr>
-          </tbody>
-        </table>
+      <table class="table table-hover">
+        <tbody>
+          <tr>
+            <td>Solves per Hour</td>
+            <th class="text-right">{{ solves_per_hour }}</th>
+          </tr>
+          <tr class="border-bottom">
+            <td>Minutes per Solve</td>
+            <th class="text-right">{{ minutes_per_solve }}</th>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </div>
