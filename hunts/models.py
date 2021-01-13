@@ -61,7 +61,7 @@ class Hunt(models.Model):
                 WHERE status = 'SOLVED' AND hunt_id = %d
                 UNION
                 (
-                    -- workaround psql error: "recursive reference in a subquery"
+                    -- workaround psql error: recursive reference in a subquery
                     WITH progression_ids AS (
                         SELECT id FROM progression_puzzles
                     )
