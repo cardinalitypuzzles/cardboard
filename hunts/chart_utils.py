@@ -17,9 +17,10 @@ def can_use_chart(hunt):
 # counts: Total solves/unlocks at the time of that puzzle's solve/unlock (inclusive)
 # is_meta: Whether the solved puzzle is meta (list of booleans)
 def get_chart_data(hunt, unlocks=False):
+    if not can_use_chart(hunt):
+        return None
 
     # if start_time not given, use first puzzle creation time
-    # (use can_use_chart() to check beforehand)
     chart_start_time = hunt.start_time
     if not chart_start_time:
         chart_start_time = hunt.puzzles.earliest("created_on").created_on

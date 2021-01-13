@@ -115,6 +115,7 @@ class TestHunt(TestCase):
         # test behavior for a hunt with no start time
         hunt_untimed = self.create_hunt("hunt_untimed")
         self.assertFalse(can_use_chart(hunt_untimed))
+        self.assertIsNone(get_chart_data(hunt_untimed))
 
         puzzle_unsolved = self.create_puzzle(unsolved_name, hunt_untimed, False)
         self.assertTrue(can_use_chart(hunt_untimed))
