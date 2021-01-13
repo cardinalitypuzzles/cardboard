@@ -1,4 +1,5 @@
 from .test_helpers import SmallboardTestCase
+from django.conf import settings
 from django.test import override_settings
 from rest_framework import status
 from puzzles.models import Puzzle, PuzzleTag
@@ -22,7 +23,7 @@ class ApiTests(SmallboardTestCase):
                 "name": self._hunt.name,
                 "url": self._hunt.url,
                 "active": self._hunt.active,
-                "has_drive": True
+                "has_drive": bool(settings.GOOGLE_HUMAN_DRIVE_HUNT_FOLDER_URL)
             },
         )
 
