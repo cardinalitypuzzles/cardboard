@@ -53,27 +53,25 @@ class Hunt(models.Model):
 
     # Gets the number of puzzles that are either solved or feed into a solved meta.
     def get_progression(self):
-        progression_ids = Hunt.objects.raw(
-            """
-            WITH RECURSIVE progression_puzzles (id) AS (
-                SELECT id
-                FROM puzzles_puzzle
-                WHERE status = 'SOLVED' AND hunt_id = %s
-                UNION
-                (
-                    -- workaround psql error: recursive reference in a subquery
-                    WITH progression_ids AS (
-                        SELECT id FROM progression_puzzles
-                    )
-                    SELECT Metas.from_puzzle_id
-                    FROM puzzles_puzzle_metas Metas
-                    WHERE Metas.to_puzzle_id IN (SELECT * FROM progression_ids)
+        # the second WITH is a workaround psql error: recursive reference in a subquery
+        query = """
+        WITH RECURSIVE progression_puzzles (id) AS (
+            SELECT id
+            FROM puzzles_puzzle
+            WHERE (status = 'SOLVED' AND hunt_id = %s)
+            UNION
+            (
+                WITH progression_ids AS (
+                    SELECT id FROM progression_puzzles
                 )
+                SELECT Metas.from_puzzle_id
+                FROM puzzles_puzzle_metas Metas
+                WHERE Metas.to_puzzle_id IN (SELECT * FROM progression_ids)
             )
-            SELECT id FROM progression_puzzles
-            """,
-            [str(self.pk)],
         )
+        SELECT id FROM progression_puzzles
+        """
+        progression_ids = Hunt.objects.raw(query, [str(self.pk)])
         return len(list(progression_ids))
 
     # Returns a list of solved meta names and solve times in [name, time] pairs.
