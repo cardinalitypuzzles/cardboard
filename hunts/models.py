@@ -51,21 +51,27 @@ class Hunt(models.Model):
     def get_num_metas_unsolved(self):
         return self.puzzles.filter(~Q(status=Puzzle.SOLVED), Q(is_meta=True)).count()
 
-    # Gets the number of puzzles that are either solved or have a solved meta via DFS.
+    # Gets the number of puzzles that are either solved or feed into a solved meta.
     def get_progression(self):
-        solved_puzzles = self.puzzles.filter(status=Puzzle.SOLVED)
-        solved_puzzle_ids = {p.id for p in solved_puzzles}
-        puzzles_to_check = [p for p in solved_puzzles]
-
-        while len(puzzles_to_check) > 0:
-            next_puzzle = puzzles_to_check.pop()
-            if next_puzzle.is_meta:
-                for feeder in next_puzzle.feeders.all():
-                    if feeder.id not in solved_puzzle_ids:
-                        solved_puzzle_ids.add(feeder.id)
-                        puzzles_to_check.append(feeder)
-
-        return len(solved_puzzle_ids)
+        progression_ids = Hunt.objects.raw("""
+            WITH RECURSIVE progression_puzzles (id) AS (
+                SELECT id
+                FROM puzzles_puzzle
+                WHERE status = 'SOLVED' AND hunt_id = %d
+                UNION
+                (
+                    -- workaround psql error: "recursive reference in a subquery"
+                    WITH progression_ids AS (
+                        SELECT id FROM progression_puzzles
+                    )
+                    SELECT Metas.from_puzzle_id
+                    FROM puzzles_puzzle_metas Metas
+                    WHERE Metas.to_puzzle_id IN (SELECT * FROM progression_ids)
+                )
+            )
+            SELECT id FROM progression_puzzles
+        """ % self.pk)
+        return len(list(progression_ids))
 
     # Returns a list of solved meta names and solve times in [name, time] pairs.
     # Solve times are given in dd hh:mm (am/pm) format (e.g., Fr 4:00 pm).
