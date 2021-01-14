@@ -41,6 +41,8 @@ ALLOWED_HOSTS = [
     "smallboard.herokuapp.com",
     "smallboard.app",
 ]
+if "HEROKU_APP_NAME" in os.environ:
+    ALLOWED_HOSTS.append(f"{os.environ['HEROKU_APP_NAME']}.herokuapp.com")
 
 # This should be turned on in production to redirect HTTP to HTTPS
 # The development web server doesn't support HTTPS, however, so do not
