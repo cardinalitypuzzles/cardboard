@@ -1,6 +1,7 @@
 from unittest import TestCase, mock
 
 from disco.types.channel import Channel, ChannelType
+from disco.types.invite import Invite
 from disco.types.message import MessageEmbed
 
 from .discord_chat_service import DiscordChatService
@@ -302,3 +303,21 @@ class TestDiscordChatService(TestCase):
                 mock.call(channel2.id, parent_id=archive.id),
             ]
         )
+
+    def test_create_channel_url(self):
+        self.assertEqual(
+            self.service.create_channel_url(1, is_audio=False),
+            "https://discord.com/channels/11111/1",
+        )
+
+        invite = Invite(
+            code="invite_code",
+            max_age=0,
+        )
+
+        self.mock_client.channels_invites_create.return_value = invite
+        self.assertEqual(
+            self.service.create_channel_url(2, is_audio=True),
+            "https://discord.gg/invite_code"
+        )
+
