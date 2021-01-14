@@ -304,6 +304,16 @@ class TestDiscordChatService(TestCase):
             ]
         )
 
+    def test_handle_puzzle_rename(self):
+        name = "channel-name"
+        channel = Channel(id=22222, type=ChannelType.GUILD_TEXT, name=name)
+
+        new_name = "channel-new-name"
+        self.service.handle_puzzle_rename(channel.id, new_name)
+        self.mock_client.channels_modify.assert_called_once_with(
+            channel.id, name=new_name
+        )
+
     def test_create_channel_url(self):
         self.assertEqual(
             self.service.create_channel_url(1, is_audio=False),

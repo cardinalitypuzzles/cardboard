@@ -183,6 +183,7 @@ class PuzzleViewSet(viewsets.ModelViewSet):
         try:
             with transaction.atomic():
                 puzzle = self.get_object()
+                old_name = puzzle.name
                 serializer = self.get_serializer(
                     puzzle, data=request.data, partial=True
                 )
@@ -198,6 +199,15 @@ class PuzzleViewSet(viewsets.ModelViewSet):
                 if "status" in data:
                     puzzle.status = data["status"]
                     puzzle.save()
+
+                if puzzle.chat_room and "name" in data and data["name"] != old_name:
+                    puzzle.chat_room.name = data["name"]
+                    puzzle.chat_room.save()
+                    transaction.on_commit(
+                        lambda: chat.tasks.handle_puzzle_rename.delay(
+                            puzzle.id, data["name"]
+                        )
+                    )
 
                 if is_new_url and google_api_lib.enabled():
                     transaction.on_commit(
