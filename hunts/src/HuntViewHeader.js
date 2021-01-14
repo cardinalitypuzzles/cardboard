@@ -24,7 +24,7 @@ function HuntViewHeader({ hunt }) {
     <div className="row">
       <ReactTooltip place="bottom" />
       <a data-tip="Create your drawings, jamboards, etc here" href={"drive"}>
-        Google Drive Folder
+        Google Drive Folder 📁
       </a>
     </div>
   ) : null;
@@ -38,13 +38,8 @@ function HuntViewHeader({ hunt }) {
           padding: "2px",
           alignItems: "center",
         }}
-        className="row justify-content-between"
       >
         <h1>{hunt.name} - All Puzzles</h1>
-        <h1 className="col-10">{hunt.name} - All Puzzles</h1>
-        <div className="col-2">
-          {driveRedirect}
-        </div>
       </div>
       <div
         style={{
@@ -83,6 +78,9 @@ function HuntViewHeader({ hunt }) {
             </Col>
             <Col xs={1} className="text-nowrap">
               <a href={"stats"}>Stats 📈</a>
+            </Col>
+            <Col xs={1} className="text-nowrap">
+              {driveRedirect}
             </Col>
           </Row>
         </Container>
