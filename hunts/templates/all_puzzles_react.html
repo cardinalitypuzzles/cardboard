@@ -11,4 +11,50 @@
     var CURRENT_HUNT_ID = ({{ hunt_pk }}).toString();
 </script>
 <script src="{% static "main.js" %}"></script>
+
+
+<script>
+    function connect() {
+
+        var loc = window.location
+        var wsStart = "ws://"
+        if (loc.protocol == "https:"){
+            wsStart = "wss://"
+        }
+        var webSocketEndpoint =  wsStart + loc.host + '/notifications/' + ({{ hunt_pk }}).toString()
+
+        var socket = new WebSocket(webSocketEndpoint)
+
+        var audio = null;
+
+        socket.onmessage = function(e){
+            if (audio != null){
+                audio.pause()
+            }
+
+            audio = new Audio("{% static 'audio' %}" + "/" + e.data.replace(/^"(.*)"$/, '$1'));
+            audio.play();
+        }
+
+        socket.onopen = function(e){
+            console.log('open', e)
+            clearInterval(this.timerId);
+
+            socket.onclose = function(e){
+                console.log('closed, will try reconnecting in 1 minute')
+                this.timerId = setInterval(function() {
+                    connect();
+                }, 60000);
+            }
+        }
+
+        socket.onerror = function(e){
+            console.log('error', e)
+        }
+
+
+    }
+
+    connect();
+</script>
 {% endblock %}

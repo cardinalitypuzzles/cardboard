@@ -1,9 +1,12 @@
+from django.core.exceptions import ValidationError
+from django.contrib.staticfiles import finders
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.template.defaultfilters import slugify
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 from puzzles.models import Puzzle
 
 
@@ -18,6 +21,28 @@ class Hunt(models.Model):
     active = models.BooleanField(default=True)
     slug = models.SlugField(blank=True, unique=True)
     answer_queue_enabled = models.BooleanField(default=False)
+
+    def validate_file_exists(value):
+        if value and not finders.find(f"audio/{value}"):
+            raise ValidationError(
+                _("%(value)s is not an available audio file"),
+                params={"value": value},
+            )
+
+    meta_sound = models.CharField(
+        max_length=16,
+        validators=[validate_file_exists],
+        default=None,
+        blank=True,
+        null=True,
+    )
+    feeder_sound = models.CharField(
+        max_length=16,
+        validators=[validate_file_exists],
+        default=None,
+        blank=True,
+        null=True,
+    )
 
     def __str__(self):
         return self.name

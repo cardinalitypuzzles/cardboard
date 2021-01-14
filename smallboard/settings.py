@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     "taggit",
     "rest_framework",
     "django_celery_results",
+    "channels",
 ]
 
 MIDDLEWARE = [
@@ -298,6 +299,26 @@ LOGGING = {
         "django": {
             "handlers": ["console"],
             "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
+        },
+    },
+}
+
+# Sending users notifications
+ASGI_APPLICATION = "smallboard.asgi.application"
+import re
+
+m = re.match("^redis://(.*):([0-9])+", os.environ.get("REDIS_URL", "redis://"))
+if m:
+    (server_name, port) = m.groups()
+else:
+    server_name = "localhost"
+    port = 6379
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [(server_name, port)],
         },
     },
 }
