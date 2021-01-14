@@ -148,7 +148,10 @@ class DiscordChatService(ChatService):
 
         role = ChatRole.objects.filter(name__iexact=tag_name).first()
         if role is not None:
-            self.announce(f"{puzzle.name} was tagged with <@&{role.role_id}>")
+            self.announce(
+                f"{puzzle.name} was tagged with <@&{role.role_id}>",
+                puzzle.create_field_url_map(),
+            )
 
     def handle_tag_removed(self, puzzle, tag_name):
         pass

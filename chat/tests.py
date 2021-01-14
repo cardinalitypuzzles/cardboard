@@ -2,7 +2,7 @@ from django.conf import settings
 from django.test import TestCase, override_settings
 
 from .models import ChatRoom
-from .service import ChatService 
+from .service import ChatService
 from .fake_service import FakeChatService
 
 

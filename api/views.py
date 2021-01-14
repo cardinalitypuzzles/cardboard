@@ -101,7 +101,7 @@ class AnswerViewSet(viewsets.ModelViewSet):
                 puzzle.status = Puzzle.SOLVING
                 if puzzle.chat_room:
                     transaction.on_commit(
-                        lambda: chat.tasks.handle_puzzle_unsolved.delay(puzzle_id)
+                        lambda: chat.tasks.handle_puzzle_unsolved.delay(puzzle.id)
                     )
                 if puzzle.sheet and google_api_lib.enabled():
                     transaction.on_commit(

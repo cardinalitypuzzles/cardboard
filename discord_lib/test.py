@@ -318,6 +318,5 @@ class TestDiscordChatService(TestCase):
         self.mock_client.channels_invites_create.return_value = invite
         self.assertEqual(
             self.service.create_channel_url(2, is_audio=True),
-            "https://discord.gg/invite_code"
+            "https://discord.gg/invite_code",
         )
-

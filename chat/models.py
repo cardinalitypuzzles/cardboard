@@ -121,6 +121,13 @@ class ChatRoom(models.Model):
             service = self.get_service()
             service.send_message(self.text_channel_id, msg, embedded_urls)
 
+    def send_and_announce_message_with_embedded_urls(self, msg, puzzle):
+        embedded_urls = {}
+        if puzzle:
+            embedded_urls = puzzle.create_field_url_map()
+        self.get_service().announce(msg, embedded_urls)
+        self.send_message(msg, embedded_urls)
+
     def handle_tag_added(self, puzzle, tag_name):
         self.get_service().handle_tag_added(puzzle, tag_name)
 

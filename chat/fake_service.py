@@ -1,4 +1,4 @@
-from .service import ChatService 
+from .service import ChatService
 
 
 class FakeChatService(ChatService):
