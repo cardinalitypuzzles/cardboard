@@ -99,7 +99,7 @@ async def send_puzzles(message, puzzles, title):
             chunk_lines = []
             chunk_length = 0
         if embed_length + line_length >= 6000:
-            message.channel.send(embed=embed)
+            await message.channel.send(embed=embed)
             embed = discord.Embed()
             embed_length = len(title)
         chunk_lines.append(line)
