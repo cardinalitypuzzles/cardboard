@@ -170,6 +170,7 @@ class PuzzleViewSet(viewsets.ModelViewSet):
         try:
             with transaction.atomic():
                 puzzle = self.get_object()
+                old_name = puzzle.name
                 serializer = self.get_serializer(
                     puzzle, data=request.data, partial=True
                 )
@@ -186,11 +187,11 @@ class PuzzleViewSet(viewsets.ModelViewSet):
                     puzzle.status = data["status"]
                     puzzle.save()
 
-                if puzzle.chat_room and "name" in data:
+                if puzzle.chat_room and "name" in data and data["name"] != old_name:
                     puzzle.chat_room.name = data["name"]
                     puzzle.chat_room.save()
                     transaction.on_commit(
-                        lambda: chat.tasks.handle_channel_rename.delay(
+                        lambda: chat.tasks.handle_puzzle_rename.delay(
                             puzzle.id, data["name"]
                         )
                     )

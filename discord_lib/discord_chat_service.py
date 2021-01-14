@@ -132,5 +132,5 @@ class DiscordChatService(ChatService):
     def handle_tag_removed(self, puzzle, tag_name):
         pass
 
-    def handle_channel_rename(self, channel_id, new_name):
+    def handle_puzzle_rename(self, channel_id, new_name):
         self._client.channels_modify(int(channel_id), name=new_name)

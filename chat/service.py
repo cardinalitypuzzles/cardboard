@@ -58,5 +58,5 @@ class ChatService:
     def handle_tag_removed(self, puzzle, tag_name):
         raise NotImplementedError
 
-    def handle_channel_rename(self, channel_id, new_name):
+    def handle_puzzle_rename(self, channel_id, new_name):
         raise NotImplementedError
