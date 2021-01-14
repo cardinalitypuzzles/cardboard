@@ -123,6 +123,8 @@ class TestHunt(TestCase):
         sph_string = "{:.2f}".format(round(1 / (minutes_elapsed / 60), 2))
         self.assertEqual(hunt_timed.get_minutes_per_solve(), mps_string)
         self.assertEqual(hunt_timed.get_solves_per_hour(), sph_string)
+        self.assertEqual(hunt_timed.get_minutes_per_solve(recent=True), mps_string)
+        self.assertEqual(hunt_timed.get_solves_per_hour(recent=True), sph_string)
 
     def test_chart_utils_untimed(self):
         unsolved_name = "puzzle_unsolved"
