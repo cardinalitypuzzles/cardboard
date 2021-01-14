@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
+from django.conf import settings
 from answers.models import Answer
 from chat.models import ChatRoom
 from hunts.models import Hunt
@@ -11,14 +12,14 @@ import re
 
 
 class HuntSerializer(serializers.ModelSerializer):
+    has_drive = serializers.SerializerMethodField()
+
+    def get_has_drive(self, obj):
+        return bool(settings.GOOGLE_HUMAN_DRIVE_HUNT_FOLDER_URL)
+
     class Meta:
         model = Hunt
-        fields = (
-            "id",
-            "name",
-            "active",
-            "url",
-        )
+        fields = ("id", "name", "active", "url", "has_drive")
 
 
 class CurrentHuntDefault:

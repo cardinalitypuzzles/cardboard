@@ -11,12 +11,14 @@ export const huntSlice = createSlice({
   initialState: {
     id: null,
     name: null,
+    has_drive: false,
   },
   reducers: {},
   extraReducers: {
     [fetchHunt.fulfilled]: (state, action) => {
       state.id = action.payload.id;
       state.name = action.payload.name;
+      state.has_drive = action.payload.has_drive;
     },
   },
 });
