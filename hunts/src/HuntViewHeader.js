@@ -31,7 +31,7 @@ function HuntViewHeader({ hunt }) {
       }
     >
       <a href={"drive"}>Google Drive Folder 🎨🖌️📁</a>
-     </OverlayTrigger>
+    </OverlayTrigger>
   ) : null;
 
   return (
