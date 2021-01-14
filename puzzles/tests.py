@@ -5,7 +5,7 @@ from rest_framework.test import APITestCase
 
 from accounts.models import Puzzler
 from chat.models import ChatRoom
-from chat.service import FakeChatService
+from chat.fake_service import FakeChatService
 from hunts.models import Hunt
 from answers.models import Answer
 from .models import Puzzle, is_ancestor
