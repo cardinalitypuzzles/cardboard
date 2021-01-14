@@ -1,16 +1,23 @@
 import json
+from django.test import override_settings
 from unittest.mock import patch
-
 from rest_framework.test import APITestCase
 
 from accounts.models import Puzzler
 from chat.models import ChatRoom
+from chat.service import FakeChatService
 from hunts.models import Hunt
 from answers.models import Answer
 from .models import Puzzle, is_ancestor
 from .puzzle_tag import PuzzleTag
 
 
+@override_settings(
+    CHAT_DEFAULT_SERVICE="FAKE",
+    CHAT_SERVICES={
+        "FAKE": FakeChatService,
+    },
+)
 class TestPuzzle(APITestCase):
     def setUp(self):
         self._user = Puzzler.objects.create_user(
