@@ -3,8 +3,6 @@ from disco.api.client import APIClient
 from disco.types.channel import ChannelType
 from disco.types.message import MessageEmbed
 
-import re
-
 from chat.service import ChatService
 
 
