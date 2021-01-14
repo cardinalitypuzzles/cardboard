@@ -183,9 +183,9 @@ class Puzzle(models.Model):
         field_url_map["Puzzle"] = self.url
         if self.chat_room:
             if self.chat_room.text_channel_url:
-                field_url_map["Text"] = self.chat_room.text_channel_url
+                field_url_map["Text Channel"] = self.chat_room.text_channel_url
             if self.chat_room.audio_channel_url:
-                field_url_map["Voice"] = self.chat_room.audio_channel_url
+                field_url_map["Voice Channel"] = self.chat_room.audio_channel_url
         if self.sheet:
             field_url_map["Sheet"] = self.sheet
 

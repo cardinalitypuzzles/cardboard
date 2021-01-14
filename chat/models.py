@@ -70,8 +70,8 @@ class ChatRoom(models.Model):
         service = self.get_service()
         self.text_channel_id = service.create_text_channel(self.name)
         self.audio_channel_id = service.create_audio_channel(self.name)
-        self.text_channel_url = service.create_channel_url(self.text_channel_id, False)
-        self.audio_channel_url = service.create_channel_url(self.audio_channel_id, True)
+        self.text_channel_url = service.create_channel_url(self.text_channel_id, is_audio=False)
+        self.audio_channel_url = service.create_channel_url(self.audio_channel_id, is_audio=True)
         self.save(
             update_fields=[
                 "text_channel_id",
@@ -120,6 +120,10 @@ class ChatRoom(models.Model):
         if self.text_channel_id:
             service = self.get_service()
             service.send_message(self.text_channel_id, msg, embedded_urls)
+
+    def send_and_announce_message(self, msg):
+        self.get_service().announce(msg)
+        self.send_message(msg)
 
     def send_and_announce_message_with_embedded_urls(self, msg, puzzle):
         embedded_urls = {}

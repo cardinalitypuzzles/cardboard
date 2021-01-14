@@ -161,8 +161,8 @@ class TestPuzzle(APITestCase):
         field_url_map = puzzle.create_field_url_map()
         self.assertEqual(field_url_map["Puzzle"], puzzle.url)
         self.assertEqual(field_url_map["Sheet"], puzzle.sheet)
-        self.assertNotIn("Text", field_url_map)
-        self.assertNotIn("Voice", field_url_map)
+        self.assertNotIn("Text Channel", field_url_map)
+        self.assertNotIn("Voice Channel", field_url_map)
 
         puzzle.chat_room = ChatRoom.objects.create(name="test_room")
         puzzle.chat_room.audio_channel_url = "audio_channel_url.com"
@@ -170,5 +170,5 @@ class TestPuzzle(APITestCase):
         field_url_map = puzzle.create_field_url_map()
         self.assertEqual(field_url_map["Puzzle"], puzzle.url)
         self.assertEqual(field_url_map["Sheet"], puzzle.sheet)
-        self.assertEqual(field_url_map["Text"], "text_channel_url.com")
-        self.assertEqual(field_url_map["Voice"], "audio_channel_url.com")
+        self.assertEqual(field_url_map["Text Channel"], "text_channel_url.com")
+        self.assertEqual(field_url_map["Voice Channel"], "audio_channel_url.com")
