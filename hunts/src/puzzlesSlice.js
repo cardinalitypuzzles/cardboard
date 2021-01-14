@@ -25,9 +25,10 @@ export const deletePuzzle = createAsyncThunk(
 
 export const fetchPuzzles = createAsyncThunk(
   "puzzles/fetchPuzzles",
-  async (huntId) => {
+  async (huntId, { getState }) => {
+    const { timestamp } = getState().puzzles;
     const response = await api.getPuzzles(huntId);
-    return response;
+    return { timestamp, result: response };
   }
 );
 
@@ -114,57 +115,71 @@ function puzzleComparator(a, b) {
 
 const puzzlesAdapter = createEntityAdapter();
 
-const initialState = puzzlesAdapter.getInitialState();
-
 export const puzzlesSlice = createSlice({
   name: "puzzles",
-  initialState,
+  initialState: puzzlesAdapter.getInitialState({
+    timestamp: 0, // A logical timestamp for detecting stale fetchPuzzle actions
+  }),
   reducers: {},
   extraReducers: {
     [addPuzzle.fulfilled]: (state, action) => {
       puzzlesAdapter.addOne(state, action.payload);
+      ++state.timestamp;
     },
     [deletePuzzle.fulfilled]: (state, action) => {
       puzzlesAdapter.removeOne(state, action.payload);
+      ++state.timestamp;
     },
     [fetchPuzzles.fulfilled]: (state, action) => {
-      puzzlesAdapter.setAll(state, action.payload);
+      const { timestamp, result } = action.payload;
+      if (timestamp == state.timestamp) {
+        // Only apply the update if no other action has completed
+        // in between dispatching the fetch and it completing
+        puzzlesAdapter.setAll(state, result);
+      }
+      ++state.timestamp;
     },
     [updatePuzzle.fulfilled]: (state, action) => {
       puzzlesAdapter.updateOne(state, {
         id: action.payload.id,
         changes: { ...action.payload },
       });
+      ++state.timestamp;
     },
     [addAnswer.fulfilled]: (state, action) => {
       puzzlesAdapter.updateOne(state, {
         id: action.payload.id,
         changes: { ...action.payload },
       });
+      ++state.timestamp;
     },
     [deleteAnswer.fulfilled]: (state, action) => {
       puzzlesAdapter.updateOne(state, {
         id: action.payload.id,
         changes: { ...action.payload },
       });
+      ++state.timestamp;
     },
     [editAnswer.fulfilled]: (state, action) => {
       puzzlesAdapter.updateOne(state, {
         id: action.payload.id,
         changes: { ...action.payload },
       });
+      ++state.timestamp;
     },
     [deletePuzzleTag.fulfilled]: (state, action) => {
       puzzlesAdapter.updateOne(state, {
         id: action.payload.id,
         changes: { ...action.payload },
       });
+      ++state.timestamp;
     },
     [addPuzzleTag.fulfilled]: (state, action) => {
       puzzlesAdapter.updateOne(state, {
         id: action.payload.id,
         changes: { ...action.payload },
       });
+      ++state.timestamp;
     },
   },
 });
