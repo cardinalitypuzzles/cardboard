@@ -17,7 +17,8 @@ from .serializers import (
     PuzzleSerializer,
     PuzzleTagSerializer,
 )
-import google_api_lib.task
+import google_api_lib.tasks
+import chat.tasks
 
 import logging
 
@@ -42,7 +43,7 @@ class AnswerViewSet(viewsets.ModelViewSet):
     def _maybe_update_meta_sheets_for_feeder(feeder):
         if google_api_lib.enabled():
             for meta in feeder.metas.all():
-                google_api_lib.task.update_meta_sheet_feeders.delay(meta.id)
+                google_api_lib.tasks.update_meta_sheet_feeders.delay(meta.id)
 
     def get_queryset(self):
         puzzle_id = self.kwargs["puzzle_id"]
@@ -67,20 +68,18 @@ class AnswerViewSet(viewsets.ModelViewSet):
                 answer.status = Answer.CORRECT
                 puzzle.answer = answer.text
                 if puzzle.chat_room:
-                    try:
-                        puzzle.chat_room.archive_channels()
-                        msg = f"{puzzle.name} has been solved with {answer.text}!"
-                        puzzle.chat_room.get_service().announce(msg)
-                        puzzle.chat_room.send_message(msg)
-                    except Exception as e:
-                        logger.warn(f"Chat operations failed with error: {e}")
+                    transaction.on_commit(
+                        lambda: chat.tasks.handle_puzzle_solved.delay(
+                            puzzle.id, answer.text
+                        )
+                    )
                 answer.save()
                 transaction.on_commit(
                     lambda: AnswerViewSet._maybe_update_meta_sheets_for_feeder(puzzle)
                 )
                 if google_api_lib.enabled() and puzzle.sheet:
                     transaction.on_commit(
-                        lambda: google_api_lib.task.rename_sheet.delay(
+                        lambda: google_api_lib.tasks.rename_sheet.delay(
                             sheet_url=puzzle.sheet, name=f"[SOLVED] {puzzle.name}"
                         )
                     )
@@ -101,13 +100,12 @@ class AnswerViewSet(viewsets.ModelViewSet):
             ) or (not puzzle.guesses.all() and puzzle.status == Puzzle.PENDING):
                 puzzle.status = Puzzle.SOLVING
                 if puzzle.chat_room:
-                    try:
-                        puzzle.chat_room.unarchive_channels()
-                    except Exception as e:
-                        logger.warn(f"Chat operations failed with error: {e}")
+                    transaction.on_commit(
+                        lambda: chat.tasks.handle_puzzle_unsolved.delay(puzzle.id)
+                    )
                 if puzzle.sheet and google_api_lib.enabled():
                     transaction.on_commit(
-                        lambda: google_api_lib.task.rename_sheet.delay(
+                        lambda: google_api_lib.tasks.rename_sheet.delay(
                             sheet_url=puzzle.sheet, name=puzzle.name
                         )
                     )
@@ -172,6 +170,7 @@ class PuzzleViewSet(viewsets.ModelViewSet):
         try:
             with transaction.atomic():
                 puzzle = self.get_object()
+                old_name = puzzle.name
                 serializer = self.get_serializer(
                     puzzle, data=request.data, partial=True
                 )
@@ -188,15 +187,24 @@ class PuzzleViewSet(viewsets.ModelViewSet):
                     puzzle.status = data["status"]
                     puzzle.save()
 
+                if puzzle.chat_room and "name" in data and data["name"] != old_name:
+                    puzzle.chat_room.name = data["name"]
+                    puzzle.chat_room.save()
+                    transaction.on_commit(
+                        lambda: chat.tasks.handle_puzzle_rename.delay(
+                            puzzle.id, data["name"]
+                        )
+                    )
+
                 if is_new_url and google_api_lib.enabled():
                     transaction.on_commit(
-                        lambda: google_api_lib.task.add_puzzle_link_to_sheet.delay(
+                        lambda: google_api_lib.tasks.add_puzzle_link_to_sheet.delay(
                             new_url, puzzle.sheet
                         )
                     )
                 if puzzle.is_meta and google_api_lib.enabled():
                     transaction.on_commit(
-                        lambda: google_api_lib.task.update_meta_sheet_feeders.delay(
+                        lambda: google_api_lib.tasks.update_meta_sheet_feeders.delay(
                             puzzle.id
                         )
                     )
@@ -224,13 +232,9 @@ class PuzzleViewSet(viewsets.ModelViewSet):
                 chat_room = ChatRoom.objects.create(
                     service=settings.CHAT_DEFAULT_SERVICE, name=name
                 )
-                try:
-                    chat_room.create_channels()
-                    msg = f"{name} has been unlocked!"
-                    chat_room.get_service().announce(msg)
-                    chat_room.send_message(msg)
-                except Exception as e:
-                    logger.warn(f"Chat operations failed with error: {e}")
+                transaction.on_commit(
+                    lambda: chat.tasks.create_chat_for_puzzle.delay(puzzle.id)
+                )
             else:
                 logger.warn("Chat room not created for puzzle %s" % name)
                 chat_room = None
@@ -239,7 +243,7 @@ class PuzzleViewSet(viewsets.ModelViewSet):
 
             if google_api_lib.enabled():
                 transaction.on_commit(
-                    lambda: google_api_lib.task.create_google_sheets.delay(
+                    lambda: google_api_lib.tasks.create_google_sheets.delay(
                         puzzle.id, name, puzzle_url
                     )
                 )
@@ -282,6 +286,10 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
             if not tag.puzzles.exists():
                 tag.delete()
 
+            if puzzle.chat_room:
+                transaction.on_commit(
+                    lambda: chat.tasks.handle_tag_removed.delay(puzzle.id, tag.name)
+                )
         if meta == None:
             return Response([PuzzleSerializer(puzzle).data])
         else:
@@ -320,6 +328,23 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
                 puzzle.metas.add(meta)
             else:
                 puzzle.tags.add(tag)
+                if tag.name == "HIGH PRIORITY" or tag.name == "LOW PRIORITY":
+                    opposite_tag_name = (
+                        "LOW PRIORITY"
+                        if tag.name == "HIGH PRIORITY"
+                        else "HIGH PRIORITY"
+                    )
+                    # This should be 0 or 1 entries.
+                    maybe_tag_to_remove = PuzzleTag.objects.filter(
+                        name=opposite_tag_name, hunt=puzzle.hunt
+                    )
+                    if maybe_tag_to_remove:
+                        puzzle.tags.remove(maybe_tag_to_remove[0])
+
+            if puzzle.chat_room:
+                transaction.on_commit(
+                    lambda: chat.tasks.handle_tag_added.delay(puzzle.id, tag.name)
+                )
 
         if meta == None:
             return Response([PuzzleSerializer(puzzle).data])

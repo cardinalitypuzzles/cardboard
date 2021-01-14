@@ -60,7 +60,7 @@ class ApiTests(SmallboardTestCase):
                 "hunt_id": self._hunt.pk,
                 "url": TEST_URL,
                 "notes": "",
-                "sheet": None,
+                "has_sheet": False,
                 "chat_room": None,
                 "status": "SOLVING",
                 "tags": [],
@@ -193,3 +193,20 @@ class ApiTests(SmallboardTestCase):
         response = self.delete_tag(puzzle.pk, tag.pk)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(puzzle.tags.count(), 0)
+
+    def test_opposing_tags(self):
+        self.create_puzzle({"name": "test name", "url": TEST_URL})
+        puzzle = Puzzle.objects.get()
+        self.create_tag(puzzle.pk, {"name": "HIGH PRIORITY", "color": PuzzleTag.RED})
+        self.assertEqual(puzzle.tags.count(), 1)
+        tag = puzzle.tags.get()
+
+        response = self.create_tag(
+            puzzle.pk, {"name": "LOW PRIORITY", "color": PuzzleTag.YELLOW}
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # Should still have only 1 tag.
+        self.assertEqual(puzzle.tags.count(), 1)
+        self.assertEqual(puzzle.tags.all()[0].name, "LOW PRIORITY")
+        # Should return a puzzle
+        self.assertEqual(response.data["name"], puzzle.name)

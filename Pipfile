@@ -17,6 +17,7 @@ disco-py = ">=0.0.14rc1"
 celery = "*"
 django-celery-results = "*"
 redis = "*"
+"discord.py" = "*"
 
 [dev-packages]
 pre-commit = "*"

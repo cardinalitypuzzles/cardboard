@@ -32,6 +32,7 @@ function SubmitAnswerModal({ puzzleId, puzzleName }) {
             required
             placeholder="Enter Answer"
             value={newAnswer}
+            autoFocus
             onChange={(e) => setNewAnswer(e.target.value)}
           />
         </Modal.Body>

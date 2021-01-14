@@ -7,6 +7,9 @@ def _get_default_service():
     return settings.CHAT_DEFAULT_SERVICE
 
 
+SERVICE_CHOICES = ["DISCORD"]
+
+
 class ChatRoom(models.Model):
     """Represents a space for users to communicate about a topic (i.e. puzzle).
 
@@ -36,8 +39,6 @@ class ChatRoom(models.Model):
     Django models and views should interface with this ChatRoom model directly,
     not the underlying ChatService interface.
     """
-
-    SERVICE_CHOICES = ["DISCORD"]
 
     service = models.CharField(
         max_length=32,
@@ -69,8 +70,12 @@ class ChatRoom(models.Model):
         service = self.get_service()
         self.text_channel_id = service.create_text_channel(self.name)
         self.audio_channel_id = service.create_audio_channel(self.name)
-        self.text_channel_url = service.create_channel_url(self.text_channel_id)
-        self.audio_channel_url = service.create_channel_url(self.audio_channel_id)
+        self.text_channel_url = service.create_channel_url(
+            self.text_channel_id, is_audio=False
+        )
+        self.audio_channel_url = service.create_channel_url(
+            self.audio_channel_id, is_audio=True
+        )
         self.save(
             update_fields=[
                 "text_channel_id",
@@ -110,10 +115,53 @@ class ChatRoom(models.Model):
         if update_fields:
             self.save(update_fields=update_fields)
 
-    def send_message(self, msg):
+    def send_message(self, msg, embedded_urls={}):
+        """
+        Sends msg to text channel.
+        embedded_urls is a map mapping display_text to url.
+        e.g. { "Join voice channel": "https://discord.gg/XXX" }
+        """
         if self.text_channel_id:
             service = self.get_service()
-            service.send_message(self.text_channel_id, msg)
+            service.send_message(self.text_channel_id, msg, embedded_urls)
+
+    def send_and_announce_message(self, msg):
+        self.get_service().announce(msg)
+        self.send_message(msg)
+
+    def send_and_announce_message_with_embedded_urls(self, msg, puzzle):
+        embedded_urls = {}
+        if puzzle:
+            embedded_urls = puzzle.create_field_url_map()
+        self.get_service().announce(msg, embedded_urls)
+        self.send_message(msg, embedded_urls)
+
+    def handle_tag_added(self, puzzle, tag_name):
+        self.get_service().handle_tag_added(puzzle, tag_name)
+
+    def handle_tag_removed(self, puzzle, tag_name):
+        self.get_service().handle_tag_removed(puzzle, tag_name)
+
+    def handle_puzzle_rename(self, new_name):
+        service = self.get_service()
+        service.handle_puzzle_rename(self.text_channel_id, new_name)
+        service.handle_puzzle_rename(self.audio_channel_id, new_name)
+
+
+class ChatRole(models.Model):
+    """Represents group permissions on a chat platform (like a Discord role)."""
+
+    hunt = models.ForeignKey(
+        "hunts.Hunt", on_delete=models.CASCADE, related_name="chat_roles"
+    )
+    service = models.CharField(
+        max_length=32,
+        choices=[(service, service) for service in SERVICE_CHOICES],
+        default=_get_default_service,
+    )
+
+    name = models.CharField(max_length=100)
+    role_id = models.CharField(max_length=255)
 
 
 @receiver(models.signals.pre_delete, sender=ChatRoom)

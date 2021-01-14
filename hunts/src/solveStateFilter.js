@@ -1,7 +1,7 @@
 export const SOLVE_STATE_FILTER_OPTIONS = {
   ALL: 0,
-  PRIORITY: 1,
-  UNSOLVED: 2,
+  UNSOLVED: 1, // Excludes solved feeders and everything below them.
+  UNSOLVED_WITH_SOLVED_METAS: 2, // Includes unsolved feeders with solved metas.
 };
 
 function isUnsolved(tableRow) {
@@ -30,7 +30,7 @@ export function filterSolvedPuzzlesfn(rows, id, filterValue) {
     return rows;
   }
 
-  if (filterValue === SOLVE_STATE_FILTER_OPTIONS.PRIORITY) {
+  if (filterValue === SOLVE_STATE_FILTER_OPTIONS.UNSOLVED) {
     const rowIdsToExclude = new Set();
     rows.forEach((row) => {
       if (isSolved(row)) {
@@ -42,13 +42,17 @@ export function filterSolvedPuzzlesfn(rows, id, filterValue) {
         });
       }
     });
-    return rows.filter((row) => !rowIdsToExclude.has(row.id));
+    return rows
+      .filter((row) => !rowIdsToExclude.has(row.id))
+      .map((row) => Object.assign({}, row));
   }
 
-  if (filterValue === SOLVE_STATE_FILTER_OPTIONS.UNSOLVED) {
-    return rows.filter((row) => {
-      return isUnsolved(row) || hasUnsolvedDescendants(row);
-    });
+  if (filterValue === SOLVE_STATE_FILTER_OPTIONS.UNSOLVED_WITH_SOLVED_METAS) {
+    return rows
+      .filter((row) => {
+        return isUnsolved(row) || hasUnsolvedDescendants(row);
+      })
+      .map((row) => Object.assign({}, row));
   }
 }
 

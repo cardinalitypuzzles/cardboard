@@ -19,7 +19,6 @@ function textFilterFn(rows, id, filterValue) {
   if (!words) {
     return rows;
   }
-
   const keys = ["values.name", "values.tags", "values.status", "values.answer"];
   // Need to clone these results because this library is broken as shit
   return words

@@ -175,6 +175,22 @@ class Puzzle(models.Model):
     def correct_answers(self):
         return [answer.text for answer in self.guesses.filter(status=Answer.CORRECT)]
 
+    def create_field_url_map(self):
+        """
+        Creates dictionary mapping text -> url for all relevant urls if they exist.
+        """
+        field_url_map = {}
+        field_url_map["Puzzle"] = self.url
+        if self.chat_room:
+            if self.chat_room.text_channel_url:
+                field_url_map["Text Channel"] = self.chat_room.text_channel_url
+            if self.chat_room.audio_channel_url:
+                field_url_map["Voice Channel"] = self.chat_room.audio_channel_url
+        if self.sheet:
+            field_url_map["Sheet"] = self.sheet
+
+        return field_url_map
+
     @staticmethod
     def maybe_truncate_name(name):
         max_allowed_length = Puzzle._meta.get_field("name").max_length
