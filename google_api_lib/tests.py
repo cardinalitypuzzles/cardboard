@@ -28,15 +28,15 @@ class TestGoogleSheets(TestCase):
         self._test_hunt.delete()
 
     @patch(
-        "google_api_lib.task.create_google_sheets_helper",
+        "google_api_lib.tasks.create_google_sheets_helper",
         mock_create_google_sheets_helper,
     )
     @patch(
-        "google_api_lib.task.transfer_ownership.delay",
+        "google_api_lib.tasks.transfer_ownership.delay",
         mock_transfer_ownership,
     )
     @patch(
-        "google_api_lib.task.add_puzzle_link_to_sheet", mock_add_puzzle_link_to_sheet
+        "google_api_lib.tasks.add_puzzle_link_to_sheet", mock_add_puzzle_link_to_sheet
     )
     def test_sheet_creation(self):
         puzzle = Puzzle.objects.create(
@@ -45,7 +45,7 @@ class TestGoogleSheets(TestCase):
             url="fake_url.com",
             is_meta=False,
         )
-        sheet_url = google_api_lib.task.create_google_sheets(
+        sheet_url = google_api_lib.tasks.create_google_sheets(
             puzzle.id, puzzle.name, puzzle.url
         )
 
