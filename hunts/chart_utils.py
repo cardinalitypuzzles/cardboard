@@ -1,4 +1,4 @@
-from django.db.models import Max
+from django.db.models import Max, Case, When
 from django.utils import timezone
 
 from .models import Hunt
@@ -35,13 +35,16 @@ def get_chart_data(hunt, unlocks=False):
     if hunt.end_time:
         chart_end_time = min(chart_end_time, hunt.end_time)
 
-    # Note: assumes puzzle solve time = creation time of last guess
     if unlocks:
         sorted_puzzles = hunt.puzzles.all().order_by("created_on")
     else:
         sorted_puzzles = (
             hunt.puzzles.filter(status=Puzzle.SOLVED)
-            .annotate(_solved_time=Max("guesses__created_on"))
+            .annotate(
+                _solved_time=Max(
+                    Case(When(guesses__status="CORRECT", then="guesses__created_on"))
+                )
+            )
             .order_by("_solved_time")
         )
     total_count = sorted_puzzles.count()

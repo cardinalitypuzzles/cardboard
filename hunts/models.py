@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
-from django.db.models import Q, Max
+from django.db.models import Q, Max, Case, When
 from django.shortcuts import get_object_or_404
 from django.template.defaultfilters import slugify
 from django.utils import timezone
@@ -51,7 +51,7 @@ class Hunt(models.Model):
     def get_num_metas_unsolved(self):
         return self.puzzles.filter(~Q(status=Puzzle.SOLVED), Q(is_meta=True)).count()
 
-    # Gets a RawQuerySet of puzzles that are either solved or only feed into a solved meta.
+    # Gets a RawQuerySet of puzzles that are either solved or only feed into solved metas.
     def get_progression_puzzles(self):
         query = """
         WITH RECURSIVE progression_puzzles (id) AS (
@@ -72,7 +72,11 @@ class Hunt(models.Model):
     def get_meta_solve_list(self):
         solved_metas = (
             self.puzzles.filter(Q(status=Puzzle.SOLVED), Q(is_meta=True))
-            .annotate(_solved_time=Max("guesses__created_on"))
+            .annotate(
+                _solved_time=Max(
+                    Case(When(guesses__status="CORRECT", then="guesses__created_on"))
+                )
+            )
             .order_by("-_solved_time")
         )
 
@@ -94,7 +98,13 @@ class Hunt(models.Model):
         if recent:
             solved = (
                 self.puzzles.filter(Q(status=Puzzle.SOLVED))
-                .annotate(_solved_time=Max("guesses__created_on"))
+                .annotate(
+                    _solved_time=Max(
+                        Case(
+                            When(guesses__status="CORRECT", then="guesses__created_on")
+                        )
+                    )
+                )
                 .filter(_solved_time__range=[interval_start, interval_end])
                 .count()
             )
