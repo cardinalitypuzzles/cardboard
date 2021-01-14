@@ -7,8 +7,12 @@ import { updatePuzzle } from "./puzzlesSlice";
 export default function StatusCell({ row, value }) {
   const { id: huntId } = useSelector((state) => state.hunt);
   const dispatch = useDispatch();
-  if (["SOLVING", "STUCK", "EXTRACTION"].includes(value)) {
-    return (
+  const statuses_to_display = ["SOLVING", "STUCK", "EXTRACTION"];
+  if (value === "SOLVED") {
+    statuses_to_display.push("SOLVED");
+  }
+  return (
+    <>
       <DropdownButton
         id={`status-dropdown-${row.id}`}
         title={value}
@@ -23,12 +27,12 @@ export default function StatusCell({ row, value }) {
           );
         }}
       >
-        <Dropdown.Item eventKey="SOLVING">SOLVING</Dropdown.Item>
-        <Dropdown.Item eventKey="STUCK">STUCK</Dropdown.Item>
-        <Dropdown.Item eventKey="EXTRACTION">EXTRACTION</Dropdown.Item>
+        {statuses_to_display.map((status_to_display) => (
+          <Dropdown.Item eventKey={status_to_display} key={status_to_display}>
+            {status_to_display}
+          </Dropdown.Item>
+        ))}
       </DropdownButton>
-    );
-  } else {
-    return value;
-  }
+    </>
+  );
 }
