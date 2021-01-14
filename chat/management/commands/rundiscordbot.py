@@ -98,7 +98,7 @@ async def send_puzzles(message, puzzles, title):
             embed = discord.Embed(title=title)
             embed_length = len(title)
             field_count = 0
-        embed.add_field(name=line[0], value=line[1], inline=False)
+        embed.add_field(name=line[0], value=line[1], inline=True)
         field_count += 1
     await message.channel.send(embed=embed)
 
