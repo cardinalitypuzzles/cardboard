@@ -90,7 +90,7 @@ async def send_puzzles(message, puzzles, title):
     chunk_length = 0
     for line in lines:
         line_length = len(line)
-        if (chunk_length + line_length) >= 1024:
+        if (chunk_length + line_length + len(chunk_lines)) >= 1024:
             embed.add_field(name=title, value="\n".join(chunk_lines))
             chunk_lines = []
             chunk_length = 0
