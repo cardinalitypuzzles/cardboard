@@ -32,7 +32,7 @@
                 audio.pause()
             }
 
-            audio = new Audio("{% get_static_prefix %}" + "/audio/" + e.data.replace(/^"(.*)"$/, '$1'));
+            audio = new Audio(e.data.replace(/^"(.*)"$/, '$1'));
             audio.play();
         }
 

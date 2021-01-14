@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.templatetags.static import static
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models, transaction
 from django.db.models import Q
@@ -111,7 +112,7 @@ class Puzzle(models.Model):
                     str(self.hunt.pk),
                     {
                         "type": "notify",
-                        "text": self.hunt.meta_sound,
+                        "text": static(f"audio/{self.hunt.meta_sound}"),
                     },
                 )
             elif self.hunt.feeder_sound:
@@ -119,7 +120,7 @@ class Puzzle(models.Model):
                     str(self.hunt.pk),
                     {
                         "type": "notify",
-                        "text": self.hunt.feeder_sound,
+                        "text": static(f"audio/{self.hunt.feeder_sound}"),
                     },
                 )
 
