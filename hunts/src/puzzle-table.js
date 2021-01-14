@@ -52,7 +52,7 @@ function rowClassName(row) {
 }
 
 export const PuzzleTable = React.memo(
-  ({ columns, data, filter, filterSolved, filterTags, toggleTagInFilter }) => {
+  ({ columns, data, filter, filterSolved, filterTags }) => {
     const filterTypes = React.useMemo(
       () => ({
         globalFilter: textFilterFn,
@@ -129,7 +129,6 @@ export const PuzzleTable = React.memo(
           <tbody {...getTableBodyProps()}>
             {rows.map((row, i) => {
               prepareRow(row);
-              row.original.toggleTagInFilter = toggleTagInFilter;
               return (
                 <tr className={rowClassName(row)} {...row.getRowProps()}>
                   {row.cells.map((cell) => {
