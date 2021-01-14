@@ -81,7 +81,7 @@ async def send_puzzles(message, puzzles, title):
             line += f" ([sheet](https://smallboard.app/puzzles/s/{p.id}))"
         if p.chat_room:
             if p.chat_room.text_channel_url:
-                line += f" ([chat])({p.chat_room.text_channel_url})"
+                line += f" ([chat]({p.chat_room.text_channel_url}))"
 
         lines.append(line)
     print(f"lines: {lines}")
