@@ -76,9 +76,14 @@ async def send_puzzles(message, puzzles, title):
             line += f"[{p.answer}] "
         line += f"[{p.name}]({p.url})" if p.url else p.name
         if p.sheet:
-            line += f" ([sheet]({p.sheet}))"
+            line += f" ([sheet](https://smallboard.app/puzzles/s/{p.id}))"
+        if p.chat_room:
+            if p.chat_room.text_channel_url:
+                line += f" ([chat])({p.chat_room.text_channel_url})"
+
         lines.append(line)
     print(f"lines: {lines}")
+    lines.sort()
     chunk_lines = []
     chunk_length = 0
     for line in lines:
