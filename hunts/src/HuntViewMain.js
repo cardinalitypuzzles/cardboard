@@ -5,6 +5,7 @@ import { fetchPuzzles, selectPuzzleTableData } from "./puzzlesSlice";
 import { fetchHunt } from "./huntSlice";
 import { showModal, hideModal } from "./modalSlice";
 import { hideAlert } from "./alertSlice";
+import { toggleFilterTag } from "./tagFilterSlice";
 import { PuzzleTable } from "./puzzle-table";
 import AnswerCell from "./AnswerCell";
 import NameCell from "./NameCell";
@@ -26,7 +27,6 @@ import Modal from "react-bootstrap/Modal";
 import Alert from "react-bootstrap/Alert";
 import { SOLVE_STATE_FILTER_OPTIONS } from "./solveStateFilter";
 import { SHEET_REDIRECT_BASE } from "./constants";
-import { filterWithTagToggled } from "./tagFilter";
 import TagPill from "./TagPill";
 
 const MODAL_COMPONENTS = {
@@ -110,14 +110,11 @@ export const HuntViewMain = (props) => {
   const modal = useSelector((state) => state.modal);
   const hunt = useSelector((state) => state.hunt);
   const alert = useSelector((state) => state.alert);
+  const filterTags = useSelector((state) => state.tagFilter.tags);
   const [filter, setFilter] = React.useState("");
   const [filterSolved, setFilterSolved] = React.useState(
     SOLVE_STATE_FILTER_OPTIONS.ALL
   );
-  let [filterTags, setFilterTags] = React.useState([]);
-  const toggleTagInFilter = (tag) => {
-    setFilterTags(filterWithTagToggled(filterTags, tag));
-  };
   const dispatch = useDispatch();
 
   const updatePuzzleData = () => {
@@ -223,7 +220,7 @@ export const HuntViewMain = (props) => {
         <div>
           {filterTags.length > 0 ? "Viewing puzzles with tags: " : ""}
           {filterTags.map(({ name, color, id }) => {
-            // This use of toggleTagInFilter will always delete the tag, never add it.
+            // This use of toggleFilterTag will remove the tag from the list
             return (
               <TagPill
                 name={name}
@@ -231,9 +228,7 @@ export const HuntViewMain = (props) => {
                 id={id}
                 puzzleId={null}
                 key={name}
-                onDelete={function () {
-                  toggleTagInFilter({ name, color, id });
-                }}
+                onDelete={() => dispatch(toggleFilterTag({ name, color, id }))}
               />
             );
           })}
@@ -262,7 +257,6 @@ export const HuntViewMain = (props) => {
         filter={filter}
         filterSolved={filterSolved}
         filterTags={filterTags}
-        toggleTagInFilter={toggleTagInFilter}
       />
       <Modal
         animation={false}

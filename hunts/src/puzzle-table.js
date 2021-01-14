@@ -9,7 +9,6 @@ import {
 import { matchSorter } from "match-sorter";
 import Table from "react-bootstrap/Table";
 import { filterSolvedPuzzlesfn } from "./solveStateFilter";
-import { filterPuzzlesByTagFn } from "./tagFilter";
 
 function textFilterFn(rows, id, filterValue) {
   if (!filterValue || !filterValue.length) {
@@ -28,6 +27,14 @@ function textFilterFn(rows, id, filterValue) {
 }
 
 textFilterFn.autoRemove = (val) => !val;
+
+function filterPuzzlesByTagFn(rows, id, tagList) {
+  return rows.filter((row) => {
+    return tagList.every((tag) =>
+      row.original.tags.map((x) => x.id).includes(tag.id)
+    );
+  });
+}
 
 function rowClassName(row) {
   switch (row.values.status) {
