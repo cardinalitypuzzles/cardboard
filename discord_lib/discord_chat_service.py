@@ -1,6 +1,7 @@
 from collections import defaultdict
 from disco.api.client import APIClient
 from disco.types.channel import ChannelType
+from disco.types.message import MessageEmbed
 
 from chat.service import ChatService
 
@@ -21,12 +22,23 @@ class DiscordChatService(ChatService):
         self._puzzle_announcements_id = settings.DISCORD_PUZZLE_ANNOUNCEMENTS_CHANNEL
         self._max_channels_per_category = max_channels_per_category
 
-    def send_message(self, channel_id, msg):
-        self._client.channels_messages_create(channel_id, content=msg)
+    def send_message(self, channel_id, msg, embedded_urls={}):
+        """
+        Sends msg to specified channel_id.
+        embedded_urls is a map mapping display_text to url.
+        e.g. { "Join voice channel": "https://discord.gg/XXX" }
+        """
+        embed = None
+        if embedded_urls:
+            embed = MessageEmbed()
+            for text, url in embedded_urls.items():
+                embed.add_field(name=text, value=f"[link]({url})", inline=True)
+            embed.color = "12852794"  # cardinal
+        self._client.channels_messages_create(channel_id, content=msg, embed=embed)
 
-    def announce(self, msg):
+    def announce(self, msg, embedded_urls={}):
         if self._puzzle_announcements_id:
-            self.send_message(self._puzzle_announcements_id, msg)
+            self.send_message(self._puzzle_announcements_id, msg, embedded_urls)
 
     def create_text_channel(self, name):
         channel = self.create_channel(
@@ -119,7 +131,13 @@ class DiscordChatService(ChatService):
             channel = self.create_channel(name, chan_type)
         return channel
 
-    def create_channel_url(self, channel_id):
+    def create_channel_url(self, channel_id, is_audio=False):
+        # Only generate invite links via discord API for voice channel invites.
+        # This is necessary because the manual link does not auto-join the channel.
+        if is_audio:
+            invite = self._client.channels_invites_create(channel_id, max_age=0)
+            if invite.code:
+                return f"https://discord.gg/{invite.code}"
         return f"https://discord.com/channels/{self._guild_id}/{channel_id}"
 
     def handle_tag_added(self, puzzle, tag_name):
@@ -127,7 +145,10 @@ class DiscordChatService(ChatService):
 
         role = ChatRole.objects.filter(name__iexact=tag_name).first()
         if role is not None:
-            self.announce(f"{puzzle.name} was tagged with <@&{role.role_id}>")
+            self.announce(
+                f"{puzzle.name} was tagged with <@&{role.role_id}>",
+                puzzle.create_field_url_map(),
+            )
 
     def handle_tag_removed(self, puzzle, tag_name):
         pass

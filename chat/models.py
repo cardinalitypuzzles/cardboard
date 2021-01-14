@@ -70,8 +70,12 @@ class ChatRoom(models.Model):
         service = self.get_service()
         self.text_channel_id = service.create_text_channel(self.name)
         self.audio_channel_id = service.create_audio_channel(self.name)
-        self.text_channel_url = service.create_channel_url(self.text_channel_id)
-        self.audio_channel_url = service.create_channel_url(self.audio_channel_id)
+        self.text_channel_url = service.create_channel_url(
+            self.text_channel_id, is_audio=False
+        )
+        self.audio_channel_url = service.create_channel_url(
+            self.audio_channel_id, is_audio=True
+        )
         self.save(
             update_fields=[
                 "text_channel_id",
@@ -111,10 +115,26 @@ class ChatRoom(models.Model):
         if update_fields:
             self.save(update_fields=update_fields)
 
-    def send_message(self, msg):
+    def send_message(self, msg, embedded_urls={}):
+        """
+        Sends msg to text channel.
+        embedded_urls is a map mapping display_text to url.
+        e.g. { "Join voice channel": "https://discord.gg/XXX" }
+        """
         if self.text_channel_id:
             service = self.get_service()
-            service.send_message(self.text_channel_id, msg)
+            service.send_message(self.text_channel_id, msg, embedded_urls)
+
+    def send_and_announce_message(self, msg):
+        self.get_service().announce(msg)
+        self.send_message(msg)
+
+    def send_and_announce_message_with_embedded_urls(self, msg, puzzle):
+        embedded_urls = {}
+        if puzzle:
+            embedded_urls = puzzle.create_field_url_map()
+        self.get_service().announce(msg, embedded_urls)
+        self.send_message(msg, embedded_urls)
 
     def handle_tag_added(self, puzzle, tag_name):
         self.get_service().handle_tag_added(puzzle, tag_name)

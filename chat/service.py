@@ -37,7 +37,7 @@ class ChatService:
     def delete_audio_channel(self, channel_id):
         raise NotImplementedError
 
-    def create_channel_url(self, channel_id):
+    def create_channel_url(self, channel_id, is_audio=False):
         raise NotImplementedError
 
     def archive_channels(self, channel_id):
@@ -46,10 +46,10 @@ class ChatService:
     def unarchive_channels(self, channel_id):
         raise NotImplementedError
 
-    def send_message(self, channel_id, msg):
+    def send_message(self, channel_id, msg, embedded_urls={}):
         raise NotImplementedError
 
-    def announce(self, msg):
+    def announce(self, msg, embedded_urls={}):
         raise NotImplementedError
 
     def handle_tag_added(self, puzzle, tag_name):
