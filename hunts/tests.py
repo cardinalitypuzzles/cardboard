@@ -87,6 +87,21 @@ class TestHunt(TestCase):
 
         self.assertEqual(hunt.get_progression(), 3)
 
+    def test_meta_list(self):
+        hunt = self.create_hunt("test_hunt")
+
+        meta1 = self.create_puzzle("meta1", hunt, True)
+        meta2 = self.create_puzzle("meta2", hunt, True)
+        guess_meta1 = Answer.objects.create(text="meta1", puzzle=meta1)
+        guess_meta1.set_status(Answer.CORRECT)
+        guess_meta2 = Answer.objects.create(text="meta2", puzzle=meta2)
+        guess_meta2.set_status(Answer.CORRECT)
+
+        self.assertEqual(
+            hunt.get_meta_solve_list(),
+            [[meta2.name, meta2.solved_time()], [meta1.name, meta1.solved_time()]],
+        )
+
     def test_time_stats(self):
         hunt_untimed = self.create_hunt("hunt_untimed")
         self.assertEqual(hunt_untimed.get_minutes_per_solve(), "N/A")
