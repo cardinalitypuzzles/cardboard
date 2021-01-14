@@ -73,10 +73,10 @@ async def send_puzzles(message, puzzles, title):
     embed = discord.Embed(title=title)
     lines = []
     for p in puzzles:
-        title = ""
+        line_title = ""
         if p.is_solved():
-            title += f"[{p.answer}] "
-        title += p.name
+            line_title += f"[{p.answer}] "
+        line_title += p.name
 
         line = ""
         if p.url:
@@ -87,21 +87,19 @@ async def send_puzzles(message, puzzles, title):
             if p.chat_room.text_channel_url:
                 line += f"([chat]({p.chat_room.text_channel_url}))"
 
-        lines.append((title, line))
+        lines.append((line_title, line))
     print(f"lines: {lines}")
     lines.sort()
-    embed_length = len(title)
     field_count = 0
     for line in lines:
         line_length = sum([len(x) for x in line])
-        if (line_length + embed_length) >= 6000 or field_count >= 25:
+        if (line_length + len(embed)) >= 6000 or field_count >= 25:
             await message.channel.send(embed=embed)
             embed = discord.Embed(title=title)
             embed_length = len(title)
             field_count = 0
         embed.add_field(name=line[0], value=line[1])
         field_count += 1
-        embed_length += line_length
     await message.channel.send(embed=embed)
 
 
