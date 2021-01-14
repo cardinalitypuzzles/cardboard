@@ -61,6 +61,15 @@ def handle_tag_removed(puzzle_id, tag_name):
 
 
 @shared_task
+def handle_puzzle_rename(puzzle_id, new_name):
+    puzzle = Puzzle.objects.get(id=puzzle_id)
+    try:
+        puzzle.chat_room.handle_puzzle_rename(new_name)
+    except Exception as e:
+        logger.warn(f"Chat operations failed with error: {e}")
+
+
+@shared_task
 def handle_sheet_created(puzzle_id):
     puzzle = Puzzle.objects.get(id=puzzle_id)
     try:
