@@ -5,6 +5,7 @@ from asgiref.sync import async_to_sync
 
 class NotificationConsumer(WebsocketConsumer):
     def connect(self):
+        print(self.scope)
         if self.scope["user"].is_anonymous:
             self.close()
         else:

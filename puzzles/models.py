@@ -103,6 +103,8 @@ class Puzzle(models.Model):
 
         super(Puzzle, self).save(*args, **kwargs)
 
+        print(self.status, previous_status, self.is_meta, self.hunt.meta_sound,
+            self.hunt.feeder_sound)
         if self.status == Puzzle.SOLVED and previous_status != Puzzle.SOLVED:
             if self.is_meta and self.hunt.meta_sound:
                 async_to_sync(channel_layer.group_send)(
