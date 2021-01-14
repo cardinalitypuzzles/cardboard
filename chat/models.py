@@ -122,6 +122,11 @@ class ChatRoom(models.Model):
     def handle_tag_removed(self, puzzle, tag_name):
         self.get_service().handle_tag_removed(puzzle, tag_name)
 
+    def handle_channel_rename(self, new_name):
+        service = self.get_service()
+        service.handle_channel_rename(self.text_channel_id, new_name)
+        service.handle_channel_rename(self.audio_channel_id, new_name)
+
 
 class ChatRole(models.Model):
     """Represents group permissions on a chat platform (like a Discord role)."""

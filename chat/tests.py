@@ -114,5 +114,7 @@ class TestChatService(TestCase):
                     func("channel-name-or-id", "msg")
                 elif f == "handle_tag_added" or f == "handle_tag_removed":
                     func("puzzle", "tag")
+                elif f == "handle_channel_rename":
+                    func("channel", "name")
                 else:
                     func("channel-name-or-id")

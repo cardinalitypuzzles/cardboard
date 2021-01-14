@@ -300,3 +300,13 @@ class TestDiscordChatService(TestCase):
                 mock.call(channel2.id, parent_id=archive.id),
             ]
         )
+
+    def test_handle_channel_rename(self):
+        name = "channel-name"
+        channel = Channel(id=22222, type=ChannelType.GUILD_TEXT, name=name)
+
+        new_name = "channel-new-name"
+        self.service.handle_channel_rename(channel.id, new_name)
+        self.mock_client.channels_modify.assert_called_once_with(
+            channel.id, name=new_name
+        )
