@@ -233,17 +233,17 @@ except KeyError as e:
     )
 
 # TODO: make this a per hunt setting
-from google_api_lib import sync_task
+from google_api_lib import sync_tasks
 
 GOOGLE_HUMAN_DRIVE_HUNT_FOLDER_URL = ""
 if GOOGLE_API_AUTHN_INFO is not None:
-    SOCIAL_AUTH_GOOGLE_OAUTH2_WHITELISTED_EMAILS = sync_task.get_file_user_emails(
+    SOCIAL_AUTH_GOOGLE_OAUTH2_WHITELISTED_EMAILS = sync_tasks.get_file_user_emails(
         GOOGLE_DRIVE_HUNT_FOLDER_ID
     )
     logger.info(
         "Whitelisted emails: " + str(SOCIAL_AUTH_GOOGLE_OAUTH2_WHITELISTED_EMAILS)
     )
-    GOOGLE_HUMAN_DRIVE_HUNT_FOLDER_URL = sync_task.get_human_drive_folder(
+    GOOGLE_HUMAN_DRIVE_HUNT_FOLDER_URL = sync_tasks.get_human_drive_folder(
         GOOGLE_DRIVE_HUNT_FOLDER_ID
     )
 else:
