@@ -68,3 +68,13 @@ def handle_answer_change(puzzle_id, old_answer, new_answer):
         puzzle.chat_room.send_and_announce_message(msg)
     except Exception as e:
         logger.warn(f"Chat operations failed with error: {e}")
+
+
+@shared_task
+def handle_sheet_created(puzzle_id):
+    puzzle = Puzzle.objects.get(id=puzzle_id)
+    try:
+        msg = "Sheet has been created!"
+        puzzle.chat_room.send_message(msg, embedded_urls={"Sheet": puzzle.sheet})
+    except Exception as e:
+        logger.warn(f"Chat operations failed with error: {e}")
