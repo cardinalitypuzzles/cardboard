@@ -31,7 +31,6 @@ class DiscordChatService(ChatService):
         embed = None
         if embedded_urls:
             embed = MessageEmbed()
-            # embed.title = "Helpful Links"
             for text, url in embedded_urls.items():
                 embed.add_field(name=text, value=f"[link]({url})", inline=True)
             embed.color = "12852794"  # cardinal
