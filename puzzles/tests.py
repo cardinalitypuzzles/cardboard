@@ -4,6 +4,7 @@ from unittest.mock import patch
 from rest_framework.test import APITestCase
 
 from accounts.models import Puzzler
+from chat.models import ChatRoom
 from hunts.models import Hunt
 from answers.models import Answer
 from .models import Puzzle, is_ancestor
@@ -147,3 +148,20 @@ class TestPuzzle(APITestCase):
         Puzzle.objects.select_for_update().filter(id=puzzle.pk).update(sheet=None)
         response = self.client.get(f"/puzzles/s/{puzzle.pk}", follow=False)
         self.assertEqual(response["Location"], "/")
+
+    def test_create_embedded_urls(self):
+        puzzle = self.create_puzzle("test_redirects", False)
+        field_url_map = puzzle.create_field_url_map()
+        self.assertEqual(field_url_map["Puzzle"], puzzle.url)
+        self.assertEqual(field_url_map["Sheet"], puzzle.sheet)
+        self.assertNotIn("Text", field_url_map)
+        self.assertNotIn("Voice", field_url_map)
+
+        puzzle.chat_room = ChatRoom.objects.create(name="test_room")
+        puzzle.chat_room.audio_channel_url = "audio_channel_url.com"
+        puzzle.chat_room.text_channel_url = "text_channel_url.com"
+        field_url_map = puzzle.create_field_url_map()
+        self.assertEqual(field_url_map["Puzzle"], puzzle.url)
+        self.assertEqual(field_url_map["Sheet"], puzzle.sheet)
+        self.assertEqual(field_url_map["Text"], "text_channel_url.com")
+        self.assertEqual(field_url_map["Voice"], "audio_channel_url.com")

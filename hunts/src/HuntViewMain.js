@@ -81,7 +81,7 @@ const TABLE_COLUMNS = [
       row.original.chat_room ? (
         <>
           <a href={row.original.chat_room.text_channel_url} target="_blank">
-            Text
+            Channel
           </a>
         </>
       ) : null,

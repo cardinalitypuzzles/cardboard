@@ -227,6 +227,7 @@ class PuzzleViewSet(viewsets.ModelViewSet):
                 )
             else:
                 logger.warn("Chat room not created for puzzle %s" % name)
+                chat_room = None
 
             puzzle = serializer.save(hunt=hunt, chat_room=chat_room)
 

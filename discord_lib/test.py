@@ -1,6 +1,7 @@
 from unittest import TestCase, mock
 
 from disco.types.channel import Channel, ChannelType
+from disco.types.message import MessageEmbed
 
 from .discord_chat_service import DiscordChatService
 
@@ -166,10 +167,11 @@ class TestDiscordChatService(TestCase):
         )
 
     def test_announce(self):
-        self.service.announce("test message")
+        self.service.announce("test message", {"text": "text.com"})
         self.mock_client.channels_messages_create.assert_called_once_with(
             FakeDjangoSettings.DISCORD_PUZZLE_ANNOUNCEMENTS_CHANNEL,
             content="test message",
+            embed=mock.ANY,
         )
 
     def test_create_channel_category_full(self):

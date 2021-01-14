@@ -33,10 +33,10 @@ class FakeChatService(ChatService):
         if channel_id in self.archived_channels:
             self.archived_channels.remove(channel_id)
 
-    def create_channel_url(self, channel_id):
+    def create_channel_url(self, channel_id, is_audio=False):
         return ""
 
-    def send_message(self, channel_id, msg):
+    def send_message(self, channel_id, msg, embedded_urls={}):
         self.messages.add(msg)
 
 

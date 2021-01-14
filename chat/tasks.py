@@ -15,8 +15,9 @@ def create_chat_for_puzzle(puzzle_id):
     try:
         puzzle.chat_room.create_channels()
         msg = f"{puzzle.name} has been unlocked!"
-        puzzle.chat_room.get_service().announce(msg)
-        puzzle.chat_room.send_message(msg)
+        embedded_urls = puzzle.create_field_url_map()
+        puzzle.chat_room.get_service().announce(msg, embedded_urls)
+        puzzle.chat_room.send_message(msg, embedded_urls)
     except Exception as e:
         logger.warn(f"Chat operations failed with error: {e}")
 
@@ -27,8 +28,9 @@ def handle_puzzle_solved(puzzle_id, answer_text):
     try:
         puzzle.chat_room.archive_channels()
         msg = f"{puzzle.name} has been solved with {answer_text}!"
-        puzzle.chat_room.get_service().announce(msg)
-        puzzle.chat_room.send_message(msg)
+        embedded_urls = puzzle.create_field_url_map()
+        puzzle.chat_room.get_service().announce(msg, embedded_urls)
+        puzzle.chat_room.send_message(msg, embedded_urls)
     except Exception as e:
         logger.warn(f"Chat operations failed with error: {e}")
 
@@ -38,6 +40,10 @@ def handle_puzzle_unsolved(puzzle_id):
     puzzle = Puzzle.objects.get(id=puzzle_id)
     try:
         puzzle.chat_room.unarchive_channels()
+        msg = f"{puzzle.name} is no longer solved!"
+        embedded_urls = puzzle.create_field_url_map()
+        puzzle.chat_room.get_service().announce(msg, embedded_urls)
+        puzzle.chat_room.send_message(msg, embedded_urls)
     except Exception as e:
         logger.warn(f"Chat operations failed with error: {e}")
 
