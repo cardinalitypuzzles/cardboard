@@ -80,7 +80,7 @@ async def send_puzzles(message, puzzles, title):
 
         line = ""
         if p.url:
-            line += f"[Puzzle]({p.url})"
+            line += f"[Puzzle]({p.url}) "
         if p.sheet:
             line += f"([sheet](https://smallboard.app/puzzles/s/{p.id}))"
         if p.chat_room:
