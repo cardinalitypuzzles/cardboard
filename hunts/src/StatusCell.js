@@ -7,8 +7,8 @@ import { updatePuzzle } from "./puzzlesSlice";
 export default function StatusCell({ row, value }) {
   const { id: huntId } = useSelector((state) => state.hunt);
   const dispatch = useDispatch();
-  var statuses_to_display = ["SOLVING", "STUCK", "EXTRACTION"];
-  if (value == "SOLVED") {
+  const statuses_to_display = ["SOLVING", "STUCK", "EXTRACTION"];
+  if (value === "SOLVED") {
     statuses_to_display.push("SOLVED");
   }
   return (
