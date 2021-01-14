@@ -312,6 +312,18 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
                 puzzle.metas.add(metapuzzle)
             else:
                 puzzle.tags.add(tag)
+                if tag.name == "HIGH PRIORITY" or tag.name == "LOW PRIORITY":
+                    opposite_tag_name = (
+                        "LOW PRIORITY"
+                        if tag.name == "HIGH PRIORITY"
+                        else "HIGH PRIORITY"
+                    )
+                    # This should be 0 or 1 entries.
+                    maybe_tag_to_remove = PuzzleTag.objects.filter(
+                        name=opposite_tag_name, hunt=puzzle.hunt
+                    )
+                    if maybe_tag_to_remove:
+                        puzzle.tags.remove(maybe_tag_to_remove[0])
 
             if puzzle.chat_room:
                 transaction.on_commit(
