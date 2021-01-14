@@ -88,12 +88,20 @@ async def send_puzzles(message, puzzles, title):
     lines.sort()
     chunk_lines = []
     chunk_length = 0
+    embed_length = len(title)
     for line in lines:
-        line_length = len(line)
-        if (chunk_length + line_length + len(chunk_lines)) >= 1024:
+        line_length = len(line) + 1  # Add in the newline
+        if (chunk_length + line_length) >= 1024 or (
+            chunk_length + line_length + embed_length
+        ) >= 6000:
             embed.add_field(name=title, value="\n".join(chunk_lines))
+            embed_length += chunk_length + len(title)
             chunk_lines = []
             chunk_length = 0
+        if embed_length + line_length >= 6000:
+            message.channel.send(embed=embed)
+            embed = discord.Embed()
+            embed_length = len(title)
         chunk_lines.append(line)
         chunk_length += line_length
     if chunk_lines:
