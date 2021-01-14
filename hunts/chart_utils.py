@@ -35,6 +35,7 @@ def get_chart_data(hunt, unlocks=False):
     if hunt.end_time:
         chart_end_time = min(chart_end_time, hunt.end_time)
 
+    # Note: assumes puzzle solve time = creation time of last guess
     if unlocks:
         sorted_puzzles = hunt.puzzles.all().order_by("created_on")
     else:

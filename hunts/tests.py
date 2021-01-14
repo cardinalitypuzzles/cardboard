@@ -85,7 +85,7 @@ class TestHunt(TestCase):
         self.assertEqual(hunt.get_num_metas_solved(), 1)
         self.assertEqual(hunt.get_num_metas_unsolved(), 0)
 
-        self.assertEqual(hunt.get_progression(), 3)
+        self.assertEqual(len(list(hunt.get_progression_puzzles())), 3)
 
     def test_meta_list(self):
         hunt = self.create_hunt("test_hunt")

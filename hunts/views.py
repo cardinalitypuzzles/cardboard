@@ -52,7 +52,7 @@ def stats(request, hunt_slug):
     solves_per_hour_recent = hunt.get_solves_per_hour(recent=True)
     minutes_per_solve_recent = hunt.get_minutes_per_solve(recent=True)
     meta_names_and_times = hunt.get_meta_solve_list()
-    progression = hunt.get_progression()
+    progression = len(list(hunt.get_progression_puzzles()))
 
     chart_solve_data = get_chart_data(hunt, unlocks=False)
     chart_unlock_data = get_chart_data(hunt, unlocks=True)

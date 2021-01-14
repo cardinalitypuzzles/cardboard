@@ -51,8 +51,8 @@ class Hunt(models.Model):
     def get_num_metas_unsolved(self):
         return self.puzzles.filter(~Q(status=Puzzle.SOLVED), Q(is_meta=True)).count()
 
-    # Gets the number of puzzles that are either solved or feed into a solved meta.
-    def get_progression(self):
+    # Gets a RawQuerySet of puzzles that are either solved or only feed into a solved meta.
+    def get_progression_puzzles(self):
         query = """
         WITH RECURSIVE progression_puzzles (id) AS (
             SELECT id
@@ -63,13 +63,11 @@ class Hunt(models.Model):
             FROM puzzles_puzzle_metas Metas
             INNER JOIN progression_puzzles ON progression_puzzles.id = Metas.to_puzzle_id
         )
-        SELECT id FROM progression_puzzles
+        SELECT * FROM puzzles_puzzle WHERE id IN (SELECT id FROM progression_puzzles)
         """
-        progression_ids = Hunt.objects.raw(query, [str(self.pk)])
-        return len(list(progression_ids))
+        return Hunt.objects.raw(query, [str(self.pk)])
 
     # Returns a list of solved meta names and solve times in [name, time] pairs.
-    # Solve times are given in dd hh:mm (am/pm) format (e.g., Fr 4:00 pm).
     # Pairs sorted by latest solves first.
     def get_meta_solve_list(self):
         solved_metas = (
