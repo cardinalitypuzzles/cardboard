@@ -42,13 +42,17 @@ export function filterSolvedPuzzlesfn(rows, id, filterValue) {
         });
       }
     });
-    return rows.filter((row) => !rowIdsToExclude.has(row.id));
+    return rows
+      .filter((row) => !rowIdsToExclude.has(row.id))
+      .map((row) => Object.assign({}, row));
   }
 
   if (filterValue === SOLVE_STATE_FILTER_OPTIONS.UNSOLVED_WITH_SOLVED_METAS) {
-    return rows.filter((row) => {
-      return isUnsolved(row) || hasUnsolvedDescendants(row);
-    });
+    return rows
+      .filter((row) => {
+        return isUnsolved(row) || hasUnsolvedDescendants(row);
+      })
+      .map((row) => Object.assign({}, row));
   }
 }
 
