@@ -70,42 +70,38 @@ async def send_puzzles_stuck(message):
 
 async def send_puzzles(message, puzzles, title):
     print(f"Sending puzzles {puzzles}")
-    embed = discord.Embed()
+    embed = discord.Embed(title=title)
     lines = []
     for p in puzzles:
-        line = "- "
+        title = ""
         if p.is_solved():
-            line += f"[{p.answer}] "
-        line += f"[{p.name}]({p.url})" if p.url else p.name
+            title += f"[{p.answer}] "
+        title += p.name
+
+        line = ""
+        if p.url:
+            line += f"[Puzzle]({p.url})"
         if p.sheet:
-            line += f" ([sheet](https://smallboard.app/puzzles/s/{p.id}))"
+            line += f"([sheet](https://smallboard.app/puzzles/s/{p.id}))"
         if p.chat_room:
             if p.chat_room.text_channel_url:
-                line += f" ([chat]({p.chat_room.text_channel_url}))"
+                line += f"([chat]({p.chat_room.text_channel_url}))"
 
-        lines.append(line)
+        lines.append((title, line))
     print(f"lines: {lines}")
     lines.sort()
-    chunk_lines = []
-    chunk_length = 0
     embed_length = len(title)
+    field_count = 0
     for line in lines:
-        line_length = len(line) + 1  # Add in the newline
-        if (chunk_length + line_length) >= 1024 or (
-            chunk_length + line_length + embed_length
-        ) >= 6000:
-            embed.add_field(name=title, value="\n".join(chunk_lines))
-            embed_length += chunk_length + len(title)
-            chunk_lines = []
-            chunk_length = 0
-        if embed_length + line_length >= 6000:
+        line_length = sum([len(x) for x in line])
+        if (line_length + embed_length) >= 6000 or field_count >= 25:
             await message.channel.send(embed=embed)
-            embed = discord.Embed()
+            embed = discord.Embed(title=title)
             embed_length = len(title)
-        chunk_lines.append(line)
-        chunk_length += line_length
-    if chunk_lines:
-        embed.add_field(name=title, value="\n".join(chunk_lines))
+            field_count = 0
+        embed.add_field(name=line[0], value=line[1])
+        field_count += 1
+        embed_length += line_length
     await message.channel.send(embed=embed)
 
 
