@@ -27,7 +27,7 @@ export default function StatusCell({ row, value }) {
           );
         }}
       >
-        {statuses_to_display.map(status_to_display => (
+        {statuses_to_display.map((status_to_display) => (
           <Dropdown.Item eventKey={status_to_display} key={status_to_display}>
             {status_to_display}
           </Dropdown.Item>
