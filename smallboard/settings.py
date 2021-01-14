@@ -307,9 +307,9 @@ LOGGING = {
 ASGI_APPLICATION = "smallboard.routing.application"
 import re
 
-m = re.match("^redis://(.*):([0-9])+", os.environ.get("REDIS_URL", "redis://"))
+m = re.match("^redis://(:.*@)?(.*):([0-9])+", os.environ.get("REDIS_URL", "redis://"))
 if m:
-    (server_name, port) = m.groups()
+    (_, server_name, port) = m.groups()
 else:
     server_name = "localhost"
     port = 6379
