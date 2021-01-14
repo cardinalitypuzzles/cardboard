@@ -1,6 +1,13 @@
 {% extends "base.html" %}
+{% load tz %}
+
+{% block head_content %}
+<!-- refresh (every minute) -->
+<meta http-equiv="refresh" content="60">
+{% endblock %}
 
 {% block page_content %}
+
 <!-- header -->
 <div class="container">
   <div class="row">
@@ -150,22 +157,38 @@
 
 <!-- main stats -->
 <div class="container">
-  <div class="row text-center font-weight-bold">
-    <div class="col-sm-3">
-      Metas Solved<br>
+  <div class="row justify-content-center text-center font-weight-bold align-items-end">
+    <div class="col-sm-2">
+      Metas Solved
+    </div>
+    <div class="col-sm-2">
+      Solved
+    </div>
+    <div class="col-sm-2">
+      Unlocked
+    </div>
+    <div class="col-sm-2">
+      Unsolved
+    </div>
+    <div class="col-sm-2">
+      Metas Unsolved
+    </div>
+  </div>
+  <div class="row justify-content-center text-center font-weight-bold">
+    <div class="col-sm-2">
       <h2 class="text-primary">{{ num_metas_solved }}</h2>
     </div>
-    <div class="col-sm-3">
-      Solved<br>
+    <div class="col-sm-2">
       <h2 class="text-success">{{ num_solved }}</h2>
     </div>
-    <div class="col-sm-3">
-      Unsolved<br>
+    <div class="col-sm-2">
+      <h2 class="text-secondary">{{ num_unlocked }}</h2>
+    </div>
+    <div class="col-sm-2">
       <h2 class="text-danger">{{ num_unsolved }}</h2>
     </div>
-    <div class="col-sm-3">
-      Unlocked<br>
-      <h2 class="text-secondary">{{ num_unlocked }}</h2>
+    <div class="col-sm-2">
+      <h2 class="text-warning">{{ num_metas_unsolved }}</h2>
     </div>
   </div>
 </div>
@@ -177,13 +200,40 @@
       <table class="table table-hover">
         <tbody>
           <tr>
+            <td>Progression (solves + feeders into solved metas)</td>
+            <th class="text-right text-success">{{ progression }}</th>
+          </tr>
+          <tr>
             <td>Solves per Hour</td>
             <th class="text-right">{{ solves_per_hour }}</th>
           </tr>
-          <tr class="border-bottom">
+          <tr>
             <td>Minutes per Solve</td>
             <th class="text-right">{{ minutes_per_solve }}</th>
           </tr>
+          <tr>
+            <td>Solves per Hour (last 6 hrs)</td>
+            <th class="text-right">{{ solves_per_hour_recent }}</th>
+          </tr>
+          <tr class="border-bottom">
+            <td>Minutes per Solve (last 6 hrs)</td>
+            <th class="text-right">{{ minutes_per_solve_recent }}</th>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="col-sm-6">
+      <table class="table table-hover">
+        <thead class="text-center">
+          <th colspan="2">Latest Metas Solved (ET)</th>
+        </thead>
+        <tbody>
+          {% for meta_solve in meta_names_and_times %}
+          <tr class="border-bottom">
+            <td class="text-primary">{{ meta_solve.0 }}</td>
+            <td class="text-right">{{ meta_solve.1 | localtime | date:"D h:i A" }}</td>
+          </tr>
+          {% endfor %}
         </tbody>
       </table>
     </div>

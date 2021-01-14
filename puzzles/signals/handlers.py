@@ -3,7 +3,7 @@ from django.db.models.signals import pre_save, post_save, pre_delete, m2m_change
 from django.dispatch import receiver
 from puzzles.models import Puzzle
 from puzzles.puzzle_tag import PuzzleTag
-import google_api_lib.task
+import google_api_lib.tasks
 
 # Hooks for syncing metas and tags
 
@@ -84,14 +84,14 @@ def update_sheets_pre_delete(sender, instance, **kwargs):
 
     def update_metas():
         for meta in metas:
-            google_api_lib.task.update_meta_sheet_feeders.delay(meta.id)
+            google_api_lib.tasks.update_meta_sheet_feeders.delay(meta.id)
 
     if google_api_lib.enabled():
         transaction.on_commit(update_metas)
 
         if instance.sheet:
             transaction.on_commit(
-                lambda: google_api_lib.task.rename_sheet.delay(
+                lambda: google_api_lib.tasks.rename_sheet.delay(
                     sheet_url=instance.sheet, name=f"[DELETED] {instance.name}"
                 )
             )
@@ -104,7 +104,7 @@ def update_meta_sheets_m2m(sender, instance, action, reverse, model, pk_set, **k
         def update_metas():
             for pk in pk_set:
                 meta = Puzzle.objects.get(pk=pk)
-                google_api_lib.task.update_meta_sheet_feeders.delay(meta.id)
+                google_api_lib.tasks.update_meta_sheet_feeders.delay(meta.id)
 
         if google_api_lib.enabled():
             transaction.on_commit(update_metas)

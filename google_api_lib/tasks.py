@@ -7,6 +7,7 @@ from django.conf import settings
 from googleapiclient import _auth
 
 from celery import shared_task
+from chat.tasks import handle_sheet_created
 from .utils import GoogleApiClientTask
 from smallboard.settings import TaskPriority
 from puzzles.models import Puzzle
@@ -50,8 +51,12 @@ def create_google_sheets(self, puzzle_id, name, puzzle_url=None):
     sheet_url = response["webViewLink"]
     if puzzle_url:
         add_puzzle_link_to_sheet(puzzle_url, sheet_url)
-    puzzle = Puzzle.objects.filter(pk=puzzle_id).update(sheet=sheet_url)
+    puzzle = Puzzle.objects.get(pk=puzzle_id)
+    puzzle.sheet = sheet_url
+    puzzle.save()
     transfer_ownership.delay(response)
+    if puzzle.chat_room:
+        handle_sheet_created.delay(puzzle_id)
     return sheet_url
 
 

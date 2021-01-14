@@ -66,6 +66,7 @@ class TestHunt(TestCase):
         meta = self.create_puzzle("meta", hunt, True)
         feeder = self.create_puzzle("feeder", hunt, False)
         feeder.metas.add(meta)
+        self.assertEqual(hunt.get_num_metas_unsolved(), 1)
 
         guess_puzzle1 = Answer.objects.create(text="guess1", puzzle=puzzle1)
         guess_puzzle1.set_status(Answer.CORRECT)
@@ -82,6 +83,24 @@ class TestHunt(TestCase):
         self.assertEqual(hunt.get_num_unsolved(), 3)
         self.assertEqual(hunt.get_num_unlocked(), 5)
         self.assertEqual(hunt.get_num_metas_solved(), 1)
+        self.assertEqual(hunt.get_num_metas_unsolved(), 0)
+
+        self.assertEqual(len(list(hunt.get_progression_puzzles())), 3)
+
+    def test_meta_list(self):
+        hunt = self.create_hunt("test_hunt")
+
+        meta1 = self.create_puzzle("meta1", hunt, True)
+        meta2 = self.create_puzzle("meta2", hunt, True)
+        guess_meta1 = Answer.objects.create(text="meta1", puzzle=meta1)
+        guess_meta1.set_status(Answer.CORRECT)
+        guess_meta2 = Answer.objects.create(text="meta2", puzzle=meta2)
+        guess_meta2.set_status(Answer.CORRECT)
+
+        self.assertEqual(
+            hunt.get_meta_solve_list(),
+            [[meta2.name, meta2.solved_time()], [meta1.name, meta1.solved_time()]],
+        )
 
     def test_time_stats(self):
         hunt_untimed = self.create_hunt("hunt_untimed")
@@ -104,6 +123,8 @@ class TestHunt(TestCase):
         sph_string = "{:.2f}".format(round(1 / (minutes_elapsed / 60), 2))
         self.assertEqual(hunt_timed.get_minutes_per_solve(), mps_string)
         self.assertEqual(hunt_timed.get_solves_per_hour(), sph_string)
+        self.assertEqual(hunt_timed.get_minutes_per_solve(recent=True), mps_string)
+        self.assertEqual(hunt_timed.get_solves_per_hour(recent=True), sph_string)
 
     def test_chart_utils_untimed(self):
         unsolved_name = "puzzle_unsolved"
@@ -111,6 +132,7 @@ class TestHunt(TestCase):
         # test behavior for a hunt with no start time
         hunt_untimed = self.create_hunt("hunt_untimed")
         self.assertFalse(can_use_chart(hunt_untimed))
+        self.assertIsNone(get_chart_data(hunt_untimed))
 
         puzzle_unsolved = self.create_puzzle(unsolved_name, hunt_untimed, False)
         self.assertTrue(can_use_chart(hunt_untimed))

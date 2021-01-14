@@ -15,8 +15,7 @@ def create_chat_for_puzzle(puzzle_id):
     try:
         puzzle.chat_room.create_channels()
         msg = f"{puzzle.name} has been unlocked!"
-        puzzle.chat_room.get_service().announce(msg)
-        puzzle.chat_room.send_message(msg)
+        puzzle.chat_room.send_and_announce_message_with_embedded_urls(msg, puzzle)
     except Exception as e:
         logger.warn(f"Chat operations failed with error: {e}")
 
@@ -27,8 +26,7 @@ def handle_puzzle_solved(puzzle_id, answer_text):
     try:
         puzzle.chat_room.archive_channels()
         msg = f"{puzzle.name} has been solved with {answer_text}!"
-        puzzle.chat_room.get_service().announce(msg)
-        puzzle.chat_room.send_message(msg)
+        puzzle.chat_room.send_and_announce_message(msg)
     except Exception as e:
         logger.warn(f"Chat operations failed with error: {e}")
 
@@ -38,6 +36,8 @@ def handle_puzzle_unsolved(puzzle_id):
     puzzle = Puzzle.objects.get(id=puzzle_id)
     try:
         puzzle.chat_room.unarchive_channels()
+        msg = f"{puzzle.name} is no longer solved!"
+        puzzle.chat_room.send_and_announce_message(msg)
     except Exception as e:
         logger.warn(f"Chat operations failed with error: {e}")
 
@@ -65,5 +65,15 @@ def handle_puzzle_rename(puzzle_id, new_name):
     puzzle = Puzzle.objects.get(id=puzzle_id)
     try:
         puzzle.chat_room.handle_puzzle_rename(new_name)
+    except Exception as e:
+        logger.warn(f"Chat operations failed with error: {e}")
+
+
+@shared_task
+def handle_sheet_created(puzzle_id):
+    puzzle = Puzzle.objects.get(id=puzzle_id)
+    try:
+        msg = "Sheet has been created!"
+        puzzle.chat_room.send_message(msg, embedded_urls={"Sheet": puzzle.sheet})
     except Exception as e:
         logger.warn(f"Chat operations failed with error: {e}")
