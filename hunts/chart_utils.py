@@ -1,3 +1,4 @@
+from django.db.models import Max
 from django.utils import timezone
 
 from .models import Hunt
@@ -35,15 +36,17 @@ def get_chart_data(hunt, unlocks=False):
         chart_end_time = min(chart_end_time, hunt.end_time)
 
     if unlocks:
-        queryset = hunt.puzzles.all()
-        sorted_puzzles = queryset.order_by("created_on")
+        sorted_puzzles = hunt.puzzles.all().order_by("created_on")
     else:
-        queryset = hunt.puzzles.filter(status=Puzzle.SOLVED)
-        sorted_puzzles = sorted(queryset, key=lambda x: x.solved_time())
-    total_count = queryset.count()
+        sorted_puzzles = (
+            hunt.puzzles.filter(status=Puzzle.SOLVED)
+            .annotate(_solved_time=Max("guesses__created_on"))
+            .order_by("_solved_time")
+        )
+    total_count = sorted_puzzles.count()
 
     for i, puzzle in enumerate(sorted_puzzles):
-        if (not unlocks and puzzle.solved_time() > chart_end_time) or (
+        if (not unlocks and puzzle._solved_time > chart_end_time) or (
             unlocks and puzzle.created_on > chart_end_time
         ):
             total_count = i
@@ -52,7 +55,7 @@ def get_chart_data(hunt, unlocks=False):
         if unlocks:
             times.append(puzzle.created_on.isoformat())
         else:
-            times.append(puzzle.solved_time().isoformat())
+            times.append(puzzle._solved_time.isoformat())
         counts.append(i + 1)
         if not unlocks:
             is_meta.append(puzzle.is_meta)

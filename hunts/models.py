@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, Max
 from django.shortcuts import get_object_or_404
 from django.template.defaultfilters import slugify
 from django.utils import timezone
@@ -70,11 +70,15 @@ class Hunt(models.Model):
 
     # Returns a list of solved meta names and solve times in [name, time] pairs.
     # Solve times are given in dd hh:mm (am/pm) format (e.g., Fr 4:00 pm).
+    # Pairs sorted by latest solves first.
     def get_meta_solve_list(self):
-        solved_metas = self.puzzles.filter(Q(status=Puzzle.SOLVED), Q(is_meta=True))
-        sorted_solved_metas = sorted(solved_metas, key=lambda x: x.solved_time())
+        solved_metas = (
+            self.puzzles.filter(Q(status=Puzzle.SOLVED), Q(is_meta=True))
+            .annotate(_solved_time=Max("guesses__created_on"))
+            .order_by("-_solved_time")
+        )
 
-        return [[p.name, p.solved_time()] for p in sorted_solved_metas]
+        return [[p.name, p._solved_time] for p in solved_metas]
 
     # Returns ends of the time interval for the time stats (6 hrs or entire hunt)
     # and # of solves within the interval.
@@ -89,12 +93,15 @@ class Hunt(models.Model):
         if recent:
             interval_start = max(interval_start, interval_end - timedelta(hours=6))
 
-        solved = self.get_num_solved()
         if recent:
-            solved_puzzles = self.puzzles.filter(Q(status=Puzzle.SOLVED))
-            solved = len(
-                [x for x in solved_puzzles if x.solved_time() >= interval_start]
+            solved = (
+                self.puzzles.filter(Q(status=Puzzle.SOLVED))
+                .annotate(_solved_time=Max("guesses__created_on"))
+                .filter(_solved_time__range=[interval_start, interval_end])
+                .count()
             )
+        else:
+            solved = self.get_num_solved()
 
         return solved, interval_start, interval_end
 
