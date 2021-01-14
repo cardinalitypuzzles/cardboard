@@ -44,14 +44,16 @@ async def send_puzzles_unsolved(message):
         Puzzle.objects.filter(
             Q(hunt=settings.BOT_ACTIVE_HUNT),
             Q(status=Puzzle.SOLVING) | Q(status=Puzzle.PENDING),
-        )
+        ).select_related("chat_room")
     )
     await send_puzzles(message, puzzles, "Unsolved puzzles")
 
 
 async def send_puzzles_solved(message):
     puzzles = await sync_to_async(list)(
-        Puzzle.objects.filter(hunt=settings.BOT_ACTIVE_HUNT, status=Puzzle.SOLVED)
+        Puzzle.objects.filter(
+            hunt=settings.BOT_ACTIVE_HUNT, status=Puzzle.SOLVED
+        ).select_related("chat_room")
     )
     await send_puzzles(message, puzzles, "Solved puzzles")
 
@@ -61,7 +63,7 @@ async def send_puzzles_stuck(message):
         Puzzle.objects.filter(
             Q(hunt=settings.BOT_ACTIVE_HUNT),
             Q(status=Puzzle.STUCK) | Q(status=Puzzle.EXTRACTION),
-        )
+        ).select_related("chat_room")
     )
     await send_puzzles(message, puzzles, "Stuck puzzles")
 
