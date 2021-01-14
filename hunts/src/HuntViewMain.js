@@ -24,8 +24,8 @@ import Dropdown from "react-bootstrap/Dropdown";
 import Modal from "react-bootstrap/Modal";
 import Alert from "react-bootstrap/Alert";
 import { SOLVE_STATE_FILTER_OPTIONS } from "./solveStateFilter";
-import { filterWithTagToggled } from "./tagFilter";
 import TagPill from "./TagPill";
+import { toggleTagInFilter } from "./tagFilterSlice";
 
 const MODAL_COMPONENTS = {
   DELETE_PUZZLE: DeletePuzzleModal,
@@ -111,14 +111,14 @@ export const HuntViewMain = (props) => {
   const modal = useSelector((state) => state.modal);
   const hunt = useSelector((state) => state.hunt);
   const alert = useSelector((state) => state.alert);
+  const tagFilter = useSelector((state) => state.tagFilter);
   const [filter, setFilter] = React.useState("");
   const [filterSolved, setFilterSolved] = React.useState(
     SOLVE_STATE_FILTER_OPTIONS.ALL
   );
-  let [filterTags, setFilterTags] = React.useState([]);
-  const toggleTagInFilter = tag => {
-    setFilterTags(filterWithTagToggled(filterTags, tag));
-  };
+  
+  const [filterTags, setFilterTags] = React.useState([]);
+  
   const dispatch = useDispatch();
 
   const updatePuzzleData = () => {
@@ -203,16 +203,20 @@ export const HuntViewMain = (props) => {
           </label>
         </div>
         <div>
-          {filterTags.length > 0 ? 'Viewing puzzles with tags: ' : ''}
-          {filterTags.map(({ name, color, id }) => {
-            // This use of toggleTagInFilter will always delete the tag, never add it.
+          {tagFilter.tagList.length > 0 ? 'Viewing puzzles with tags: ' : ''}
+          {tagFilter.tagList.map(({ name, color, id }) => {
+            // This use of toggleTagInFilter will always delete the tag, and never add it.
             return <TagPill
               name={name}
               color={color}
               id={id}
               puzzleId={null}
               key={name}
-              onDelete={function () {toggleTagInFilter({ name, color, id })}}
+              onDelete={() =>
+                dispatch(
+                  toggleTagInFilter({ name, color, id })
+                )
+              }
             />;
           })}
         </div>
@@ -239,8 +243,7 @@ export const HuntViewMain = (props) => {
         data={tableData}
         filter={filter}
         filterSolved={filterSolved}
-        filterTags={filterTags}
-        toggleTagInFilter={toggleTagInFilter}
+        tagFilter={tagFilter}
       />
       <Modal
         animation={false}

@@ -9,7 +9,6 @@ import {
 import { matchSorter } from "match-sorter";
 import Table from "react-bootstrap/Table";
 import { filterSolvedPuzzlesfn } from "./solveStateFilter";
-import { filterPuzzlesByTagFn } from "./tagFilter";
 
 function textFilterFn(rows, id, filterValue) {
   if (!filterValue || !filterValue.length) {
@@ -26,6 +25,14 @@ function textFilterFn(rows, id, filterValue) {
   return words
     .reduceRight((results, word) => matchSorter(results, word, { keys }), rows)
     .map((row) => Object.assign({}, row));
+}
+
+function getFilterPuzzlesByTagFn(tagFilter) {
+  return function(rows, id) {
+    return rows.filter((row) => {
+      return tagFilter.tagList.every(tag => row.original.tags.map(x => x.id).includes(tag.id));
+    });
+  }
 }
 
 textFilterFn.autoRemove = (val) => !val;
@@ -46,7 +53,9 @@ function rowClassName(row) {
 }
 
 export const PuzzleTable = React.memo(
-  ({ columns, data, filter, filterSolved, filterTags, toggleTagInFilter }) => {
+  ({ columns, data, filter, filterSolved, tagFilter }) => {
+    const filterPuzzlesByTagFn = getFilterPuzzlesByTagFn(tagFilter);
+    
     const filterTypes = React.useMemo(
       () => ({
         globalFilter: textFilterFn,
@@ -103,8 +112,8 @@ export const PuzzleTable = React.memo(
     }, [filterSolved]);
 
     React.useEffect(() => {
-      setFilter("tags", filterTags);
-    }, [filterTags]);
+      setFilter("tags", tagFilter.tagList);
+    }, [tagFilter.tagList]);
 
     return (
       <>
@@ -123,7 +132,6 @@ export const PuzzleTable = React.memo(
           <tbody {...getTableBodyProps()}>
             {rows.map((row, i) => {
               prepareRow(row);
-              row.original.toggleTagInFilter = toggleTagInFilter;
               return (
                 <tr className={rowClassName(row)} {...row.getRowProps()}>
                   {row.cells.map((cell) => {
