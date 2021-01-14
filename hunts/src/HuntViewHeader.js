@@ -25,12 +25,13 @@ function HuntViewHeader({ hunt }) {
       <div
         style={{
           display: "flex",
-          justifyContent: "flex-start",
+          justifyContent: "space-between",
           padding: "2px",
           alignItems: "center",
         }}
       >
         <h1>{hunt.name} - All Puzzles</h1>
+        <a href={"/hunts"}>Back to Hunt Index</a>
       </div>
       <div
         style={{
