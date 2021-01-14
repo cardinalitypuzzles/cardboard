@@ -10,7 +10,8 @@ import {
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
-import ReactTooltip from "react-tooltip";
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import Tooltip from "react-bootstrap/Tooltip";
 
 function HuntViewHeader({ hunt }) {
   const dispatch = useDispatch();
@@ -21,12 +22,16 @@ function HuntViewHeader({ hunt }) {
   const numMetasSolved = useSelector(selectNumMetasSolved);
   const numMetasUnsolved = useSelector(selectNumMetasUnsolved);
   const driveRedirect = hunt.has_drive ? (
-    <div className="row">
-      <ReactTooltip place="bottom" />
-      <a data-tip="Create your drawings, jamboards, etc here" href={"drive"}>
-        Google Drive Folder 📁
-      </a>
-    </div>
+    <OverlayTrigger
+      placement="top"
+      overlay={
+        <Tooltip id="tooltip-right">
+          Create your drawings, jamboards, etc here.
+        </Tooltip>
+      }
+    >
+      <a href={"drive"}>Google Drive Folder 🎨🖌️📁</a>
+     </OverlayTrigger>
   ) : null;
 
   return (

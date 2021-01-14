@@ -11,6 +11,7 @@ export const huntSlice = createSlice({
   initialState: {
     id: null,
     name: null,
+    has_drive: false,
   },
   reducers: {},
   extraReducers: {
