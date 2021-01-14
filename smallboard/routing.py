@@ -8,7 +8,6 @@ from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.security.websocket import AllowedHostsOriginValidator
 
 
-
 application = ProtocolTypeRouter(
     {
         "http": django_asgi_app,
