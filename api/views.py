@@ -190,7 +190,9 @@ class PuzzleViewSet(viewsets.ModelViewSet):
                     puzzle.chat_room.name = data["name"]
                     puzzle.chat_room.save()
                     transaction.on_commit(
-                        lambda: chat.tasks.handle_channel_rename.delay(puzzle.id, data["name"])
+                        lambda: chat.tasks.handle_channel_rename.delay(
+                            puzzle.id, data["name"]
+                        )
                     )
 
                 if is_new_url and google_api_lib.enabled():
