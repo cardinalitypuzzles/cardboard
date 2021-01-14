@@ -307,20 +307,12 @@ LOGGING = {
 
 # Sending users notifications
 ASGI_APPLICATION = "smallboard.routing.application"
-import re
-
-m = re.match("^redis://(:.*@)?(.*):([0-9])+", os.environ.get("REDIS_URL", "redis://"))
-if m:
-    (_, server_name, port) = m.groups()
-else:
-    server_name = "localhost"
-    port = 6379
 
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [(server_name, port)],
+            "hosts": [os.environ.get("REDIS_URL", "redis://")],
         },
     },
 }
