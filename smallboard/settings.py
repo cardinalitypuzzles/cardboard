@@ -304,7 +304,7 @@ LOGGING = {
 }
 
 # Sending users notifications
-ASGI_APPLICATION = "smallboard.asgi.application"
+ASGI_APPLICATION = "smallboard.routing.application"
 import re
 
 m = re.match("^redis://(.*):([0-9])+", os.environ.get("REDIS_URL", "redis://"))
