@@ -291,6 +291,18 @@ export const selectNumMetasSolved = createSelector(
   }
 );
 
+export const selectNumMetasUnsolved = createSelector(
+  [puzzlesSelectors.selectAll],
+  (puzzles) => {
+    const count = puzzles.reduce(
+      (count, puzzle) =>
+        puzzle.status != "SOLVED" && puzzle.is_meta ? count + 1 : count,
+      0
+    );
+    return count;
+  }
+);
+
 export const { selectById: selectPuzzleById } = puzzlesSelectors;
 export const { reducers } = puzzlesSlice.actions;
 
