@@ -66,20 +66,18 @@ export const editAnswer = createAsyncThunk(
 
 export const deletePuzzleTag = createAsyncThunk(
   "puzzles/deletePuzzleTag",
-  async ({ puzzleId, tagId }, thunkApi) => {
-    await api.deletePuzzleTag(puzzleId, tagId);
-    return api.getPuzzles(selectHuntId(thunkApi.getState()));
+  async ({ puzzleId, tagId }) => {
+    return api.deletePuzzleTag(puzzleId, tagId);
   }
 );
 
 export const addPuzzleTag = createAsyncThunk(
   "puzzles/addPuzzleTag",
-  async ({ puzzleId, name, color }, thunkApi) => {
-    await api.addPuzzleTag(puzzleId, {
+  async ({ puzzleId, name, color }) => {
+    return api.addPuzzleTag(puzzleId, {
       name,
       color,
     });
-    return api.getPuzzles(selectHuntId(thunkApi.getState()));
   }
 );
 
@@ -156,10 +154,18 @@ export const puzzlesSlice = createSlice({
       });
     },
     [deletePuzzleTag.fulfilled]: (state, action) => {
-      puzzlesAdapter.setAll(state, action.payload);
+      const updates = action.payload.map((updatedRecord) => ({
+        id: updatedRecord.id,
+        changes: updatedRecord,
+      }));
+      puzzlesAdapter.updateMany(state, updates);
     },
     [addPuzzleTag.fulfilled]: (state, action) => {
-      puzzlesAdapter.setAll(state, action.payload);
+      const updates = action.payload.map((updatedRecord) => ({
+        id: updatedRecord.id,
+        changes: updatedRecord,
+      }));
+      puzzlesAdapter.updateMany(state, updates);
     },
   },
 });

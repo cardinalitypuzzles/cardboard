@@ -259,6 +259,7 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
 
     def destroy(self, request, pk=None, **kwargs):
         puzzle = None
+        meta = None
         with transaction.atomic():
             tag = self.get_object()
             puzzle = get_object_or_404(Puzzle, pk=self.kwargs["puzzle_id"])
@@ -281,10 +282,16 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
             if not tag.puzzles.exists():
                 tag.delete()
 
-        return Response(PuzzleSerializer(puzzle).data)
+        if meta == None:
+            return Response([PuzzleSerializer(puzzle).data])
+        else:
+            return Response(
+                [PuzzleSerializer(puzzle).data, PuzzleSerializer(meta).data]
+            )
 
     def create(self, request, **kwargs):
         puzzle = None
+        meta = None
         with transaction.atomic():
             puzzle = get_object_or_404(Puzzle, pk=self.kwargs["puzzle_id"])
             serializer = self.get_serializer(
@@ -301,8 +308,8 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
                 defaults={"color": tag_color},
             )
             if tag.is_meta:
-                metapuzzle = get_object_or_404(Puzzle, name=tag.name, hunt=puzzle.hunt)
-                if is_ancestor(puzzle, metapuzzle):
+                meta = get_object_or_404(Puzzle, name=tag.name, hunt=puzzle.hunt)
+                if is_ancestor(puzzle, meta):
                     return Response(
                         {
                             "detail": '"Unable to assign metapuzzle since doing so would introduce a meta-cycle."'
@@ -310,8 +317,13 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
                         status=400,
                     )
                 # the post m2m hook will add tag
-                puzzle.metas.add(metapuzzle)
+                puzzle.metas.add(meta)
             else:
                 puzzle.tags.add(tag)
 
-            return Response(PuzzleSerializer(puzzle).data)
+        if meta == None:
+            return Response([PuzzleSerializer(puzzle).data])
+        else:
+            return Response(
+                [PuzzleSerializer(puzzle).data, PuzzleSerializer(meta).data]
+            )
