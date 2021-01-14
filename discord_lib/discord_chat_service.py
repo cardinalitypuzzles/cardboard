@@ -24,18 +24,6 @@ class DiscordChatService(ChatService):
         self._puzzle_announcements_id = settings.DISCORD_PUZZLE_ANNOUNCEMENTS_CHANNEL
         self._max_channels_per_category = max_channels_per_category
 
-    @staticmethod
-    def __maybe_create_in_client_invite_link(url):
-        """
-        If url is a discord invite link, we replace https:// with discord://
-        """
-        invite_link = url
-        if re.match("https://discord.com/channels/\d+/\d+", url) or re.match(
-            "https://discord.gg/[a-z0-9A-Z]+", url
-        ):
-            invite_link = url.replace("https://", "discord://")
-        return invite_link
-
     def send_message(self, channel_id, msg, embedded_urls={}):
         """
         Sends msg to specified channel_id.
