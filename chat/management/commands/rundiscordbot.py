@@ -70,8 +70,7 @@ async def send_puzzles_stuck(message):
 
 async def send_puzzles(message, puzzles, title):
     print(f"Sending puzzles {puzzles}")
-    embed = discord.Embed(title=title)
-    lines = []
+    lines_with_titles = []
     for p in puzzles:
         line_title = ""
         if p.is_solved():
@@ -83,22 +82,27 @@ async def send_puzzles(message, puzzles, title):
             line += f"[Puzzle]({p.url}) "
         if p.sheet:
             line += f"([sheet](https://smallboard.app/puzzles/s/{p.id}))"
-        if p.chat_room:
-            if p.chat_room.text_channel_url:
-                line += f"([chat]({p.chat_room.text_channel_url}))"
+        if p.chat_room and p.chat_room.text_channel_url:
+            line += f"([chat]({p.chat_room.text_channel_url}))"
 
-        lines.append((line_title, line))
-    print(f"lines: {lines}")
-    lines.sort()
+        lines_with_titles.append((line_title, line))
+    print(f"lines: {lines_with_titles}")
+    lines_with_titles.sort()
+
+    # Discord embeds have a limit of:
+    #   * 6000 total characters per embed
+    #   * 25 fields per embed
+    #   * 1024 characters per field.value
+    # See the full limits: https://discord.com/developers/docs/resources/channel#embed-limits
+    embed = discord.Embed(title=title)
     field_count = 0
-    for line in lines:
-        line_length = sum([len(x) for x in line])
+    for line_title, line in lines_with_titles:
+        line_length = line_title + line
         if (line_length + len(embed)) >= 6000 or field_count >= 25:
             await message.channel.send(embed=embed)
             embed = discord.Embed(title=title)
-            embed_length = len(title)
             field_count = 0
-        embed.add_field(name=line[0], value=line[1], inline=True)
+        embed.add_field(name=line_title, value=line, inline=True)
         field_count += 1
     await message.channel.send(embed=embed)
 
