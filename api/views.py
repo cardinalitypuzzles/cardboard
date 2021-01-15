@@ -323,10 +323,9 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
                 serializer.validated_data["name"],
                 serializer.validated_data["color"],
             )
-            tag, _ = PuzzleTag.objects.update_or_create(
+            tag, _ = PuzzleTag.objects.get_or_create(
                 name=tag_name,
                 hunt=puzzle.hunt,
-                defaults={"color": tag_color},
             )
             if tag.is_meta:
                 meta = get_object_or_404(Puzzle, name=tag.name, hunt=puzzle.hunt)
@@ -337,9 +336,16 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
                         },
                         status=400,
                     )
-                # the post m2m hook will add tag
-                puzzle.metas.add(meta)
+                else:
+                    # the post m2m hook will add tag
+                    puzzle.metas.add(meta)
             else:
+                PuzzleTag.objects.filter(
+                    name=tag_name,
+                    hunt=puzzle.hunt,
+                ).update(
+                    color=tag_color,
+                )
                 puzzle.tags.add(tag)
                 if tag.name == "HIGH PRIORITY" or tag.name == "LOW PRIORITY":
                     opposite_tag_name = (
