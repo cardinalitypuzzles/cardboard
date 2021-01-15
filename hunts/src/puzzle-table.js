@@ -28,6 +28,14 @@ function textFilterFn(rows, id, filterValue) {
 
 textFilterFn.autoRemove = (val) => !val;
 
+function filterPuzzlesByTagFn(rows, id, tagList) {
+  return rows.filter((row) => {
+    return tagList.every((tag) =>
+      row.original.tags.map((x) => x.id).includes(tag.id)
+    );
+  });
+}
+
 function rowClassName(row) {
   switch (row.values.status) {
     case "SOLVED":
@@ -44,11 +52,12 @@ function rowClassName(row) {
 }
 
 export const PuzzleTable = React.memo(
-  ({ columns, data, filter, filterSolved }) => {
+  ({ columns, data, filter, filterSolved, filterTags }) => {
     const filterTypes = React.useMemo(
       () => ({
         globalFilter: textFilterFn,
         solvedFilter: filterSolvedPuzzlesfn,
+        tagsFilter: filterPuzzlesByTagFn,
       }),
       []
     );
@@ -98,6 +107,10 @@ export const PuzzleTable = React.memo(
     React.useEffect(() => {
       setFilter("status", filterSolved);
     }, [filterSolved]);
+
+    React.useEffect(() => {
+      setFilter("tags", filterTags);
+    }, [filterTags]);
 
     return (
       <>

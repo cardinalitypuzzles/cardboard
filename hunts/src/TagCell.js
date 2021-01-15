@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { showModal } from "./modalSlice";
+import { toggleFilterTag } from "./tagFilterSlice";
 import TagPill from "./TagPill";
 
 function TagCell({ row, value }) {
@@ -19,6 +20,7 @@ function TagCell({ row, value }) {
           id={id}
           puzzleId={puzzleId}
           key={name}
+          onClick={() => dispatch(toggleFilterTag({ name, color, id }))}
         />
       ))}
       <span

@@ -5,6 +5,7 @@ import { fetchPuzzles, selectPuzzleTableData } from "./puzzlesSlice";
 import { fetchHunt } from "./huntSlice";
 import { showModal, hideModal } from "./modalSlice";
 import { hideAlert } from "./alertSlice";
+import { toggleFilterTag } from "./tagFilterSlice";
 import { PuzzleTable } from "./puzzle-table";
 import AnswerCell from "./AnswerCell";
 import NameCell from "./NameCell";
@@ -26,6 +27,7 @@ import Modal from "react-bootstrap/Modal";
 import Alert from "react-bootstrap/Alert";
 import { SOLVE_STATE_FILTER_OPTIONS } from "./solveStateFilter";
 import { SHEET_REDIRECT_BASE } from "./constants";
+import TagPill from "./TagPill";
 
 const MODAL_COMPONENTS = {
   DELETE_PUZZLE: DeletePuzzleModal,
@@ -91,6 +93,7 @@ const TABLE_COLUMNS = [
     id: "tags",
     accessor: (row) => row.tags.map(({ name }) => name).join(" "),
     Cell: TagCell,
+    filter: "tagsFilter",
   },
   {
     accessor: "is_meta",
@@ -107,6 +110,7 @@ export const HuntViewMain = (props) => {
   const modal = useSelector((state) => state.modal);
   const hunt = useSelector((state) => state.hunt);
   const alert = useSelector((state) => state.alert);
+  const filterTags = useSelector((state) => state.tagFilter.tags);
   const [filter, setFilter] = React.useState("");
   const [filterSolved, setFilterSolved] = React.useState(
     SOLVE_STATE_FILTER_OPTIONS.ALL
@@ -213,6 +217,22 @@ export const HuntViewMain = (props) => {
             </label>
           )}
         </div>
+        <div>
+          {filterTags.length > 0 ? "Viewing puzzles with tags: " : ""}
+          {filterTags.map(({ name, color, id }) => {
+            // This use of toggleFilterTag will remove the tag from the list
+            return (
+              <TagPill
+                name={name}
+                color={color}
+                id={id}
+                puzzleId={null}
+                key={name}
+                onDelete={() => dispatch(toggleFilterTag({ name, color, id }))}
+              />
+            );
+          })}
+        </div>
 
         <Button
           variant="primary"
@@ -236,6 +256,7 @@ export const HuntViewMain = (props) => {
         data={tableData}
         filter={filter}
         filterSolved={filterSolved}
+        filterTags={filterTags}
       />
       <Modal
         animation={false}
