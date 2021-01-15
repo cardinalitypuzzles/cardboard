@@ -114,6 +114,5 @@ class ReactHuntView(LoginRequiredMixin, View):
 
         context = {
             "hunt_pk": hunt.pk,
-            "enable_ws": hunt.meta_sound is not None and hunt.feeder_sound is not None,
         }
         return render(request, "all_puzzles_react.html", context)
