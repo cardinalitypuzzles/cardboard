@@ -30,14 +30,14 @@ class Hunt(models.Model):
             )
 
     meta_sound = models.CharField(
-        max_length=16,
+        max_length=64,
         validators=[validate_file_exists],
         default=None,
         blank=True,
         null=True,
     )
     feeder_sound = models.CharField(
-        max_length=16,
+        max_length=64,
         validators=[validate_file_exists],
         default=None,
         blank=True,

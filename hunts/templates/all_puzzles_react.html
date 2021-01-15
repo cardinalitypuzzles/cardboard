@@ -31,20 +31,24 @@
             if (audio != null){
                 audio.pause()
             }
-
-            audio = new Audio(e.data.replace(/^"(.*)"$/, '$1'));
+            audio = new Audio(JSON.parse(e.data));
             audio.play();
         }
 
         socket.onopen = function(e){
             console.log('open', e)
-            clearInterval(this.timerId);
+            clearTimeout(this.timerId);
+            var waitTime = 1000;
 
             socket.onclose = function(e){
-                console.log('closed, will try reconnecting in 1 minute')
-                this.timerId = setInterval(function() {
-                    connect();
-                }, 60000);
+
+                invoker = function() {
+                    connect()
+                    waitTime = Math.min(waitTime * 2, 60000)
+                    console.log(`closed, will try reconnecting in ${waitTime / 1000} seconds...`)
+                    this.timerId = setTimeout(invoker, waitTime);
+                }
+                invoker()
             }
         }
 
@@ -55,6 +59,8 @@
 
     }
 
-    connect();
+    {% if enable_ws %}
+        connect();
+    {% endif %}
 </script>
 {% endblock %}
