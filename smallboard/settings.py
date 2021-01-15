@@ -41,8 +41,6 @@ ALLOWED_HOSTS = [
     "smallboard.herokuapp.com",
     "smallboard.app",
 ]
-if "HEROKU_APP_NAME" in os.environ:
-    ALLOWED_HOSTS.append(f"{os.environ['HEROKU_APP_NAME']}.herokuapp.com")
 
 # This should be turned on in production to redirect HTTP to HTTPS
 # The development web server doesn't support HTTPS, however, so do not
@@ -67,7 +65,6 @@ INSTALLED_APPS = [
     "taggit",
     "rest_framework",
     "django_celery_results",
-    "channels",
 ]
 
 MIDDLEWARE = [
@@ -305,20 +302,6 @@ LOGGING = {
         "django": {
             "handlers": ["console"],
             "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
-        },
-    },
-}
-
-# Sending users notifications
-ASGI_APPLICATION = "smallboard.routing.application"
-
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [
-                os.environ.get("REDIS_TLS_URL", os.environ.get("REDIS_URL", "redis://"))
-            ],
         },
     },
 }

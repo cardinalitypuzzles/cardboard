@@ -1,20 +1,10 @@
 from django.contrib.auth import get_user_model
-from django.templatetags.static import static
-from django.core.exceptions import ObjectDoesNotExist
 from django.db import models, transaction
 from django.db.models import Q
 from django.dispatch import receiver
 
-from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
-
 from answers.models import Answer
 from .puzzle_tag import PuzzleTag
-import logging
-
-
-logger = logging.getLogger(__name__)
-channel_layer = get_channel_layer()
 
 
 class PuzzleModelError(Exception):
@@ -101,32 +91,6 @@ class Puzzle(models.Model):
 
     def __str__(self):
         return self.name
-
-    def save(self, *args, **kwargs):
-        previous_status = Puzzle.objects.get(pk=self.pk).status if self.pk else None
-
-        super(Puzzle, self).save(*args, **kwargs)
-
-        if self.status == Puzzle.SOLVED and previous_status != Puzzle.SOLVED:
-            try:
-                if self.is_meta and self.hunt.meta_sound:
-                    async_to_sync(channel_layer.group_send)(
-                        str(self.hunt.pk),
-                        {
-                            "type": "notify",
-                            "text": static(f"audio/{self.hunt.meta_sound}"),
-                        },
-                    )
-                elif self.hunt.feeder_sound:
-                    async_to_sync(channel_layer.group_send)(
-                        str(self.hunt.pk),
-                        {
-                            "type": "notify",
-                            "text": static(f"audio/{self.hunt.feeder_sound}"),
-                        },
-                    )
-            except Exception as e:
-                logger.error(f"Encountered websocket error: {e}")
 
     def update_metadata(self, new_name, new_url, new_is_meta):
         """
