@@ -137,6 +137,9 @@ class ChatRoom(models.Model):
         self.send_message(msg, embedded_urls)
 
     def handle_tag_added(self, puzzle, tag_name):
+        if tag_name in ["HIGH PRIORITY", "LOW PRIORITY"]:
+            self.send_message(f"This puzzle was marked {tag_name}")
+        # Any service-specific logic should go in the handler below
         self.get_service().handle_tag_added(puzzle, tag_name)
 
     def handle_tag_removed(self, puzzle, tag_name):
