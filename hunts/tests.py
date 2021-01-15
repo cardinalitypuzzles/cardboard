@@ -218,21 +218,6 @@ class TestHunt(TestCase):
             times, [hunt_past.start_time.isoformat(), hunt_past.end_time.isoformat()]
         )
 
-    def test_chart_utils_puzzle_before(self):
-        # test behavior when puzzle created before start time
-        unsolved_name = "puzzle_unsolved"
-
-        hunt = self.create_hunt(
-            "hunt",
-            start=timezone.now() + timedelta(days=100),
-            end=timezone.now() + timedelta(days=200),
-        )
-        puzzle_unsolved = self.create_puzzle(unsolved_name, hunt, False)
-        labels, times, counts = get_chart_data(hunt, unlocks=True)
-        self.assertEqual(
-            times[:2], [hunt.start_time.isoformat(), hunt.start_time.isoformat()]
-        )
-
 
 class HuntFormTests(TestCase):
     def setUp(self):
