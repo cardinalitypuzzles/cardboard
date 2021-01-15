@@ -4,6 +4,7 @@ import {
   createAsyncThunk,
   createEntityAdapter,
 } from "@reduxjs/toolkit";
+import { selectHuntId } from "./huntSlice";
 import api from "./api";
 import { DEFAULT_TAGS } from "./constants";
 
@@ -67,19 +68,17 @@ export const editAnswer = createAsyncThunk(
 export const deletePuzzleTag = createAsyncThunk(
   "puzzles/deletePuzzleTag",
   async ({ puzzleId, tagId }) => {
-    const response = await api.deletePuzzleTag(puzzleId, tagId);
-    return response;
+    return api.deletePuzzleTag(puzzleId, tagId);
   }
 );
 
 export const addPuzzleTag = createAsyncThunk(
   "puzzles/addPuzzleTag",
   async ({ puzzleId, name, color }) => {
-    const response = await api.addPuzzleTag(puzzleId, {
+    return api.addPuzzleTag(puzzleId, {
       name,
       color,
     });
-    return response;
   }
 );
 
@@ -168,17 +167,19 @@ export const puzzlesSlice = createSlice({
       ++state.timestamp;
     },
     [deletePuzzleTag.fulfilled]: (state, action) => {
-      puzzlesAdapter.updateOne(state, {
-        id: action.payload.id,
-        changes: { ...action.payload },
-      });
+      const updates = action.payload.map((updatedRecord) => ({
+        id: updatedRecord.id,
+        changes: updatedRecord,
+      }));
+      puzzlesAdapter.updateMany(state, updates);
       ++state.timestamp;
     },
     [addPuzzleTag.fulfilled]: (state, action) => {
-      puzzlesAdapter.updateOne(state, {
-        id: action.payload.id,
-        changes: { ...action.payload },
-      });
+      const updates = action.payload.map((updatedRecord) => ({
+        id: updatedRecord.id,
+        changes: updatedRecord,
+      }));
+      puzzlesAdapter.updateMany(state, updates);
       ++state.timestamp;
     },
   },

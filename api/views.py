@@ -276,6 +276,7 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
 
     def destroy(self, request, pk=None, **kwargs):
         puzzle = None
+        meta = None
         with transaction.atomic():
             tag = self.get_object()
             puzzle = get_object_or_404(Puzzle, pk=self.kwargs["puzzle_id"])
@@ -302,11 +303,16 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
                 transaction.on_commit(
                     lambda: chat.tasks.handle_tag_removed.delay(puzzle.id, tag.name)
                 )
-
-        return Response(PuzzleSerializer(puzzle).data)
+        if meta:
+            return Response(
+                [PuzzleSerializer(puzzle).data, PuzzleSerializer(meta).data]
+            )
+        else:
+            return Response([PuzzleSerializer(puzzle).data])
 
     def create(self, request, **kwargs):
         puzzle = None
+        meta = None
         with transaction.atomic():
             puzzle = get_object_or_404(Puzzle, pk=self.kwargs["puzzle_id"])
             serializer = self.get_serializer(
@@ -323,8 +329,8 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
                 defaults={"color": tag_color},
             )
             if tag.is_meta:
-                metapuzzle = get_object_or_404(Puzzle, name=tag.name, hunt=puzzle.hunt)
-                if is_ancestor(puzzle, metapuzzle):
+                meta = get_object_or_404(Puzzle, name=tag.name, hunt=puzzle.hunt)
+                if is_ancestor(puzzle, meta):
                     return Response(
                         {
                             "detail": '"Unable to assign metapuzzle since doing so would introduce a meta-cycle."'
@@ -332,7 +338,7 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
                         status=400,
                     )
                 # the post m2m hook will add tag
-                puzzle.metas.add(metapuzzle)
+                puzzle.metas.add(meta)
             else:
                 puzzle.tags.add(tag)
                 if tag.name == "HIGH PRIORITY" or tag.name == "LOW PRIORITY":
@@ -353,4 +359,9 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
                     lambda: chat.tasks.handle_tag_added.delay(puzzle.id, tag.name)
                 )
 
-        return Response(PuzzleSerializer(puzzle).data)
+        if meta:
+            return Response(
+                [PuzzleSerializer(puzzle).data, PuzzleSerializer(meta).data]
+            )
+        else:
+            return Response([PuzzleSerializer(puzzle).data])

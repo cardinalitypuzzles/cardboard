@@ -183,7 +183,7 @@ class ApiTests(SmallboardTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(puzzle.tags.count(), 1)
         # Should return a puzzle
-        self.assertEqual(response.data["name"], puzzle.name)
+        self.assertEqual(response.data[0]["name"], puzzle.name)
 
     def test_delete_tag(self):
         self.create_puzzle({"name": "test name", "url": TEST_URL})
@@ -211,4 +211,4 @@ class ApiTests(SmallboardTestCase):
         self.assertEqual(puzzle.tags.count(), 1)
         self.assertEqual(puzzle.tags.all()[0].name, "LOW PRIORITY")
         # Should return a puzzle
-        self.assertEqual(response.data["name"], puzzle.name)
+        self.assertEqual(response.data[0]["name"], puzzle.name)
