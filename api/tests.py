@@ -219,7 +219,7 @@ class ApiTests(SmallboardTestCase):
             {
                 "name": meta_puzzle_name,
                 "url": "{}/meta".format(TEST_URL),
-                "is_meta": True
+                "is_meta": True,
             }
         )
         self.create_puzzle(
