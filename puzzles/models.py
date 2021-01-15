@@ -126,8 +126,7 @@ class Puzzle(models.Model):
                         },
                     )
             except Exception as e:
-                logger.error("websocket error")
-                logger.error(e)
+                logger.error(f"Encountered websocket error: {e}")
 
     def update_metadata(self, new_name, new_url, new_is_meta):
         """
