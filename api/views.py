@@ -290,12 +290,12 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
                 transaction.on_commit(
                     lambda: chat.tasks.handle_tag_removed.delay(puzzle.id, tag.name)
                 )
-        if meta == None:
-            return Response([PuzzleSerializer(puzzle).data])
-        else:
+        if meta:
             return Response(
                 [PuzzleSerializer(puzzle).data, PuzzleSerializer(meta).data]
             )
+        else:
+            return Response([PuzzleSerializer(puzzle).data])
 
     def create(self, request, **kwargs):
         puzzle = None
@@ -346,9 +346,9 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
                     lambda: chat.tasks.handle_tag_added.delay(puzzle.id, tag.name)
                 )
 
-        if meta == None:
-            return Response([PuzzleSerializer(puzzle).data])
-        else:
+        if meta:
             return Response(
                 [PuzzleSerializer(puzzle).data, PuzzleSerializer(meta).data]
             )
+        else:
+            return Response([PuzzleSerializer(puzzle).data])
