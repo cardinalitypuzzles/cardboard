@@ -11,4 +11,62 @@
     var CURRENT_HUNT_ID = ({{ hunt_pk }}).toString();
 </script>
 <script src="{% static "main.js" %}"></script>
+
+
+<script>
+    function connect() {
+
+        var loc = window.location
+
+        var wsStart;
+        if (loc.protocol == "https:"){
+            wsStart = "wss://"
+        } else if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
+            wsStart = "ws://"
+        } else {
+            return;
+        }
+
+        var webSocketEndpoint =  wsStart + loc.host + '/notifications/' + ({{ hunt_pk }}).toString()
+
+        var socket = new WebSocket(webSocketEndpoint)
+
+        var audio = null;
+
+        socket.onmessage = function(e){
+            if (audio != null){
+                audio.pause()
+            }
+            audio = new Audio(JSON.parse(e.data));
+            audio.play();
+        }
+
+        socket.onopen = function(e){
+            console.log('open', e)
+            clearTimeout(this.timerId);
+            var waitTime = 1000;
+
+            socket.onclose = function(e){
+
+                invoker = function() {
+                    connect()
+                    waitTime = Math.min(waitTime * 2, 60000)
+                    console.log(`closed, will try reconnecting in ${waitTime / 1000} seconds...`)
+                    this.timerId = setTimeout(invoker, waitTime);
+                }
+                invoker()
+            }
+        }
+
+        socket.onerror = function(e){
+            console.log('error', e)
+        }
+
+
+    }
+
+    {% if enable_ws %}
+        connect();
+    {% endif %}
+</script>
 {% endblock %}
