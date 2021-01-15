@@ -340,10 +340,7 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
                     # the post m2m hook will add tag
                     puzzle.metas.add(meta)
             else:
-                PuzzleTag.objects.filter(
-                    name=tag_name,
-                    hunt=puzzle.hunt,
-                ).update(
+                PuzzleTag.objects.filter(name=tag_name, hunt=puzzle.hunt).update(
                     color=tag_color,
                 )
                 puzzle.tags.add(tag)

@@ -215,8 +215,16 @@ class ApiTests(SmallboardTestCase):
 
     def test_cannot_change_meta_tag_color(self):
         meta_puzzle_name = "test meta"
-        self.create_puzzle({"name": meta_puzzle_name, "url": "{}/meta".format(TEST_URL), "is_meta": True})
-        self.create_puzzle({"name": "test name", "url": "{}/puzzle".format(TEST_URL), "is_meta": False})
+        self.create_puzzle(
+            {
+                "name": meta_puzzle_name,
+                "url": "{}/meta".format(TEST_URL),
+                "is_meta": True
+            }
+        )
+        self.create_puzzle(
+            {"name": "test name", "url": "{}/puzzle".format(TEST_URL), "is_meta": False}
+        )
         meta = Puzzle.objects.get(is_meta=True)
         puzzle = Puzzle.objects.get(is_meta=False)
 
