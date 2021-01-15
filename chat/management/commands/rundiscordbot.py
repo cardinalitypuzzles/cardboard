@@ -97,7 +97,7 @@ async def send_puzzles(message, puzzles, title):
     embed = discord.Embed(title=title)
     field_count = 0
     for line_title, line in lines_with_titles:
-        line_length = line_title + line
+        line_length = len(line_title) + len(line)
         if (line_length + len(embed)) >= 6000 or field_count >= 25:
             await message.channel.send(embed=embed)
             embed = discord.Embed(title=title)
