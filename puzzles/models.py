@@ -10,7 +10,10 @@ from asgiref.sync import async_to_sync
 
 from answers.models import Answer
 from .puzzle_tag import PuzzleTag
+import logging
 
+
+logger = logging.getLogger(__name__)
 channel_layer = get_channel_layer()
 
 
@@ -105,22 +108,26 @@ class Puzzle(models.Model):
         super(Puzzle, self).save(*args, **kwargs)
 
         if self.status == Puzzle.SOLVED and previous_status != Puzzle.SOLVED:
-            if self.is_meta and self.hunt.meta_sound:
-                async_to_sync(channel_layer.group_send)(
-                    str(self.hunt.pk),
-                    {
-                        "type": "notify",
-                        "text": static(f"audio/{self.hunt.meta_sound}"),
-                    },
-                )
-            elif self.hunt.feeder_sound:
-                async_to_sync(channel_layer.group_send)(
-                    str(self.hunt.pk),
-                    {
-                        "type": "notify",
-                        "text": static(f"audio/{self.hunt.feeder_sound}"),
-                    },
-                )
+            try:
+                if self.is_meta and self.hunt.meta_sound:
+                    async_to_sync(channel_layer.group_send)(
+                        str(self.hunt.pk),
+                        {
+                            "type": "notify",
+                            "text": static(f"audio/{self.hunt.meta_sound}"),
+                        },
+                    )
+                elif self.hunt.feeder_sound:
+                    async_to_sync(channel_layer.group_send)(
+                        str(self.hunt.pk),
+                        {
+                            "type": "notify",
+                            "text": static(f"audio/{self.hunt.feeder_sound}"),
+                        },
+                    )
+            except Exception as e:
+                logger.error("websocket error")
+                logger.error(e)
 
     def update_metadata(self, new_name, new_url, new_is_meta):
         """
