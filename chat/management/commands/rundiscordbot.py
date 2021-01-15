@@ -44,14 +44,16 @@ async def send_puzzles_unsolved(message):
         Puzzle.objects.filter(
             Q(hunt=settings.BOT_ACTIVE_HUNT),
             Q(status=Puzzle.SOLVING) | Q(status=Puzzle.PENDING),
-        )
+        ).select_related("chat_room")
     )
     await send_puzzles(message, puzzles, "Unsolved puzzles")
 
 
 async def send_puzzles_solved(message):
     puzzles = await sync_to_async(list)(
-        Puzzle.objects.filter(hunt=settings.BOT_ACTIVE_HUNT, status=Puzzle.SOLVED)
+        Puzzle.objects.filter(
+            hunt=settings.BOT_ACTIVE_HUNT, status=Puzzle.SOLVED
+        ).select_related("chat_room")
     )
     await send_puzzles(message, puzzles, "Solved puzzles")
 
@@ -61,36 +63,47 @@ async def send_puzzles_stuck(message):
         Puzzle.objects.filter(
             Q(hunt=settings.BOT_ACTIVE_HUNT),
             Q(status=Puzzle.STUCK) | Q(status=Puzzle.EXTRACTION),
-        )
+        ).select_related("chat_room")
     )
     await send_puzzles(message, puzzles, "Stuck puzzles")
 
 
 async def send_puzzles(message, puzzles, title):
     print(f"Sending puzzles {puzzles}")
-    embed = discord.Embed()
-    lines = []
+    lines_with_titles = []
     for p in puzzles:
-        line = "- "
+        line_title = ""
         if p.is_solved():
-            line += f"[{p.answer}] "
-        line += f"[{p.name}]({p.url})" if p.url else p.name
+            line_title += f"[{p.answer}] "
+        line_title += p.name
+
+        line = ""
+        if p.url:
+            line += f"[Puzzle]({p.url}) "
         if p.sheet:
-            line += f" ([sheet]({p.sheet}))"
-        lines.append(line)
-    print(f"lines: {lines}")
-    chunk_lines = []
-    chunk_length = 0
-    for line in lines:
-        line_length = len(line)
-        if (chunk_length + line_length) >= 1024:
-            embed.add_field(name=title, value="\n".join(chunk_lines))
-            chunk_lines = []
-            chunk_length = 0
-        chunk_lines.append(line)
-        chunk_length += line_length
-    if chunk_lines:
-        embed.add_field(name=title, value="\n".join(chunk_lines))
+            line += f"([sheet](https://smallboard.app/puzzles/s/{p.id}))"
+        if p.chat_room and p.chat_room.text_channel_url:
+            line += f"([chat]({p.chat_room.text_channel_url}))"
+
+        lines_with_titles.append((line_title, line))
+    print(f"lines: {lines_with_titles}")
+    lines_with_titles.sort()
+
+    # Discord embeds have a limit of:
+    #   * 6000 total characters per embed
+    #   * 25 fields per embed
+    #   * 1024 characters per field.value
+    # See the full limits: https://discord.com/developers/docs/resources/channel#embed-limits
+    embed = discord.Embed(title=title)
+    field_count = 0
+    for line_title, line in lines_with_titles:
+        line_length = line_title + line
+        if (line_length + len(embed)) >= 6000 or field_count >= 25:
+            await message.channel.send(embed=embed)
+            embed = discord.Embed(title=title)
+            field_count = 0
+        embed.add_field(name=line_title, value=line, inline=True)
+        field_count += 1
     await message.channel.send(embed=embed)
 
 
