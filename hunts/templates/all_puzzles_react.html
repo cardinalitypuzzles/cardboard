@@ -17,10 +17,16 @@
     function connect() {
 
         var loc = window.location
-        var wsStart = "ws://"
+
+        var wsStart;
         if (loc.protocol == "https:"){
             wsStart = "wss://"
+        } else if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
+            wsStart = "ws://"
+        } else {
+            return;
         }
+
         var webSocketEndpoint =  wsStart + loc.host + '/notifications/' + ({{ hunt_pk }}).toString()
 
         var socket = new WebSocket(webSocketEndpoint)
