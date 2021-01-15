@@ -10,6 +10,7 @@ export const DEFAULT_TAGS = [
   { name: "LOW PRIORITY", color: "warning" },
   { name: "BACKSOLVED", color: "success" },
   { name: "WORD", color: "light" },
+  { name: "CRYPTICS", color: "light" },
   { name: "LOGIC", color: "light" },
   { name: "MEDIA MANIPULATION", color: "light" },
   { name: "PROGRAMMING", color: "light" },
