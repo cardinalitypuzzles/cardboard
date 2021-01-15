@@ -57,9 +57,12 @@ def get_chart_data(hunt, unlocks=False):
             break
         labels.append(puzzle.name)
         if unlocks:
-            times.append(puzzle.created_on.isoformat())
+            time_data = puzzle.created_on
         else:
-            times.append(puzzle._solved_time.isoformat())
+            time_data = puzzle._solved_time
+        if time_data < chart_start_time:
+            time_data = chart_start_time
+        times.append(time_data.isoformat())
         counts.append(i + 1)
         if not unlocks:
             is_meta.append(puzzle.is_meta)
