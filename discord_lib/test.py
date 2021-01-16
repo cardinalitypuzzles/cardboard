@@ -10,7 +10,8 @@ from .discord_chat_service import DiscordChatService
 class FakeDjangoSettings:
     DISCORD_API_TOKEN = "DISCORD_API_TOKEN_123"
     DISCORD_GUILD_ID = 11111
-    DISCORD_PUZZLE_CATEGORY = "discord-puzzle-category"
+    DISCORD_TEXT_CATEGORY = "discord-text-category"
+    DISCORD_VOICE_CATEGORY = "discord-voice-category"
     DISCORD_ARCHIVE_CATEGORY = "discord-archived-category"
     DISCORD_PUZZLE_ANNOUNCEMENTS_CHANNEL = 12345
 
@@ -31,7 +32,7 @@ class TestDiscordChatService(TestCase):
         parent = Channel(
             id=22222,
             type=ChannelType.GUILD_CATEGORY,
-            name=FakeDjangoSettings.DISCORD_PUZZLE_CATEGORY,
+            name=FakeDjangoSettings.DISCORD_TEXT_CATEGORY,
         )
         self.mock_client.guilds_channels_create.return_value = parent
         name = "channel-name"
@@ -42,7 +43,7 @@ class TestDiscordChatService(TestCase):
                 mock.call(
                     FakeDjangoSettings.DISCORD_GUILD_ID,
                     ChannelType.GUILD_CATEGORY,
-                    FakeDjangoSettings.DISCORD_PUZZLE_CATEGORY,
+                    FakeDjangoSettings.DISCORD_TEXT_CATEGORY,
                     parent_id=None,
                 ),
                 # Create text channel under category created above.
@@ -59,7 +60,7 @@ class TestDiscordChatService(TestCase):
         parent = Channel(
             id=22222,
             type=ChannelType.GUILD_CATEGORY,
-            name=FakeDjangoSettings.DISCORD_PUZZLE_CATEGORY,
+            name=FakeDjangoSettings.DISCORD_TEXT_CATEGORY,
         )
         self.mock_client.guilds_channels_list.return_value = {parent.id: parent}
         name = "channel-name"
@@ -77,7 +78,7 @@ class TestDiscordChatService(TestCase):
         parent = Channel(
             id=22222,
             type=ChannelType.GUILD_CATEGORY,
-            name=FakeDjangoSettings.DISCORD_PUZZLE_CATEGORY,
+            name=FakeDjangoSettings.DISCORD_TEXT_CATEGORY,
         )
         self.mock_client.guilds_channels_create.return_value = parent
         name = "channel-name"
@@ -88,7 +89,7 @@ class TestDiscordChatService(TestCase):
                 mock.call(
                     FakeDjangoSettings.DISCORD_GUILD_ID,
                     ChannelType.GUILD_CATEGORY,
-                    FakeDjangoSettings.DISCORD_PUZZLE_CATEGORY,
+                    FakeDjangoSettings.DISCORD_VOICE_CATEGORY,
                     parent_id=None,
                 ),
                 # Create voice channel under category created above.
@@ -105,7 +106,7 @@ class TestDiscordChatService(TestCase):
         parent = Channel(
             id=22222,
             type=ChannelType.GUILD_CATEGORY,
-            name=FakeDjangoSettings.DISCORD_PUZZLE_CATEGORY,
+            name=FakeDjangoSettings.DISCORD_VOICE_CATEGORY,
         )
         self.mock_client.guilds_channels_list.return_value = {parent.id: parent}
         name = "channel-name"
@@ -156,10 +157,10 @@ class TestDiscordChatService(TestCase):
         parent = Channel(
             id=44444,
             type=ChannelType.GUILD_CATEGORY,
-            name=FakeDjangoSettings.DISCORD_PUZZLE_CATEGORY,
+            name=FakeDjangoSettings.DISCORD_TEXT_CATEGORY,
         )
         self.mock_client.guilds_channels_list.return_value = {parent.id: parent}
-        self.service.unarchive_channel(channel.id)
+        self.service.unarchive_text_channel(channel.id)
         self.mock_client.channels_modify.assert_has_calls(
             [
                 mock.call(channel.id, parent_id=archived.id),
@@ -179,12 +180,12 @@ class TestDiscordChatService(TestCase):
         parent1 = Channel(
             id=22222,
             type=ChannelType.GUILD_CATEGORY,
-            name=FakeDjangoSettings.DISCORD_PUZZLE_CATEGORY,
+            name=FakeDjangoSettings.DISCORD_TEXT_CATEGORY,
         )
         parent2 = Channel(
             id=33333,
             type=ChannelType.GUILD_CATEGORY,
-            name=FakeDjangoSettings.DISCORD_PUZZLE_CATEGORY,
+            name=FakeDjangoSettings.DISCORD_TEXT_CATEGORY,
         )
 
         channels_list = {parent1.id: parent1, parent2.id: parent2}
@@ -221,7 +222,7 @@ class TestDiscordChatService(TestCase):
         new_parent = Channel(
             id=44444,
             type=ChannelType.GUILD_CATEGORY,
-            name=FakeDjangoSettings.DISCORD_PUZZLE_CATEGORY,
+            name=FakeDjangoSettings.DISCORD_TEXT_CATEGORY,
         )
         self.mock_client.guilds_channels_create.return_value = new_parent
         self.service.create_text_channel("new")
@@ -231,7 +232,7 @@ class TestDiscordChatService(TestCase):
                 mock.call(
                     FakeDjangoSettings.DISCORD_GUILD_ID,
                     ChannelType.GUILD_CATEGORY,
-                    FakeDjangoSettings.DISCORD_PUZZLE_CATEGORY,
+                    FakeDjangoSettings.DISCORD_TEXT_CATEGORY,
                     parent_id=None,
                 ),
                 # Create text channel under category created above.
@@ -248,7 +249,7 @@ class TestDiscordChatService(TestCase):
         puzzles = Channel(
             id=33332,
             type=ChannelType.GUILD_CATEGORY,
-            name=FakeDjangoSettings.DISCORD_PUZZLE_CATEGORY,
+            name=FakeDjangoSettings.DISCORD_TEXT_CATEGORY,
         )
         archive = Channel(
             id=33333,
@@ -288,7 +289,7 @@ class TestDiscordChatService(TestCase):
         # Unarchive to make archive not full.
         channels_list[new_archive.id] = new_archive
         self.mock_client.guilds_channels_list.return_value = channels_list
-        self.service.unarchive_channel(archive.id + 1)
+        self.service.unarchive_text_channel(archive.id + 1)
 
         # Archive another channel. This should go inside the first archive.
         channels_list.pop(archive.id + 1)
