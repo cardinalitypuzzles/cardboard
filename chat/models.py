@@ -95,9 +95,9 @@ class ChatRoom(models.Model):
     def unarchive_channels(self):
         service = self.get_service()
         if self.text_channel_id:
-            service.unarchive_channel(self.text_channel_id)
+            service.unarchive_text_channel(self.text_channel_id)
         if self.audio_channel_id:
-            service.unarchive_channel(self.audio_channel_id)
+            service.unarchive_voice_channel(self.audio_channel_id)
 
     def delete_channels(self):
         service = self.get_service()

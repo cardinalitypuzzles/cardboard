@@ -25,7 +25,11 @@ class FakeChatService(ChatService):
     def archive_channel(self, channel_id):
         self.archived_channels.add(channel_id)
 
-    def unarchive_channel(self, channel_id):
+    def unarchive_text_channel(self, channel_id):
+        if channel_id in self.archived_channels:
+            self.archived_channels.remove(channel_id)
+
+    def unarchive_voice_channel(self, channel_id):
         if channel_id in self.archived_channels:
             self.archived_channels.remove(channel_id)
 

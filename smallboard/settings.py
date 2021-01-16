@@ -178,7 +178,8 @@ DISCORD_API_TOKEN = os.environ.get("DISCORD_API_TOKEN", None)
 DISCORD_GUILD_ID = os.environ.get("DISCORD_GUILD_ID", None)
 
 # Category (folder) to contain generated channels.
-DISCORD_PUZZLE_CATEGORY = os.environ.get("DISCORD_PUZZLE_CATEGORY", "puzzles")
+DISCORD_TEXT_CATEGORY = os.environ.get("DISCORD_TEXT_CATEGORY", "text [puzzles]")
+DISCORD_VOICE_CATEGORY = os.environ.get("DISCORD_VOICE_CATEGORY", "voice [puzzles]")
 DISCORD_ARCHIVE_CATEGORY = os.environ.get("DISCORD_ARCHIVE_CATEGORY", "archive")
 DISCORD_PUZZLE_ANNOUNCEMENTS_CHANNEL = os.environ.get(
     "DISCORD_PUZZLE_ANNOUNCEMENTS_CHANNEL", None

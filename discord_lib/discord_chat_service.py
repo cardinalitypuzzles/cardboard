@@ -17,7 +17,8 @@ class DiscordChatService(ChatService):
         """Accepts Django settings object and optional Discord APIClient (for testing)."""
         self._client = client or APIClient(settings.DISCORD_API_TOKEN)
         self._guild_id = settings.DISCORD_GUILD_ID
-        self._puzzle_category_name = settings.DISCORD_PUZZLE_CATEGORY
+        self._text_category_name = settings.DISCORD_TEXT_CATEGORY
+        self._voice_category_name = settings.DISCORD_VOICE_CATEGORY
         self._archived_category_name = settings.DISCORD_ARCHIVE_CATEGORY
         self._puzzle_announcements_id = settings.DISCORD_PUZZLE_ANNOUNCEMENTS_CHANNEL
         self._max_channels_per_category = max_channels_per_category
@@ -44,7 +45,7 @@ class DiscordChatService(ChatService):
         channel = self.create_channel(
             name,
             chan_type=ChannelType.GUILD_TEXT,
-            parent_name=self._puzzle_category_name,
+            parent_name=self._text_category_name,
         )
         return channel.id
 
@@ -55,7 +56,7 @@ class DiscordChatService(ChatService):
         channel = self.create_channel(
             name,
             chan_type=ChannelType.GUILD_VOICE,
-            parent_name=self._puzzle_category_name,
+            parent_name=self._voice_category_name,
         )
         return channel.id
 
@@ -111,8 +112,12 @@ class DiscordChatService(ChatService):
         parent = self.get_or_create_category(self._archived_category_name)
         self._client.channels_modify(int(channel_id), parent_id=parent.id)
 
-    def unarchive_channel(self, channel_id):
-        parent = self.get_or_create_category(self._puzzle_category_name)
+    def unarchive_text_channel(self, channel_id):
+        parent = self.get_or_create_category(self._text_category_name)
+        self._client.channels_modify(int(channel_id), parent_id=parent.id)
+
+    def unarchive_voice_channel(self, channel_id):
+        parent = self.get_or_create_category(self._voice_category_name)
         self._client.channels_modify(int(channel_id), parent_id=parent.id)
 
     def get_channels(self, name, chan_type=ChannelType.GUILD_TEXT):

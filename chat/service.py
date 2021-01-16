@@ -43,7 +43,10 @@ class ChatService:
     def archive_channels(self, channel_id):
         raise NotImplementedError
 
-    def unarchive_channels(self, channel_id):
+    def unarchive_text_channel(self, channel_id):
+        raise NotImplementedError
+
+    def unarchive_voice_channel(self, channel_id):
         raise NotImplementedError
 
     def send_message(self, channel_id, msg, embedded_urls={}):
