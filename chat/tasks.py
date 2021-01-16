@@ -26,7 +26,7 @@ def handle_puzzle_solved(puzzle_id, answer_text):
     try:
         puzzle.chat_room.archive_channels()
         msg = f"{puzzle.name} has been solved with {answer_text}!"
-        puzzle.chat_room.send_and_announce_message(msg)
+        puzzle.chat_room.send_and_announce_message_with_embedded_urls(msg, puzzle)
     except Exception as e:
         logger.warn(f"Chat operations failed with error: {e}")
 
@@ -37,7 +37,7 @@ def handle_puzzle_unsolved(puzzle_id):
     try:
         puzzle.chat_room.unarchive_channels()
         msg = f"{puzzle.name} is no longer solved!"
-        puzzle.chat_room.send_and_announce_message(msg)
+        puzzle.chat_room.send_and_announce_message_with_embedded_urls(msg, puzzle)
     except Exception as e:
         logger.warn(f"Chat operations failed with error: {e}")
 
@@ -65,7 +65,7 @@ def handle_answer_change(puzzle_id, old_answer, new_answer):
     puzzle = Puzzle.objects.get(id=puzzle_id)
     try:
         msg = f"{puzzle.name}'s answer changed from {old_answer} to {new_answer}."
-        puzzle.chat_room.send_and_announce_message(msg)
+        puzzle.chat_room.send_and_announce_message_with_embedded_urls(msg, puzzle)
     except Exception as e:
         logger.warn(f"Chat operations failed with error: {e}")
 
