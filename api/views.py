@@ -209,17 +209,17 @@ class PuzzleViewSet(viewsets.ModelViewSet):
                                 puzzle.id, data["name"]
                             )
                         )
-                if puzzle.sheet and google_api_lib.enabled():
-                    transaction.on_commit(
-                        lambda: google_api_lib.tasks.rename_sheet.delay(
-                            sheet_url=puzzle.sheet,
-                            name=(
-                                f"[SOLVED] {data['name']}"
-                                if puzzle.status == Puzzle.SOLVED
-                                else data["name"]
-                            ),
+                    if puzzle.sheet and google_api_lib.enabled():
+                        transaction.on_commit(
+                            lambda: google_api_lib.tasks.rename_sheet.delay(
+                                sheet_url=puzzle.sheet,
+                                name=(
+                                    f"[SOLVED] {data['name']}"
+                                    if puzzle.status == Puzzle.SOLVED
+                                    else data["name"]
+                                ),
+                            )
                         )
-                    )
 
                 if is_new_url and google_api_lib.enabled():
                     transaction.on_commit(
