@@ -200,12 +200,24 @@ class PuzzleViewSet(viewsets.ModelViewSet):
                     puzzle.status = data["status"]
                     puzzle.save()
 
-                if puzzle.chat_room and "name" in data and data["name"] != old_name:
-                    puzzle.chat_room.name = data["name"]
-                    puzzle.chat_room.save()
+                if "name" in data and data["name"] != old_name:
+                    if puzzle.chat_room:
+                        puzzle.chat_room.name = data["name"]
+                        puzzle.chat_room.save()
+                        transaction.on_commit(
+                            lambda: chat.tasks.handle_puzzle_rename.delay(
+                                puzzle.id, data["name"]
+                            )
+                        )
+                if puzzle.sheet and google_api_lib.enabled():
                     transaction.on_commit(
-                        lambda: chat.tasks.handle_puzzle_rename.delay(
-                            puzzle.id, data["name"]
+                        lambda: google_api_lib.tasks.rename_sheet.delay(
+                            sheet_url=puzzle.sheet,
+                            name=(
+                                f"[SOLVED] {data['name']}"
+                                if puzzle.status == Puzzle.SOLVED
+                                else data["name"]
+                            ),
                         )
                     )
 
