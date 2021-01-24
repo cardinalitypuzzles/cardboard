@@ -71,10 +71,12 @@ def handle_answer_change(puzzle_id, old_answer, new_answer):
 
 
 @shared_task
-def handle_puzzle_rename(puzzle_id, new_name):
+def handle_puzzle_rename(puzzle_id, old_name, new_name):
     puzzle = Puzzle.objects.get(id=puzzle_id)
     try:
         puzzle.chat_room.handle_puzzle_rename(new_name)
+        msg = f"**{old_name}** has been renamed to **{new_name}**."
+        puzzle.chat_room.send_and_announce_message_with_embedded_urls(msg, puzzle)
     except Exception as e:
         logger.warn(f"Chat operations failed with error: {e}")
 

@@ -206,7 +206,7 @@ class PuzzleViewSet(viewsets.ModelViewSet):
                         puzzle.chat_room.save()
                         transaction.on_commit(
                             lambda: chat.tasks.handle_puzzle_rename.delay(
-                                puzzle.id, data["name"]
+                                puzzle.id, old_name, data["name"]
                             )
                         )
                     if puzzle.sheet and google_api_lib.enabled():
