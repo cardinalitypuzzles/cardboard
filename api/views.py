@@ -124,15 +124,21 @@ class AnswerViewSet(viewsets.ModelViewSet):
         super().partial_update(request, pk, **kwargs)
 
         puzzle = get_object_or_404(Puzzle, pk=self.kwargs["puzzle_id"])
+
+        serializer = self.get_serializer(answer, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+        new_answer = data["text"]
+
+        if old_answer == new_answer:
+            return Response(PuzzleSerializer(puzzle).data)
+
         transaction.on_commit(
             lambda: AnswerViewSet._maybe_update_meta_sheets_for_feeder(puzzle)
         )
 
         if puzzle.chat_room:
-            serializer = self.get_serializer(answer, data=request.data, partial=True)
-            serializer.is_valid(raise_exception=True)
-            data = serializer.validated_data
-            new_answer = data["text"]
+
             transaction.on_commit(
                 lambda: chat.tasks.handle_answer_change.delay(
                     puzzle.id, old_answer, new_answer
