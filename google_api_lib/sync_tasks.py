@@ -8,7 +8,7 @@ HUMAN_DRIVE_FOLDER_NAME = "FOLDER FOR HUMANS"
 
 
 @shared_task(base=GoogleApiClientTask, bind=True)
-def get_file_user_emails(self, file_id):
+def get_file_user_emails(self, file_id) -> List[str]:
     response = (
         self.drive_service().files().get(fileId=file_id, fields="permissions").execute()
     )
@@ -25,7 +25,7 @@ def get_file_user_emails(self, file_id):
 
 
 @shared_task(base=GoogleApiClientTask, bind=True)
-def get_human_drive_folder(self, file_id):
+def get_human_drive_folder(self, file_id) -> str:
     drive_service = self.drive_service()
 
     q = (
