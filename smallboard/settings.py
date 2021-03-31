@@ -280,6 +280,7 @@ class TaskPriority(Enum):
     MED = 5
     LOW = 9
 
+
 CELERY_IGNORE_RESULT = True
 CELERY_TASK_TIME_LIMIT = 60
 CELERY_TASK_TRACK_STARTED = True
