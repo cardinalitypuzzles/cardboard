@@ -1,6 +1,7 @@
 from .utils import GoogleApiClientTask
 from celery import shared_task
 import logging
+from typing import List
 
 logger = logging.getLogger(__name__)
 
