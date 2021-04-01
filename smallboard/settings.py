@@ -39,7 +39,7 @@ ALLOWED_HOSTS = [
     "127.0.0.1",
     "localhost",
     "smallboard.herokuapp.com",
-    "smallboard.app",
+    ".smallboard.app",
 ]
 
 # This should be turned on in production to redirect HTTP to HTTPS
