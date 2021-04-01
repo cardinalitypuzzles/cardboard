@@ -15,7 +15,7 @@ from puzzles.models import Puzzle
 logger = logging.getLogger(__name__)
 
 # helper function that can be mocked for testing
-def create_google_sheets_helper(self, name):
+def create_google_sheets_helper(self, name) -> dict:
     req_body = {"name": name}
     # copy template sheet
     file = (
@@ -33,7 +33,7 @@ def create_google_sheets_helper(self, name):
 
 # transfer new sheet ownership back to OG owner, so that scripts can run
 @shared_task(base=GoogleApiClientTask, bind=True)
-def transfer_ownership(self, file):
+def transfer_ownership(self, file) -> None:
     permission = next(
         p for p in file["permissions"] if p["emailAddress"] == self._sheets_owner
     )
@@ -46,7 +46,7 @@ def transfer_ownership(self, file):
 
 
 @shared_task(base=GoogleApiClientTask, bind=True, priority=TaskPriority.HIGH.value)
-def create_google_sheets(self, puzzle_id, name, puzzle_url=None):
+def create_google_sheets(self, puzzle_id, name, puzzle_url=None) -> None:
     response = create_google_sheets_helper(self, name)
     sheet_url = response["webViewLink"]
     if puzzle_url:
@@ -57,10 +57,9 @@ def create_google_sheets(self, puzzle_id, name, puzzle_url=None):
     transfer_ownership.delay(response)
     if puzzle.chat_room:
         handle_sheet_created.delay(puzzle_id)
-    return sheet_url
 
 
-def extract_id_from_sheets_url(url):
+def extract_id_from_sheets_url(url) -> str:
     """
     Assumes `url` is of the form
     https://docs.google.com/spreadsheets/d/<ID>/edit...
@@ -72,7 +71,7 @@ def extract_id_from_sheets_url(url):
 
 
 @shared_task(base=GoogleApiClientTask, bind=True)
-def add_puzzle_link_to_sheet(self, puzzle_url, sheet_url):
+def add_puzzle_link_to_sheet(self, puzzle_url, sheet_url) -> None:
     req_body = {
         "values": [
             [f'=HYPERLINK("{puzzle_url}", "Puzzle Link")'],
@@ -87,7 +86,7 @@ def add_puzzle_link_to_sheet(self, puzzle_url, sheet_url):
 
 
 @shared_task(base=GoogleApiClientTask, bind=True)
-def rename_sheet(self, sheet_url, name):
+def rename_sheet(self, sheet_url, name) -> None:
     requests = [
         {
             "updateSpreadsheetProperties": {
@@ -105,7 +104,7 @@ def rename_sheet(self, sheet_url, name):
 
 
 # create new tab in spreadsheet_id with given title
-def __add_sheet(sheets_service, http, spreadsheet_id, title):
+def __add_sheet(sheets_service, http, spreadsheet_id, title) -> str:
     requests = [
         {
             "addSheet": {
@@ -127,7 +126,7 @@ def __add_sheet(sheets_service, http, spreadsheet_id, title):
     return response["replies"][-1]["addSheet"]["properties"]["sheetId"]
 
 
-def __clear_sheet(sheets_service, http, spreadsheet_id, sheet_id):
+def __clear_sheet(sheets_service, http, spreadsheet_id, sheet_id) -> None:
     requests = [
         {
             "updateCells": {
@@ -144,7 +143,7 @@ def __clear_sheet(sheets_service, http, spreadsheet_id, sheet_id):
 
 
 @shared_task(base=GoogleApiClientTask, bind=True, priority=TaskPriority.LOW.value)
-def update_meta_sheet_feeders(self, puzzle_id):
+def update_meta_sheet_feeders(self, puzzle_id) -> None:
     """
     Updates the input meta puzzle's spreadsheet with the
     latest feeder puzzle info

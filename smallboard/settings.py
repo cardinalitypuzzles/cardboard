@@ -281,7 +281,7 @@ class TaskPriority(Enum):
     LOW = 9
 
 
-CELERY_RESULT_BACKEND = "django-db"
+CELERY_IGNORE_RESULT = True
 CELERY_TASK_TIME_LIMIT = 60
 CELERY_TASK_TRACK_STARTED = True
 CELERY_BROKER_URL = os.environ.get("REDIS_URL", "redis://")

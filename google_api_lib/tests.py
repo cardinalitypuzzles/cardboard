@@ -45,9 +45,6 @@ class TestGoogleSheets(TestCase):
             url="fake_url.com",
             is_meta=False,
         )
-        sheet_url = google_api_lib.tasks.create_google_sheets(
-            puzzle.id, puzzle.name, puzzle.url
-        )
+        google_api_lib.tasks.create_google_sheets(puzzle.id, puzzle.name, puzzle.url)
 
-        self.assertEqual(sheet_url, TEST_SHEET)
         self.assertEqual(Puzzle.objects.get(pk=puzzle.id).sheet, TEST_SHEET)
