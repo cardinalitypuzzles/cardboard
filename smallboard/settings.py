@@ -42,10 +42,8 @@ ALLOWED_HOSTS = [
     ".smallboard.app",
 ]
 
-# This should be turned on in production to redirect HTTP to HTTPS
-# The development web server doesn't support HTTPS, however, so do not
-# turn this on in dev.
-SECURE_SSL_REDIRECT = bool(strtobool(os.environ.get("SECURE_SSL_REDIRECT", "False")))
+# Pass along the original host (so it knows to generate HTTPS urls for example)
+USE_X_FORWARDED_HOST = True
 
 # Application definition
 
