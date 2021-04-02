@@ -42,8 +42,8 @@ ALLOWED_HOSTS = [
     ".smallboard.app",
 ]
 
-# Pass along the original host (so it knows to generate HTTPS urls for example)
-USE_X_FORWARDED_HOST = True
+# Pass along the original protocol (Heroku does SSL termination)
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Application definition
 
