@@ -42,8 +42,13 @@ ALLOWED_HOSTS = [
     ".smallboard.app",
 ]
 
+# This should be turned on in production to redirect HTTP to HTTPS
+# The development web server doesn't support HTTPS, however, so do not
+# turn this on in dev.
+SECURE_SSL_REDIRECT = bool(strtobool(os.environ.get("SECURE_SSL_REDIRECT", "False")))
+
 # Pass along the original protocol (Heroku does SSL termination)
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 # Application definition
 
