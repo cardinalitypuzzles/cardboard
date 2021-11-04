@@ -39,7 +39,9 @@ See below for more details on the `.env` file. You probably want to set at least
 
 ### Docker setup
 
-Docker allows a simple, consistent setup of Small Board. After checking out the code, navigate to the directory and run:
+Docker allows a simple, consistent setup of Small Board. First, install and start running Docker. If you're using WSL2, see these [Docker Desktop WSL 2 backend](https://docs.docker.com/desktop/windows/wsl/) instructions.
+
+After starting Docker, checking out the code, navigate to the directory and run:
 
 ```
 # You can pass the -d flag to run in the background.
