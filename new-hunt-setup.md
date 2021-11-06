@@ -1,6 +1,6 @@
 ## Setting up smallboard for a new hunt
 
-Currently, smallboard is not multi-tenant (#501), so each team for the same hunt needs their own smallboard instance.
+Currently, smallboard is not multi-tenant (see [#191]()), so each team for the same hunt needs their own smallboard instance.
 
 ### Prerequisites
 
