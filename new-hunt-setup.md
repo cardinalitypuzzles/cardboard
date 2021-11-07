@@ -63,13 +63,13 @@ Google Drive, Sheets, and API settings for automatic sheets creation:
 
 For Discord integration:
 
-* DISCORD_API_TOKEN - This is the "Token" for your bot, which you can find on the "Bot" settings page (you may have to click "Click to Reveal Token")
-* DISCORD_GUILD_ID - your server id. It's usually part of the URL when you're in your server: `discord.com/channels/<server_id>/<channel_id>`. You can also find it on the "Widget" page in your Server Settings.
-* DISCORD_PUZZLE_ANNOUNCEMENTS_CHANNEL - this is the id of the channel you want puzzle announcements (puzzle unlocked, solved, etc.) to be posted. The channel id can be found in the URL when in the channel: `discord.com/channels/<server_id>/<channel_id>`. You probably want to set this to something separate from the channel where you make human announcements or have general discussions since the puzzle announcements can be a bit noisy (users may want to mute the channel).
-* DISCORD_TEXT_CATEGORY - category to create text channels for puzzles under (defaults to "text [puzzles]")
-* DISCORD_VOICE_CATEGORY - category to create voice channels for puzzles under (defaults to "voice [puzzles]")
-* DISCORD_ARCHIVE_CATEGORY - category to archive solved puzzles' text and voice channels under (defaults to "archive")
-* DISCORD_DEVS_ROLE - the Discord role to tell users to ping in case of issues opening a puzzle's sheet link (defaults to "dev")
+* `DISCORD_API_TOKEN` - This is the "Token" for your bot, which you can find on the "Bot" settings page (you may have to click "Click to Reveal Token")
+* `DISCORD_GUILD_ID` - your server id. It's usually part of the URL when you're in your server: `discord.com/channels/<server_id>/<channel_id>`. You can also find it on the "Widget" page in your Server Settings.
+* `DISCORD_PUZZLE_ANNOUNCEMENTS_CHANNEL` - this is the id of the channel you want puzzle announcements (puzzle unlocked, solved, etc.) to be posted. The channel id can be found in the URL when in the channel: `discord.com/channels/<server_id>/<channel_id>`. You probably want to set this to something separate from the channel where you make human announcements or have general discussions since the puzzle announcements can be a bit noisy (users may want to mute the channel).
+* `DISCORD_TEXT_CATEGORY` - category to create text channels for puzzles under (defaults to "text [puzzles]")
+* `DISCORD_VOICE_CATEGORY` - category to create voice channels for puzzles under (defaults to "voice [puzzles]")
+* `DISCORD_ARCHIVE_CATEGORY` - category to archive solved puzzles' text and voice channels under (defaults to "archive")
+* `DISCORD_DEVS_ROLE` - the Discord role to tell users to ping in case of issues opening a puzzle's sheet link (defaults to "dev")
 
 
 ### Giving a new user access to Small Board
