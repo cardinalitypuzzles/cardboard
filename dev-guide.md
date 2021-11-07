@@ -49,9 +49,11 @@ After starting Docker, checking out the code, navigate to the directory and run:
 docker-compose up --build
 ```
 
-The first time you run this, it will build Docker images locally and then run the web server and postgres in separate containers.
+The first time you run this, it will build Docker images locally and then run the web server and postgres in separate containers. You can view the application by visiting [http://localhost:8000]().
 
-After the initial build, you may use `docker-compose up` to start Small Board without rebuilding container images. Doing a rebuild with `--build` is required after adding new library dependencies, however.
+After the initial build, you may use `docker-compose up` to start smallboard without rebuilding container images. Doing a rebuild with `--build` is required after adding new library dependencies, however.
+
+If you encounter issues building or starting smallboard, you can do a clean rebuild by using `docker-compose build --no-cache` and then starting the containers using `docker-compose up`.
 
 To run a command inside the web container, you can run
 
