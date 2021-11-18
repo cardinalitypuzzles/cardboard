@@ -250,7 +250,7 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET=...
 
 # secret used by Django framework for sessions, passwords, etc.
 # rather than use the production secret key locally, you can easily generate a new one using:
-# python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
+# python -c "import secrets; print(secrets.token_urlsafe())"
 DJANGO_SECRET_KEY=...
 
 # whether to enable debug info when errors happen

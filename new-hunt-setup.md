@@ -4,11 +4,13 @@ Currently, smallboard is not multi-tenant (see [#191](https://github.com/cardina
 
 ### Prerequisites
 
-This guide assumes you have already created the following at https://console.developers.google.com/:
+This guide assumes you have already done the following at https://console.developers.google.com/:
 
-* a Google Cloud project
-* a Google API service account (go to APIs & Services > Credentials) under that project
-* an OAuth 2.0 Client (also under APIs & Services > Credentials) in the same project (this is needed to enable logging to smallboard using a Google account)
+* created a Google Cloud project
+* created a Google API service account (go to APIs & Services > Credentials) under that project
+* created an OAuth 2.0 Client (also under APIs & Services > Credentials) in the same project (this is needed to enable logging to smallboard using a Google account)
+* enabled Google Drive API (APIs & Services > Library > search for "Google Drive API" > select and enable)
+* enabled Google Sheets API (APIs & Services > Library > search for "Google Sheets API" > select and enable)
 
 #### Discord prerequisites
 
@@ -16,7 +18,7 @@ For Discord integration (optional), you will additionally need to set up:
 
 * a Discord application at https://discord.com/developers/applications
 * a bot for your application (can be done on the "Bot" settings page)
-* invite the application to your Discord server. To do so, go to the "OAuth2" settings page for your application --> at the bottom, under "Scopes", select "bot" and "applications.commands". After selecting "bot", a "Bot permissions" panel will appear, where you should select "Administrator". Copy the URL that was generated and open it in a new tab. There you can select the Discord server to add the app to. For more details, see [here](https://discordjs.guide/preparations/adding-your-bot-to-servers.html).
+* invite the application to your Discord server. To do so, go to the OAuth2 > URL Generator settings page for your application. For "Scopes", select "bot" and "applications.commands". After selecting "bot", a "Bot permissions" panel will appear, where you should select "Administrator". Copy the URL that was generated and open it in a new tab. There you can select the Discord server to add the app to. For more details, see [here](https://discordjs.guide/preparations/adding-your-bot-to-servers.html).
 
 
 ### New hunt setup
@@ -37,7 +39,7 @@ To set up a new hunt:
 
 After creating a new application on Heroku, you will need to configure some resources, settings, and config variables.
 
-By default, Heroku will think smallboard only requires the heroku/python buildpack, but smallboard also requires the heroku/nodejs buildpack (for compiling some JavaScript code), which must run first. Run `heroku buildpacks` to check which buildpacks are installed, and if needed, run `heroku buildpacks:add --index 1 heroku/nodejs` to add the heroku/nodejs buildpack and have it run first.
+By default, Heroku may only set the heroku/python buildpack when you deploy the first time, but smallboard also requires the heroku/nodejs buildpack (for compiling some JavaScript code), which must run first. You can set the buildpacks on your application's settings page (https://dashboard.heorku.com/apps/<YOUR_APP>/settings) under the "Buildpacks" section. Alternatively, you can use the [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli): run `heroku buildpacks` to check which buildpacks are installed, and if needed, run `heroku buildpacks:add --index 1 heroku/nodejs` to add the heroku/nodejs buildpack and have it run first. 
 
 On the Resources page, you'll need to add the Heroku Postgres and Heroku Redis add-ons. When added, this will automatically add some config variables for you on the Settings page: `REDIS_URL`, `REDIS_TLS_URL`, and `DATABASE_URL`. Smallboard is already configured to read these config variables automatically.
 
@@ -58,7 +60,7 @@ Google Drive, Sheets, and API settings for automatic sheets creation:
 * `GOOGLE_API_CLIENT_ID` - the "Unique ID" found on your service account's "Details" page
 * `GOOGLE_API_CLIENT_EMAIL` - email address of your service account (should end in `.iam.gserviceaccount.com`)
 * `GOOGLE_API_PRIVATE_KEY_ID` - the 40-character hex id of the key you added on the "Keys" page of your service account
-* `GOOGLE_API_PRIVATE_KEY` - the private key for the key you added, with newlines replaced with `\n` (should look something like `-----BEGIN ... KEY-----\n...<long base64-encoded key>...\n-----END ... KEY-----\n`)
+* `GOOGLE_API_PRIVATE_KEY` - the private key for the key you added, with newlines replaced with `\n` (should be the value of the `private_key` field in the downloaded JSON when you [created the key](https://cloud.google.com/iam/docs/creating-managing-service-account-keys#creating_service_account_keys); should look something like `-----BEGIN ... KEY-----\n...<long base64-encoded key>...\n-----END ... KEY-----\n`)
 * `GOOGLE_API_X509_CERT_URL` - the value of the `client_x509_cert_url` field in the downloaded JSON when you [created the key](https://cloud.google.com/iam/docs/creating-managing-service-account-keys#creating_service_account_keys)
 
 For Discord integration:
@@ -80,5 +82,6 @@ The authorized users for a Small Board deployment are the Google users who have 
 
 Some other things you may want to tweak before hunt include:
 
+* Setting a `DJANGO_SECRET_KEY` config var so that user sessions will not expire after each restart. You can generate a key using `python -c "import secrets; print(secrets.token_urlsafe())"`.
 * Setting `DEBUG=False`
 * Increasing the number or tier of the dynos in your Heroku deployment
