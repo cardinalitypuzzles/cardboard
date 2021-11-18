@@ -45,6 +45,8 @@ On the Resources page, you'll need to add the Heroku Postgres and Heroku Redis a
 
 You'll also see three dyno instances on the Resources page: "web", "bot", and "worker". Make sure to enable the "web" and "worker" dynos. The "web" dyno runs the web application and the "worker" dyno runs a Celery process that handles Google Sheets API interactions asynchronously. The "bot" dyno is for a discord bot added in [#214](https://github.com/cardinalitypuzzles/smallboard/issues/214), which is optional. You can only run a max of 2 free dynos, so if you want to enable the "bot" dyno, you have to upgrade to a paid tier. Note that this "bot" dyno is only for supporting users typing `!<command>` in Discord to get information about puzzles. Even without the "bot" dyno, with the Discord application added to your Discord server (see Discord prerequisites above) and the Discord environment variables configured (see below), you will still get automatic Discord channel creation and puzzle solve updates.
 
+If you have a large team or are using smallboard for a hunt with many puzzles, you may want to increase the number or tier of the dynos in your Heroku deployment.
+
 ##### Heroku config variables
 
 Settings to enable logging in using a Google account:
@@ -73,15 +75,13 @@ For Discord integration:
 * `DISCORD_ARCHIVE_CATEGORY` - category to archive solved puzzles' text and voice channels under (defaults to "archive")
 * `DISCORD_DEVS_ROLE` - the Discord role to tell users to ping in case of issues opening a puzzle's sheet link (defaults to "dev")
 
+Miscellaneous configs:
+
+* `DJANGO_SECRET_KEY` - used by Django to generate secrets, such as for user sessions. It's best to set this so that user sessions will not expire after each restart. You can generate a key using `python -c "import secrets; print(secrets.token_urlsafe())"`.
+* `DEBUG` - you probably want to set this to `False` in production so users don't get gory error pages
+
 
 ### Giving a new user access to Small Board
 
 The authorized users for a Small Board deployment are the Google users who have access to the Google Drive folder for the hunt (configured by the `GOOGLE_DRIVE_HUNT_FOLDER_ID` variable). To give a new user access, share the Google Drive folder with that user, and then restart Small Board using `heroku restart` or from the web UI. The ability to add users without having to restart Heroku will be addressed in [#500](https://github.com/cardinalitypuzzles/smallboard/issues/500).
 
-### Other Configuration
-
-Some other things you may want to tweak before hunt include:
-
-* Setting a `DJANGO_SECRET_KEY` config var so that user sessions will not expire after each restart. You can generate a key using `python -c "import secrets; print(secrets.token_urlsafe())"`.
-* Setting `DEBUG=False`
-* Increasing the number or tier of the dynos in your Heroku deployment
