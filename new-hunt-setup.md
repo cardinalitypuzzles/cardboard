@@ -84,4 +84,3 @@ Miscellaneous configs:
 ### Giving a new user access to Small Board
 
 The authorized users for a Small Board deployment are the Google users who have access to the Google Drive folder for the hunt (configured by the `GOOGLE_DRIVE_HUNT_FOLDER_ID` variable). To give a new user access, share the Google Drive folder with that user, and then restart Small Board using `heroku restart` or from the web UI. The ability to add users without having to restart Heroku will be addressed in [#500](https://github.com/cardinalitypuzzles/smallboard/issues/500).
-
