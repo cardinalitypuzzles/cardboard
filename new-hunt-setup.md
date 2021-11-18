@@ -4,7 +4,7 @@ Currently, smallboard is not multi-tenant (see [#191](https://github.com/cardina
 
 ### Prerequisites
 
-This guide assumes you have already created the following at [https://console.developers.google.com/]():
+This guide assumes you have already created the following at https://console.developers.google.com/:
 
 * a Google Cloud project
 * a Google API service account (go to APIs & Services > Credentials) under that project
