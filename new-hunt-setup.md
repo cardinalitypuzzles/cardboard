@@ -35,11 +35,16 @@ To set up a new hunt:
 * add a template Sheet file to the Drive folder
 
 
+#### Google OAuth2 login setup
+
+In order for Google OAuth2 login to work, you need to add the URI `https://<YOUR_APP>.herokuapp.com/complete/google-oauth2/` under the "Authorized redirect URIs" in your OAuth 2.0 client settings. You can do this on Google Cloud: APIs & Services > Credentials > click the name of the OAuth 2.0 Client you added > scroll down to the "Authorized redirect URIs" section.
+
+
 #### Heroku setup
 
 After creating a new application on Heroku, you will need to configure some resources, settings, and config variables.
 
-By default, Heroku may only set the heroku/python buildpack when you deploy the first time, but smallboard also requires the heroku/nodejs buildpack (for compiling some JavaScript code), which must run first. You can set the buildpacks on your application's settings page (https://dashboard.heorku.com/apps/<YOUR_APP>/settings) under the "Buildpacks" section. Alternatively, you can use the [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli): run `heroku buildpacks` to check which buildpacks are installed, and if needed, run `heroku buildpacks:add --index 1 heroku/nodejs` to add the heroku/nodejs buildpack and have it run first.
+By default, Heroku may only set the heroku/python buildpack when you deploy the first time, but smallboard also requires the heroku/nodejs buildpack (for compiling some JavaScript code), which must run first. You can set the buildpacks on your application's settings page (`https://dashboard.heorku.com/apps/<YOUR_APP>/settings`) under the "Buildpacks" section. Alternatively, you can use the [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli): run `heroku buildpacks` to check which buildpacks are installed, and if needed, run `heroku buildpacks:add --index 1 heroku/nodejs` to add the heroku/nodejs buildpack and have it run first.
 
 On the Resources page, you'll need to add the Heroku Postgres and Heroku Redis add-ons. When added, this will automatically add some config variables for you on the Settings page: `REDIS_URL`, `REDIS_TLS_URL`, and `DATABASE_URL`. Smallboard is already configured to read these config variables automatically.
 
