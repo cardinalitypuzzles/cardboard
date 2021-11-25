@@ -29,9 +29,7 @@ class ApiTests(CardboardTestCase):
 
     def test_create_invalid_puzzle(self):
         # Missing name
-        response = self.create_puzzle(
-            {"url": TEST_URL, "is_meta": False}
-        )
+        response = self.create_puzzle({"url": TEST_URL, "is_meta": False})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         # Missing url
