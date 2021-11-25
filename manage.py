@@ -10,7 +10,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 def main():
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "smallboard.settings")
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "cardboard.settings")
 
     if "test" in sys.argv:
         test_env_files = [".env.test.user", ".env.test"]

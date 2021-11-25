@@ -1,10 +1,10 @@
-from .test_helpers import SmallboardTestCase
+from .test_helpers import CardboardTestCase
 from django.conf import settings
 from django.test import override_settings
 from rest_framework import status
 from puzzles.models import Puzzle, PuzzleTag
 
-TEST_URL = "https://smallboard.test/"
+TEST_URL = "https://cardboard.test/"
 
 
 # Disable all chat features for the purposes of this unit test.
@@ -12,7 +12,7 @@ TEST_URL = "https://smallboard.test/"
     CHAT_DEFAULT_SERVICE=None,
     CHAT_SERVICES={},
 )
-class ApiTests(SmallboardTestCase):
+class ApiTests(CardboardTestCase):
     def test_get_hunt(self):
         response = self.get_hunt()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -30,7 +30,7 @@ class ApiTests(SmallboardTestCase):
     def test_create_invalid_puzzle(self):
         # Missing name
         response = self.create_puzzle(
-            {"url": "https://smallboard.test", "is_meta": False}
+            {"url": TEST_URL, "is_meta": False}
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 

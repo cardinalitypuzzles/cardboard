@@ -33,7 +33,7 @@ class TestAnswers(TestCase):
         response = self.client.get("/answers/queue/" + str(self._test_hunt.slug))
         self.assertEqual(response.status_code, 200)
 
-    def test_answer_from_smallboard(self):
+    def test_answer_from_cardboard(self):
         self.assertEqual(list(self._puzzle.guesses.all()), [])
         self.assertEqual(self._puzzle.status, Puzzle.SOLVING)
 

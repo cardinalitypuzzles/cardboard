@@ -116,7 +116,7 @@ async def send_help(message):
 
 
 class Command(BaseCommand):
-    help = "Starts a Discord chat bot for interacting with Smallboard."
+    help = "Starts a Discord chat bot for interacting with Cardboard."
 
     def handle(self, *args, **options):
         self.stdout.write("Starting Discord bot")

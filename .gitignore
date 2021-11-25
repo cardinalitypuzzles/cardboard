@@ -138,6 +138,7 @@ dmypy.json
 # credentials files
 credentials.json
 smallboard*.json
+cardboard*.json
 
 # Testing
 test/
@@ -159,7 +160,7 @@ test/
 # node modules
 node_modules/
 
-# Smallboard
+# Cardboard
 staticfiles/
 logfile
 

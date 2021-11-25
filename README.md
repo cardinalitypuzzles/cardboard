@@ -1,8 +1,8 @@
-## Small Board
+## Cardboard
 
-[![codecov](https://codecov.io/gh/cardinalitypuzzles/smallboard/branch/master/graph/badge.svg)](https://codecov.io/gh/cardinalitypuzzles/smallboard)
+[![codecov](https://codecov.io/gh/cardinalitypuzzles/cardboard/branch/master/graph/badge.svg)](https://codecov.io/gh/cardinalitypuzzles/cardboard)
 
-This guide gives an overview of how to use Small Board and its features.
+This guide gives an overview of how to use Cardboard and its features.
 
 For instructions on how to set up an existing deployment for a new hunt, see this [new hunt setup guide](new-hunt-setup.md).
 
@@ -30,11 +30,11 @@ There is also a static "Tools and References" page linked on the navigation bar 
 
 ### Login
 
-You login to Small Board using a Google account. If you get an error message like
+You login to Cardboard using a Google account. If you get an error message like
 
 ![login-error](https://user-images.githubusercontent.com/544734/71759638-0ef64900-2e7e-11ea-8362-73f789085547.png)
 
-then you should contact an admin and ask them to add you to the Google Drive hunt folder. For more details, see the [hunt setup guide](new-hunt-setup.md#giving-a-new-user-access-to-small-board).
+then you should contact an admin and ask them to add you to the Google Drive hunt folder. For more details, see the [hunt setup guide](new-hunt-setup.md#giving-a-new-user-access-to-card-board).
 
 ### Adding and modifying puzzles
 
