@@ -1,15 +1,15 @@
-## Small Board Development Guide
+## Cardboard Development Guide
 
 ### Getting started
 
-There are two ways to set up Small Board locally.
+There are two ways to set up Cardboard locally.
 
-To run Small Board in Docker, you will need:
+To run Cardboard in Docker, you will need:
 
 - Git
 - Docker (on Mac or Windows, install Docker Desktop; on Linux, docker and docker-compose)
 
-To run Small Board manually, you will need:
+To run Cardboard manually, you will need:
 
 - Git
 - Python
@@ -23,7 +23,7 @@ To run Small Board manually, you will need:
 To check out the code, you first need to [install Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git). Then you can checkout the code using:
 
 ```
-git clone git@github.com:cardinalitypuzzles/smallboard.git
+git clone git@github.com:cardinalitypuzzles/cardboard.git
 ```
 
 ### Set up an `.env` file
@@ -39,7 +39,7 @@ See below for more details on the `.env` file. You probably want to set at least
 
 ### Docker setup
 
-Docker allows a simple, consistent setup of Small Board. First, install and start running Docker. If you're using WSL2, see these [Docker Desktop WSL 2 backend](https://docs.docker.com/desktop/windows/wsl/) instructions.
+Docker allows a simple, consistent setup of Cardboard. First, install and start running Docker. If you're using WSL2, see these [Docker Desktop WSL 2 backend](https://docs.docker.com/desktop/windows/wsl/) instructions.
 
 After starting Docker, checking out the code, navigate to the directory and run:
 
@@ -51,9 +51,9 @@ docker-compose up --build
 
 The first time you run this, it will build Docker images locally and then run the web server and postgres in separate containers. You can view the application by visiting [http://localhost:8000]().
 
-After the initial build, you may use `docker-compose up` to start smallboard without rebuilding container images. Doing a rebuild with `--build` is required after adding new library dependencies, however.
+After the initial build, you may use `docker-compose up` to start Cardboard without rebuilding container images. Doing a rebuild with `--build` is required after adding new library dependencies, however.
 
-If you encounter issues building or starting smallboard, you can do a clean rebuild by using `docker-compose build --no-cache` and then starting the containers using `docker-compose up`.
+If you encounter issues building or starting Cardboard, you can do a clean rebuild by using `docker-compose build --no-cache` and then starting the containers using `docker-compose up`.
 
 To run a command inside the web container, you can run
 
@@ -67,7 +67,7 @@ For example, to run tests, you can run
 docker-compose exec web python manage.py test
 ```
 
-This is pretty verbose, so on my machine I added a local alias for `smallboard-manage` to `docker-compose exec web python manage.py`. Then `smallboard-manage test` will run tests.
+This is pretty verbose, so on my machine I added a local alias for `cardboard-manage` to `docker-compose exec web python manage.py`. Then `cardboard-manage test` will run tests.
 
 Our docker setup reads environmental variables from .env as described earlier. This file must exist, though by default it may be empty.
 
@@ -127,39 +127,39 @@ Start the database server using a command like:
 sudo -u postgres /usr/lib/postgresql/10/bin/pg_ctl -D /var/lib/postgresql/10/main -l logfile start
 ```
 
-Once the database server is running, connect to it and set up a database, user, and password for Small Board:
+Once the database server is running, connect to it and set up a database, user, and password for Cardboard:
 
 ```
 # run as postgres user
 sudo -u postgres psql
 
 # inside postgres shell
-create database smallboard;
+create database cardboard;
 
 create user myuser with encrypted password 'mypass';
-grant all privileges on database smallboard to myuser;
+grant all privileges on database cardboard to myuser;
 
 # needed for tests
 ALTER USER myuser CREATEDB;
 ```
 
-Create a `.env` file in the `smallboard/` root directory with the database connection info:
+Create a `.env` file in the `cardboard/` root directory with the database connection info:
 
 ```
 # .env file contents
-DATABASE_URL=postgres://myuser:mypass@localhost/smallboard
+DATABASE_URL=postgres://myuser:mypass@localhost/cardboard
 ```
 
 Once this is set up, you'll need to run a one-time database migration to set up the database tables:
 
 ```
-# from smallboard/ root directory
+# from cardboard/ root directory
 $ python manage.py migrate
 ```
 
 #### Local deployment
 
-Once the Python environment and database are set up and running, you can run Small Board locally using
+Once the Python environment and database are set up and running, you can run Cardboard locally using
 
 ```
 $ python manage.py runserver
@@ -202,13 +202,13 @@ For testing and development, it can be helpful to load the production data into 
 
 ```
 # download production data
-# get the postgres connection string from https://dashboard.heroku.com/apps/smallboard/settings
+# get the postgres connection string from https://dashboard.heroku.com/apps/cardinality-cardboard/settings
 heroku run pg_dump postgres://user:pass@....compute-1.amazonaws.com:5432/database > prod_db.sql
 
 # edit prod_db.sql and replace all instances of "Owner: <random_string_of_letters>" with "Owner: myuser"
 
 # drop all tables
-psql postgres://myuser:mypass@localhost/smallboard
+psql postgres://myuser:mypass@localhost/cardboard
 # run the following to generate the drop table commands
 SELECT  'DROP TABLE IF EXISTS "' || tablename || '" CASCADE;' FROM pg_tables WHERE tableowner = 'myuser';
 # run the drop table commands
@@ -219,13 +219,13 @@ SELECT  'DROP TABLE IF EXISTS "' || tablename || '" CASCADE;' FROM pg_tables WHE
 
 ### <a name='env'>Local `.env` file: credentials, API Tokens, configuration</a>
 
-This app uses various secrets including Google API tokens that need to be present in the environment. Locally, you can put these in the `.env` file. In the production Heroku deployment, they're set as Config Vars at https://dashboard.heroku.com/apps/smallboard/settings. For most of these configs, you can just use the production settings. The ones you probably want to change are `DATABASE_URL`, `DJANGO_SECRET_KEY`, and `DEBUG`. You can contact a Collaborator to give you access to the Heroku Small Board settings or to share their `.env` file with you.
+This app uses various secrets including Google API tokens that need to be present in the environment. Locally, you can put these in the `.env` file. In the production Heroku deployment, they're set as Config Vars at https://dashboard.heroku.com/apps/cardinality-cardboard/settings. For most of these configs, you can just use the production settings. The ones you probably want to change are `DATABASE_URL`, `DJANGO_SECRET_KEY`, and `DEBUG`. You can contact a Collaborator to give you access to the Heroku Cardboard settings or to share their `.env` file with you.
 
-The environment variables used by Small Board are listed below. The only required variables are `DATABASE_URL`. When running with Docker, there are no required variables; `DATABASE_URL` is ignored.
+The environment variables used by Cardboard are listed below. The only required variables are `DATABASE_URL`. When running with Docker, there are no required variables; `DATABASE_URL` is ignored.
 
 ```
 # for connecting to the database (see "Setting up a local database" section above)
-DATABASE_URL=postgres://myuser:mypass@localhost/smallboard
+DATABASE_URL=postgres://myuser:mypass@localhost/cardboard
 
 # for accessing Google APIs
 GOOGLE_API_PRIVATE_KEY=...
@@ -233,7 +233,7 @@ GOOGLE_API_PRIVATE_KEY=...
 # id of the Google Drive hunt folder
 # when you go to the folder, it's the last part of the URL
 # drive.google.com/drive/folders/<HUNT_FOLDER_ID>
-# the whitelist of emails allowed access to Small Board
+# the whitelist of emails allowed access to Cardboard
 # are the emails of the users who have access to this folder
 GOOGLE_DRIVE_HUNT_FOLDER_ID=...
 
@@ -261,7 +261,7 @@ DEBUG=...
 
 ### Google OAuth2 login integration (optional)
 
-The app uses Google OAuth2 to authenticate users. If the `SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET` environment variable isn't set, the app will fall back to a "Signup" flow where users can create their own username and password. Even with Google OAuth2 enabled, you can still create superusers using `python manage.py createsuperuser`. The OAuth2 settings are configured at https://console.developers.google.com/apis/credentials?project=smallboard-test-260001.
+The app uses Google OAuth2 to authenticate users. If the `SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET` environment variable isn't set, the app will fall back to a "Signup" flow where users can create their own username and password. Even with Google OAuth2 enabled, you can still create superusers using `python manage.py createsuperuser`. The OAuth2 settings are configured at https://console.developers.google.com/apis/credentials?project=cardboard-test-260001.
 
 You should be able to use Google OAuth2 locally as well, since the OAuth2 settings above include `localhost` and `127.0.0.1` as authorized redirect URLs.
 
@@ -273,17 +273,17 @@ When a puzzle is created, a Google Sheet is created that is a copy of the templa
 
 You need to have access to the Google Drive folder to view it. Please message a Collaborator if you don't.
 
-These Google Drive and Sheets related settings can be found in [smallboard/settings.py](smallboard/settings.py).
+These Google Drive and Sheets related settings can be found in [cardboard/settings.py](cardboard/settings.py).
 
 ### Deployment to Heroku
 
-Though our development repo is this GitHub repo ([cardinalitypuzzles/smallboard](https://github.com/cardinalitypuzzles/smallboard)), to deploy to Heroku, you need to push the latest code to the Heroku Git server. To do so, you need to be added as a collaborator for the Heroku app first. Please message one of the collaborators on this project to be added.
+Though our development repo is this GitHub repo ([cardinalitypuzzles/cardboard](https://github.com/cardinalitypuzzles/cardboard)), to deploy to Heroku, you need to push the latest code to the Heroku Git server. To do so, you need to be added as a collaborator for the Heroku app first. Please message one of the collaborators on this project to be added.
 
-Once you've been added as a collaborator for the smallboard Heroku app, you can deploy changes by following [this guide](https://devcenter.heroku.com/articles/git). Install Git and the Heroku CLI. Then run
+Once you've been added as a collaborator for the Cardboard Heroku app, you can deploy changes by following [this guide](https://devcenter.heroku.com/articles/git). Install Git and the Heroku CLI. Then run
 
 ```
 heroku login
-heroku git:remote -a smallboard
+heroku git:remote -a cardboard
 ```
 
 After this, you can deploy changes by running
@@ -296,7 +296,7 @@ We encourage you to keep the `origin` remote as our GitHub repo and make it the 
 
 ### Environment variables
 
-We rely on various secrets and tokens for Google integration, etc. These are set as Config Vars at https://dashboard.heroku.com/apps/smallboard/settings. See the [Local `.env` file](#env) section above for more details.
+We rely on various secrets and tokens for Google integration, etc. These are set as Config Vars at https://dashboard.heroku.com/apps/cardinality-cardboard/settings. See the [Local `.env` file](#env) section above for more details.
 
 ### Set up pre-commit checks
 

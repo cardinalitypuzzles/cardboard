@@ -9,7 +9,7 @@ from googleapiclient import _auth
 from celery import shared_task
 from chat.tasks import handle_sheet_created
 from .utils import GoogleApiClientTask
-from smallboard.settings import TaskPriority
+from cardboard.settings import TaskPriority
 from puzzles.models import Puzzle
 
 logger = logging.getLogger(__name__)

@@ -1,5 +1,5 @@
 from django.conf import settings
-from smallboard.settings import TaskPriority
+from cardboard.settings import TaskPriority
 from celery import shared_task
 import logging
 

@@ -1,5 +1,5 @@
 from django.test import TestCase
-from smallboard import views
+from cardboard import views
 from accounts.models import Puzzler
 from hunts.models import Hunt
 

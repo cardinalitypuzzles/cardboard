@@ -4,7 +4,7 @@ from hunts.models import Hunt
 from puzzles.models import PuzzleTag
 
 
-class SmallboardTestCase(APITestCase):
+class CardboardTestCase(APITestCase):
     def setUp(self):
         self._user = Puzzler.objects.create_user(
             username="test", email="test@ing.com", password="testingpwd"

@@ -3,9 +3,9 @@ import os
 from celery import Celery
 
 # set the default Django settings module for the 'celery' program.
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "smallboard.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "cardboard.settings")
 
-app = Celery("smallboard")
+app = Celery("cardboard")
 
 # Using a string here means the worker doesn't have to serialize
 # the configuration object to child processes.

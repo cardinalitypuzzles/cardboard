@@ -1,8 +1,8 @@
 {
-  "name": "smallboard",
+  "name": "cardboard",
   "version": "1.0.0",
   "main": "index.js",
-  "repository": "git@github.com:cardinalitypuzzles/smallboard.git",
+  "repository": "git@github.com:cardinalitypuzzles/cardboard.git",
   "author": "Cardinality <cardinalitypuzzles@gmail.com>",
   "license": "MIT",
   "scripts": {

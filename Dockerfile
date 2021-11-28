@@ -1,6 +1,6 @@
 FROM python:3.8.6-alpine
 
-WORKDIR /usr/src/smallboard
+WORKDIR /usr/src/cardboard
 
 # install psycopg2 dependencies
 RUN apk update && apk add \
