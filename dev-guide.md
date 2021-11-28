@@ -51,9 +51,9 @@ docker-compose up --build
 
 The first time you run this, it will build Docker images locally and then run the web server and postgres in separate containers. You can view the application by visiting [http://localhost:8000]().
 
-After the initial build, you may use `docker-compose up` to start cardboard without rebuilding container images. Doing a rebuild with `--build` is required after adding new library dependencies, however.
+After the initial build, you may use `docker-compose up` to start Cardboard without rebuilding container images. Doing a rebuild with `--build` is required after adding new library dependencies, however.
 
-If you encounter issues building or starting cardboard, you can do a clean rebuild by using `docker-compose build --no-cache` and then starting the containers using `docker-compose up`.
+If you encounter issues building or starting Cardboard, you can do a clean rebuild by using `docker-compose build --no-cache` and then starting the containers using `docker-compose up`.
 
 To run a command inside the web container, you can run
 
@@ -202,7 +202,7 @@ For testing and development, it can be helpful to load the production data into 
 
 ```
 # download production data
-# get the postgres connection string from https://dashboard.heroku.com/apps/cardboard/settings
+# get the postgres connection string from https://dashboard.heroku.com/apps/cardinality-cardboard/settings
 heroku run pg_dump postgres://user:pass@....compute-1.amazonaws.com:5432/database > prod_db.sql
 
 # edit prod_db.sql and replace all instances of "Owner: <random_string_of_letters>" with "Owner: myuser"
@@ -219,7 +219,7 @@ SELECT  'DROP TABLE IF EXISTS "' || tablename || '" CASCADE;' FROM pg_tables WHE
 
 ### <a name='env'>Local `.env` file: credentials, API Tokens, configuration</a>
 
-This app uses various secrets including Google API tokens that need to be present in the environment. Locally, you can put these in the `.env` file. In the production Heroku deployment, they're set as Config Vars at https://dashboard.heroku.com/apps/cardboard/settings. For most of these configs, you can just use the production settings. The ones you probably want to change are `DATABASE_URL`, `DJANGO_SECRET_KEY`, and `DEBUG`. You can contact a Collaborator to give you access to the Heroku Cardboard settings or to share their `.env` file with you.
+This app uses various secrets including Google API tokens that need to be present in the environment. Locally, you can put these in the `.env` file. In the production Heroku deployment, they're set as Config Vars at https://dashboard.heroku.com/apps/cardinality-cardboard/settings. For most of these configs, you can just use the production settings. The ones you probably want to change are `DATABASE_URL`, `DJANGO_SECRET_KEY`, and `DEBUG`. You can contact a Collaborator to give you access to the Heroku Cardboard settings or to share their `.env` file with you.
 
 The environment variables used by Cardboard are listed below. The only required variables are `DATABASE_URL`. When running with Docker, there are no required variables; `DATABASE_URL` is ignored.
 
@@ -279,7 +279,7 @@ These Google Drive and Sheets related settings can be found in [cardboard/settin
 
 Though our development repo is this GitHub repo ([cardinalitypuzzles/cardboard](https://github.com/cardinalitypuzzles/cardboard)), to deploy to Heroku, you need to push the latest code to the Heroku Git server. To do so, you need to be added as a collaborator for the Heroku app first. Please message one of the collaborators on this project to be added.
 
-Once you've been added as a collaborator for the cardboard Heroku app, you can deploy changes by following [this guide](https://devcenter.heroku.com/articles/git). Install Git and the Heroku CLI. Then run
+Once you've been added as a collaborator for the Cardboard Heroku app, you can deploy changes by following [this guide](https://devcenter.heroku.com/articles/git). Install Git and the Heroku CLI. Then run
 
 ```
 heroku login
@@ -296,7 +296,7 @@ We encourage you to keep the `origin` remote as our GitHub repo and make it the 
 
 ### Environment variables
 
-We rely on various secrets and tokens for Google integration, etc. These are set as Config Vars at https://dashboard.heroku.com/apps/cardboard/settings. See the [Local `.env` file](#env) section above for more details.
+We rely on various secrets and tokens for Google integration, etc. These are set as Config Vars at https://dashboard.heroku.com/apps/cardinality-cardboard/settings. See the [Local `.env` file](#env) section above for more details.
 
 ### Set up pre-commit checks
 

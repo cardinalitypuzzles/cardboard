@@ -1,6 +1,6 @@
-## Setting up cardboard for a new hunt
+## Setting up Cardboard for a new hunt
 
-Currently, cardboard is not multi-tenant (see [#191](https://github.com/cardinalitypuzzles/cardboard/issues/191)), so each team for the same hunt needs their own cardboard instance.
+Currently, Cardboard is not multi-tenant (see [#191](https://github.com/cardinalitypuzzles/cardboard/issues/191)), so each team for the same hunt needs their own Cardboard instance.
 
 ### Prerequisites
 
@@ -8,7 +8,7 @@ This guide assumes you have already done the following at https://console.develo
 
 * created a Google Cloud project
 * created a Google API service account (go to APIs & Services > Credentials) under that project
-* created an OAuth 2.0 Client (also under APIs & Services > Credentials) in the same project (this is needed to enable logging to cardboard using a Google account)
+* created an OAuth 2.0 Client (also under APIs & Services > Credentials) in the same project (this is needed to enable logging to Cardboard using a Google account)
 * enabled Google Drive API (APIs & Services > Library > search for "Google Drive API" > select and enable)
 * enabled Google Sheets API (APIs & Services > Library > search for "Google Sheets API" > select and enable)
 
@@ -44,13 +44,13 @@ In order for Google OAuth2 login to work, you need to add the URI `https://<YOUR
 
 After creating a new application on Heroku, you will need to configure some resources, settings, and config variables.
 
-By default, Heroku may only set the heroku/python buildpack when you deploy the first time, but cardboard also requires the heroku/nodejs buildpack (for compiling some JavaScript code), which must run first. You can set the buildpacks on your application's settings page (`https://dashboard.heorku.com/apps/<YOUR_APP>/settings`) under the "Buildpacks" section. Alternatively, you can use the [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli): run `heroku buildpacks` to check which buildpacks are installed, and if needed, run `heroku buildpacks:add --index 1 heroku/nodejs` to add the heroku/nodejs buildpack and have it run first.
+By default, Heroku may only set the heroku/python buildpack when you deploy the first time, but Cardboard also requires the heroku/nodejs buildpack (for compiling some JavaScript code), which must run first. You can set the buildpacks on your application's settings page (`https://dashboard.heorku.com/apps/<YOUR_APP>/settings`) under the "Buildpacks" section. Alternatively, you can use the [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli): run `heroku buildpacks` to check which buildpacks are installed, and if needed, run `heroku buildpacks:add --index 1 heroku/nodejs` to add the heroku/nodejs buildpack and have it run first.
 
 On the Resources page, you'll need to add the Heroku Postgres and Heroku Redis add-ons. When added, this will automatically add some config variables for you on the Settings page: `REDIS_URL`, `REDIS_TLS_URL`, and `DATABASE_URL`. Cardboard is already configured to read these config variables automatically.
 
 You'll also see three dyno instances on the Resources page: "web", "bot", and "worker". Make sure to enable the "web" and "worker" dynos. The "web" dyno runs the web application and the "worker" dyno runs a Celery process that handles Google Sheets API interactions asynchronously. The "bot" dyno is for a discord bot added in [#214](https://github.com/cardinalitypuzzles/cardboard/issues/214), which is optional. You can only run a max of 2 free dynos, so if you want to enable the "bot" dyno, you have to upgrade to a paid tier. Note that this "bot" dyno is only for supporting users typing `!<command>` in Discord to get information about puzzles. Even without the "bot" dyno, with the Discord application added to your Discord server (see Discord prerequisites above) and the Discord environment variables configured (see below), you will still get automatic Discord channel creation and puzzle solve updates.
 
-If you have a large team or are using cardboard for a hunt with many puzzles, you may want to increase the number or tier of the dynos in your Heroku deployment.
+If you have a large team or are using Cardboard for a hunt with many puzzles, you may want to increase the number or tier of the dynos in your Heroku deployment.
 
 ##### Heroku config variables
 
@@ -86,6 +86,6 @@ Miscellaneous configs:
 * `DEBUG` - you probably want to set this to `False` in production so users don't get gory error pages
 
 
-### Giving a new user access to Card Board
+### Giving a new user access to Cardboard
 
 The authorized users for a Cardboard deployment are the Google users who have access to the Google Drive folder for the hunt (configured by the `GOOGLE_DRIVE_HUNT_FOLDER_ID` variable). To give a new user access, share the Google Drive folder with that user, and then restart Cardboard using `heroku restart` or from the web UI. The ability to add users without having to restart Heroku will be addressed in [#500](https://github.com/cardinalitypuzzles/cardboard/issues/500).

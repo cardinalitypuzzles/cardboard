@@ -34,7 +34,7 @@ You login to Cardboard using a Google account. If you get an error message like
 
 ![login-error](https://user-images.githubusercontent.com/544734/71759638-0ef64900-2e7e-11ea-8362-73f789085547.png)
 
-then you should contact an admin and ask them to add you to the Google Drive hunt folder. For more details, see the [hunt setup guide](new-hunt-setup.md#giving-a-new-user-access-to-card-board).
+then you should contact an admin and ask them to add you to the Google Drive hunt folder. For more details, see the [hunt setup guide](new-hunt-setup.md#giving-a-new-user-access-to-cardboard).
 
 ### Adding and modifying puzzles
 

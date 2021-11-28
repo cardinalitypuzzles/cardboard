@@ -40,6 +40,7 @@ ALLOWED_HOSTS = [
     "localhost",
     "smallboard.herokuapp.com",
     ".smallboard.app",
+    "cardinality-cardboard.herokuapp.com",
 ]
 
 # This should be turned on in production to redirect HTTP to HTTPS
@@ -225,7 +226,7 @@ AUTHENTICATION_BACKENDS = [
 
 SOCIAL_AUTH_URL_NAMESPACE = "social"
 
-# cardboard client id
+# Cardboard client id
 try:
     SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.environ["SOCIAL_AUTH_GOOGLE_OAUTH2_KEY"]
     SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.environ["SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET"]
