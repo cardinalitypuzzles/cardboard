@@ -298,7 +298,7 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
         with transaction.atomic():
             tag = self.get_object()
             puzzle = get_object_or_404(Puzzle, pk=self.kwargs["puzzle_id"])
-            if puzzle.name == tag.name:
+            if puzzle.name == tag.name and tag.is_meta:
                 return Response(
                     {
                         "detail": "You cannot remove a meta's tag (%s) from itself"
