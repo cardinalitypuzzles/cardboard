@@ -194,6 +194,27 @@ class ApiTests(CardboardTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(puzzle.tags.count(), 0)
 
+    def test_can_delete_same_name_tag(self):
+        self.create_puzzle({"name": "test name", "url": TEST_URL})
+        puzzle = Puzzle.objects.get()
+        self.create_tag(puzzle.pk, {"name": "test name", "color": PuzzleTag.BLUE})
+        self.assertEqual(puzzle.tags.count(), 1)
+        tag = puzzle.tags.get()
+
+        response = self.delete_tag(puzzle.pk, tag.pk)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(puzzle.tags.count(), 0)
+
+    def test_cannot_delete_meta_tag(self):
+        self.create_puzzle({"name": "test name", "url": TEST_URL, "is_meta": True})
+        puzzle = Puzzle.objects.get()
+        self.assertEqual(puzzle.tags.count(), 1)
+        tag = puzzle.tags.get()
+
+        response = self.delete_tag(puzzle.pk, tag.pk)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(puzzle.tags.count(), 1)
+
     def test_opposing_tags(self):
         self.create_puzzle({"name": "test name", "url": TEST_URL})
         puzzle = Puzzle.objects.get()
