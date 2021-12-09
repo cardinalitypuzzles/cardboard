@@ -83,6 +83,7 @@ class AnswerViewSet(viewsets.ModelViewSet):
                             sheet_url=puzzle.sheet, name=f"[SOLVED] {puzzle.name}"
                         )
                     )
+
             puzzle.save()
 
         return Response(PuzzleSerializer(puzzle).data)
@@ -205,6 +206,24 @@ class PuzzleViewSet(viewsets.ModelViewSet):
                 if "status" in data:
                     puzzle.status = data["status"]
                     puzzle.save()
+                    if puzzle.status == Puzzle.SOLVED:
+                        if puzzle.chat_room:
+                            # TODO: handle multiple answers here
+                            transaction.on_commit(
+                                lambda: chat.tasks.handle_puzzle_solved.delay(
+                                    puzzle.id,
+                                    puzzle.guesses.filter(status=Answer.CORRECT)
+                                    .first()
+                                    .text,
+                                )
+                            )
+                        if google_api_lib.enabled() and puzzle.sheet:
+                            transaction.on_commit(
+                                lambda: google_api_lib.tasks.rename_sheet.delay(
+                                    sheet_url=puzzle.sheet,
+                                    name=f"[SOLVED] {puzzle.name}",
+                                )
+                            )
 
                 if "name" in data and data["name"] != old_name:
                     if puzzle.chat_room:
