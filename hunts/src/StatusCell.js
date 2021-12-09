@@ -8,7 +8,7 @@ export default function StatusCell({ row, value }) {
   const { id: huntId } = useSelector((state) => state.hunt);
   const dispatch = useDispatch();
   const statuses_to_display = ["SOLVING", "STUCK", "EXTRACTION"];
-  if (value === "SOLVED") {
+  if (value === "SOLVED" || row.original.guesses?.length > 0) {
     statuses_to_display.push("SOLVED");
   }
   return (
