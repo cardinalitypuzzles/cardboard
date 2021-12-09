@@ -156,6 +156,7 @@ test/
 
 # vim local settings
 .vimrc
+.nvimrc
 
 # node modules
 node_modules/
