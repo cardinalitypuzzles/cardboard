@@ -211,13 +211,17 @@ class PuzzleViewSet(viewsets.ModelViewSet):
                             # TODO: handle multiple answers here
                             transaction.on_commit(
                                 lambda: chat.tasks.handle_puzzle_solved.delay(
-                                    puzzle.id, puzzle.guesses.filter(status=Answer.CORRECT).first().text
+                                    puzzle.id,
+                                    puzzle.guesses.filter(status=Answer.CORRECT)
+                                    .first()
+                                    .text,
                                 )
                             )
                         if google_api_lib.enabled() and puzzle.sheet:
                             transaction.on_commit(
                                 lambda: google_api_lib.tasks.rename_sheet.delay(
-                                    sheet_url=puzzle.sheet, name=f"[SOLVED] {puzzle.name}"
+                                    sheet_url=puzzle.sheet,
+                                    name=f"[SOLVED] {puzzle.name}",
                                 )
                             )
 
