@@ -1,4 +1,5 @@
 from rest_framework.test import APITestCase
+from rest_framework import status
 from accounts.models import Puzzler
 from hunts.models import Hunt
 from puzzles.models import PuzzleTag
@@ -18,6 +19,11 @@ class CardboardTestCase(APITestCase):
             tag.delete()
 
         self._hunt.delete()
+
+    # General test methods
+
+    def check_response_status(self, response, status=status.HTTP_200_OK):
+        self.assertEqual(response.status_code, status)
 
     # Hunt methods
 

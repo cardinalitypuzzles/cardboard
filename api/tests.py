@@ -29,16 +29,22 @@ class ApiTests(CardboardTestCase):
 
     def test_create_invalid_puzzle(self):
         # Missing name
-        response = self.create_puzzle({"url": TEST_URL, "is_meta": False})
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.check_response_status(
+            self.create_puzzle({"url": TEST_URL, "is_meta": False}),
+            status.HTTP_400_BAD_REQUEST,
+        )
 
         # Missing url
-        response = self.create_puzzle({"name": "test name", "is_meta": False})
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.check_response_status(
+            self.create_puzzle({"name": "test name", "is_meta": False}),
+            status.HTTP_400_BAD_REQUEST,
+        )
 
         # Empty string name
-        response = self.create_puzzle({"name": "", "url": TEST_URL, "is_meta": False})
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.check_response_status(
+            self.create_puzzle({"name": "", "url": TEST_URL, "is_meta": False}),
+            status.HTTP_400_BAD_REQUEST,
+        )
 
         # Malformatted URL (TODO)
         # response = self.create_puzzle(
@@ -72,7 +78,9 @@ class ApiTests(CardboardTestCase):
         )
 
     def test_delete_puzzle(self):
-        self.create_puzzle({"name": "test name", "url": TEST_URL})
+        self.check_response_status(
+            self.create_puzzle({"name": "test name", "url": TEST_URL})
+        )
         puzzle = Puzzle.objects.get()
         response = self.delete_puzzle(puzzle.pk)
 
@@ -81,7 +89,9 @@ class ApiTests(CardboardTestCase):
         self.assertEqual(Puzzle.objects.count(), 0)
 
     def test_edit_puzzle(self):
-        self.create_puzzle({"name": "test name", "url": TEST_URL})
+        self.check_response_status(
+            self.create_puzzle({"name": "test name", "url": TEST_URL})
+        )
         puzzle = Puzzle.objects.get()
 
         response = self.edit_puzzle(puzzle.pk, {"name": "new name"})
@@ -104,8 +114,14 @@ class ApiTests(CardboardTestCase):
         self.assertEqual(puzzle.is_meta, True)
 
     def test_list_puzzles(self):
-        self.create_puzzle({"name": "test name", "url": TEST_URL})
-        self.create_puzzle({"name": "second test", "url": "https://secondtest.test/"})
+        self.check_response_status(
+            self.create_puzzle({"name": "test name", "url": TEST_URL})
+        )
+        self.check_response_status(
+            self.create_puzzle(
+                {"name": "second test", "url": "https://secondtest.test/"}
+            )
+        )
         self.assertEqual(Puzzle.objects.count(), 2)
         response = self.list_puzzles()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -115,64 +131,75 @@ class ApiTests(CardboardTestCase):
         )
 
     def test_add_answer(self):
-        self.create_puzzle({"name": "test name", "url": TEST_URL})
+        self.check_response_status(
+            self.create_puzzle({"name": "test name", "url": TEST_URL})
+        )
         puzzle = Puzzle.objects.get()
 
-        response = self.create_answer(puzzle.pk, {"text": "ans"})
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.check_response_status(self.create_answer(puzzle.pk, {"text": "ans"}))
         # This assumes no answer queue
         puzzle.refresh_from_db()
         self.assertEqual(puzzle.correct_answers(), ["ANS"])
         self.assertEqual(puzzle.status, Puzzle.SOLVED)
 
-        response = self.create_answer(puzzle.pk, {"text": "ans"})
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        response = self.create_answer(puzzle.pk, {"text": ""})
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        response = self.create_answer(puzzle.pk, {"text": "answer two"})
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.check_response_status(
+            self.create_answer(puzzle.pk, {"text": "ans"}), status.HTTP_400_BAD_REQUEST
+        )
+        self.check_response_status(
+            self.create_answer(puzzle.pk, {"text": ""}), status.HTTP_400_BAD_REQUEST
+        )
+        self.check_response_status(
+            self.create_answer(puzzle.pk, {"text": "answer two"})
+        )
 
         puzzle.refresh_from_db()
         self.assertEqual(puzzle.correct_answers(), ["ANS", "ANSWERTWO"])
 
     def test_delete_answer(self):
-        self.create_puzzle({"name": "test name", "url": TEST_URL})
+        self.check_response_status(
+            self.create_puzzle({"name": "test name", "url": TEST_URL})
+        )
         puzzle = Puzzle.objects.get()
 
-        self.create_answer(puzzle.pk, {"text": "ANSWER"})
-        self.create_answer(puzzle.pk, {"text": "ANSWER TWO"})
+        self.check_response_status(self.create_answer(puzzle.pk, {"text": "ANSWER"}))
+        self.check_response_status(
+            self.create_answer(puzzle.pk, {"text": "ANSWER TWO"})
+        )
 
         puzzle.refresh_from_db()
         self.assertEqual(puzzle.status, Puzzle.SOLVED)
         self.assertEqual(len(puzzle.correct_answers()), 2)
         guesses = list(puzzle.guesses.all())
 
-        response = self.delete_answer(puzzle.pk, guesses[0].pk)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.check_response_status(self.delete_answer(puzzle.pk, guesses[0].pk))
         puzzle.refresh_from_db()
         self.assertEqual(puzzle.status, Puzzle.SOLVED)
         self.assertEqual(len(puzzle.correct_answers()), 1)
 
-        response = self.delete_answer(puzzle.pk, guesses[1].pk)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.check_response_status(self.delete_answer(puzzle.pk, guesses[1].pk))
         puzzle.refresh_from_db()
         self.assertEqual(puzzle.status, Puzzle.SOLVING)
         self.assertEqual(len(puzzle.correct_answers()), 0)
 
     def test_edit_answer(self):
-        self.create_puzzle({"name": "test name", "url": TEST_URL})
+        self.check_response_status(
+            self.create_puzzle({"name": "test name", "url": TEST_URL})
+        )
         puzzle = Puzzle.objects.get()
 
-        self.create_answer(puzzle.pk, {"text": "ANSWER"})
+        self.check_response_status(self.create_answer(puzzle.pk, {"text": "ANSWER"}))
         answer = puzzle.guesses.get()
 
-        response = self.edit_answer(puzzle.pk, answer.pk, {"text": "oops real answer"})
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.check_response_status(
+            self.edit_answer(puzzle.pk, answer.pk, {"text": "oops real answer"})
+        )
         answer.refresh_from_db()
         self.assertEqual(answer.text, "OOPSREALANSWER")
 
     def test_create_tag(self):
-        self.create_puzzle({"name": "test name", "url": TEST_URL})
+        self.check_response_status(
+            self.create_puzzle({"name": "test name", "url": TEST_URL})
+        )
         puzzle = Puzzle.objects.get()
 
         response = self.create_tag(
@@ -184,41 +211,56 @@ class ApiTests(CardboardTestCase):
         self.assertEqual(response.data[0]["name"], puzzle.name)
 
     def test_delete_tag(self):
-        self.create_puzzle({"name": "test name", "url": TEST_URL})
+        self.check_response_status(
+            self.create_puzzle({"name": "test name", "url": TEST_URL})
+        )
         puzzle = Puzzle.objects.get()
-        self.create_tag(puzzle.pk, {"name": "taggy", "color": PuzzleTag.BLUE})
+        self.check_response_status(
+            self.create_tag(puzzle.pk, {"name": "taggy", "color": PuzzleTag.BLUE})
+        )
         self.assertEqual(puzzle.tags.count(), 1)
         tag = puzzle.tags.get()
 
-        response = self.delete_tag(puzzle.pk, tag.pk)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.check_response_status(self.delete_tag(puzzle.pk, tag.pk))
         self.assertEqual(puzzle.tags.count(), 0)
 
     def test_can_delete_same_name_tag(self):
-        self.create_puzzle({"name": "test name", "url": TEST_URL})
+        self.check_response_status(
+            self.create_puzzle({"name": "test name", "url": TEST_URL})
+        )
         puzzle = Puzzle.objects.get()
-        self.create_tag(puzzle.pk, {"name": "test name", "color": PuzzleTag.BLUE})
+        self.check_response_status(
+            self.create_tag(puzzle.pk, {"name": "test name", "color": PuzzleTag.BLUE})
+        )
         self.assertEqual(puzzle.tags.count(), 1)
         tag = puzzle.tags.get()
 
-        response = self.delete_tag(puzzle.pk, tag.pk)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.check_response_status(self.delete_tag(puzzle.pk, tag.pk))
         self.assertEqual(puzzle.tags.count(), 0)
 
     def test_cannot_delete_meta_tag(self):
-        self.create_puzzle({"name": "test name", "url": TEST_URL, "is_meta": True})
+        self.check_response_status(
+            self.create_puzzle({"name": "test name", "url": TEST_URL, "is_meta": True})
+        )
         puzzle = Puzzle.objects.get()
         self.assertEqual(puzzle.tags.count(), 1)
         tag = puzzle.tags.get()
 
-        response = self.delete_tag(puzzle.pk, tag.pk)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.check_response_status(
+            self.delete_tag(puzzle.pk, tag.pk), status.HTTP_400_BAD_REQUEST
+        )
         self.assertEqual(puzzle.tags.count(), 1)
 
     def test_opposing_tags(self):
-        self.create_puzzle({"name": "test name", "url": TEST_URL})
+        self.check_response_status(
+            self.create_puzzle({"name": "test name", "url": TEST_URL})
+        )
         puzzle = Puzzle.objects.get()
-        self.create_tag(puzzle.pk, {"name": "HIGH PRIORITY", "color": PuzzleTag.RED})
+        self.check_response_status(
+            self.create_tag(
+                puzzle.pk, {"name": "HIGH PRIORITY", "color": PuzzleTag.RED}
+            )
+        )
         self.assertEqual(puzzle.tags.count(), 1)
         tag = puzzle.tags.get()
 
@@ -234,24 +276,31 @@ class ApiTests(CardboardTestCase):
 
     def test_cannot_change_meta_tag_color(self):
         meta_puzzle_name = "test meta"
-        self.create_puzzle(
-            {
-                "name": meta_puzzle_name,
-                "url": "{}/meta".format(TEST_URL),
-                "is_meta": True,
-            }
+        self.check_response_status(
+            self.create_puzzle(
+                {
+                    "name": meta_puzzle_name,
+                    "url": "{}/meta".format(TEST_URL),
+                    "is_meta": True,
+                }
+            )
         )
-        self.create_puzzle(
-            {"name": "test name", "url": "{}/puzzle".format(TEST_URL), "is_meta": False}
+        self.check_response_status(
+            self.create_puzzle(
+                {
+                    "name": "test name",
+                    "url": "{}/puzzle".format(TEST_URL),
+                    "is_meta": False,
+                }
+            )
         )
         meta = Puzzle.objects.get(is_meta=True)
         puzzle = Puzzle.objects.get(is_meta=False)
 
-        response = self.create_tag(
-            puzzle.pk, {"name": meta_puzzle_name, "color": PuzzleTag.BLUE}
+        self.check_response_status(
+            self.create_tag(puzzle.pk, {"name": meta.name, "color": PuzzleTag.BLUE})
         )
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(puzzle.tags.count(), 1)
 
-        meta_tag = puzzle.tags.get(name=meta_puzzle_name)
+        meta_tag = puzzle.tags.get(name=meta.name)
         self.assertEqual(meta_tag.color, PuzzleTag.BLACK)
