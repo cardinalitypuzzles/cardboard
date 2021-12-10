@@ -206,6 +206,7 @@ class PuzzleViewSet(viewsets.ModelViewSet):
                     new_is_meta=data.get("is_meta", puzzle.is_meta),
                 )
                 if "status" in data:
+                    old_status = puzzle.status
                     puzzle.status = data["status"]
                     puzzle.save()
                     if puzzle.status == Puzzle.SOLVED:
@@ -224,6 +225,19 @@ class PuzzleViewSet(viewsets.ModelViewSet):
                                 lambda: google_api_lib.tasks.rename_sheet.delay(
                                     sheet_url=puzzle.sheet,
                                     name=f"[SOLVED] {puzzle.name}",
+                                )
+                            )
+                    elif old_status == Puzzle.SOLVED and puzzle.status != Puzzle.SOLVED:
+                        if puzzle.chat_room:
+                            transaction.on_commit(
+                                lambda: chat.tasks.handle_puzzle_unsolved.delay(
+                                    puzzle.id
+                                )
+                            )
+                        if puzzle.sheet and google_api_lib.enabled():
+                            transaction.on_commit(
+                                lambda: google_api_lib.tasks.rename_sheet.delay(
+                                    sheet_url=puzzle.sheet, name=puzzle.name
                                 )
                             )
 
