@@ -218,6 +218,17 @@ except KeyError as e:
         f"No {e.args[0]} found in environment. Automatic sheets creation disabled."
     )
 
+# TODO: make this a per hunt setting
+from google_api_lib import sync_tasks
+
+GOOGLE_HUMAN_DRIVE_HUNT_FOLDER_URL = ""
+if GOOGLE_API_AUTHN_INFO is not None:
+    GOOGLE_HUMAN_DRIVE_HUNT_FOLDER_URL = sync_tasks.get_human_drive_folder(
+        GOOGLE_DRIVE_HUNT_FOLDER_ID
+    )
+else:
+    logger.warn("Google Drive integration not set up. All emails will be accepted.")
+
 
 AUTHENTICATION_BACKENDS = [
     "social_core.backends.google.GoogleOAuth2",
@@ -237,22 +248,20 @@ except KeyError as e:
         f"No {e.args[0]} environment variable set. Google login will be disabled."
     )
 
-# TODO: make this a per hunt setting
-from google_api_lib import sync_tasks
+SOCIAL_AUTH_PIPELINE = (
+    'social_core.pipeline.social_auth.social_details',
+    'social_core.pipeline.social_auth.social_uid',
 
-GOOGLE_HUMAN_DRIVE_HUNT_FOLDER_URL = ""
-if GOOGLE_API_AUTHN_INFO is not None:
-    SOCIAL_AUTH_GOOGLE_OAUTH2_WHITELISTED_EMAILS = sync_tasks.get_file_user_emails(
-        GOOGLE_DRIVE_HUNT_FOLDER_ID
-    )
-    logger.info(
-        "Whitelisted emails: " + str(SOCIAL_AUTH_GOOGLE_OAUTH2_WHITELISTED_EMAILS)
-    )
-    GOOGLE_HUMAN_DRIVE_HUNT_FOLDER_URL = sync_tasks.get_human_drive_folder(
-        GOOGLE_DRIVE_HUNT_FOLDER_ID
-    )
-else:
-    logger.warn("Google Drive integration not set up. All emails will be accepted.")
+    # custom auth_allowed check in lieu of default one
+    'google_api_lib.sync_tasks.auth_allowed',
+
+    'social_core.pipeline.social_auth.social_user',
+    'social_core.pipeline.user.get_username',
+    'social_core.pipeline.user.create_user',
+    'social_core.pipeline.social_auth.associate_user',
+    'social_core.pipeline.social_auth.load_extra_data',
+    'social_core.pipeline.user.user_details',
+)
 
 # Taggit Overrides
 TAGGIT_TAGS_FROM_STRING = "puzzles.tag_utils.to_tag"

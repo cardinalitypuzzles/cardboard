@@ -88,4 +88,4 @@ Miscellaneous configs:
 
 ### Giving a new user access to Cardboard
 
-The authorized users for a Cardboard deployment are the Google users who have access to the Google Drive folder for the hunt (configured by the `GOOGLE_DRIVE_HUNT_FOLDER_ID` variable). To give a new user access, share the Google Drive folder with that user, and then restart Cardboard using `heroku restart` or from the web UI. The ability to add users without having to restart Heroku will be addressed in [#500](https://github.com/cardinalitypuzzles/cardboard/issues/500).
+The authorized users for a Cardboard deployment are the Google users who have access to the Google Drive folder for the hunt (configured by the `GOOGLE_DRIVE_HUNT_FOLDER_ID` variable). To give a new user access, simply share the Google Drive folder with that user.
