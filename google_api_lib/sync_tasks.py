@@ -17,10 +17,12 @@ def auth_allowed(backend, details, response, *args, **kwargs):
     is in the list of emails added to the Google Drive folder.
     Part of the SOCIAL_AUTH_PIPELINE (see settings.py).
     """
-    email = details.get('email').lower()
+    email = details.get("email").lower()
     # allow all emails if Google Drive integration is not set up
     # otherwise, only allow emails added to Google Drive folder
-    if settings.GOOGLE_API_AUTHN_INFO and email not in get_file_user_emails(settings.GOOGLE_DRIVE_HUNT_FOLDER_ID):
+    if settings.GOOGLE_API_AUTHN_INFO and email not in get_file_user_emails(
+        settings.GOOGLE_DRIVE_HUNT_FOLDER_ID
+    ):
         raise AuthForbidden(backend)
 
 
