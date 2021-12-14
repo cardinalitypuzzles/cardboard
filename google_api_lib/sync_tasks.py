@@ -1,11 +1,27 @@
 from .utils import GoogleApiClientTask
 from celery import shared_task
-import logging
+from django.conf import settings
+from social_core.exceptions import AuthForbidden
 from typing import List
+
+import logging
 
 logger = logging.getLogger(__name__)
 
 HUMAN_DRIVE_FOLDER_NAME = "FOLDER FOR HUMANS"
+
+
+def auth_allowed(backend, details, response, *args, **kwargs):
+    """
+    Checks if a user is allowed by checking if the user's email
+    is in the list of emails added to the Google Drive folder.
+    Part of the SOCIAL_AUTH_PIPELINE (see settings.py).
+    """
+    email = details.get('email').lower()
+    # allow all emails if Google Drive integration is not set up
+    # otherwise, only allow emails added to Google Drive folder
+    if settings.GOOGLE_API_AUTHN_INFO and email not in get_file_user_emails(settings.GOOGLE_DRIVE_HUNT_FOLDER_ID):
+        raise AuthForbidden(backend)
 
 
 @shared_task(base=GoogleApiClientTask, bind=True)
