@@ -246,10 +246,19 @@ export const selectAllTags = createSelector(
     );
 
     const defaultTagNames = DEFAULT_TAGS.map((tag) => tag.name);
-    const defaultTags = uniqueTags.filter(tag => defaultTagNames.includes(tag.name))
-    const customTags = uniqueTags.filter(tag => !defaultTagNames.includes(tag.name))
-    defaultTags.sort((a, b) => defaultTagNames.indexOf(a.name) - defaultTagNames.indexOf(b.name));
-    customTags.sort((a, b) => (a.color.localeCompare(b.color) || a.name.localeCompare(b.name)));
+    const defaultTags = uniqueTags.filter((tag) =>
+      defaultTagNames.includes(tag.name)
+    );
+    const customTags = uniqueTags.filter(
+      (tag) => !defaultTagNames.includes(tag.name)
+    );
+    defaultTags.sort(
+      (a, b) =>
+        defaultTagNames.indexOf(a.name) - defaultTagNames.indexOf(b.name)
+    );
+    customTags.sort(
+      (a, b) => a.color.localeCompare(b.color) || a.name.localeCompare(b.name)
+    );
 
     return defaultTags.concat(customTags);
   }
