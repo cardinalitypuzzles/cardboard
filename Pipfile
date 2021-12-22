@@ -18,6 +18,7 @@ celery = "*"
 django-celery-results = "*"
 redis = "*"
 "discord.py" = "*"
+pre-commit = "*"
 
 [dev-packages]
 pre-commit = "*"
