@@ -25,6 +25,7 @@ export const DEFAULT_TAGS = [
   { name: "PHYSICS", color: "primary" },
   { name: "CHEM", color: "primary" },
   { name: "GEOGRAPHY", color: "primary" },
+  { name: "LITERATURE", color: "primary" },
   { name: "FOREIGN LANGUAGES", color: "primary" },
 
   { name: "BOOMER", color: "light" },
