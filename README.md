@@ -22,7 +22,7 @@ The default status of a new puzzle is SOLVING. When an answer is submitted, the 
 
 Users can also tag puzzles as belonging to one or more metas, mark puzzles as high priority or low priority, logic or word puzzles, backsolved, or create new tags by clicking the "+" icon in the "Tags" column.
 
-<img src='https://user-images.githubusercontent.com/544734/71759748-cfc8f780-2e7f-11ea-948d-1d0f32593089.png' width='300'>
+<img src='https://user-images.githubusercontent.com/1312469/147144787-554aac39-3558-47c7-af75-2e7c89f1d599.png' width='300'>
 
 Clicking the "x" icon next to an existing tag will remove it from the puzzle.
 
