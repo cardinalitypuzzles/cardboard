@@ -15,6 +15,7 @@ export const DEFAULT_TAGS = [
 
   { name: "CROSSWORD", color: "primary" },
   { name: "CRYPTICS", color: "primary" },
+  { name: "WORDPLAY", color: "primary" },
 
   { name: "MEDIA MANIPULATION", color: "light" },
   { name: "PROGRAMMING", color: "light" },
@@ -24,7 +25,7 @@ export const DEFAULT_TAGS = [
   { name: "PHYSICS", color: "primary" },
   { name: "CHEM", color: "primary" },
   { name: "GEOGRAPHY", color: "primary" },
-  { name: "FOREIGN LANGUAGE", color: "primary" },
+  { name: "FOREIGN LANGUAGES", color: "primary" },
 
   { name: "BOOMER", color: "light" },
   { name: "ZOOMER", color: "light" },
@@ -40,6 +41,7 @@ export const DEFAULT_TAGS = [
 
   { name: "MIT", color: "primary" },
   { name: "PRINTING", color: "primary" },
+  { name: "TEAMWORK", color: "primary" },
 ];
 
 export const SHEET_REDIRECT_BASE = "/puzzles/s";
