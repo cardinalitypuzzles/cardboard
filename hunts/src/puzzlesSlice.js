@@ -6,7 +6,7 @@ import {
 } from "@reduxjs/toolkit";
 import { selectHuntId } from "./huntSlice";
 import api from "./api";
-import { DEFAULT_TAGS } from "./constants";
+import { DEFAULT_TAGS, DEFAULT_TAG_ORDER } from "./constants";
 
 export const addPuzzle = createAsyncThunk(
   "puzzles/addPuzzle",
@@ -231,6 +231,7 @@ export const selectPuzzleTableData = createSelector(
 export const selectAllTags = createSelector(
   [puzzlesSelectors.selectAll],
   (puzzles) => {
+    // this is to get unique set of tags, choosing ones in DB if used at last once and falling back to constants if not
     const tags = puzzles
       .map((puzzle) => puzzle.tags)
       .flat()
@@ -243,10 +244,14 @@ export const selectAllTags = createSelector(
           : tagNames.add(tag.name) && [...uniqueTags, tag],
       []
     );
-    uniqueTags.sort(
-      (a, b) => a.color.localeCompare(b.color) || a.name.localeCompare(b.name)
-    );
-    return uniqueTags;
+
+    const defaultTagNames = DEFAULT_TAGS.map((tag) => tag.name);
+    const defaultTags = uniqueTags.filter(tag => defaultTagNames.includes(tag.name))
+    const customTags = uniqueTags.filter(tag => !defaultTagNames.includes(tag.name))
+    defaultTags.sort((a, b) => defaultTagNames.indexOf(a.name) - defaultTagNames.indexOf(b.name));
+    customTags.sort((a, b) => (a.color.localeCompare(b.color) || a.name.localeCompare(b.name)));
+
+    return defaultTags.concat(customTags);
   }
 );
 
