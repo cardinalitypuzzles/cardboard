@@ -241,11 +241,11 @@ def update_meta_sheet_feeders(self, puzzle_id) -> None:
                                 "userEnteredFormat": {"textFormat": {"bold": True}},
                             },
                             {
-                                "userEnteredValue": {"stringValue": "Puzzle Name"},
+                                "userEnteredValue": {"stringValue": "Sheet"},
                                 "userEnteredFormat": {"textFormat": {"bold": True}},
                             },
                             {
-                                "userEnteredValue": {"stringValue": "Sheet"},
+                                "userEnteredValue": {"stringValue": "Puzzle Name"},
                                 "userEnteredFormat": {"textFormat": {"bold": True}},
                             },
                         ]
@@ -267,13 +267,13 @@ def update_meta_sheet_feeders(self, puzzle_id) -> None:
                                     % puzzle.url
                                 }
                             },
-                            {"userEnteredValue": {"stringValue": puzzle.name}},
                             {
                                 "userEnteredValue": {
                                     "formulaValue": '=HYPERLINK("%s", "sheet")'
                                     % puzzle.sheet
                                 }
                             },
+                            {"userEnteredValue": {"stringValue": puzzle.name}},
                         ]
                         + [
                             {
