@@ -312,6 +312,7 @@ class ApiTests(CardboardTestCase, APITestCase):
 @override_settings(
     CHAT_DEFAULT_SERVICE=None,
     CHAT_SERVICES={},
+    GOOGLE_API_AUTHN_INFO={},
 )
 class SheetTests(CardboardTestCase, TransactionTestCase):
     @patch("google_api_lib.tasks.rename_sheet.delay")
