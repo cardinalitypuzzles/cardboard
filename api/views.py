@@ -49,6 +49,25 @@ class AnswerViewSet(viewsets.ModelViewSet):
         puzzle_id = self.kwargs["puzzle_id"]
         return Answer.objects.filter(puzzle__id=puzzle_id)
 
+    @staticmethod
+    def _maybe_update_sheets_title(puzzle):
+
+        if google_api_lib.enabled() and puzzle.sheet:
+            if puzzle.is_solved():
+                solve_label = (
+                    Puzzle.BACKSOLVED_TAG if puzzle.is_backsolved() else Puzzle.SOLVED
+                )
+                answers = ", ".join(puzzle.correct_answers())
+
+                google_api_lib.tasks.rename_sheet.delay(
+                    sheet_url=puzzle.sheet,
+                    name=f"[{solve_label}: {answers}] {puzzle.name}",
+                )
+            else:
+                google_api_lib.tasks.rename_sheet.delay(
+                    sheet_url=puzzle.sheet, name=puzzle.name
+                )
+
     def create(self, request, **kwargs):
         puzzle = None
         with transaction.atomic():
@@ -77,12 +96,9 @@ class AnswerViewSet(viewsets.ModelViewSet):
                 transaction.on_commit(
                     lambda: AnswerViewSet._maybe_update_meta_sheets_for_feeder(puzzle)
                 )
-                if google_api_lib.enabled() and puzzle.sheet:
-                    transaction.on_commit(
-                        lambda: google_api_lib.tasks.rename_sheet.delay(
-                            sheet_url=puzzle.sheet, name=f"[SOLVED] {puzzle.name}"
-                        )
-                    )
+                transaction.on_commit(
+                    lambda: AnswerViewSet._maybe_update_sheets_title(puzzle)
+                )
 
             puzzle.save()
 
@@ -104,15 +120,19 @@ class AnswerViewSet(viewsets.ModelViewSet):
                     transaction.on_commit(
                         lambda: chat.tasks.handle_puzzle_unsolved.delay(puzzle.id)
                     )
-                if puzzle.sheet and google_api_lib.enabled():
-                    transaction.on_commit(
-                        lambda: google_api_lib.tasks.rename_sheet.delay(
-                            sheet_url=puzzle.sheet, name=puzzle.name
-                        )
+                # remove backsolve tag if puzzle is no longer solved
+                if puzzle.is_backsolved():
+                    backsolve_tag = PuzzleTag.objects.filter(
+                        name=Puzzle.BACKSOLVED_TAG, hunt=puzzle.hunt
                     )
+
+                    puzzle.tags.remove(backsolve_tag[0])
 
                 puzzle.save()
 
+            transaction.on_commit(
+                lambda: AnswerViewSet._maybe_update_sheets_title(puzzle)
+            )
             transaction.on_commit(
                 lambda: AnswerViewSet._maybe_update_meta_sheets_for_feeder(puzzle)
             )
@@ -141,12 +161,15 @@ class AnswerViewSet(viewsets.ModelViewSet):
             )
 
             if puzzle.chat_room:
-
                 transaction.on_commit(
                     lambda: chat.tasks.handle_answer_change.delay(
                         puzzle.id, old_answer, new_answer
                     )
                 )
+
+            transaction.on_commit(
+                lambda: AnswerViewSet._maybe_update_sheets_title(puzzle)
+            )
 
         return Response(PuzzleSerializer(puzzle).data)
 
@@ -220,13 +243,9 @@ class PuzzleViewSet(viewsets.ModelViewSet):
                                     .text,
                                 )
                             )
-                        if google_api_lib.enabled() and puzzle.sheet:
-                            transaction.on_commit(
-                                lambda: google_api_lib.tasks.rename_sheet.delay(
-                                    sheet_url=puzzle.sheet,
-                                    name=f"[SOLVED] {puzzle.name}",
-                                )
-                            )
+                        transaction.on_commit(
+                            lambda: AnswerViewSet._maybe_update_sheets_title(puzzle)
+                        )
                     elif old_status == Puzzle.SOLVED and puzzle.status != Puzzle.SOLVED:
                         if puzzle.chat_room:
                             transaction.on_commit(
@@ -234,12 +253,9 @@ class PuzzleViewSet(viewsets.ModelViewSet):
                                     puzzle.id
                                 )
                             )
-                        if puzzle.sheet and google_api_lib.enabled():
-                            transaction.on_commit(
-                                lambda: google_api_lib.tasks.rename_sheet.delay(
-                                    sheet_url=puzzle.sheet, name=puzzle.name
-                                )
-                            )
+                        transaction.on_commit(
+                            lambda: AnswerViewSet._maybe_update_sheets_title(puzzle)
+                        )
 
                 if "name" in data and data["name"] != old_name:
                     if puzzle.chat_room:
@@ -250,17 +266,9 @@ class PuzzleViewSet(viewsets.ModelViewSet):
                                 puzzle.id, old_name, data["name"]
                             )
                         )
-                    if puzzle.sheet and google_api_lib.enabled():
-                        transaction.on_commit(
-                            lambda: google_api_lib.tasks.rename_sheet.delay(
-                                sheet_url=puzzle.sheet,
-                                name=(
-                                    f"[SOLVED] {data['name']}"
-                                    if puzzle.status == Puzzle.SOLVED
-                                    else data["name"]
-                                ),
-                            )
-                        )
+                    transaction.on_commit(
+                        lambda: AnswerViewSet._maybe_update_sheets_title(puzzle)
+                    )
 
                 if is_new_url and google_api_lib.enabled():
                     transaction.on_commit(
@@ -356,6 +364,11 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
                 transaction.on_commit(
                     lambda: chat.tasks.handle_tag_removed.delay(puzzle.id, tag.name)
                 )
+
+            if tag.name == Puzzle.BACKSOLVED_TAG:
+                transaction.on_commit(
+                    lambda: AnswerViewSet._maybe_update_sheets_title(puzzle)
+                )
         if meta:
             return Response(
                 [PuzzleSerializer(puzzle).data, PuzzleSerializer(meta).data]
@@ -413,6 +426,11 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
             if puzzle.chat_room:
                 transaction.on_commit(
                     lambda: chat.tasks.handle_tag_added.delay(puzzle.id, tag.name)
+                )
+
+            if tag.name == Puzzle.BACKSOLVED_TAG:
+                transaction.on_commit(
+                    lambda: AnswerViewSet._maybe_update_sheets_title(puzzle)
                 )
 
         if meta:
