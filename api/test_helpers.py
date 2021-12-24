@@ -1,11 +1,10 @@
-from rest_framework.test import APITestCase
 from rest_framework import status
 from accounts.models import Puzzler
 from hunts.models import Hunt
 from puzzles.models import PuzzleTag
 
 
-class CardboardTestCase(APITestCase):
+class CardboardTestCase:
     def setUp(self):
         self._user = Puzzler.objects.create_user(
             username="test", email="test@ing.com", password="testingpwd"

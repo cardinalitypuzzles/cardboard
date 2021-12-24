@@ -1,18 +1,23 @@
 from .test_helpers import CardboardTestCase
 from django.conf import settings
-from django.test import override_settings
+from django.test import override_settings, TransactionTestCase
 from rest_framework import status
+from rest_framework.test import APITestCase
 from puzzles.models import Puzzle, PuzzleTag
+from unittest.mock import patch
+import google_api_lib
+import google_api_lib.tests
+
 
 TEST_URL = "https://cardboard.test/"
-
+TEST_NAME = "Test"
 
 # Disable all chat features for the purposes of this unit test.
 @override_settings(
     CHAT_DEFAULT_SERVICE=None,
     CHAT_SERVICES={},
 )
-class ApiTests(CardboardTestCase):
+class ApiTests(CardboardTestCase, APITestCase):
     def test_get_hunt(self):
         response = self.get_hunt()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -36,7 +41,7 @@ class ApiTests(CardboardTestCase):
 
         # Missing url
         self.check_response_status(
-            self.create_puzzle({"name": "test name", "is_meta": False}),
+            self.create_puzzle({"name": TEST_NAME, "is_meta": False}),
             status.HTTP_400_BAD_REQUEST,
         )
 
@@ -48,14 +53,14 @@ class ApiTests(CardboardTestCase):
 
         # Malformatted URL (TODO)
         # response = self.create_puzzle(
-        #     {"name": "test name", "url": "bad_url", "is_meta": False}
+        #     {"name": TEST_NAME, "url": "bad_url", "is_meta": False}
         # )
         # self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         self.assertEqual(Puzzle.objects.count(), 0)
 
     def test_create_puzzle(self):
-        response = self.create_puzzle({"name": "test name", "url": TEST_URL})
+        response = self.create_puzzle({"name": TEST_NAME, "url": TEST_URL})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         puzzle = Puzzle.objects.get()
         self.assertEqual(
@@ -79,7 +84,7 @@ class ApiTests(CardboardTestCase):
 
     def test_delete_puzzle(self):
         self.check_response_status(
-            self.create_puzzle({"name": "test name", "url": TEST_URL})
+            self.create_puzzle({"name": TEST_NAME, "url": TEST_URL})
         )
         puzzle = Puzzle.objects.get()
         response = self.delete_puzzle(puzzle.pk)
@@ -90,15 +95,15 @@ class ApiTests(CardboardTestCase):
 
     def test_edit_puzzle(self):
         self.check_response_status(
-            self.create_puzzle({"name": "test name", "url": TEST_URL})
+            self.create_puzzle({"name": TEST_NAME, "url": TEST_URL})
         )
         puzzle = Puzzle.objects.get()
 
-        response = self.edit_puzzle(puzzle.pk, {"name": "new name"})
+        response = self.edit_puzzle(puzzle.pk, {"name": TEST_NAME + "2"})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["name"], "new name")
+        self.assertEqual(response.data["name"], TEST_NAME + "2")
         puzzle.refresh_from_db()
-        self.assertEqual(puzzle.name, "new name")
+        self.assertEqual(puzzle.name, TEST_NAME + "2")
 
         response = self.edit_puzzle(puzzle.pk, {"url": "https://newurl.test/"})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -115,7 +120,7 @@ class ApiTests(CardboardTestCase):
 
     def test_list_puzzles(self):
         self.check_response_status(
-            self.create_puzzle({"name": "test name", "url": TEST_URL})
+            self.create_puzzle({"name": TEST_NAME, "url": TEST_URL})
         )
         self.check_response_status(
             self.create_puzzle(
@@ -126,13 +131,11 @@ class ApiTests(CardboardTestCase):
         response = self.list_puzzles()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 2)
-        self.assertEqual(
-            {p["name"] for p in response.data}, {"test name", "second test"}
-        )
+        self.assertEqual({p["name"] for p in response.data}, {TEST_NAME, "second test"})
 
     def test_add_answer(self):
         self.check_response_status(
-            self.create_puzzle({"name": "test name", "url": TEST_URL})
+            self.create_puzzle({"name": TEST_NAME, "url": TEST_URL})
         )
         puzzle = Puzzle.objects.get()
 
@@ -157,7 +160,7 @@ class ApiTests(CardboardTestCase):
 
     def test_delete_answer(self):
         self.check_response_status(
-            self.create_puzzle({"name": "test name", "url": TEST_URL})
+            self.create_puzzle({"name": TEST_NAME, "url": TEST_URL})
         )
         puzzle = Puzzle.objects.get()
 
@@ -183,7 +186,7 @@ class ApiTests(CardboardTestCase):
 
     def test_edit_answer(self):
         self.check_response_status(
-            self.create_puzzle({"name": "test name", "url": TEST_URL})
+            self.create_puzzle({"name": TEST_NAME, "url": TEST_URL})
         )
         puzzle = Puzzle.objects.get()
 
@@ -198,7 +201,7 @@ class ApiTests(CardboardTestCase):
 
     def test_create_tag(self):
         self.check_response_status(
-            self.create_puzzle({"name": "test name", "url": TEST_URL})
+            self.create_puzzle({"name": TEST_NAME, "url": TEST_URL})
         )
         puzzle = Puzzle.objects.get()
 
@@ -212,7 +215,7 @@ class ApiTests(CardboardTestCase):
 
     def test_delete_tag(self):
         self.check_response_status(
-            self.create_puzzle({"name": "test name", "url": TEST_URL})
+            self.create_puzzle({"name": TEST_NAME, "url": TEST_URL})
         )
         puzzle = Puzzle.objects.get()
         self.check_response_status(
@@ -226,11 +229,11 @@ class ApiTests(CardboardTestCase):
 
     def test_can_delete_same_name_tag(self):
         self.check_response_status(
-            self.create_puzzle({"name": "test name", "url": TEST_URL})
+            self.create_puzzle({"name": TEST_NAME, "url": TEST_URL})
         )
         puzzle = Puzzle.objects.get()
         self.check_response_status(
-            self.create_tag(puzzle.pk, {"name": "test name", "color": PuzzleTag.BLUE})
+            self.create_tag(puzzle.pk, {"name": TEST_NAME, "color": PuzzleTag.BLUE})
         )
         self.assertEqual(puzzle.tags.count(), 1)
         tag = puzzle.tags.get()
@@ -240,7 +243,7 @@ class ApiTests(CardboardTestCase):
 
     def test_cannot_delete_meta_tag(self):
         self.check_response_status(
-            self.create_puzzle({"name": "test name", "url": TEST_URL, "is_meta": True})
+            self.create_puzzle({"name": TEST_NAME, "url": TEST_URL, "is_meta": True})
         )
         puzzle = Puzzle.objects.get()
         self.assertEqual(puzzle.tags.count(), 1)
@@ -253,7 +256,7 @@ class ApiTests(CardboardTestCase):
 
     def test_opposing_tags(self):
         self.check_response_status(
-            self.create_puzzle({"name": "test name", "url": TEST_URL})
+            self.create_puzzle({"name": TEST_NAME, "url": TEST_URL})
         )
         puzzle = Puzzle.objects.get()
         self.check_response_status(
@@ -288,7 +291,7 @@ class ApiTests(CardboardTestCase):
         self.check_response_status(
             self.create_puzzle(
                 {
-                    "name": "test name",
+                    "name": TEST_NAME,
                     "url": "{}/puzzle".format(TEST_URL),
                     "is_meta": False,
                 }
@@ -304,3 +307,57 @@ class ApiTests(CardboardTestCase):
 
         meta_tag = puzzle.tags.get(name=meta.name)
         self.assertEqual(meta_tag.color, PuzzleTag.BLACK)
+
+
+@override_settings(
+    CHAT_DEFAULT_SERVICE=None,
+    CHAT_SERVICES={},
+)
+class SheetTests(CardboardTestCase, TransactionTestCase):
+    @patch("google_api_lib.tasks.rename_sheet.delay")
+    @patch(
+        "google_api_lib.tasks.create_google_sheets_helper",
+        google_api_lib.tests.mock_create_google_sheets_helper,
+    )
+    @patch(
+        "google_api_lib.tasks.transfer_ownership.delay",
+        google_api_lib.tests.mock_transfer_ownership,
+    )
+    @patch(
+        "google_api_lib.tasks.add_puzzle_link_to_sheet",
+        google_api_lib.tests.mock_add_puzzle_link_to_sheet,
+    )
+    def test_sheets_title_editting(self, rename_sheet):
+        self.create_puzzle({"name": TEST_NAME, "url": TEST_URL})
+        puzzle = Puzzle.objects.get()
+
+        google_api_lib.tasks.create_google_sheets(puzzle.id, puzzle.name, puzzle.url)
+
+        self.create_answer(puzzle.pk, {"text": "ans"})
+        rename_sheet.assert_called_with(
+            sheet_url=google_api_lib.tests.TEST_SHEET,
+            name=f"[SOLVED: ANS] {puzzle.name}",
+        )
+
+        self.create_answer(puzzle.pk, {"text": "ans2"})
+        rename_sheet.assert_called_with(
+            sheet_url=google_api_lib.tests.TEST_SHEET,
+            name=f"[SOLVED: ANS, ANS2] {puzzle.name}",
+        )
+
+        self.create_tag(puzzle.pk, {"name": "BACKSOLVED", "color": PuzzleTag.GREEN})
+        rename_sheet.assert_called_with(
+            sheet_url=google_api_lib.tests.TEST_SHEET,
+            name=f"[BACKSOLVED: ANS, ANS2] {puzzle.name}",
+        )
+
+        self.delete_answer(puzzle.pk, puzzle.guesses.get(text="ANS").pk)
+        rename_sheet.assert_called_with(
+            sheet_url=google_api_lib.tests.TEST_SHEET,
+            name=f"[BACKSOLVED: ANS2] {puzzle.name}",
+        )
+
+        self.delete_answer(puzzle.pk, puzzle.guesses.get(text="ANS2").pk)
+        rename_sheet.assert_called_with(
+            sheet_url=google_api_lib.tests.TEST_SHEET, name=f"{puzzle.name}"
+        )
