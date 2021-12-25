@@ -3,7 +3,7 @@ export const SELECTABLE_TAG_COLORS = [
   { color: "primary", display: "Blue" },
   { color: "light", display: "White" },
 ];
-// TODO: Store these in the backend and read them from an API call
+// TODO(#527): Store these in the backend and read them from an API call
 export const DEFAULT_TAGS = [
   { name: "HIGH PRIORITY", color: "danger" },
   { name: "LOW PRIORITY", color: "warning" },
@@ -28,7 +28,9 @@ export const DEFAULT_TAGS = [
   { name: "LITERATURE", color: "primary" },
   { name: "FOREIGN LANGUAGES", color: "primary" },
 
+  // older pop culture
   { name: "BOOMER", color: "light" },
+  // newer pop culture
   { name: "ZOOMER", color: "light" },
   { name: "MUSIC ID", color: "light" },
   { name: "ART ID", color: "light" },

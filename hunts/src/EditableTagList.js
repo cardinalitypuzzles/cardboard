@@ -24,13 +24,13 @@ function EditableTagList({ puzzleId, tags }) {
   /* and subsequent rows alternating between the selectable colors */
   const groupedTags = tags.reduce((result, item, index) => {
     if (result.length == 0) {
-      result[0] = [item];
+      result.push([item]);
     } else if (!selectable_colors.includes(item.color)) {
       result[result.length - 1].push(item);
     } else if (result[result.length - 1][0].color == item.color) {
       result[result.length - 1].push(item);
     } else {
-      result[result.length] = [item];
+      result.push([item]);
     }
 
     return result;

@@ -231,7 +231,11 @@ export const selectPuzzleTableData = createSelector(
 export const selectAllTags = createSelector(
   [puzzlesSelectors.selectAll],
   (puzzles) => {
-    // this is to get unique set of tags, choosing ones in DB if used at least once and falling back to constants if not
+    // uniqueTags is set of unique Tags objects.
+    // After a default tag is used at least once, a Tag is created in the DB and this needs to be
+    // the version of the object in uniqueTags, instead of the dummy one created in the constants file.
+    // The DB versions are needed to display whether puzzle already has the tag.
+    // Logic below is to select the DB versions. The set is then split between default and non-default.
     const tags = puzzles
       .map((puzzle) => puzzle.tags)
       .flat()
@@ -244,7 +248,6 @@ export const selectAllTags = createSelector(
           : tagNames.add(tag.name) && [...uniqueTags, tag],
       []
     );
-
     const defaultTagNames = DEFAULT_TAGS.map((tag) => tag.name);
     const defaultTags = uniqueTags.filter((tag) =>
       defaultTagNames.includes(tag.name)
