@@ -6,7 +6,7 @@ import {
 } from "@reduxjs/toolkit";
 import { selectHuntId } from "./huntSlice";
 import api from "./api";
-import { DEFAULT_TAGS, DEFAULT_TAG_ORDER } from "./constants";
+import { DEFAULT_TAGS } from "./constants";
 
 export const addPuzzle = createAsyncThunk(
   "puzzles/addPuzzle",
@@ -231,7 +231,7 @@ export const selectPuzzleTableData = createSelector(
 export const selectAllTags = createSelector(
   [puzzlesSelectors.selectAll],
   (puzzles) => {
-    // this is to get unique set of tags, choosing ones in DB if used at last once and falling back to constants if not
+    // this is to get unique set of tags, choosing ones in DB if used at least once and falling back to constants if not
     const tags = puzzles
       .map((puzzle) => puzzle.tags)
       .flat()

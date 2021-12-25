@@ -18,6 +18,10 @@ function EditableTagList({ puzzleId, tags }) {
   const dispatch = useDispatch();
 
   const selectable_colors = SELECTABLE_TAG_COLORS.map((tag) => tag.color);
+
+  /* Assumes that tags are given in the order they should be displayed and */
+  /* breaks them up into rows, with the first row being of the non-selectable colors */
+  /* and subsequent rows alternating between the selectable colors */
   const groupedTags = tags.reduce((result, item, index) => {
     if (result.length == 0) {
       result[0] = [item];
