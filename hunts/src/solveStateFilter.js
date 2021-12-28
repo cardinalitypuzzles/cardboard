@@ -1,8 +1,8 @@
 import * as React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  getSolveStateFilter, 
-  SOLVE_STATE_FILTER_OPTIONS, 
+  getSolveStateFilter,
+  SOLVE_STATE_FILTER_OPTIONS,
   updateSolveStateFilter,
 } from "./filterSlice";
 
