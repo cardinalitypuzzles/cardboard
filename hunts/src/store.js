@@ -4,6 +4,7 @@ import huntReducer from "./huntSlice";
 import modalReducer from "./modalSlice";
 import alertReducer from "./alertSlice";
 import tagFilterReducer from "./tagFilterSlice";
+import filterReducer from './filterSlice'
 
 export default configureStore({
   reducer: {
@@ -12,5 +13,6 @@ export default configureStore({
     puzzles: puzzlesReducer,
     hunt: huntReducer,
     tagFilter: tagFilterReducer,
+    filter: filterReducer
   },
 });

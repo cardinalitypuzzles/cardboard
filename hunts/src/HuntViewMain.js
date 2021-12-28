@@ -25,9 +25,10 @@ import Button from "react-bootstrap/Button";
 import Dropdown from "react-bootstrap/Dropdown";
 import Modal from "react-bootstrap/Modal";
 import Alert from "react-bootstrap/Alert";
-import { SOLVE_STATE_FILTER_OPTIONS } from "./solveStateFilter";
+import {SOLVE_STATE_FILTER_OPTIONS} from './filterSlice';
 import { SHEET_REDIRECT_BASE } from "./constants";
 import TagPill from "./TagPill";
+import { SolvedStateFilter } from "./solveStateFilter";
 
 const MODAL_COMPONENTS = {
   DELETE_PUZZLE: DeletePuzzleModal,
@@ -111,7 +112,6 @@ export const HuntViewMain = (props) => {
   const hunt = useSelector((state) => state.hunt);
   const alert = useSelector((state) => state.alert);
   const filterTags = useSelector((state) => state.tagFilter.tags);
-  const [filter, setFilter] = React.useState("");
   const [filterSolved, setFilterSolved] = React.useState(
     SOLVE_STATE_FILTER_OPTIONS.ALL
   );
@@ -160,62 +160,8 @@ export const HuntViewMain = (props) => {
         }}
       >
         <div>
-          <GlobalFilter globalFilter={filter} setGlobalFilter={setFilter} />
-          <span>Show:</span>
-          <label>
-            <input
-              style={{ margin: "0 5px 0 10px" }}
-              type="radio"
-              checked={filterSolved === SOLVE_STATE_FILTER_OPTIONS.ALL}
-              onChange={(evt) => {
-                if (evt.target.checked) {
-                  setFilterSolved(SOLVE_STATE_FILTER_OPTIONS.ALL);
-                }
-              }}
-            ></input>
-            All
-          </label>
-          <label>
-            <input
-              style={{ margin: "0 5px 0 10px" }}
-              type="radio"
-              checked={
-                filterSolved === SOLVE_STATE_FILTER_OPTIONS.UNSOLVED ||
-                filterSolved ===
-                  SOLVE_STATE_FILTER_OPTIONS.UNSOLVED_WITH_SOLVED_METAS
-              }
-              onChange={(evt) => {
-                if (evt.target.checked) {
-                  setFilterSolved(SOLVE_STATE_FILTER_OPTIONS.UNSOLVED);
-                }
-              }}
-            ></input>
-            Unsolved
-          </label>
-          {(filterSolved === SOLVE_STATE_FILTER_OPTIONS.UNSOLVED ||
-            filterSolved ===
-              SOLVE_STATE_FILTER_OPTIONS.UNSOLVED_WITH_SOLVED_METAS) && (
-            <label>
-              <input
-                style={{ margin: "0 5px 0 10px" }}
-                type="checkbox"
-                checked={
-                  filterSolved ===
-                  SOLVE_STATE_FILTER_OPTIONS.UNSOLVED_WITH_SOLVED_METAS
-                }
-                onChange={(evt) => {
-                  if (evt.target.checked) {
-                    setFilterSolved(
-                      SOLVE_STATE_FILTER_OPTIONS.UNSOLVED_WITH_SOLVED_METAS
-                    );
-                  } else {
-                    setFilterSolved(SOLVE_STATE_FILTER_OPTIONS.UNSOLVED);
-                  }
-                }}
-              ></input>
-              Include unsolved w/ solved metas
-            </label>
-          )}
+          <GlobalFilter />
+          <SolvedStateFilter />
         </div>
         <div>
           {filterTags.length > 0 ? "Viewing puzzles with tags: " : ""}
@@ -254,7 +200,6 @@ export const HuntViewMain = (props) => {
       <PuzzleTable
         columns={TABLE_COLUMNS}
         data={tableData}
-        filter={filter}
         filterSolved={filterSolved}
         filterTags={filterTags}
       />
