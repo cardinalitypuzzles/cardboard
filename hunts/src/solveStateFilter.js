@@ -60,61 +60,69 @@ filterSolvedPuzzlesfn.autoRemove = (val) => !val;
 export const SolvedStateFilter = () => {
   const filterSolved = useSelector(getSolveStateFilter);
   const dispatch = useDispatch();
-  return <>
-            <span>Show:</span>
-          <label>
-            <input
-              style={{ margin: "0 5px 0 10px" }}
-              type="radio"
-              checked={filterSolved === SOLVE_STATE_FILTER_OPTIONS.ALL}
-              onChange={(evt) => {
-                if (evt.target.checked) {
-                  dispatch(updateSolveStateFilter(SOLVE_STATE_FILTER_OPTIONS.ALL));
-                }
-              }}
-            ></input>
-            All
-          </label>
-          <label>
-            <input
-              style={{ margin: "0 5px 0 10px" }}
-              type="radio"
-              checked={
-                filterSolved === SOLVE_STATE_FILTER_OPTIONS.UNSOLVED ||
-                filterSolved ===
-                  SOLVE_STATE_FILTER_OPTIONS.UNSOLVED_WITH_SOLVED_METAS
-              }
-              onChange={(evt) => {
-                if (evt.target.checked) {
-                  dispatch(updateSolveStateFilter(SOLVE_STATE_FILTER_OPTIONS.UNSOLVED));
-                }
-              }}
-            ></input>
-            Unsolved
-          </label>
-          {(filterSolved === SOLVE_STATE_FILTER_OPTIONS.UNSOLVED ||
+  return (
+    <>
+      <span>Show:</span>
+      <label>
+        <input
+          style={{ margin: "0 5px 0 10px" }}
+          type="radio"
+          checked={filterSolved === SOLVE_STATE_FILTER_OPTIONS.ALL}
+          onChange={(evt) => {
+            if (evt.target.checked) {
+              dispatch(updateSolveStateFilter(SOLVE_STATE_FILTER_OPTIONS.ALL));
+            }
+          }}
+        ></input>
+        All
+      </label>
+      <label>
+        <input
+          style={{ margin: "0 5px 0 10px" }}
+          type="radio"
+          checked={
+            filterSolved === SOLVE_STATE_FILTER_OPTIONS.UNSOLVED ||
             filterSolved ===
-              SOLVE_STATE_FILTER_OPTIONS.UNSOLVED_WITH_SOLVED_METAS) && (
-            <label>
-              <input
-                style={{ margin: "0 5px 0 10px" }}
-                type="checkbox"
-                checked={
-                  filterSolved ===
-                  SOLVE_STATE_FILTER_OPTIONS.UNSOLVED_WITH_SOLVED_METAS
-                }
-                onChange={(evt) => {
-                  if (evt.target.checked) {
-                    dispatch(updateSolveStateFilter(
-                      SOLVE_STATE_FILTER_OPTIONS.UNSOLVED_WITH_SOLVED_METAS
-                    ));
-                  } else {
-                    dispatch(updateSolveStateFilter(SOLVE_STATE_FILTER_OPTIONS.UNSOLVED));
-                  }
-                }}
-              ></input>
-              Include unsolved w/ solved metas
-            </label>
-          )}
-  </>
-}
+              SOLVE_STATE_FILTER_OPTIONS.UNSOLVED_WITH_SOLVED_METAS
+          }
+          onChange={(evt) => {
+            if (evt.target.checked) {
+              dispatch(
+                updateSolveStateFilter(SOLVE_STATE_FILTER_OPTIONS.UNSOLVED)
+              );
+            }
+          }}
+        ></input>
+        Unsolved
+      </label>
+      {(filterSolved === SOLVE_STATE_FILTER_OPTIONS.UNSOLVED ||
+        filterSolved ===
+          SOLVE_STATE_FILTER_OPTIONS.UNSOLVED_WITH_SOLVED_METAS) && (
+        <label>
+          <input
+            style={{ margin: "0 5px 0 10px" }}
+            type="checkbox"
+            checked={
+              filterSolved ===
+              SOLVE_STATE_FILTER_OPTIONS.UNSOLVED_WITH_SOLVED_METAS
+            }
+            onChange={(evt) => {
+              if (evt.target.checked) {
+                dispatch(
+                  updateSolveStateFilter(
+                    SOLVE_STATE_FILTER_OPTIONS.UNSOLVED_WITH_SOLVED_METAS
+                  )
+                );
+              } else {
+                dispatch(
+                  updateSolveStateFilter(SOLVE_STATE_FILTER_OPTIONS.UNSOLVED)
+                );
+              }
+            }}
+          ></input>
+          Include unsolved w/ solved metas
+        </label>
+      )}
+    </>
+  );
+};

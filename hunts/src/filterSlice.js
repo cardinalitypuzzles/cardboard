@@ -1,7 +1,4 @@
-import {
-  createSlice,
-  createSelector,
-} from "@reduxjs/toolkit";
+import { createSlice, createSelector } from "@reduxjs/toolkit";
 
 export const SOLVE_STATE_FILTER_OPTIONS = {
   ALL: 0,
@@ -12,8 +9,8 @@ export const SOLVE_STATE_FILTER_OPTIONS = {
 export const filterSlice = createSlice({
   name: "filter",
   initialState: {
-    textFilter: '',
-    solveStateFilter: SOLVE_STATE_FILTER_OPTIONS.ALL
+    textFilter: "",
+    solveStateFilter: SOLVE_STATE_FILTER_OPTIONS.ALL,
   },
   reducers: {
     updateTextFilter: (state, action) => {
@@ -21,18 +18,19 @@ export const filterSlice = createSlice({
     },
     updateSolveStateFilter: (state, action) => {
       state.solveStateFilter = action.payload;
-    }
+    },
   },
 });
 
-export const {updateTextFilter, updateSolveStateFilter } = filterSlice.actions;
-export const getFilterOptions = state => state.filter;
+export const { updateTextFilter, updateSolveStateFilter } = filterSlice.actions;
+export const getFilterOptions = (state) => state.filter;
 export const getTextFilter = createSelector([getFilterOptions], (filter) => {
-  return filter.textFilter
+  return filter.textFilter;
 });
 
-export const getSolveStateFilter = createSelector([getFilterOptions], (filter) => {
-  return filter.solveStateFilter
-});
-
-export default filterSlice.reducer;
+export const getSolveStateFilter = createSelector(
+  [getFilterOptions],
+  (filter) => {
+    return filter.solveStateFilter;
+  }
+);
