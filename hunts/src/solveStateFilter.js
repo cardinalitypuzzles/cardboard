@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   getSolveStateFilter, 
   SOLVE_STATE_FILTER_OPTIONS, 
-  updateSolveStateFilter
+  updateSolveStateFilter,
 } from "./filterSlice";
 
 function isUnsolved(tableRow) {
