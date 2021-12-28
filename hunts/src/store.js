@@ -4,8 +4,8 @@ import huntReducer from "./huntSlice";
 import modalReducer from "./modalSlice";
 import alertReducer from "./alertSlice";
 import tagFilterReducer from "./tagFilterSlice";
-import filterReducer from './filterSlice';
-import { save, load } from 'redux-localstorage-simple';
+import filterReducer from "./filterSlice";
+import { save, load } from "redux-localstorage-simple";
 
 const preloadedState = load({
   states: ["filter.solveStateFilter"],
@@ -24,7 +24,7 @@ export default configureStore({
     ...getDefaultMiddlewares(),
     save({
       states: ["filter.solveStateFilter"],
-    })
+    }),
   ],
   preloadedState,
 });
