@@ -1,6 +1,6 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {updateTextFilter, getTextFilter} from './filterSlice';
+import { updateTextFilter, getTextFilter } from './filterSlice';
 
 function GlobalFilter() {
   const value = useSelector(getTextFilter);
@@ -10,7 +10,7 @@ function GlobalFilter() {
       <input
         value={value || ""}
         onChange={(e) => {
-          dispatch(updateTextFilter(e.target.value))
+          dispatch(updateTextFilter(e.target.value));
         }}
         placeholder={"Search"}
       />
