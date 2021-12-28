@@ -10,7 +10,6 @@ import {save, load} from 'redux-localstorage-simple'
 const preloadedState = load({
   states: ['filter.solveStateFilter']
 });
-console.log(preloadedState);
 
 export default configureStore({
   reducer: {
