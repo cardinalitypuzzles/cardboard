@@ -8,7 +8,7 @@ import filterReducer from "./filterSlice";
 import { save, load } from "redux-localstorage-simple";
 
 const preloadedState = load({
-  states: ["filter.solveStateFilter"],
+  states: ["filter.solveStateFilter", "tagFilter"],
 });
 
 export default configureStore({
@@ -23,7 +23,7 @@ export default configureStore({
   middleware: (getDefaultMiddlewares) => [
     ...getDefaultMiddlewares(),
     save({
-      states: ["filter.solveStateFilter"],
+      states: ["filter.solveStateFilter", "tagFilter"],
     }),
   ],
   preloadedState,
