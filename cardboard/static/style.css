@@ -27,3 +27,17 @@ body {
 .table td {
     vertical-align: baseline;
 }
+
+/* Dark/Light Mode Toggle Overrides */
+.btn label.switch-on, .btn label.switch-off {
+    margin-bottom: 0px;
+    border: 0;
+    border-radius: 0;
+}
+
+
+/* Dark Mode Overrides */
+
+.bootstrap-dark a {
+    color: #007bff;
+}
