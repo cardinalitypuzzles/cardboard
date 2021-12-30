@@ -124,7 +124,7 @@ export const SolvedStateFilter = () => {
               }
             }}
           ></input>
-          Include unsolved w/ solved metas
+          Include unsolved with solved metas
         </label>
       )}
     </>
