@@ -9,6 +9,8 @@ import {
 import { matchSorter } from "match-sorter";
 import Table from "react-bootstrap/Table";
 import { filterSolvedPuzzlesfn } from "./solveStateFilter";
+import { useSelector } from "react-redux";
+import { getTextFilter } from "./filterSlice";
 
 function textFilterFn(rows, id, filterValue) {
   if (!filterValue || !filterValue.length) {
@@ -52,7 +54,9 @@ function rowClassName(row) {
 }
 
 export const PuzzleTable = React.memo(
-  ({ columns, data, filter, filterSolved, filterTags }) => {
+  ({ columns, data, filterSolved, filterTags }) => {
+    const filter = useSelector(getTextFilter);
+
     const filterTypes = React.useMemo(
       () => ({
         globalFilter: textFilterFn,

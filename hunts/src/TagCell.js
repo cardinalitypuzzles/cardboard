@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { showModal } from "./modalSlice";
-import { toggleFilterTag } from "./tagFilterSlice";
+import { toggleFilterTag } from "./filterSlice";
 import TagPill from "./TagPill";
 
 function TagCell({ row, value }) {
