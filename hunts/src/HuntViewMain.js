@@ -5,7 +5,6 @@ import { fetchPuzzles, selectPuzzleTableData } from "./puzzlesSlice";
 import { fetchHunt } from "./huntSlice";
 import { showModal, hideModal } from "./modalSlice";
 import { hideAlert } from "./alertSlice";
-import { toggleFilterTag } from "./tagFilterSlice";
 import { PuzzleTable } from "./puzzle-table";
 import AnswerCell from "./AnswerCell";
 import NameCell from "./NameCell";
@@ -25,7 +24,11 @@ import Button from "react-bootstrap/Button";
 import Dropdown from "react-bootstrap/Dropdown";
 import Modal from "react-bootstrap/Modal";
 import Alert from "react-bootstrap/Alert";
-import { SOLVE_STATE_FILTER_OPTIONS } from "./filterSlice";
+import {
+  SOLVE_STATE_FILTER_OPTIONS,
+  toggleFilterTag,
+  getTagFilter,
+} from "./filterSlice";
 import { SHEET_REDIRECT_BASE } from "./constants";
 import TagPill from "./TagPill";
 import { SolvedStateFilter } from "./solveStateFilter";
@@ -111,7 +114,7 @@ export const HuntViewMain = (props) => {
   const modal = useSelector((state) => state.modal);
   const hunt = useSelector((state) => state.hunt);
   const alert = useSelector((state) => state.alert);
-  const filterTags = useSelector((state) => state.tagFilter.tags);
+  const filterTags = useSelector(getTagFilter);
   const [filterSolved, setFilterSolved] = React.useState(
     SOLVE_STATE_FILTER_OPTIONS.ALL
   );

@@ -11,6 +11,7 @@ export const filterSlice = createSlice({
   initialState: {
     textFilter: "",
     solveStateFilter: SOLVE_STATE_FILTER_OPTIONS.ALL,
+    tags: [],
   },
   reducers: {
     updateTextFilter: (state, action) => {
@@ -19,10 +20,22 @@ export const filterSlice = createSlice({
     updateSolveStateFilter: (state, action) => {
       state.solveStateFilter = action.payload;
     },
+    toggleFilterTag: (state, action) => {
+      const newTag = action.payload;
+      if (state.tags.map((tag) => tag.name).includes(newTag.name)) {
+        state.tags = state.tags.filter((tag) => tag.name !== newTag.name);
+      } else {
+        state.tags = state.tags.concat([newTag]);
+      }
+    },
   },
 });
 
-export const { updateTextFilter, updateSolveStateFilter } = filterSlice.actions;
+export const {
+  updateTextFilter,
+  updateSolveStateFilter,
+  toggleFilterTag,
+} = filterSlice.actions;
 export default filterSlice.reducer;
 export const getFilterOptions = (state) => state.filter;
 export const getTextFilter = createSelector([getFilterOptions], (filter) => {
@@ -35,3 +48,7 @@ export const getSolveStateFilter = createSelector(
     return filter.solveStateFilter;
   }
 );
+
+export const getTagFilter = createSelector([getFilterOptions], (filter) => {
+  return filter.tags || [];
+});
