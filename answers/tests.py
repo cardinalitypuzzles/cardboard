@@ -1,5 +1,3 @@
-import os
-
 from django.test import TestCase
 from accounts.models import Puzzler
 from hunts.models import Hunt

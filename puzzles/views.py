@@ -1,12 +1,9 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
-from django.views.generic.base import RedirectView
-
 from puzzles.models import Puzzle
 
 

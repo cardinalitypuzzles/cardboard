@@ -1,10 +1,8 @@
-from django.conf import settings
 from cardboard.settings import TaskPriority
 from celery import shared_task
 import logging
 
 from puzzles.models import Puzzle
-from chat.models import ChatRoom
 
 logger = logging.getLogger(__name__)
 

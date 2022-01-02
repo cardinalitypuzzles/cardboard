@@ -2,7 +2,6 @@ from unittest import TestCase, mock
 
 from disco.types.channel import Channel, ChannelType
 from disco.types.invite import Invite
-from disco.types.message import MessageEmbed
 
 from .discord_chat_service import DiscordChatService
 
