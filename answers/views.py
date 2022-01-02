@@ -4,7 +4,6 @@ from .models import Answer
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
@@ -12,7 +11,6 @@ from django.views import View
 from django.views.decorators.http import require_GET, require_POST
 import google_api_lib
 from hunts.models import Hunt
-from puzzles.models import Puzzle
 
 import logging
 
@@ -40,7 +38,7 @@ def update_note(request, answer_pk):
 @require_GET
 @login_required(login_url="/")
 def answers(request, hunt_slug):
-    hunt = Hunt.get_object_or_404(user=request.user, slug=hunt_slug)
+    Hunt.get_object_or_404(user=request.user, slug=hunt_slug)
     answer_objects = (
         Answer.objects.filter(puzzle__hunt__slug=hunt_slug)
         .prefetch_related("puzzle")

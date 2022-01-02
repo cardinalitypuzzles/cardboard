@@ -1,6 +1,4 @@
-import httplib2
 import logging
-import os
 
 from django.conf import settings
 
