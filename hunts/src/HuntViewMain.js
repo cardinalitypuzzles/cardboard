@@ -21,13 +21,12 @@ import SubmitAnswerModal from "./SubmitAnswerModal";
 import EditPuzzleTagsModal from "./EditPuzzleTagsModal";
 import useInterval from "@use-it/interval";
 import Button from "react-bootstrap/Button";
-import Dropdown from "react-bootstrap/Dropdown";
 import Modal from "react-bootstrap/Modal";
 import Alert from "react-bootstrap/Alert";
 import {
-  SOLVE_STATE_FILTER_OPTIONS,
   toggleFilterTag,
   getTagFilter,
+  getSolveStateFilter,
 } from "./filterSlice";
 import { SHEET_REDIRECT_BASE } from "./constants";
 import TagPill from "./TagPill";
@@ -115,9 +114,9 @@ export const HuntViewMain = (props) => {
   const hunt = useSelector((state) => state.hunt);
   const alert = useSelector((state) => state.alert);
   const filterTags = useSelector(getTagFilter);
-  const [filterSolved, setFilterSolved] = React.useState(
-    SOLVE_STATE_FILTER_OPTIONS.ALL
-  );
+
+  const filterSolved = useSelector(getSolveStateFilter);
+
   const dispatch = useDispatch();
 
   const updatePuzzleData = () => {
