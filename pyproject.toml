@@ -6,7 +6,7 @@ authors = ["Cardinality Puzzlers <cardinalitypuzzles@gmail.com>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "3.8.10"
+python = "3.8.12"
 Django = "*"
 python-dotenv = "*"
 django-heroku = "*"
