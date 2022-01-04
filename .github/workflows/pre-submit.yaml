@@ -23,8 +23,6 @@ jobs:
 
       - name: Install Poetry
         uses: snok/install-poetry@v1
-        with:
-          virtualenvs-create: false
 
       - name: Install python deps
         run: poetry install --no-interaction
@@ -40,6 +38,7 @@ jobs:
 
       - name: Build the app
         run: |
+          source .venv/bin/activate
           python manage.py migrate  # Tests require initial database migration.
           yarn build  # Build static React files before running Django collecstatic.
           python manage.py collectstatic  # Tests require static files.
