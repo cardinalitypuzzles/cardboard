@@ -2,10 +2,10 @@
     "name": "Cardboard",
     "buildpacks": [
         {
-            "url": "heroku/nodejs",
+            "url": "heroku/nodejs"
         },
         {
-            "url": "https://github.com/moneymeets/python-poetry-buildpack.git",
+            "url": "https://github.com/moneymeets/python-poetry-buildpack.git"
         },
         {
             "url": "heroku/python"
