@@ -13,7 +13,7 @@ To run Cardboard manually, you will need:
 
 - Git
 - Python
-- Pipenv
+- Poetry
 - [NodeJS](https://nodejs.org/en/download/package-manager/) (version 10 or later)
 - [Yarn](https://classic.yarnpkg.com/en/docs/install/)
 - a local database (e.g.: PostgreSQL or SQLite)
@@ -82,24 +82,19 @@ On Ubuntu, you can accomplish this by running:
 $ sudo apt install python3
 ```
 
-Next, install [pipenv](https://pipenv.pypa.io/en/latest/install/#installing-pipenv)
-On Ubuntu, you can accomplish this by running:
+Next, install [poetry](https://python-poetry.org/docs/#installation)
+
+Once you have `poetry`, you can create an environment by running:
 
 ```
-$ sudo apt install pipenv
-```
-
-Once you have pipenv, you can create an environment by running:
-
-```
-pipenv install --dev
+poetry install
 ```
 
 This creates a virtual environment and installs the dependencies and dev dependencies
 You can then activate the virtual environment by running
 
 ```
-pipenv shell
+poetry shell
 ```
 
 **Going forward, assume that any commands should be run inside the virtual environment**
