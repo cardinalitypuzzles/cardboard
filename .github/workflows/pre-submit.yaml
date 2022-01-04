@@ -38,13 +38,12 @@ jobs:
 
       - name: Build the app
         run: |
-          source .venv/bin/activate
-          python manage.py migrate  # Tests require initial database migration.
+          poetry run python manage.py migrate  # Tests require initial database migration.
           yarn build  # Build static React files before running Django collecstatic.
-          python manage.py collectstatic  # Tests require static files.
+          poetry run python manage.py collectstatic  # Tests require static files.
 
       - name: Run all tests with coverage
-        run: coverage run --source='.' manage.py test
+        run: poetry run coverage run --source='.' manage.py test
 
       - name: Upload coverage data
         uses: codecov/codecov-action@v1
