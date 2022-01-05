@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.postgres.fields import CICharField
 
 
 class PuzzleTag(models.Model):
@@ -22,7 +23,7 @@ class PuzzleTag(models.Model):
     hunt = models.ForeignKey(
         "hunts.Hunt", on_delete=models.CASCADE, related_name="puzzle_tags"
     )
-    name = models.CharField(max_length=100)
+    name = CICharField(max_length=100)
     color = models.CharField(max_length=10, choices=COLORS.items(), default=BLUE)
     # internal flag to know when to sync meta puzzles
     is_meta = models.BooleanField(default=False)
