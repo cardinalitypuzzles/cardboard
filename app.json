@@ -1,0 +1,14 @@
+{
+    "name": "Cardboard",
+    "buildpacks": [
+        {
+            "url": "heroku/nodejs"
+        },
+        {
+            "url": "https://github.com/cardinalitypuzzles/python-poetry-buildpack.git"
+        },
+        {
+            "url": "heroku/python"
+        }
+    ]
+}

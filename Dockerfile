@@ -1,4 +1,4 @@
-FROM python:3.8.6-alpine
+FROM python:3.8.12-alpine
 
 WORKDIR /usr/src/cardboard
 
@@ -16,11 +16,10 @@ RUN apk update && apk add \
 RUN apk add --update nodejs yarn
 
 RUN pip install --upgrade pip
-RUN pip install pipenv
-COPY Pipfile* ./
-RUN pipenv lock --requirements > requirements.txt
-RUN pipenv lock -d --pre -r >> requirements.txt
-RUN pip install -r requirements.txt
+RUN pip install poetry
+RUN poetry config virtualenvs.create false
+COPY pyproject.toml poetry.lock ./
+RUN poetry install --no-dev
 
 # Install npm dependencies
 COPY ./package.json ./yarn.lock ./
