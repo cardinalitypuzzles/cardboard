@@ -64,7 +64,7 @@ const TABLE_COLUMNS = [
     Header: "Puzzle",
     accessor: "url",
     Cell: ({ row, value }) => (
-      <a href={value} target="_blank">
+      <a href={value} target="_blank" className="text-info">
         Puzzle
       </a>
     ),
@@ -74,7 +74,11 @@ const TABLE_COLUMNS = [
     accessor: "has_sheet",
     Cell: ({ row, value }) =>
       value ? (
-        <a href={`${SHEET_REDIRECT_BASE}/${row.original.id}`} target="_blank">
+        <a
+          href={`${SHEET_REDIRECT_BASE}/${row.original.id}`}
+          target="_blank"
+          className="text-info"
+        >
           Sheet
         </a>
       ) : null,
@@ -85,7 +89,11 @@ const TABLE_COLUMNS = [
     Cell: ({ row, value }) =>
       row.original.chat_room ? (
         <>
-          <a href={row.original.chat_room.text_channel_url} target="_blank">
+          <a
+            href={row.original.chat_room.text_channel_url}
+            target="_blank"
+            className="text-info"
+          >
             Channel
           </a>
         </>
