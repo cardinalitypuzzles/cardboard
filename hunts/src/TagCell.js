@@ -1,11 +1,10 @@
 import React from "react";
-import Badge from "react-bootstrap/Badge";
 import { useDispatch, useSelector } from "react-redux";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { showModal } from "./modalSlice";
 import { toggleFilterTag } from "./filterSlice";
 import TagPill from "./TagPill";
+import ClickableIcon from "./ClickableIcon";
 
 function TagCell({ row, value }) {
   const dispatch = useDispatch();
@@ -22,9 +21,9 @@ function TagCell({ row, value }) {
           key={name}
           onClick={() => dispatch(toggleFilterTag({ name, color, id }))}
         />
-      ))}
-      <span
-        style={{ cursor: "pointer" }}
+      ))}{" "}
+      <ClickableIcon
+        icon={faPlus}
         onClick={() =>
           dispatch(
             showModal({
@@ -36,11 +35,7 @@ function TagCell({ row, value }) {
             })
           )
         }
-      >
-        <Badge pill variant="light">
-          <FontAwesomeIcon icon={faPlus} />
-        </Badge>
-      </span>
+      />
     </>
   );
 }

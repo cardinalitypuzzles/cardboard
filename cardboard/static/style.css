@@ -25,7 +25,7 @@ body {
 }
 
 .table td {
-    vertical-align: baseline;
+    vertical-align: middle;
 }
 
 /* Dark/Light Mode Toggle Overrides */

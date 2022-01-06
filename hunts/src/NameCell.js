@@ -1,10 +1,9 @@
 import React from "react";
 import Badge from "react-bootstrap/Badge";
-import Button from "react-bootstrap/Button";
 import { useSelector, useDispatch } from "react-redux";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faTrashAlt } from "@fortawesome/free-regular-svg-icons";
 import { showModal } from "./modalSlice";
+import ClickableIcon from "./ClickableIcon";
 
 export default function NameCell({ row, value }) {
   const { id: huntId } = useSelector((state) => state.hunt);
@@ -26,9 +25,13 @@ export default function NameCell({ row, value }) {
           <b>{value}</b>
         </span>
       )}{" "}
-      {row.values.is_meta ? <Badge variant="dark">META</Badge> : null}
-      <span
-        style={{ cursor: "pointer" }}
+      {row.values.is_meta ? (
+        <>
+          <Badge variant="dark">META</Badge>{" "}
+        </>
+      ) : null}
+      <ClickableIcon
+        icon={faEdit}
         onClick={() =>
           dispatch(
             showModal({
@@ -43,13 +46,9 @@ export default function NameCell({ row, value }) {
             })
           )
         }
-      >
-        <Badge pill variant="light">
-          <FontAwesomeIcon icon={faEdit} />
-        </Badge>
-      </span>{" "}
-      <span
-        style={{ cursor: "pointer" }}
+      />{" "}
+      <ClickableIcon
+        icon={faTrashAlt}
         onClick={() =>
           dispatch(
             showModal({
@@ -62,11 +61,7 @@ export default function NameCell({ row, value }) {
             })
           )
         }
-      >
-        <Badge pill variant="light">
-          <FontAwesomeIcon icon={faTrashAlt} />
-        </Badge>
-      </span>
+      />
     </>
   );
 }

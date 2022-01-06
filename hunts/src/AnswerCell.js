@@ -1,12 +1,10 @@
-import Badge from "react-bootstrap/Badge";
 import Button from "react-bootstrap/Button";
 import React from "react";
-import { updatePuzzle } from "./puzzlesSlice";
-import { useSelector, useDispatch } from "react-redux";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useDispatch } from "react-redux";
 import { faEdit, faTrashAlt } from "@fortawesome/free-regular-svg-icons";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { showModal } from "./modalSlice";
+import ClickableIcon from "./ClickableIcon";
 
 export default function AnswerCell({ row, value }) {
   const dispatch = useDispatch();
@@ -34,9 +32,9 @@ export default function AnswerCell({ row, value }) {
     <>
       {row.original.guesses.map(({ id, text }) => (
         <React.Fragment key={text}>
-          <span className="text-monospace">{text}</span>
-          <span
-            style={{ cursor: "pointer" }}
+          <span className="text-monospace">{text}</span>{" "}
+          <ClickableIcon
+            icon={faEdit}
             onClick={() =>
               dispatch(
                 showModal({
@@ -49,13 +47,9 @@ export default function AnswerCell({ row, value }) {
                 })
               )
             }
-          >
-            <Badge pill variant="light">
-              <FontAwesomeIcon icon={faEdit} />
-            </Badge>
-          </span>{" "}
-          <span
-            style={{ cursor: "pointer" }}
+          />{" "}
+          <ClickableIcon
+            icon={faTrashAlt}
             onClick={() =>
               dispatch(
                 showModal({
@@ -67,16 +61,12 @@ export default function AnswerCell({ row, value }) {
                 })
               )
             }
-          >
-            <Badge pill variant="light">
-              <FontAwesomeIcon icon={faTrashAlt} />
-            </Badge>
-          </span>
+          />
           <br />
         </React.Fragment>
       ))}
-      <span
-        style={{ cursor: "pointer" }}
+      <ClickableIcon
+        icon={faPlus}
         onClick={() =>
           dispatch(
             showModal({
@@ -88,11 +78,7 @@ export default function AnswerCell({ row, value }) {
             })
           )
         }
-      >
-        <Badge pill variant="light">
-          <FontAwesomeIcon icon={faPlus} />
-        </Badge>
-      </span>
+      />
     </>
   );
 }
