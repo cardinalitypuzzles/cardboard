@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.views import View
 from django.views.generic.base import RedirectView
@@ -83,12 +83,17 @@ def stats(request, hunt_slug):
 
 @login_required(login_url="/")
 def redirect_to_drive(request, hunt_slug):
-    # TODO: make hunt specific
-    if settings.GOOGLE_HUMAN_DRIVE_HUNT_FOLDER_URL:
-        return HttpResponseRedirect(settings.GOOGLE_HUMAN_DRIVE_HUNT_FOLDER_URL)
+    hunt = get_object_or_404(Hunt.objects.select_related("settings"), slug=hunt_slug)
+    human_url = (
+        hunt.settings.google_drive_human_url
+        or settings.GOOGLE_HUMAN_DRIVE_HUNT_FOLDER_URL
+    )
+    if human_url:
+        return HttpResponseRedirect(human_url)
     else:
         messages.error(
-            request, f"Google API disabled. Cannot redirect to Google folder"
+            request,
+            f"Cannot redirect to Google folder. Did you set a human Drive URL setting?",
         )
         return redirect("/")
 

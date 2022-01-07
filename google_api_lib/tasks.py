@@ -13,14 +13,14 @@ from puzzles.models import Puzzle
 logger = logging.getLogger(__name__)
 
 # helper function that can be mocked for testing
-def create_google_sheets_helper(self, name) -> dict:
+def create_google_sheets_helper(self, name, template_file_id) -> dict:
     req_body = {"name": name}
     # copy template sheet
     file = (
         self.drive_service()
         .files()
         .copy(
-            fileId=settings.GOOGLE_SHEETS_TEMPLATE_FILE_ID,
+            fileId=template_file_id,
             body=req_body,
             fields="id,webViewLink,permissions",
         )
@@ -31,10 +31,8 @@ def create_google_sheets_helper(self, name) -> dict:
 
 # transfer new sheet ownership back to OG owner, so that scripts can run
 @shared_task(base=GoogleApiClientTask, bind=True)
-def transfer_ownership(self, file) -> None:
-    permission = next(
-        p for p in file["permissions"] if p["emailAddress"] == self._sheets_owner
-    )
+def transfer_ownership(self, file, new_owner) -> None:
+    permission = next(p for p in file["permissions"] if p["emailAddress"] == new_owner)
     self.drive_service().permissions().update(
         fileId=file["id"],
         permissionId=permission["id"],
@@ -44,15 +42,22 @@ def transfer_ownership(self, file) -> None:
 
 
 @shared_task(base=GoogleApiClientTask, bind=True, priority=TaskPriority.HIGH.value)
-def create_google_sheets(self, puzzle_id, name, puzzle_url=None) -> None:
-    response = create_google_sheets_helper(self, name)
+def create_google_sheets(self, puzzle_id) -> None:
+    puzzle = Puzzle.objects.select_related("hunt__settings").get(pk=puzzle_id)
+    template_file_id = (
+        puzzle.hunt.settings.google_sheets_template_file_id
+        or settings.GOOGLE_SHEETS_TEMPLATE_FILE_ID
+    )
+    response = create_google_sheets_helper(self, puzzle.name, template_file_id)
+
     sheet_url = response["webViewLink"]
-    if puzzle_url:
-        add_puzzle_link_to_sheet(puzzle_url, sheet_url)
-    puzzle = Puzzle.objects.get(pk=puzzle_id)
+    add_puzzle_link_to_sheet(puzzle.url, sheet_url)
     puzzle.sheet = sheet_url
     puzzle.save()
-    transfer_ownership.delay(response)
+
+    sheets_owner = self.sheets_owner(template_file_id)
+    transfer_ownership.delay(response, sheets_owner)
+
     if puzzle.chat_room:
         handle_sheet_created.delay(puzzle_id)
 
