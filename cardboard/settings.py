@@ -196,6 +196,8 @@ DISCORD_DEVS_ROLE = os.environ.get("DISCORD_DEVS_ROLE", "dev")
 BOT_ACTIVE_HUNT = os.environ.get("BOT_ACTIVE_HUNT", None)
 
 # Google Drive API
+GOOGLE_DRIVE_HUNT_FOLDER_ID = os.environ.get("GOOGLE_DRIVE_HUNT_FOLDER_ID", None)
+GOOGLE_SHEETS_TEMPLATE_FILE_ID = os.environ.get("GOOGLE_SHEETS_TEMPLATE_FILE_ID", None)
 try:
     GOOGLE_API_AUTHN_INFO = {
         "type": "service_account",
@@ -210,8 +212,6 @@ try:
         "client_x509_cert_url": os.environ["GOOGLE_API_X509_CERT_URL"],
     }
     GOOGLE_DRIVE_PERMISSIONS_SCOPES = ["https://www.googleapis.com/auth/drive"]
-    GOOGLE_DRIVE_HUNT_FOLDER_ID = os.environ["GOOGLE_DRIVE_HUNT_FOLDER_ID"]
-    GOOGLE_SHEETS_TEMPLATE_FILE_ID = os.environ["GOOGLE_SHEETS_TEMPLATE_FILE_ID"]
 except KeyError as e:
     GOOGLE_API_AUTHN_INFO = None
     logger.warn(
