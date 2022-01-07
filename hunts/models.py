@@ -152,7 +152,7 @@ class HuntSettings(models.Model):
 
     # The id of your Google Drive folder
     # This should be part of the URL (https://drive.google.com/drive/folders/<folder_id>)
-    # TODO: use this as the destination for puzzle sheets, instead of defaulting to the
+    # TODO(#514): use this as the destination for puzzle sheets, instead of defaulting to the
     # directory of the template file
     google_drive_folder_id = models.CharField(max_length=128, blank=True)
 
