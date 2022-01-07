@@ -6,6 +6,10 @@ from google.oauth2 import service_account
 
 from celery import Task
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 def enabled():
     return settings.GOOGLE_API_AUTHN_INFO is not None
@@ -27,14 +31,6 @@ class GoogleApiClientTask(Task):
             scopes=settings.GOOGLE_DRIVE_PERMISSIONS_SCOPES,
         )
 
-        template = (
-            self.drive_service()
-            .files()
-            .get(fileId=settings.GOOGLE_SHEETS_TEMPLATE_FILE_ID, fields="owners")
-            .execute()
-        )
-        self._sheets_owner = template["owners"][0]["emailAddress"]
-
     def drive_service(self):
         return googleapiclient.discovery.build(
             "drive", "v3", credentials=self._credentials, cache_discovery=False
@@ -44,3 +40,10 @@ class GoogleApiClientTask(Task):
         return googleapiclient.discovery.build(
             "sheets", "v4", credentials=self._credentials, cache_discovery=False
         )
+
+    def sheets_owner(self, file_id):
+        """Returns the owner of the provided Sheet."""
+        file = (
+            self.drive_service().files().get(fileId=file_id, fields="owners").execute()
+        )
+        return file["owners"][0]["emailAddress"]

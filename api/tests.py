@@ -28,7 +28,10 @@ class ApiTests(CardboardTestCase, APITestCase):
                 "name": self._hunt.name,
                 "url": self._hunt.url,
                 "active": self._hunt.active,
-                "has_drive": bool(settings.GOOGLE_HUMAN_DRIVE_HUNT_FOLDER_URL),
+                "has_drive": bool(
+                    self._hunt.settings.google_drive_human_url
+                    or settings.GOOGLE_HUMAN_DRIVE_HUNT_FOLDER_URL
+                ),
             },
         )
 
@@ -332,7 +335,7 @@ class SheetTests(CardboardTestCase, TransactionTestCase):
             self.create_puzzle({"name": TEST_NAME, "url": TEST_URL})
         )
         puzzle = Puzzle.objects.get()
-        google_api_lib.tasks.create_google_sheets(puzzle.id, puzzle.name, puzzle.url)
+        google_api_lib.tasks.create_google_sheets(puzzle.id)
 
         with override_settings(GOOGLE_API_AUTHN_INFO={}):
             self.check_response_status(self.create_answer(puzzle.pk, {"text": "ans"}))

@@ -15,7 +15,9 @@ class Hunt(models.Model):
     start_time = models.DateTimeField(default=None, blank=True, null=True)
     end_time = models.DateTimeField(default=None, blank=True, null=True)
 
-    puzzlers = models.ManyToManyField(get_user_model(), related_name="hunts")
+    puzzlers = models.ManyToManyField(
+        get_user_model(), related_name="hunts", blank=True
+    )
     active = models.BooleanField(default=True)
     slug = models.SlugField(blank=True, unique=True)
     answer_queue_enabled = models.BooleanField(default=False)
@@ -27,6 +29,8 @@ class Hunt(models.Model):
         if not self.slug:
             self.slug = slugify(self.name)
         super().save(*args, **kwargs)
+        if not hasattr(self, "settings"):
+            HuntSettings.objects.create(hunt=self)
 
     @staticmethod
     def get_object_or_404(user=None, **kwargs):
@@ -133,3 +137,59 @@ class Hunt(models.Model):
 
         minutes_elapsed = (interval_end - interval_start).total_seconds() / 60
         return "{:.2f}".format(round(minutes_elapsed / solved, 2))
+
+
+class HuntSettings(models.Model):
+    hunt = models.OneToOneField(
+        Hunt,
+        on_delete=models.CASCADE,
+        related_name="settings",
+    )
+
+    #
+    # Google-specific settings
+    #
+
+    # The id of your Google Drive folder
+    # This should be part of the URL (https://drive.google.com/drive/folders/<folder_id>)
+    google_drive_folder_id = models.CharField(max_length=128, blank=True)
+
+    # The id of your Google Sheets template file
+    # This should be part of the url (https://docs.google.com/spreadsheets/d/<sheet_id>)
+    google_sheets_template_file_id = models.CharField(max_length=128, blank=True)
+
+    # A link to the Google Drive folder that solvers can use for misc. files
+    google_drive_human_url = models.URLField(blank=True)
+
+    #
+    # Discord-specific settings
+    #
+
+    # The id of your Discord server
+    # This can be found on the "Widget" page in the Server Settings
+    discord_guild_id = models.CharField(max_length=128, blank=True)
+
+    # The id of the Discord channel to make puzzle announcements in
+    # This channel can get noisy and is recommended to be its own separate channel
+    # This ID can be found by enabling Developer Mode in Discord and right-clicking on the channel
+    discord_puzzle_announcements_channel_id = models.CharField(
+        max_length=128, blank=True
+    )
+
+    # The category name to create all Discord text channels in
+    discord_text_category = models.CharField(
+        max_length=128, default="text [puzzles]", blank=True
+    )
+
+    # The category name to create all Discord voice channels in
+    discord_voice_category = models.CharField(
+        max_length=128, default="voice [puzzles]", blank=True
+    )
+
+    # The category name to archive all Discord channels for solved puzzles in
+    discord_archive_category = models.CharField(
+        max_length=128, default="archive", blank=True
+    )
+
+    # The Discord role for the people maintaining the Cardboard instance, in case of problems
+    discord_devs_role = models.CharField(max_length=128, default="dev", blank=True)

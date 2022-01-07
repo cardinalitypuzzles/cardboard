@@ -1,9 +1,15 @@
 from django.contrib import admin
-from .models import Hunt
+from .models import Hunt, HuntSettings
+
+
+class HuntSettingsInline(admin.StackedInline):
+    model = HuntSettings
 
 
 class HuntAdmin(admin.ModelAdmin):
-    pass
+    inlines = [
+        HuntSettingsInline,
+    ]
 
 
 admin.site.register(Hunt, HuntAdmin)

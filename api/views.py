@@ -298,8 +298,6 @@ class PuzzleViewSet(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
 
             name = serializer.validated_data["name"]
-            puzzle_url = serializer.validated_data["url"]
-            sheet = None
 
             if settings.CHAT_DEFAULT_SERVICE:
                 chat_room = ChatRoom.objects.create(
@@ -316,9 +314,7 @@ class PuzzleViewSet(viewsets.ModelViewSet):
 
             if google_api_lib.enabled():
                 transaction.on_commit(
-                    lambda: google_api_lib.tasks.create_google_sheets.delay(
-                        puzzle.id, name, puzzle_url
-                    )
+                    lambda: google_api_lib.tasks.create_google_sheets.delay(puzzle.id)
                 )
             else:
                 logger.warn("Sheet not created for puzzle %s" % name)

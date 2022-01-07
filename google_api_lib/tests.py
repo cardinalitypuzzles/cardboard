@@ -7,11 +7,11 @@ import google_api_lib
 TEST_SHEET = "testsheet.com"
 
 
-def mock_create_google_sheets_helper(self, name):
+def mock_create_google_sheets_helper(self, name, template_file_id):
     return {"id": "0", "webViewLink": TEST_SHEET}
 
 
-def mock_transfer_ownership(file):
+def mock_transfer_ownership(file, new_owner):
     return
 
 
@@ -45,6 +45,6 @@ class TestGoogleSheets(TestCase):
             url="fake_url.com",
             is_meta=False,
         )
-        google_api_lib.tasks.create_google_sheets(puzzle.id, puzzle.name, puzzle.url)
+        google_api_lib.tasks.create_google_sheets(puzzle.id)
 
         self.assertEqual(Puzzle.objects.get(pk=puzzle.id).sheet, TEST_SHEET)
