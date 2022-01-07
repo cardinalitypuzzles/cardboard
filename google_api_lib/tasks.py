@@ -31,7 +31,8 @@ def create_google_sheets_helper(self, name, template_file_id) -> dict:
 
 # transfer new sheet ownership back to OG owner, so that scripts can run
 @shared_task(base=GoogleApiClientTask, bind=True)
-def transfer_ownership(self, file, new_owner) -> None:
+def transfer_ownership(self, file, template_file_id) -> None:
+    new_owner = self.sheets_owner(template_file_id)
     permission = next(p for p in file["permissions"] if p["emailAddress"] == new_owner)
     self.drive_service().permissions().update(
         fileId=file["id"],
@@ -48,6 +49,12 @@ def create_google_sheets(self, puzzle_id) -> None:
         puzzle.hunt.settings.google_sheets_template_file_id
         or settings.GOOGLE_SHEETS_TEMPLATE_FILE_ID
     )
+    if not template_file_id:
+        logging.warn(
+            f"Cannot create a sheet for {puzzle.name} as we can't find a sheets template"
+        )
+        return
+
     response = create_google_sheets_helper(self, puzzle.name, template_file_id)
 
     sheet_url = response["webViewLink"]
@@ -55,8 +62,7 @@ def create_google_sheets(self, puzzle_id) -> None:
     puzzle.sheet = sheet_url
     puzzle.save()
 
-    sheets_owner = self.sheets_owner(template_file_id)
-    transfer_ownership.delay(response, sheets_owner)
+    transfer_ownership.delay(response, template_file_id)
 
     if puzzle.chat_room:
         handle_sheet_created.delay(puzzle_id)
