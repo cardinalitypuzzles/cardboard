@@ -335,9 +335,9 @@ class SheetTests(CardboardTestCase, TransactionTestCase):
             self.create_puzzle({"name": TEST_NAME, "url": TEST_URL})
         )
         puzzle = Puzzle.objects.get()
-        google_api_lib.tasks.create_google_sheets(puzzle.id)
 
         with override_settings(GOOGLE_API_AUTHN_INFO={}):
+            google_api_lib.tasks.create_google_sheets(puzzle.id)
             self.check_response_status(self.create_answer(puzzle.pk, {"text": "ans"}))
             rename_sheet.assert_called_with(
                 sheet_url=google_api_lib.tests.TEST_SHEET,
