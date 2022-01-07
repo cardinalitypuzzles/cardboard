@@ -3,6 +3,8 @@ from accounts.models import Puzzler
 from hunts.models import Hunt
 from puzzles.models import PuzzleTag
 
+TEST_SHEET_TEMPLATE_ID = "12345abcde"
+
 
 class CardboardTestCase:
     def setUp(self):
@@ -12,6 +14,9 @@ class CardboardTestCase:
         self.client.login(username="test", password="testingpwd")
 
         self._hunt = Hunt.objects.create(name="fake hunt", url="google.com")
+
+        self._hunt.settings.google_sheets_template_file_id = TEST_SHEET_TEMPLATE_ID
+        self._hunt.settings.save()
 
     def tearDown(self):
         for tag in PuzzleTag.objects.all():

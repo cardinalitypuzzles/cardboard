@@ -5,6 +5,7 @@ from puzzles.models import Puzzle
 import google_api_lib
 
 TEST_SHEET = "testsheet.com"
+TEST_SHEET_TEMPLATE_ID = "12345abcde"
 
 
 def mock_create_google_sheets_helper(self, name, template_file_id):
@@ -23,6 +24,9 @@ class TestGoogleSheets(TestCase):
     def setUp(self):
         self.client.login(username="test", password="testingpwd")
         self._test_hunt = Hunt.objects.create(name="fake hunt", url="google.com")
+
+        self._test_hunt.settings.google_sheets_template_file_id = TEST_SHEET_TEMPLATE_ID
+        self._test_hunt.settings.save()
 
     def tearDown(self):
         self._test_hunt.delete()
