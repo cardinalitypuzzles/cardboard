@@ -35,8 +35,40 @@ body {
     border-radius: 0;
 }
 
-
 /* Dark Mode Overrides */
+.bootstrap {
+    --table-row-success: #c3e6cb;
+    --table-row-danger: #f5c6cb;
+    --table-row-success-border: #8fd19e;
+    --table-row-danger-border: #ed969e;
+    --table-row-success-text: #212529;
+    --table-row-danger-text: #212529;
+}
+
+.bootstrap-dark {
+  --table-row-success: #2a5d2c;
+  --table-row-danger: #492121;
+  --table-row-success-border: #244f2d;
+  --table-row-danger-border: #2c1517;
+  --table-row-success-text: #e4e4e4;
+  --table-row-danger-text: #e4e4e4;
+}
+
+#app .table-success,
+#app .table-success>td,
+#app .table-success>th {
+  background-color: var(--table-row-success);
+  color: var(--table-row-success-text);
+  border-color: var(--table-row-success-border);
+}
+
+#app .table-danger,
+#app .table-danger>td,
+#app .table-danger>th {
+  background-color: var(--table-row-danger);
+  color: var(--table-row-danger-text);
+  border-color: var(--table-row-danger-border);
+}
 
 .bootstrap-dark a {
     color: #007bff;
