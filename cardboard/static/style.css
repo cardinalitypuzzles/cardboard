@@ -54,17 +54,17 @@ body {
   --table-row-danger-text: #e4e4e4;
 }
 
-#app .table-success, 
-#app .table-success>td, 
-#app .table-success>th{
+#app .table-success,
+#app .table-success>td,
+#app .table-success>th {
   background-color: var(--table-row-success);
   color: var(--table-row-success-text);
   border-color: var(--table-row-success-border);
 }
 
-#app .table-danger, 
-#app .table-danger>td, 
-#app .table-danger>th{
+#app .table-danger,
+#app .table-danger>td,
+#app .table-danger>th {
   background-color: var(--table-row-danger);
   color: var(--table-row-danger-text);
   border-color: var(--table-row-danger-border);
