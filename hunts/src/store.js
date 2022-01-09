@@ -4,10 +4,11 @@ import huntReducer from "./huntSlice";
 import modalReducer from "./modalSlice";
 import alertReducer from "./alertSlice";
 import filterReducer from "./filterSlice";
+import chatReducer from "./chatSlice";
 import { save, load } from "redux-localstorage-simple";
 
 const preloadedState = load({
-  states: ["filter.solveStateFilter", "filter.tags"],
+  states: ["filter.solveStateFilter", "filter.tags", "chat.version"],
 });
 
 export default configureStore({
@@ -17,11 +18,12 @@ export default configureStore({
     puzzles: puzzlesReducer,
     hunt: huntReducer,
     filter: filterReducer,
+    chat: chatReducer,
   },
   middleware: (getDefaultMiddlewares) => [
     ...getDefaultMiddlewares(),
     save({
-      states: ["filter.solveStateFilter", "filter.tags"],
+      states: ["filter.solveStateFilter", "filter.tags", "chat.version"],
     }),
   ],
   preloadedState,

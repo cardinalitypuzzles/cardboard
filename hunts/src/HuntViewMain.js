@@ -31,6 +31,8 @@ import {
 import { SHEET_REDIRECT_BASE } from "./constants";
 import TagPill from "./TagPill";
 import { SolvedStateFilter } from "./solveStateFilter";
+import { ChatVersionSelector } from "./chatSelector";
+import ChatCell from "./ChatCell";
 
 const MODAL_COMPONENTS = {
   DELETE_PUZZLE: DeletePuzzleModal,
@@ -82,14 +84,7 @@ const TABLE_COLUMNS = [
   {
     Header: "Chat",
     accessor: "chat_room",
-    Cell: ({ row, value }) =>
-      row.original.chat_room ? (
-        <>
-          <a href={row.original.chat_room.text_channel_url} target="_blank">
-            Channel
-          </a>
-        </>
-      ) : null,
+    Cell: ChatCell,
   },
   {
     Header: "Tags/Metas",
@@ -164,6 +159,9 @@ export const HuntViewMain = (props) => {
         <div>
           <GlobalFilter />
           <SolvedStateFilter />
+        </div>
+        <div>
+          <ChatVersionSelector />
         </div>
         <div>
           {filterTags.length > 0 ? "Viewing puzzles with tags: " : ""}

@@ -48,3 +48,4 @@ export const DEFAULT_TAGS = [
 ];
 
 export const SHEET_REDIRECT_BASE = "/puzzles/s";
+export const CHAT_PLATFORM = "discord";
