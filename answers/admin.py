@@ -3,7 +3,8 @@ from .models import Answer
 
 
 class AnswerAdmin(admin.ModelAdmin):
-    pass
+    list_display = ["text", "puzzle", "status", "response"]
+    list_filter = ["puzzle__hunt", "status"]
 
 
 admin.site.register(Answer, AnswerAdmin)

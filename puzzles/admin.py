@@ -8,6 +8,8 @@ class AnswerInline(admin.TabularInline):
 
 
 class PuzzleAdmin(admin.ModelAdmin):
+    list_display = ["name", "is_meta", "hunt", "status", "answer"]
+    list_filter = ["hunt", "is_meta"]
     inlines = [
         AnswerInline,
     ]
