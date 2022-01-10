@@ -12,3 +12,11 @@ export default function ClickableIcon({ icon, onClick }) {
     </span>
   );
 }
+
+export const IconLink = ({ icon, url, size, style }) => {
+  return (
+    <a href={url} target="_blank" className="text-muted" style={style}>
+      <FontAwesomeIcon icon={icon} size={size} />
+    </a>
+  );
+};
