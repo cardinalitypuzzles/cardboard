@@ -91,6 +91,11 @@ class AnswerViewSet(viewsets.ModelViewSet):
                             puzzle.id, answer.text
                         )
                     )
+                    transaction.on_commit(
+                        lambda: chat.tasks.cleanup_puzzle_channels.apply_async(
+                            args=(puzzle.id,), countdown=1800  # clean up in 30 minutes
+                        )
+                    )
                 answer.save()
                 transaction.on_commit(
                     lambda: AnswerViewSet._maybe_update_meta_sheets_for_feeder(puzzle)
@@ -118,6 +123,10 @@ class AnswerViewSet(viewsets.ModelViewSet):
                 if puzzle.chat_room:
                     transaction.on_commit(
                         lambda: chat.tasks.handle_puzzle_unsolved.delay(puzzle.id)
+                    )
+                else:
+                    transaction.on_commit(
+                        lambda: chat.tasks.create_chat_for_puzzle.delay(puzzle.id)
                     )
                 # remove backsolve tag if puzzle is no longer solved
                 if puzzle.is_backsolved():
@@ -240,6 +249,12 @@ class PuzzleViewSet(viewsets.ModelViewSet):
                                     puzzle.guesses.filter(status=Answer.CORRECT)
                                     .first()
                                     .text,
+                                )
+                            )
+                            transaction.on_commit(
+                                lambda: chat.tasks.cleanup_puzzle_channels.apply_async(
+                                    args=(puzzle.id,),
+                                    countdown=1800,  # clean up in 30 minutes
                                 )
                             )
                         transaction.on_commit(
