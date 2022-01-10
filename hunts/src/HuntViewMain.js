@@ -6,13 +6,9 @@ import { fetchHunt } from "./huntSlice";
 import { showModal, hideModal } from "./modalSlice";
 import { hideAlert } from "./alertSlice";
 import { PuzzleTable } from "./puzzle-table";
-import AnswerCell from "./AnswerCell";
-import NameCell from "./NameCell";
 import HuntViewHeader from "./HuntViewHeader";
 import GlobalFilter from "./GlobalFilter";
-import StatusCell from "./StatusCell";
 import DeleteAnswerModal from "./DeleteAnswerModal";
-import TagCell from "./TagCell";
 import DeletePuzzleModal from "./DeletePuzzleModal";
 import EditAnswerModal from "./EditAnswerModal";
 import EditPuzzleModal from "./EditPuzzleModal";
@@ -28,11 +24,9 @@ import {
   getTagFilter,
   getSolveStateFilter,
 } from "./filterSlice";
-import { SHEET_REDIRECT_BASE } from "./constants";
 import TagPill from "./TagPill";
 import { SolvedStateFilter } from "./solveStateFilter";
 import { ChatVersionSelector } from "./chatSelector";
-import ChatCell from "./ChatCell";
 
 const MODAL_COMPONENTS = {
   DELETE_PUZZLE: DeletePuzzleModal,
@@ -43,65 +37,6 @@ const MODAL_COMPONENTS = {
   EDIT_ANSWER: EditAnswerModal,
   EDIT_TAGS: EditPuzzleTagsModal,
 };
-
-const TABLE_COLUMNS = [
-  {
-    Header: "Name",
-    accessor: "name",
-    Cell: NameCell,
-  },
-  {
-    Header: "Answer",
-    accessor: (row) => row.guesses.map(({ text }) => text).join(" "),
-    Cell: AnswerCell,
-    id: "answer",
-  },
-  {
-    Header: "Status",
-    accessor: "status",
-    Cell: StatusCell,
-    filter: "solvedFilter",
-  },
-  {
-    Header: "Puzzle",
-    accessor: "url",
-    Cell: ({ row, value }) => (
-      <a href={value} target="_blank">
-        Puzzle
-      </a>
-    ),
-  },
-  {
-    Header: "Sheet",
-    accessor: "has_sheet",
-    Cell: ({ row, value }) =>
-      value ? (
-        <a href={`${SHEET_REDIRECT_BASE}/${row.original.id}`} target="_blank">
-          Sheet
-        </a>
-      ) : null,
-  },
-  {
-    Header: "Chat",
-    accessor: "chat_room",
-    Cell: ChatCell,
-  },
-  {
-    Header: "Tags/Metas",
-    id: "tags",
-    accessor: (row) => row.tags.map(({ name }) => name).join(" "),
-    Cell: TagCell,
-    filter: "tagsFilter",
-  },
-  {
-    accessor: "is_meta",
-    id: "is_meta",
-  },
-  {
-    accessor: "id",
-    id: "id",
-  },
-];
 
 export const HuntViewMain = (props) => {
   const tableData = useSelector(selectPuzzleTableData);
@@ -198,7 +133,6 @@ export const HuntViewMain = (props) => {
         </Button>
       </div>
       <PuzzleTable
-        columns={TABLE_COLUMNS}
         data={tableData}
         filterSolved={filterSolved}
         filterTags={filterTags}

@@ -12,6 +12,51 @@ import { filterSolvedPuzzlesfn } from "./solveStateFilter";
 import { useSelector } from "react-redux";
 import { getTextFilter } from "./filterSlice";
 
+import AnswerCell from "./AnswerCell";
+import NameCell from "./NameCell";
+import StatusCell from "./StatusCell";
+import TagCell from "./TagCell";
+import { LinkCell } from "./LinkCell";
+
+const TABLE_COLUMNS = [
+  {
+    Header: "Name",
+    accessor: "name",
+    Cell: NameCell,
+  },
+  {
+    Header: "Answer",
+    accessor: (row) => row.guesses.map(({ text }) => text).join(" "),
+    Cell: AnswerCell,
+    id: "answer",
+  },
+  {
+    Header: "Status",
+    accessor: "status",
+    Cell: StatusCell,
+    filter: "solvedFilter",
+  },
+  {
+    Header: "Links",
+    Cell: LinkCell,
+  },
+  {
+    Header: "Tags/Metas",
+    id: "tags",
+    accessor: (row) => row.tags.map(({ name }) => name).join(" "),
+    Cell: TagCell,
+    filter: "tagsFilter",
+  },
+  {
+    accessor: "is_meta",
+    id: "is_meta",
+  },
+  {
+    accessor: "id",
+    id: "id",
+  },
+];
+
 function textFilterFn(rows, id, filterValue) {
   if (!filterValue || !filterValue.length) {
     return rows;
@@ -53,104 +98,99 @@ function rowClassName(row) {
   }
 }
 
-export const PuzzleTable = React.memo(
-  ({ columns, data, filterSolved, filterTags }) => {
-    const filter = useSelector(getTextFilter);
+export const PuzzleTable = React.memo(({ data, filterSolved, filterTags }) => {
+  const filter = useSelector(getTextFilter);
 
-    const filterTypes = React.useMemo(
-      () => ({
-        globalFilter: textFilterFn,
-        solvedFilter: filterSolvedPuzzlesfn,
-        tagsFilter: filterPuzzlesByTagFn,
-      }),
-      []
-    );
+  const filterTypes = React.useMemo(
+    () => ({
+      globalFilter: textFilterFn,
+      solvedFilter: filterSolvedPuzzlesfn,
+      tagsFilter: filterPuzzlesByTagFn,
+    }),
+    []
+  );
 
-    const getRowId = React.useCallback((row, relativeIndex, parent) => {
-      if (parent) {
-        return `${parent.id}.${row.id}`;
-      } else {
-        return row.id.toString();
-      }
-    }, []);
-    const {
-      getTableProps,
-      getTableBodyProps,
-      allColumns,
-      rows,
-      state,
-      prepareRow,
-      toggleAllRowsExpanded,
-      flatRows,
-      preGlobalFilteredRows,
-      setGlobalFilter,
-      setFilter,
-    } = useTable(
-      {
-        columns,
-        data,
-        filterTypes,
-        getRowId,
-        autoResetExpanded: false,
-        autoResetGlobalFilter: false,
-        globalFilter: "globalFilter",
-        autoResetFilters: false,
-        initialState: {
-          hiddenColumns: ["is_meta", "id"],
-          filters: [],
-        },
+  const getRowId = React.useCallback((row, relativeIndex, parent) => {
+    if (parent) {
+      return `${parent.id}.${row.id}`;
+    } else {
+      return row.id.toString();
+    }
+  }, []);
+  const {
+    getTableProps,
+    getTableBodyProps,
+    allColumns,
+    rows,
+    state,
+    prepareRow,
+    toggleAllRowsExpanded,
+    flatRows,
+    preGlobalFilteredRows,
+    setGlobalFilter,
+    setFilter,
+  } = useTable(
+    {
+      columns: TABLE_COLUMNS,
+      data,
+      filterTypes,
+      getRowId,
+      autoResetExpanded: false,
+      autoResetGlobalFilter: false,
+      globalFilter: "globalFilter",
+      autoResetFilters: false,
+      initialState: {
+        hiddenColumns: ["is_meta", "id"],
+        filters: [],
       },
-      useGlobalFilter,
-      useExpanded,
-      useFilters
-    );
+    },
+    useGlobalFilter,
+    useExpanded,
+    useFilters
+  );
 
-    React.useEffect(() => setGlobalFilter(filter), [filter]);
+  React.useEffect(() => setGlobalFilter(filter), [filter]);
 
-    // This pattern does not spark joy, but react-table only provides an imperative filter api.
-    React.useEffect(() => {
-      setFilter("status", filterSolved);
-    }, [filterSolved]);
+  // This pattern does not spark joy, but react-table only provides an imperative filter api.
+  React.useEffect(() => {
+    setFilter("status", filterSolved);
+  }, [filterSolved]);
 
-    React.useEffect(() => {
-      setFilter("tags", filterTags);
-    }, [filterTags]);
+  React.useEffect(() => {
+    setFilter("tags", filterTags);
+  }, [filterTags]);
 
-    return (
-      <>
-        <Table size="sm" {...getTableProps()}>
-          <thead>
-            <tr>
-              {allColumns.map((column) =>
-                column.isVisible ? (
-                  <th {...column.getHeaderProps()}>
-                    {column.render("Header")}
-                  </th>
-                ) : null
-              )}
-            </tr>
-          </thead>
-          <tbody {...getTableBodyProps()}>
-            {rows.map((row, i) => {
-              prepareRow(row);
-              return (
-                <tr className={rowClassName(row)} {...row.getRowProps()}>
-                  {row.cells.map((cell) => {
-                    return (
-                      <td {...cell.getCellProps()}>{cell.render("Cell")}</td>
-                    );
-                  })}
-                </tr>
-              );
-            })}
-          </tbody>
-        </Table>
-      </>
-    );
-  }
-);
+  return (
+    <>
+      <Table size="sm" {...getTableProps()}>
+        <thead>
+          <tr>
+            {allColumns.map((column) =>
+              column.isVisible ? (
+                <th {...column.getHeaderProps()}>{column.render("Header")}</th>
+              ) : null
+            )}
+          </tr>
+        </thead>
+        <tbody {...getTableBodyProps()}>
+          {rows.map((row, i) => {
+            prepareRow(row);
+            return (
+              <tr className={rowClassName(row)} {...row.getRowProps()}>
+                {row.cells.map((cell) => {
+                  return (
+                    <td {...cell.getCellProps()}>{cell.render("Cell")}</td>
+                  );
+                })}
+              </tr>
+            );
+          })}
+        </tbody>
+      </Table>
+    </>
+  );
+});
 
 PuzzleTable.propTypes = {
-  columns: PropTypes.array.isRequired,
   data: PropTypes.array.isRequired,
 };
