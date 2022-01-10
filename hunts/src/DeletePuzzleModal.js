@@ -17,7 +17,9 @@ function DeletePuzzleModal({ huntId, puzzleId, puzzleName }) {
       <Modal.Header closeButton>
         <Modal.Title>Delete {puzzleName}</Modal.Title>
       </Modal.Header>
-      <Modal.Body>Are you sure you want to delete this puzzle?</Modal.Body>
+      <Modal.Body>
+        Are you sure you want to delete <b>{puzzleName}</b>?
+      </Modal.Body>
       <Modal.Footer>
         <Button variant="secondary" onClick={() => dispatch(hideModal())}>
           Cancel
