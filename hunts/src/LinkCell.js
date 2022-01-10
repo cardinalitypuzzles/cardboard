@@ -105,11 +105,11 @@ export const LinkCell = ({ row }) => {
   const puzzle = row.original;
   const puzzleLink = puzzle.url;
 
-  const hasSheet = puzzle.has_sheet | true;
+  const hasSheet = puzzle.has_sheet;
   const sheetLink = createSheetLink(puzzle);
 
   const chatVersion = useSelector(getChatVersion);
-  const hasDiscord = hasDiscordLink(puzzle) | true;
+  const hasDiscord = hasDiscordLink(puzzle);
   const discordLink = createDiscordLink(puzzle, chatVersion);
 
   return (
