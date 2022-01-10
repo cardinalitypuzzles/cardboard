@@ -124,7 +124,7 @@ class AnswerViewSet(viewsets.ModelViewSet):
                     transaction.on_commit(
                         lambda: chat.tasks.handle_puzzle_unsolved.delay(puzzle.id)
                     )
-                else:
+                elif settings.CHAT_DEFAULT_SERVICE:
                     transaction.on_commit(
                         lambda: chat.tasks.create_chat_for_puzzle.delay(puzzle.id)
                     )
