@@ -73,13 +73,18 @@ export const LinkCell = ({ row }) => {
   const discordLink = createDiscordLink(puzzle, chatVersion);
 
   return (
-    <>
+    <div
+      style={{
+        width: "110px",
+      }}
+    >
       <IconLink
         icon={faPuzzlePiece}
         url={puzzleLink}
         size="lg"
         style={{
           margin: "0 5px",
+          display: "inline-block",
         }}
       ></IconLink>
 
@@ -89,6 +94,7 @@ export const LinkCell = ({ row }) => {
           style={{
             margin: "0 5px",
             fill: "currentColor",
+            display: "inline-block",
           }}
         >
           <SheetsSvg />
@@ -101,11 +107,12 @@ export const LinkCell = ({ row }) => {
           style={{
             margin: "0 5px",
             fill: "currentColor",
+            display: "inline-block",
           }}
         >
           <DiscordSvg />
         </SvgLink>
       ) : null}
-    </>
+    </div>
   );
 };

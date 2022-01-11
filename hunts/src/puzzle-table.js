@@ -23,22 +23,26 @@ const TABLE_COLUMNS = [
     Header: "Name",
     accessor: "name",
     Cell: NameCell,
+    className: "col-5",
   },
   {
     Header: "Answer",
     accessor: (row) => row.guesses.map(({ text }) => text).join(" "),
     Cell: AnswerCell,
     id: "answer",
+    className: "col-2",
   },
   {
     Header: "Status",
     accessor: "status",
     Cell: StatusCell,
     filter: "solvedFilter",
+    className: "col-1",
   },
   {
     Header: "Links",
     Cell: LinkCell,
+    className: "col-1",
   },
   {
     Header: "Tags/Metas",
@@ -46,6 +50,7 @@ const TABLE_COLUMNS = [
     accessor: (row) => row.tags.map(({ name }) => name).join(" "),
     Cell: TagCell,
     filter: "tagsFilter",
+    className: "col-3",
   },
   {
     accessor: "is_meta",
@@ -167,7 +172,9 @@ export const PuzzleTable = React.memo(({ data, filterSolved, filterTags }) => {
           <tr>
             {allColumns.map((column) =>
               column.isVisible ? (
-                <th {...column.getHeaderProps()}>{column.render("Header")}</th>
+                <th {...column.getHeaderProps()} className={column.className}>
+                  {column.render("Header")}
+                </th>
               ) : null
             )}
           </tr>
