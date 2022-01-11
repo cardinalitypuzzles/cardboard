@@ -2,10 +2,12 @@ from cardboard.settings import TaskPriority
 from celery import shared_task
 import logging
 from django.db import transaction
+from django.db.models import Prefetch
 from datetime import datetime, timedelta
 
-
 from puzzles.models import Puzzle
+from answers.models import Answer
+
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +25,12 @@ def create_chat_for_puzzle(puzzle_id):
 
 @shared_task
 def cleanup_puzzle_channels(puzzle_id):
-    puzzle = Puzzle.objects.get(id=puzzle_id)
+    puzzle = Puzzle.objects.prefetch_related(
+        Prefetch(
+            "guesses",
+            queryset=Answer.objects.filter(status=Answer.CORRECT),
+        )
+    ).get(id=puzzle_id)
     # check that puzzle wasn't unsolved between when task was queued and now
     with transaction.atomic():
         solved_time = puzzle.solved_time()
@@ -31,7 +38,6 @@ def cleanup_puzzle_channels(puzzle_id):
             return
 
         now = datetime.now(tz=solved_time.tzinfo)
-        logger.warn(now - solved_time)
         if now - solved_time < timedelta(minutes=30):
             try:
                 puzzle.chat_room.delete_channels(check_if_used=True)
