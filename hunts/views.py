@@ -104,7 +104,7 @@ class LastAccessedHuntRedirectView(LoginRequiredMixin, RedirectView):
 
     def get_redirect_url(self, *args, **kwargs):
         hunt = self.request.user.last_accessed_hunt
-        if not hunt:
+        if not hunt or not hunt.active:
             return reverse("hunts:index")
         kwargs["hunt_slug"] = hunt.slug
         return super().get_redirect_url(*args, **kwargs)
