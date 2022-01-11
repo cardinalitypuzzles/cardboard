@@ -18,7 +18,7 @@ function TagPill({
 }) {
   const { id: huntId } = useSelector((state) => state.hunt);
   const dispatch = useDispatch();
-  const style = {};
+  const style = { margin: "2px" };
   if (onClick !== null) {
     style.cursor = "pointer";
   }
