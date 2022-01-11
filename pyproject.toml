@@ -18,7 +18,6 @@ gunicorn = "^20.1.0"
 djangorestframework = "^3.13.1"
 disco-py = ">=0.0.14rc1"
 celery = "^5.2.3"
-django-celery-results = "^2.2.0"
 redis = "^4.1.0"
 "discord.py" = "^1.7.3"
 
