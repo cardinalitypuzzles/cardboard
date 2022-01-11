@@ -5,46 +5,46 @@ export const SELECTABLE_TAG_COLORS = [
 ];
 // TODO(#527): Store these in the backend and read them from an API call
 export const DEFAULT_TAGS = [
-  { name: "HIGH PRIORITY", color: "danger" },
-  { name: "LOW PRIORITY", color: "warning" },
-  { name: "BACKSOLVED", color: "success" },
-  { name: "SLOG", color: "secondary" },
+  { name: "High priority", color: "danger" },
+  { name: "Low priority", color: "warning" },
+  { name: "Backsolved", color: "success" },
+  { name: "Slog", color: "secondary" },
 
-  { name: "GRID LOGIC", color: "light" },
-  { name: "NON-GRID LOGIC", color: "light" },
+  { name: "Grid logic", color: "light" },
+  { name: "Non-grid logic", color: "light" },
 
-  { name: "CROSSWORD", color: "primary" },
-  { name: "CRYPTICS", color: "primary" },
-  { name: "WORDPLAY", color: "primary" },
+  { name: "Crossword", color: "primary" },
+  { name: "Cryptics", color: "primary" },
+  { name: "Wordplay", color: "primary" },
 
-  { name: "MEDIA MANIPULATION", color: "light" },
-  { name: "PROGRAMMING", color: "light" },
+  { name: "Media manipulation", color: "light" },
+  { name: "Programming", color: "light" },
 
-  { name: "MATH", color: "primary" },
-  { name: "BIO", color: "primary" },
-  { name: "PHYSICS", color: "primary" },
-  { name: "CHEM", color: "primary" },
-  { name: "GEOGRAPHY", color: "primary" },
-  { name: "LITERATURE", color: "primary" },
-  { name: "FOREIGN LANGUAGES", color: "primary" },
+  { name: "Art ID", color: "primary" },
+  { name: "Bio", color: "primary" },
+  { name: "Chem", color: "primary" },
+  { name: "Foreign languages", color: "primary" },
+  { name: "Geography", color: "primary" },
+  { name: "Literature", color: "primary" },
+  { name: "Math", color: "primary" },
+  { name: "Physics", color: "primary" },
 
+  { name: "Anime", color: "light" },
+  { name: "Board games", color: "light" },
   // older pop culture
-  { name: "BOOMER", color: "light" },
-  // newer pop culture
-  { name: "ZOOMER", color: "light" },
-  { name: "MUSIC ID", color: "light" },
-  { name: "ART ID", color: "light" },
-  { name: "MOVIE", color: "light" },
+  { name: "Boomer", color: "light" },
+  { name: "Knitting", color: "light" },
+  { name: "Movies", color: "light" },
+  { name: "Music ID", color: "light" },
+  { name: "Sports", color: "light" },
   { name: "TV", color: "light" },
-  { name: "ANIME", color: "light" },
-  { name: "VIDEO GAMES", color: "light" },
-  { name: "BOARD GAMES", color: "light" },
-  { name: "SPORTS", color: "light" },
-  { name: "KNITTING", color: "light" },
+  { name: "Video games", color: "light" },
+  // newer pop culture
+  { name: "Zoomer", color: "light" },
 
   { name: "MIT", color: "primary" },
-  { name: "PRINTING", color: "primary" },
-  { name: "TEAMWORK", color: "primary" },
+  { name: "Printing", color: "primary" },
+  { name: "Teamwork", color: "primary" },
 ];
 
 export const SHEET_REDIRECT_BASE = "/puzzles/s";
