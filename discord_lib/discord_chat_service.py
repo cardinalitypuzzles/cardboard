@@ -148,7 +148,7 @@ class DiscordChatService(ChatService):
     def handle_tag_added(self, puzzle, tag_name):
         from chat.models import ChatRole
 
-        role = ChatRole.objects.filter(name__iexact=tag_name).first()
+        role = ChatRole.objects.filter(name__iexact=tag_name, hunt=puzzle.hunt).first()
         if role is not None:
             self.announce(
                 f"{puzzle.name} was tagged with <@&{role.role_id}>",
