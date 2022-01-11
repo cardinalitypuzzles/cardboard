@@ -49,6 +49,11 @@ class DiscordChatService(ChatService):
         )
         return channel.id
 
+    def get_text_channel_participants(self, channel_id):
+        messages = self._client.channels_messages_list(channel_id)
+        usernames = [m.author.username for m in messages if not m.author.bot]
+        return list(set(usernames))
+
     def delete_text_channel(self, channel_id):
         self.delete_channel(channel_id)
 

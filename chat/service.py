@@ -28,6 +28,9 @@ class ChatService:
     def create_text_channel(self, name):
         raise NotImplementedError
 
+    def get_text_channel_participants(self, channel_id):
+        raise NotImplementedError
+
     def delete_text_channel(self, channel_id):
         raise NotImplementedError
 

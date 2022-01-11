@@ -68,22 +68,22 @@ class ChatRoom(models.Model):
 
     def create_channels(self):
         service = self.get_service()
-        self.text_channel_id = service.create_text_channel(self.name)
-        self.audio_channel_id = service.create_audio_channel(self.name)
-        self.text_channel_url = service.create_channel_url(
-            self.text_channel_id, is_audio=False
-        )
-        self.audio_channel_url = service.create_channel_url(
-            self.audio_channel_id, is_audio=True
-        )
-        self.save(
-            update_fields=[
-                "text_channel_id",
-                "audio_channel_id",
-                "text_channel_url",
-                "audio_channel_url",
-            ]
-        )
+        update_fields = []
+        if self.text_channel_id is None:
+            self.text_channel_id = service.create_text_channel(self.name)
+            self.text_channel_url = service.create_channel_url(
+                self.text_channel_id, is_audio=False
+            )
+            update_fields.extend(["text_channel_id", "text_channel_url"])
+
+        if self.audio_channel_id is None:
+            self.audio_channel_id = service.create_audio_channel(self.name)
+            self.audio_channel_url = service.create_channel_url(
+                self.audio_channel_id, is_audio=True
+            )
+            update_fields.extend(["audio_channel_id", "audio_channel_url"])
+
+        self.save(update_fields=update_fields)
 
     def archive_channels(self):
         service = self.get_service()
@@ -99,10 +99,16 @@ class ChatRoom(models.Model):
         if self.audio_channel_id:
             service.unarchive_voice_channel(self.audio_channel_id)
 
-    def delete_channels(self):
+    def delete_channels(self, check_if_used=False):
         service = self.get_service()
         update_fields = []
-        if self.text_channel_id:
+
+        should_delete_text_channel = (self.text_channel_id is not None) and (
+            not check_if_used
+            or (len(service.get_text_channel_participants(self.text_channel_id)) == 0)
+        )
+
+        if should_delete_text_channel:
             service.delete_text_channel(self.text_channel_id)
             self.text_channel_id = None
             self.text_channel_url = ""
