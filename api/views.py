@@ -125,6 +125,7 @@ class AnswerViewSet(viewsets.ModelViewSet):
                         lambda: chat.tasks.handle_puzzle_unsolved.delay(puzzle.id)
                     )
                 elif settings.CHAT_DEFAULT_SERVICE:
+                    # recreate chat if they had already been cleaned up from being marked as SOLVED
                     transaction.on_commit(
                         lambda: chat.tasks.create_chat_for_puzzle.delay(puzzle.id)
                     )
