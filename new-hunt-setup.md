@@ -29,7 +29,7 @@ Cardboard expects a hunt Google Drive folder to already be set up with a templat
 
 To set up a new hunt:
 
-* create a new Google Drive folder for the hunt
+* create a new Google Drive folder for the hunt. Do not change the permissions on the folder; it should be private for now.
 * add the Google API service account you created above as an Editor to the Drive folder
 * add all your team members as Editors to the Drive folder
 * add a template Sheet file to the Drive folder
@@ -44,7 +44,13 @@ In order for Google OAuth2 login to work, you need to add the URI `https://<YOUR
 
 After creating a new application on Heroku, you will need to configure some resources, settings, and config variables.
 
-By default, Heroku may only set the heroku/nodejs buildpack when you deploy the first time, but Cardboard also requires the heroku/python buildpack and a buildpack specific to Python poetry. These should be set up automatically by the app.json file, but if for some reason it isn't, you can set the buildpacks on your application's settings page (`https://dashboard.heorku.com/apps/<YOUR_APP>/settings`) under the "Buildpacks" section. Alternatively, you can use the [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli): run `heroku buildpacks` to check which buildpacks are installed, and if needed, run `heroku buildpacks:add` to add any missing ones.
+By default, Heroku may only set the heroku/nodejs buildpack when you deploy the first time, but Cardboard also requires the heroku/python buildpack and a buildpack specific to Python poetry. You can set the buildpacks on your application's settings page (`https://dashboard.heorku.com/apps/<YOUR_APP>/settings`) under the "Buildpacks" section. They should be set **in the following order**, mimicking the [app.json](https://github.com/cardinalitypuzzles/cardboard/blob/master/app.json) file in the repository:
+
+  1. heroku/nodejs
+  2. https://github.com/cardinalitypuzzles/python-poetry-buildpack.git
+  3. heroku/python
+
+Alternatively, you can use the [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli): run `heroku buildpacks` to check which buildpacks are installed, and if needed, run `heroku buildpacks:add` to add any missing ones. Make sure again that they are in the correct order.
 
 On the Resources page, you'll need to add the Heroku Postgres and Heroku Redis add-ons. When added, this will automatically add some config variables for you on the Settings page: `REDIS_URL`, `REDIS_TLS_URL`, and `DATABASE_URL`. Cardboard is already configured to read these config variables automatically.
 
@@ -85,6 +91,28 @@ Miscellaneous configs:
 * `DJANGO_SECRET_KEY` - used by Django to generate secrets, such as for user sessions. It's best to set this so that user sessions will not expire after each restart. You can generate a key using `python -c "import secrets; print(secrets.token_urlsafe())"`.
 * `DEBUG` - you probably want to set this to `False` in production so users don't get gory error pages
 
+### Discord setup
+
+In addition to setting the environmental variables above, you can also set up Cardboard to ping specific Discord roles when puzzles are tagged with certain tags. To do this, you must have an admin account in your Cardboard instance:
+
+* Start `python manage.py shell`. If you are using Heroku, you can do this by running `heroku run python manage.py shell`
+* Enter and run the following Python code:
+
+```python
+from django.contrib.auth import get_user_model
+User = get_user_model()
+user = User.objects.get(email=<YOUR EMAIL ADDRESS HERE>)
+user.is_staff = True
+user.is_admin = True
+user.is_superuser = True
+user.save()
+```
+
+Then to associate the Discord roles with Cardboard tags:
+
+* Log in to the Django admin page for your Cardboard instance at `/admin`
+* Go to the ChatRole tab on the left (located at `/admin/chat/chatrole`)
+* Add a Chat Role for each Cardboard tag/Discord role relationship that you want to set up. The Cardboard tag name should go as "Name", and the role id is found in Discord via right-clicking a role and selecting "Copy ID", or Server Settings > Roles > ... > Copy ID. 
 
 ### Giving a new user access to Cardboard
 
