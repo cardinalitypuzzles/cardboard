@@ -68,7 +68,6 @@ INSTALLED_APPS = [
     "social_django",
     "taggit",
     "rest_framework",
-    "django_celery_results",
 ]
 
 MIDDLEWARE = [
