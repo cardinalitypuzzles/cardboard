@@ -112,7 +112,7 @@ Then to associate the Discord roles with Cardboard tags:
 
 * Log in to the Django admin page for your Cardboard instance at `/admin`
 * Go to the ChatRole tab on the left (located at `/admin/chat/chatrole`)
-* Add a Chat Role for each Cardboard tag/Discord role relationship that you want to set up. The Cardboard tag name should go as "Name", and the role id is found in Discord via right-clicking a role and selecting "Copy ID", or Server Settings > Roles > ... > Copy ID. 
+* Add a Chat Role for each Cardboard tag/Discord role relationship that you want to set up. The Cardboard tag name should go as "Name", and the role id is found in Discord via right-clicking a role and selecting "Copy ID", or Server Settings > Roles > ... > Copy ID.
 
 ### Giving a new user access to Cardboard
 
