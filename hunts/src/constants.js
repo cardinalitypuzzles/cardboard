@@ -20,6 +20,7 @@ export const DEFAULT_TAGS = [
   { name: "Media manipulation", color: "light" },
   { name: "Programming", color: "light" },
 
+  { name: "Art ID", color: "primary" },
   { name: "Bio", color: "primary" },
   { name: "Chem", color: "primary" },
   { name: "Foreign languages", color: "primary" },
@@ -29,12 +30,11 @@ export const DEFAULT_TAGS = [
   { name: "Physics", color: "primary" },
 
   { name: "Anime", color: "light" },
-  { name: "Art ID", color: "light" },
   { name: "Board games", color: "light" },
   // older pop culture
   { name: "Boomer", color: "light" },
   { name: "Knitting", color: "light" },
-  { name: "Movie", color: "light" },
+  { name: "Movies", color: "light" },
   { name: "Music ID", color: "light" },
   { name: "Sports", color: "light" },
   { name: "TV", color: "light" },
