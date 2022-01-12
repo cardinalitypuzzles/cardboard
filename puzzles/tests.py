@@ -172,3 +172,32 @@ class TestPuzzle(APITestCase):
         self.assertEqual(field_url_map["Sheet"], puzzle.sheet)
         self.assertEqual(field_url_map["Text Channel"], "text_channel_url.com")
         self.assertEqual(field_url_map["Voice Channel"], "audio_channel_url.com")
+
+    def test_is_backsolved(self):
+        feeder = self.create_puzzle("feeder", False)
+        self.assertFalse(feeder.is_backsolved())
+
+        self.client.post(
+            f"/api/v1/puzzles/{feeder.pk}/tags",
+            {"name": Puzzle.BACKSOLVED_TAG.upper(), "color": "primary"},
+        )
+        # Not backsolved as it hasn't been solved yet
+        self.assertFalse(feeder.is_backsolved())
+
+        guess = Answer.objects.create(text="guess", puzzle=feeder)
+        guess.set_status(Answer.CORRECT)
+        # Now we're backsolved!
+        self.assertTrue(feeder.is_backsolved())
+
+        tag = feeder.tags.get(name=Puzzle.BACKSOLVED_TAG.upper())
+        self.client.delete(f"/api/v1/puzzles/{feeder.pk}/tags/{tag.id}")
+        # Missing the tag
+        self.assertFalse(feeder.is_backsolved())
+
+        # Lowercase tag should work too
+        self.client.post(
+            f"/api/v1/puzzles/{feeder.pk}/tags",
+            {"name": Puzzle.BACKSOLVED_TAG.lower(), "color": "primary"},
+        )
+        # Not backsolved as it hasn't been solved yet
+        self.assertTrue(feeder.is_backsolved())

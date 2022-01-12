@@ -196,7 +196,10 @@ class Puzzle(models.Model):
         return field_url_map
 
     def is_backsolved(self):
-        return self.tags.filter(name=Puzzle.BACKSOLVED_TAG, hunt=self.hunt).exists()
+        return (
+            self.is_solved()
+            and self.tags.filter(name=Puzzle.BACKSOLVED_TAG, hunt=self.hunt).exists()
+        )
 
     @staticmethod
     def maybe_truncate_name(name):

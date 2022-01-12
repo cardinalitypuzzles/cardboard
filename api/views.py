@@ -53,9 +53,7 @@ class AnswerViewSet(viewsets.ModelViewSet):
 
         if google_api_lib.enabled() and puzzle.sheet:
             if puzzle.is_solved():
-                solve_label = (
-                    Puzzle.BACKSOLVED_TAG if puzzle.is_backsolved() else Puzzle.SOLVED
-                )
+                solve_label = "BACKSOLVED" if puzzle.is_backsolved() else "SOLVED"
                 answers = ", ".join(puzzle.correct_answers())
 
                 google_api_lib.tasks.rename_sheet.delay(
@@ -113,6 +111,7 @@ class AnswerViewSet(viewsets.ModelViewSet):
         with transaction.atomic():
             answer = self.get_object()
             puzzle = get_object_or_404(Puzzle, pk=self.kwargs["puzzle_id"])
+            was_backsolved = puzzle.is_backsolved()
             answer.delete()
             # If a SOLVED puzzle has no more correct answers, revert status to SOLVING.
             if (
@@ -130,7 +129,7 @@ class AnswerViewSet(viewsets.ModelViewSet):
                         lambda: chat.tasks.create_chat_for_puzzle.delay(puzzle.id)
                     )
                 # remove backsolve tag if puzzle is no longer solved
-                if puzzle.is_backsolved():
+                if was_backsolved:
                     backsolve_tag = PuzzleTag.objects.filter(
                         name=Puzzle.BACKSOLVED_TAG, hunt=puzzle.hunt
                     )
@@ -376,7 +375,7 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
                     lambda: chat.tasks.handle_tag_removed.delay(puzzle.id, tag.name)
                 )
 
-            if tag.name == Puzzle.BACKSOLVED_TAG:
+            if tag.name.upper() == Puzzle.BACKSOLVED_TAG.upper():
                 transaction.on_commit(
                     lambda: AnswerViewSet._maybe_update_sheets_title(puzzle)
                 )
@@ -439,7 +438,7 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
                     lambda: chat.tasks.handle_tag_added.delay(puzzle.id, tag.name)
                 )
 
-            if tag.name == Puzzle.BACKSOLVED_TAG:
+            if tag.name.upper() == Puzzle.BACKSOLVED_TAG.upper():
                 transaction.on_commit(
                     lambda: AnswerViewSet._maybe_update_sheets_title(puzzle)
                 )
