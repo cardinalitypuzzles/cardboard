@@ -8,17 +8,19 @@ on:
 jobs:
   pre-commit:
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres
-        env:
-          POSTGRES_PASSWORD: postgres
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
       - uses: pre-commit/action@v2.0.0
   test:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: cardboard_user
+          POSTGRES_PASSWORD: cardboard_password
+          POSTGRES_DB: cardboard
     steps:
       - uses: actions/checkout@v2
 
@@ -47,12 +49,12 @@ jobs:
           yarn build  # Build static React files before running Django collecstatic.
           poetry run python manage.py collectstatic  # Tests require static files.
         env:
-          DATABASE_URL: postgres://localhost:5432
+          DATABASE_URL: postgres://cardboard_user:cardboard_password@localhost:5432/cardboard
 
       - name: Run all tests with coverage
         run: poetry run coverage run --source='.' manage.py test
         env:
-          DATABASE_URL: postgres://localhost:5432
+          DATABASE_URL: postgres://cardboard_user:cardboard_password@localhost:5432/cardboard
 
       - name: Upload coverage data
         uses: codecov/codecov-action@v1
