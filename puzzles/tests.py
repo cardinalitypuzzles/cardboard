@@ -199,5 +199,5 @@ class TestPuzzle(APITestCase):
             f"/api/v1/puzzles/{feeder.pk}/tags",
             {"name": Puzzle.BACKSOLVED_TAG.lower(), "color": "primary"},
         )
-        # Not backsolved as it hasn't been solved yet
+        # Now it should be backsolved again
         self.assertTrue(feeder.is_backsolved())
