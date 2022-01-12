@@ -1,5 +1,6 @@
 from django.test import TestCase, override_settings
-
+from hunts.models import Hunt
+from puzzles.models import Puzzle
 from .models import ChatRoom
 from .service import ChatService
 from .fake_service import FakeChatService
@@ -14,7 +15,18 @@ from .fake_service import FakeChatService
 )
 class TestChatRoom(TestCase):
     def setUp(self):
-        self.room = ChatRoom.objects.create(name="Test Room 🧩", service="FAKE")
+        hunt = Hunt.objects.create(name="fake hunt", url="google.com")
+        puzzle = Puzzle.objects.create(
+            name="puzzle",
+            hunt=hunt,
+            url="url.com",
+            sheet="sheet.com",
+            is_meta=True,
+        )
+
+        self.room = ChatRoom.objects.create(
+            puzzle=puzzle, name="Test Room 🧩", service="FAKE"
+        )
         self.fake_service = FakeChatService.get_instance()
 
     def test_chat_room_str_uses_name(self):
@@ -75,11 +87,15 @@ class TestChatService(TestCase):
                 continue
             with self.assertRaises(NotImplementedError):
                 func = service.__getattribute__(f)
-                if f == "send_message":
+                if f == "send_message" or f == "announce":
                     func("channel-name-or-id", "msg")
                 elif f == "handle_tag_added" or f == "handle_tag_removed":
-                    func("puzzle", "tag")
+                    func("channel-id", "puzzle", "tag")
                 elif f == "handle_puzzle_rename":
                     func("channel", "name")
+                elif f == "categorize_channel":
+                    func("guild-id", "channel-name-or-id", "category-name")
+                elif f == "get_text_channel_participants":
+                    func("channel-id")
                 else:
-                    func("channel-name-or-id")
+                    func("guild-id", "channel-name-or-id")

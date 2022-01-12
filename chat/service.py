@@ -25,7 +25,7 @@ class ChatService:
             cls.__instances[cls] = cls(settings)
         return cls.__instances[cls]
 
-    def create_text_channel(self, guild_id, name):
+    def create_text_channel(self, guild_id, name, *args, **kwargs):
         raise NotImplementedError
 
     def get_text_channel_participants(self, channel_id):
@@ -34,7 +34,7 @@ class ChatService:
     def delete_text_channel(self, guild_id, channel_id):
         raise NotImplementedError
 
-    def create_audio_channel(self, guild_id, name):
+    def create_audio_channel(self, guild_id, name, *args, **kwargs):
         raise NotImplementedError
 
     def delete_audio_channel(self, guild_id, channel_id):
@@ -46,13 +46,13 @@ class ChatService:
     def categorize_channel(self, guild_id, channel_id, category_name):
         raise NotImplementedError
 
-    def archive_channels(self, guild_id, channel_id):
+    def archive_channel(self, guild_id, channel_id, *args, **kwargs):
         raise NotImplementedError
 
-    def unarchive_text_channel(self, guild_id, channel_id):
+    def unarchive_text_channel(self, guild_id, channel_id, *args, **kwargs):
         raise NotImplementedError
 
-    def unarchive_voice_channel(self, guild_id, channel_id):
+    def unarchive_voice_channel(self, guild_id, channel_id, *args, **kwargs):
         raise NotImplementedError
 
     def send_message(self, channel_id, msg, embedded_urls={}):
