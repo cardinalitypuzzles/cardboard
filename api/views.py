@@ -232,10 +232,12 @@ class PuzzleViewSet(viewsets.ModelViewSet):
                 data = serializer.validated_data
                 new_url = data.get("url", puzzle.url)
                 is_new_url = new_url != puzzle.url
+                new_is_meta = data.get("is_meta", puzzle.is_meta)
+                meta_status_changed = new_is_meta != puzzle.is_meta
                 puzzle.update_metadata(
                     new_name=data.get("name", puzzle.name),
                     new_url=new_url,
-                    new_is_meta=data.get("is_meta", puzzle.is_meta),
+                    new_is_meta=new_is_meta,
                 )
                 if "status" in data:
                     old_status = puzzle.status
@@ -296,6 +298,11 @@ class PuzzleViewSet(viewsets.ModelViewSet):
                         lambda: google_api_lib.tasks.update_meta_sheet_feeders.delay(
                             puzzle.id
                         )
+                    )
+
+                if meta_status_changed and puzzle.chat_room:
+                    transaction.on_commit(
+                        lambda: chat.tasks.handle_puzzle_meta_change.delay(puzzle.id)
                     )
 
         except PuzzleModelError as e:
@@ -364,6 +371,10 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
                 meta = Puzzle.objects.get(name=tag.name, hunt=puzzle.hunt)
                 # the post m2m hook will remove tag
                 puzzle.metas.remove(meta)
+                if puzzle.chat_room:
+                    transaction.on_commit(
+                        lambda: chat.tasks.handle_puzzle_meta_change.delay(puzzle.id)
+                    )
             else:
                 puzzle.tags.remove(tag)
 
@@ -416,6 +427,12 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
                 else:
                     # the post m2m hook will add tag
                     puzzle.metas.add(meta)
+                    if puzzle.chat_room:
+                        transaction.on_commit(
+                            lambda: chat.tasks.handle_puzzle_meta_change.delay(
+                                puzzle.id
+                            )
+                        )
             else:
                 PuzzleTag.objects.filter(name=tag_name, hunt=puzzle.hunt).update(
                     color=tag_color,

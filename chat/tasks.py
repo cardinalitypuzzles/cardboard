@@ -12,9 +12,13 @@ from answers.models import Answer
 logger = logging.getLogger(__name__)
 
 
+def _get_puzzles_queryset():
+    return Puzzle.objects.select_related("chat_room").select_related("hunt__settings")
+
+
 @shared_task(priority=TaskPriority.HIGH.value)
 def create_chat_for_puzzle(puzzle_id):
-    puzzle = Puzzle.objects.get(id=puzzle_id)
+    puzzle = _get_puzzles_queryset().get(id=puzzle_id)
     try:
         puzzle.chat_room.create_channels()
         msg = f"{puzzle.name} has been unlocked!"
@@ -46,8 +50,17 @@ def cleanup_puzzle_channels(puzzle_id):
 
 
 @shared_task
+def handle_puzzle_meta_change(puzzle_id):
+    puzzle = _get_puzzles_queryset().prefetch_related("metas").get(id=puzzle_id)
+    try:
+        puzzle.chat_room.update_category()
+    except Exception as e:
+        logger.warn(f"handle_puzzle_category_change failed with error: {e}")
+
+
+@shared_task
 def handle_puzzle_solved(puzzle_id, answer_text):
-    puzzle = Puzzle.objects.get(id=puzzle_id)
+    puzzle = _get_puzzles_queryset().get(id=puzzle_id)
     try:
         puzzle.chat_room.archive_channels()
         msg = f"{puzzle.name} has been solved with {answer_text}!"
@@ -58,7 +71,7 @@ def handle_puzzle_solved(puzzle_id, answer_text):
 
 @shared_task
 def handle_puzzle_unsolved(puzzle_id):
-    puzzle = Puzzle.objects.get(id=puzzle_id)
+    puzzle = _get_puzzles_queryset().prefetch_related("metas").get(id=puzzle_id)
     try:
         puzzle.chat_room.unarchive_channels()
         puzzle.chat_room.create_channels()
