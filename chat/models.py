@@ -129,13 +129,13 @@ class ChatRoom(models.Model):
     def update_category(self):
         service = self.get_service()
         if self.text_channel_id:
-            service.unarchive_text_channel(
+            service.categorize_channel(
                 self.get_guild_id(),
                 self.text_channel_id,
                 self._get_text_category_name(),
             )
         if self.audio_channel_id:
-            service.unarchive_voice_channel(
+            service.categorize_channel(
                 self.get_guild_id(),
                 self.audio_channel_id,
                 self._get_audio_category_name(),
