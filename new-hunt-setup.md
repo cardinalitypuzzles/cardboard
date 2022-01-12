@@ -79,12 +79,6 @@ Google Drive, Sheets, and API settings for automatic sheets creation:
 For Discord integration:
 
 * `DISCORD_API_TOKEN` - This is the "Token" for your bot, which you can find on the "Bot" settings page (you may have to click "Click to Reveal Token")
-* `DISCORD_GUILD_ID` - your server id. It's usually part of the URL when you're in your server: `discord.com/channels/<server_id>/<channel_id>`. You can also find it on the "Widget" page in your Server Settings.
-* `DISCORD_PUZZLE_ANNOUNCEMENTS_CHANNEL` - this is the id of the channel you want puzzle announcements (puzzle unlocked, solved, etc.) to be posted. The channel id can be found in the URL when in the channel: `discord.com/channels/<server_id>/<channel_id>`. You probably want to set this to something separate from the channel where you make human announcements or have general discussions since the puzzle announcements can be a bit noisy (users may want to mute the channel).
-* `DISCORD_TEXT_CATEGORY` - category to create text channels for puzzles under (defaults to "text [puzzles]")
-* `DISCORD_VOICE_CATEGORY` - category to create voice channels for puzzles under (defaults to "voice [puzzles]")
-* `DISCORD_ARCHIVE_CATEGORY` - category to archive solved puzzles' text and voice channels under (defaults to "archive")
-* `DISCORD_DEVS_ROLE` - the Discord role to tell users to ping in case of issues opening a puzzle's sheet link (defaults to "dev")
 
 Miscellaneous configs:
 
@@ -93,7 +87,9 @@ Miscellaneous configs:
 
 ### Discord setup
 
-In addition to setting the environmental variables above, you can also set up Cardboard to ping specific Discord roles when puzzles are tagged with certain tags. To do this, you must have an admin account in your Cardboard instance:
+#### Admin account
+
+To do discord setup, you must have an admin account in your Cardboard instance:
 
 * Start `python manage.py shell`. If you are using Heroku, you can do this by running `heroku run python manage.py shell`
 * Enter and run the following Python code:
@@ -108,7 +104,24 @@ user.is_superuser = True
 user.save()
 ```
 
-Then to associate the Discord roles with Cardboard tags:
+#### Server setup
+
+To connect a hunt with a discord server:
+
+* Log in to the Django admin page for your Cardboard instance at `/admin`
+* Go to the Hunts tab on the left (located at `/admin/hunts/hunt/`) and pick the hunt to add a server to
+* Scroll to the bottom and fill out the following fields:
+  * **Discord guild id:** your server id. It's usually part of the URL when you're in your server: `discord.com/channels/<server_id>/<channel_id>`. You can also find it on the "Widget" page in your Server Settings.
+  * **Discord puzzle announcements channel id:**  this is the id of the channel you want puzzle announcements (puzzle unlocked, solved, etc.) to be posted. The channel id can be found in the URL when in the channel: `discord.com/channels/<server_id>/<channel_id>`. You probably want to set this to something separate from the channel where you make human announcements or have general discussions since the puzzle announcements can be a bit noisy (users may want to mute the channel).
+  * **Discord metas category:** category to create text & voice channels for metas (defaults to "metas")
+  * **Discord unassigned text category:** category to create text channels for unassigned feeders under (defaults to "text [unassigned]")
+  * **Discord unassigned voice category:** category to create voice channels for unassigned feeders under (defaults to "voice [unassigned]")
+  * **Discord archive category:** category to archive solved puzzles' text and voice channels under (defaults to "archive")
+  * **Discord devs role:** the Discord role to tell users to ping in case of issues opening a puzzle's sheet link (defaults to "dev")
+
+#### Role pings
+
+To associate the Discord roles with Cardboard tags:
 
 * Log in to the Django admin page for your Cardboard instance at `/admin`
 * Go to the ChatRole tab on the left (located at `/admin/chat/chatrole`)
