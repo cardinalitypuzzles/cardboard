@@ -24,10 +24,11 @@ function SubmitAnswerModal({ puzzleId, puzzleName }) {
   return (
     <>
       <Modal.Header closeButton>
-        <Modal.Title>Submit Answer for {puzzleName} </Modal.Title>
+        <Modal.Title> Enter Correct Answer for {puzzleName} </Modal.Title>
       </Modal.Header>
       <Form onSubmit={onSubmit}>
-        <Modal.Body>
+          <Modal.Body>
+          Enter answer after submitting to Mystery Hunt first.
           <Form.Control
             required
             placeholder="Enter Answer"

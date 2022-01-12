@@ -24,7 +24,7 @@ export default function AnswerCell({ row, value }) {
           )
         }
       >
-        Submit Answer
+        Enter Correct Answer
       </Button>
     );
   }
