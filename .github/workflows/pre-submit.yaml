@@ -8,6 +8,11 @@ on:
 jobs:
   pre-commit:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_PASSWORD: postgres
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
@@ -41,9 +46,13 @@ jobs:
           poetry run python manage.py migrate  # Tests require initial database migration.
           yarn build  # Build static React files before running Django collecstatic.
           poetry run python manage.py collectstatic  # Tests require static files.
+        env:
+          DATABASE_URL: postgres://localhost:5432
 
       - name: Run all tests with coverage
         run: poetry run coverage run --source='.' manage.py test
+        env:
+          DATABASE_URL: postgres://localhost:5432
 
       - name: Upload coverage data
         uses: codecov/codecov-action@v1
