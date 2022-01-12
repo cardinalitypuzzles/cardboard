@@ -25,6 +25,7 @@ def auth_allowed(backend, details, response, *args, **kwargs):
     if settings.GOOGLE_API_AUTHN_INFO:
         user_emails = get_file_user_emails(settings.GOOGLE_DRIVE_HUNT_FOLDER_ID)
         if user_emails is not None and email not in user_emails:
+            logger.warn("Unauthorized login attempted by %s", email)
             raise AuthForbidden(backend)
 
 
