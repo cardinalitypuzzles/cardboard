@@ -20,6 +20,10 @@ def mock_add_puzzle_link_to_sheet(puzzle_url, sheet_url):
     return
 
 
+def mock_move_drive_file(file_id, destination_folder_id):
+    return
+
+
 class TestGoogleSheets(TestCase):
     def setUp(self):
         self.client.login(username="test", password="testingpwd")
@@ -39,6 +43,7 @@ class TestGoogleSheets(TestCase):
         "google_api_lib.tasks.transfer_ownership.delay",
         mock_transfer_ownership,
     )
+    @patch("google_api_lib.tasks.move_drive_file.delay", mock_move_drive_file)
     @patch(
         "google_api_lib.tasks.add_puzzle_link_to_sheet", mock_add_puzzle_link_to_sheet
     )

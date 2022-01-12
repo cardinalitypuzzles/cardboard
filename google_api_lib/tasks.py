@@ -29,6 +29,17 @@ def create_google_sheets_helper(self, name, template_file_id) -> dict:
     return file
 
 
+@shared_task(base=GoogleApiClientTask, bind=True)
+def move_drive_file(self, file_id, destination_folder_id) -> None:
+    file = self.drive_service().files().get(fileId=file_id, fields="parents").execute()
+
+    self.drive_service().files().update(
+        fileId=file_id,
+        addParents=destination_folder_id,
+        removeParents=",".join(file["parents"]),
+    ).execute()
+
+
 # transfer new sheet ownership back to OG owner, so that scripts can run
 @shared_task(base=GoogleApiClientTask, bind=True)
 def transfer_ownership(self, file, template_file_id) -> None:
@@ -54,6 +65,10 @@ def create_google_sheets(self, puzzle_id) -> None:
             f"Cannot create a sheet for {puzzle.name} as we can't find a sheets template"
         )
         return
+    destination_folder_id = (
+        puzzle.hunt.settings.google_drive_folder_id
+        or settings.GOOGLE_DRIVE_HUNT_FOLDER_ID
+    )
 
     response = create_google_sheets_helper(self, puzzle.name, template_file_id)
 
@@ -63,6 +78,15 @@ def create_google_sheets(self, puzzle_id) -> None:
     puzzle.save()
 
     transfer_ownership.delay(response, template_file_id)
+
+    if destination_folder_id:
+        move_drive_file.delay(
+            file_id=response["id"], destination_folder_id=destination_folder_id
+        )
+    else:
+        logging.warn(
+            f"Cannot move the new puzzle for {puzzle.name} as we can't find a drive folder"
+        )
 
     if puzzle.chat_room:
         handle_sheet_created.delay(puzzle_id)
