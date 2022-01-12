@@ -1,6 +1,7 @@
 from .utils import GoogleApiClientTask
 from celery import shared_task
 from django.conf import settings
+from googleapiclient.errors import Error
 from social_core.exceptions import AuthForbidden
 from typing import List
 
@@ -18,12 +19,13 @@ def auth_allowed(backend, details, response, *args, **kwargs):
     Part of the SOCIAL_AUTH_PIPELINE (see settings.py).
     """
     email = details.get("email").lower()
-    # allow all emails if Google Drive integration is not set up
-    # otherwise, only allow emails added to Google Drive folder
-    if settings.GOOGLE_API_AUTHN_INFO and email not in get_file_user_emails(
-        settings.GOOGLE_DRIVE_HUNT_FOLDER_ID
-    ):
-        raise AuthForbidden(backend)
+    # Allow all emails if Google Drive integration is not set up
+    # or folder is world readable. Otherwise, only allow emails
+    # added to the Google Drive folder.
+    if settings.GOOGLE_API_AUTHN_INFO:
+        user_emails = get_file_user_emails(settings.GOOGLE_DRIVE_HUNT_FOLDER_ID)
+        if user_emails and email not in user_emails:
+            raise AuthForbidden(backend)
 
 
 @shared_task(base=GoogleApiClientTask, bind=True)
@@ -36,6 +38,8 @@ def get_file_user_emails(self, file_id) -> List[str]:
 
     emails = set()
     for perm in permissions:
+        if perm["id"] == "anyoneWithLink":
+            return None
         email = perm["emailAddress"]
         emails.add(email)
         emails.add(email.lower())

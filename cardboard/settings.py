@@ -226,7 +226,7 @@ if GOOGLE_API_AUTHN_INFO is not None:
         GOOGLE_DRIVE_HUNT_FOLDER_ID
     )
 else:
-    logger.warn("Google Drive integration not set up. All emails will be accepted.")
+    logger.warn("Google Drive integration not set up. All emails will be accepted. Sheets will not be created.")
 
 
 AUTHENTICATION_BACKENDS = [
