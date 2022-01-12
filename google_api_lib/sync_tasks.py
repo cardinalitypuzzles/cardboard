@@ -24,8 +24,9 @@ def auth_allowed(backend, details, response, *args, **kwargs):
     # added to the Google Drive folder.
     if settings.GOOGLE_API_AUTHN_INFO:
         user_emails = get_file_user_emails(settings.GOOGLE_DRIVE_HUNT_FOLDER_ID)
-        if user_emails is not None and email not in user_emails:
-            logger.warn("Unauthorized login attempted by %s", email)
+        if user_emails is None:
+            logger.warn("The Google Drive folder for the hunt is world-readable, meaning anyone can login to this Cardboard instance.")
+        elif email not in user_emails:
             raise AuthForbidden(backend)
 
 
