@@ -15,12 +15,21 @@ jobs:
   test:
     runs-on: ubuntu-latest
     services:
+      # See https://docs.github.com/en/actions/using-containerized-services/creating-postgresql-service-containers
       postgres:
         image: postgres
         env:
           POSTGRES_USER: cardboard_user
           POSTGRES_PASSWORD: cardboard_password
           POSTGRES_DB: cardboard
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          # Maps tcp port 5432 on service container to the host
+          - 5432:5432
     steps:
       - uses: actions/checkout@v2
 
