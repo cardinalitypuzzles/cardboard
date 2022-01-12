@@ -24,12 +24,16 @@ def auth_allowed(backend, details, response, *args, **kwargs):
     # added to the Google Drive folder.
     if settings.GOOGLE_API_AUTHN_INFO:
         user_emails = get_file_user_emails(settings.GOOGLE_DRIVE_HUNT_FOLDER_ID)
-        if user_emails and email not in user_emails:
+        if user_emails is not None and email not in user_emails:
             raise AuthForbidden(backend)
 
 
 @shared_task(base=GoogleApiClientTask, bind=True)
 def get_file_user_emails(self, file_id) -> List[str]:
+    """
+    Returns a sorted list of emails that have access to `file_id` or None if the file is
+    world readable.
+    """
     response = (
         self.drive_service().files().get(fileId=file_id, fields="permissions").execute()
     )
