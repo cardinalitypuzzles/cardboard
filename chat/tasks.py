@@ -29,12 +29,16 @@ def create_chat_for_puzzle(puzzle_id):
 
 @shared_task
 def cleanup_puzzle_channels(puzzle_id):
-    puzzle = Puzzle.objects.prefetch_related(
-        Prefetch(
-            "guesses",
-            queryset=Answer.objects.filter(status=Answer.CORRECT),
+    puzzle = (
+        _get_puzzles_queryset()
+        .prefetch_related(
+            Prefetch(
+                "guesses",
+                queryset=Answer.objects.filter(status=Answer.CORRECT),
+            )
         )
-    ).get(id=puzzle_id)
+        .get(id=puzzle_id)
+    )
     # check that puzzle wasn't unsolved between when task was queued and now
     with transaction.atomic():
         solved_time = puzzle.solved_time()
@@ -49,7 +53,7 @@ def cleanup_puzzle_channels(puzzle_id):
                 logger.warn(f"cleanup_puzzle_channels failed with error: {e}")
 
 
-@shared_task
+@shared_task(rate_limit="6/m")
 def handle_puzzle_meta_change(puzzle_id):
     puzzle = _get_puzzles_queryset().prefetch_related("metas").get(id=puzzle_id)
     try:
@@ -83,7 +87,7 @@ def handle_puzzle_unsolved(puzzle_id):
 
 @shared_task
 def handle_tag_added(puzzle_id, tag_name):
-    puzzle = Puzzle.objects.get(id=puzzle_id)
+    puzzle = _get_puzzles_queryset().get(id=puzzle_id)
     try:
         puzzle.chat_room.handle_tag_added(puzzle, tag_name)
     except Exception as e:
@@ -92,7 +96,7 @@ def handle_tag_added(puzzle_id, tag_name):
 
 @shared_task
 def handle_tag_removed(puzzle_id, tag_name):
-    puzzle = Puzzle.objects.get(id=puzzle_id)
+    puzzle = _get_puzzles_queryset().get(id=puzzle_id)
     try:
         puzzle.chat_room.handle_tag_removed(puzzle, tag_name)
     except Exception as e:
@@ -101,7 +105,7 @@ def handle_tag_removed(puzzle_id, tag_name):
 
 @shared_task
 def handle_answer_change(puzzle_id, old_answer, new_answer):
-    puzzle = Puzzle.objects.get(id=puzzle_id)
+    puzzle = _get_puzzles_queryset().get(id=puzzle_id)
     try:
         msg = f"{puzzle.name}'s answer changed from {old_answer} to {new_answer}."
         puzzle.chat_room.send_and_announce_message_with_embedded_urls(msg, puzzle)
@@ -111,7 +115,7 @@ def handle_answer_change(puzzle_id, old_answer, new_answer):
 
 @shared_task
 def handle_puzzle_rename(puzzle_id, old_name, new_name):
-    puzzle = Puzzle.objects.get(id=puzzle_id)
+    puzzle = _get_puzzles_queryset().get(id=puzzle_id)
     try:
         puzzle.chat_room.handle_puzzle_rename(new_name)
         msg = f"**{old_name}** has been renamed to **{new_name}**."
@@ -122,7 +126,7 @@ def handle_puzzle_rename(puzzle_id, old_name, new_name):
 
 @shared_task
 def handle_sheet_created(puzzle_id):
-    puzzle = Puzzle.objects.get(id=puzzle_id)
+    puzzle = _get_puzzles_queryset().get(id=puzzle_id)
     try:
         msg = "Sheet has been created!"
         puzzle.chat_room.send_message(msg, embedded_urls={"Sheet": puzzle.sheet})
