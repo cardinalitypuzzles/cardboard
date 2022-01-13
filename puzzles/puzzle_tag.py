@@ -20,6 +20,12 @@ class PuzzleTag(models.Model):
         BLACK: "black",
     }
 
+    # Some special tag names
+    # These must be kept in sync with the default tag list
+    BACKSOLVED = "Backsolved"
+    HIGH_PRIORITY = "High priority"
+    LOW_PRIORITY = "Low priority"
+
     hunt = models.ForeignKey(
         "hunts.Hunt", on_delete=models.CASCADE, related_name="puzzle_tags"
     )

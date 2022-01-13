@@ -6,7 +6,7 @@ import {
 } from "@reduxjs/toolkit";
 import { selectHuntId } from "./huntSlice";
 import api from "./api";
-import { DEFAULT_TAGS } from "./constants";
+import { DEFAULT_TAGS, HIGH_PRIORITY_TAG, LOW_PRIORITY_TAG } from "./constants";
 
 export const addPuzzle = createAsyncThunk(
   "puzzles/addPuzzle",
@@ -97,9 +97,9 @@ function puzzleComparator(a, b) {
   }
   // High-priority before untagged before low-priority
   function priority(row) {
-    if (row.tags.some((x) => x.name === "HIGH PRIORITY")) {
+    if (row.tags.some((x) => x.name === HIGH_PRIORITY_TAG)) {
       return 1;
-    } else if (row.tags.some((x) => x.name === "LOW PRIORITY")) {
+    } else if (row.tags.some((x) => x.name === LOW_PRIORITY_TAG)) {
       return -1;
     }
     return 0;

@@ -3,10 +3,14 @@ export const SELECTABLE_TAG_COLORS = [
   { color: "primary", display: "Blue" },
   { color: "light", display: "White" },
 ];
+export const HIGH_PRIORITY_TAG = "High priority";
+export const LOW_PRIORITY_TAG = "Low priority";
+
 // TODO(#527): Store these in the backend and read them from an API call
 export const DEFAULT_TAGS = [
-  { name: "High priority", color: "danger" },
-  { name: "Low priority", color: "warning" },
+  // These tags have special effects, synchronize their names with the PuzzleTag model in python
+  { name: HIGH_PRIORITY_TAG, color: "danger" },
+  { name: LOW_PRIORITY_TAG, color: "warning" },
   { name: "Backsolved", color: "success" },
   { name: "Slog", color: "secondary" },
 
