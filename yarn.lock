@@ -1811,6 +1811,13 @@ isobject@^3.0.1:
   resolved "https://registry.yarnpkg.com/isobject/-/isobject-3.0.1.tgz#4e431e92b11a9731636aa1f9c8d1ccbcfdab78df"
   integrity sha1-TkMekrEalzFjaqH5yNHMvP2reN8=
 
+javascript-time-ago@^2.3.10:
+  version "2.3.10"
+  resolved "https://registry.yarnpkg.com/javascript-time-ago/-/javascript-time-ago-2.3.10.tgz#483e960d158a24394806aed96f34f00669b671e8"
+  integrity sha512-eeZx3B8ACZpFTiaow4Xl3YTIG9UjebwVjHEDnKyzJ1NBve1ZqJIgy97yoT9Esw+Vf+XgSk4YCpOsyK5X/ByRzQ==
+  dependencies:
+    relative-time-format "^1.0.6"
+
 jest-worker@^26.6.1:
   version "26.6.2"
   resolved "https://registry.yarnpkg.com/jest-worker/-/jest-worker-26.6.2.tgz#7f72cbc4d643c365e27b9fd775f9d0eaa9c7a8ed"
@@ -1940,6 +1947,11 @@ match-sorter@^6.0.1:
   dependencies:
     "@babel/runtime" "^7.12.5"
     remove-accents "0.4.2"
+
+memoize-one@^6.0.0:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/memoize-one/-/memoize-one-6.0.0.tgz#b2591b871ed82948aee4727dc6abceeeac8c1045"
+  integrity sha512-rkpe71W0N0c0Xz6QD0eJETuWAJGnJ9afsl1srmwPrI+yBCkge5EycXXbYRyvL29zZVUWQCY7InPRCv3GDXuZNw==
 
 merge-stream@^2.0.0:
   version "2.0.0"
@@ -2132,6 +2144,11 @@ path-parse@^1.0.6:
   resolved "https://registry.yarnpkg.com/path-parse/-/path-parse-1.0.7.tgz#fbc114b60ca42b30d9daf5858e4bd68bbedb6735"
   integrity sha512-LDJzPVEEEPR+y48z93A0Ed0yXb8pAByGWo/k5YYdYgpY2/2EsOsksJrq7lOHxryrVOn1ejG6oAp8ahvOIQD8sw==
 
+performance-now@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/performance-now/-/performance-now-2.1.0.tgz#6309f4e0e5fa913ec1c69307ae364b4b377c9e7b"
+  integrity sha1-Ywn04OX6kT7BxpMHrjZLSzd8nns=
+
 picomatch@^2.2.3:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/picomatch/-/picomatch-2.3.0.tgz#f1f061de8f6a4bf022892e2d128234fb98302972"
@@ -2183,6 +2200,13 @@ punycode@^2.1.0:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/punycode/-/punycode-2.1.1.tgz#b58b010ac40c22c5657616c8d2c2c02c7bf479ec"
   integrity sha512-XRsRjdf+j5ml+y/6GKHPZbrF/8p2Yga0JPtdqTIY2Xe5ohJPD9saDJJLPvp9+NSBprVvevdXZybnj2cv8OEd0A==
+
+raf@^3.4.1:
+  version "3.4.1"
+  resolved "https://registry.yarnpkg.com/raf/-/raf-3.4.1.tgz#0742e99a4a6552f445d73e3ee0328af0ff1ede39"
+  integrity sha512-Sq4CW4QhwOHE8ucn6J34MqtZCeWFP2aQSmrlroYgqAV1PjStIhJXxYuTgUIfkEk7zTLjmIjLmU5q+fbD1NnOJA==
+  dependencies:
+    performance-now "^2.1.0"
 
 randombytes@^2.1.0:
   version "2.1.0"
@@ -2263,6 +2287,15 @@ react-table@^7.6.2:
   version "7.6.2"
   resolved "https://registry.yarnpkg.com/react-table/-/react-table-7.6.2.tgz#b60932fa6d457c2bca0da49815cd6a8fe9451f77"
   integrity sha512-urwNZTieb+xg/+BITUIrqdH5jZfJlw7rKVAAq25iXpBPwbQojLCEKJuGycLbVwn8fzU+Ovly3y8HHNaLNrPCvQ==
+
+react-time-ago@^7.1.7:
+  version "7.1.7"
+  resolved "https://registry.yarnpkg.com/react-time-ago/-/react-time-ago-7.1.7.tgz#53aed5b1add1488e63f433c05b8eaf1d21b3e258"
+  integrity sha512-HOEPOYpYYAxPnAqfQ7sfUBvbRfuhm0NO77gAZSJ/nkrQdGWoA3p1iyTt0bKQthfhj1MXtf6S97OOVr/XaLkOBw==
+  dependencies:
+    memoize-one "^6.0.0"
+    prop-types "^15.7.2"
+    raf "^3.4.1"
 
 react-transition-group@^4.4.1:
   version "4.4.1"
@@ -2360,6 +2393,11 @@ regjsparser@^0.6.4:
   integrity sha512-64O87/dPDgfk8/RQqC4gkZoGyyWFIEUTTh80CU6CWuK5vkCGyekIx+oKcEIYtP/RAxSQltCZHCNu/mdd7fqlJw==
   dependencies:
     jsesc "~0.5.0"
+
+relative-time-format@^1.0.6:
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/relative-time-format/-/relative-time-format-1.0.6.tgz#4956f6aa161f63cbab8a7f2d8b2e92d7b6a888a3"
+  integrity sha512-voemOJLxlKun4P1fAo4PEg2WXNGjhqfE/G8Xen4gcy24Hyu/djn5bT5axmhx4MnjynoZ8f0HCOjk3RZpsY6X/g==
 
 remove-accents@0.4.2:
   version "0.4.2"

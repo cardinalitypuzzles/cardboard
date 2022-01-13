@@ -15,6 +15,7 @@ import { getTextFilter } from "./filterSlice";
 import AnswerCell from "./AnswerCell";
 import NameCell from "./NameCell";
 import StatusCell from "./StatusCell";
+import CreationCell from "./CreationCell";
 import TagCell from "./TagCell";
 import { LinkCell } from "./LinkCell";
 
@@ -23,7 +24,7 @@ const TABLE_COLUMNS = [
     Header: "Name",
     accessor: "name",
     Cell: NameCell,
-    className: "col-5",
+    className: "col-4",
   },
   {
     Header: "Answer",
@@ -42,6 +43,12 @@ const TABLE_COLUMNS = [
   {
     Header: "Links",
     Cell: LinkCell,
+    className: "col-1",
+  },
+  {
+    Header: "Created",
+    accessor: "created_on",
+    Cell: CreationCell,
     className: "col-1",
   },
   {

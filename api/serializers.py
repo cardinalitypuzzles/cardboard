@@ -169,6 +169,7 @@ class PuzzleSerializer(serializers.ModelSerializer):
             "metas",
             "feeders",
             "is_meta",
+            "created_on",
         )
 
         read_only_fields = (
@@ -180,6 +181,7 @@ class PuzzleSerializer(serializers.ModelSerializer):
             "tags",
             "metas",
             "feeders",
+            "created_on",
         )
 
         validators = (
