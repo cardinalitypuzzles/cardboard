@@ -60,6 +60,10 @@ const TABLE_COLUMNS = [
     accessor: "id",
     id: "id",
   },
+  {
+    accessor: "url",
+    id: "url",
+  },
 ];
 
 function textFilterFn(rows, id, filterValue) {
@@ -145,7 +149,7 @@ export const PuzzleTable = React.memo(({ data, filterSolved, filterTags }) => {
       globalFilter: "globalFilter",
       autoResetFilters: false,
       initialState: {
-        hiddenColumns: ["is_meta", "id"],
+        hiddenColumns: ["is_meta", "id", "url"],
         filters: [],
       },
     },

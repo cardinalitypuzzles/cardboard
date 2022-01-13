@@ -54,6 +54,7 @@ function AddPuzzleModal({ huntId }) {
           <Form.Check
             type="checkbox"
             label="Is meta"
+            id="is-meta-checkbox"
             checked={isMeta}
             onChange={(e) => setIsMeta(e.target.checked)}
           />
