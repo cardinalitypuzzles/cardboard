@@ -1,6 +1,8 @@
 import logging
+import random
 
 from django.conf import settings
+from django.db import transaction
 
 from googleapiclient import _auth
 
@@ -29,6 +31,34 @@ def create_google_sheets_helper(self, name, template_file_id) -> dict:
     return file
 
 
+def maybe_get_renamable_sheet_for_puzzle(self, puzzle):
+    """Returns a sheet ID for a spare template file that can be assigned to this puzzle (without making a copy)."""
+
+    template_folder_id = puzzle.hunt.settings.google_sheets_template_folder_id
+    if not template_folder_id:
+        return None
+
+    response = (
+        self.drive_service()
+        .files()
+        .list(
+            corpora="user",
+            q=f"'{template_folder_id}' in parents",
+            fields="files(id,webViewLink,permissions)",
+        )
+        .execute()
+    )
+    files = response.get("files", [])
+    if len(files) == 0:
+        logger.warn(
+            f"The Drive template folder {template_folder_id} for hunt {puzzle.hunt.name} is empty"
+        )
+        return None
+
+    # Return a random file to reduce race conditions or problems with a specific file
+    return random.choice(files)
+
+
 @shared_task(base=GoogleApiClientTask, bind=True)
 def move_drive_file(self, file_id, destination_folder_id) -> None:
     file = self.drive_service().files().get(fileId=file_id, fields="parents").execute()
@@ -55,41 +85,57 @@ def transfer_ownership(self, file, template_file_id) -> None:
 
 @shared_task(base=GoogleApiClientTask, bind=True, priority=TaskPriority.HIGH.value)
 def create_google_sheets(self, puzzle_id) -> None:
-    puzzle = Puzzle.objects.select_related("hunt__settings").get(pk=puzzle_id)
-    template_file_id = (
-        puzzle.hunt.settings.google_sheets_template_file_id
-        or settings.GOOGLE_SHEETS_TEMPLATE_FILE_ID
-    )
-    if not template_file_id:
-        logging.warn(
-            f"Cannot create a sheet for {puzzle.name} as we can't find a sheets template"
+    with transaction.atomic():
+        puzzle = Puzzle.objects.select_related("hunt__settings").get(pk=puzzle_id)
+        template_file_id = (
+            puzzle.hunt.settings.google_sheets_template_file_id
+            or settings.GOOGLE_SHEETS_TEMPLATE_FILE_ID
         )
-        return
-    destination_folder_id = (
-        puzzle.hunt.settings.google_drive_folder_id
-        or settings.GOOGLE_DRIVE_HUNT_FOLDER_ID
-    )
-
-    response = create_google_sheets_helper(self, puzzle.name, template_file_id)
-
-    sheet_url = response["webViewLink"]
-    add_puzzle_link_to_sheet(puzzle.url, sheet_url)
-    puzzle.sheet = sheet_url
-    puzzle.save()
-
-    transfer_ownership.delay(response, template_file_id)
-
-    if destination_folder_id:
-        move_drive_file.delay(
-            file_id=response["id"], destination_folder_id=destination_folder_id
-        )
-    else:
-        logging.warn(
-            f"Cannot move the new puzzle for {puzzle.name} as we can't find a drive folder"
+        destination_folder_id = (
+            puzzle.hunt.settings.google_drive_folder_id
+            or settings.GOOGLE_DRIVE_HUNT_FOLDER_ID
         )
 
-    if puzzle.chat_room:
-        handle_sheet_created.delay(puzzle_id)
+        new_file = None
+
+        existing_file = maybe_get_renamable_sheet_for_puzzle(self, puzzle)
+        if existing_file:
+            new_file = existing_file
+        else:
+            if not template_file_id:
+                logging.warn(
+                    f"Cannot create a sheet for {puzzle.name} as we can't find a sheets template"
+                )
+                return
+            new_file = create_google_sheets_helper(self, puzzle.name, template_file_id)
+
+        sheet_url = new_file["webViewLink"]
+        puzzle.sheet = sheet_url
+        puzzle.save()
+
+        def post_create_tasks():
+            if existing_file:
+                # We copied over an existing file, but we haven't renamed it yet
+                rename_sheet.delay(sheet_url, puzzle.name)
+
+            transfer_ownership.delay(new_file, template_file_id)
+
+            if destination_folder_id:
+                move_drive_file.delay(
+                    file_id=new_file["id"], destination_folder_id=destination_folder_id
+                )
+            else:
+                logging.warn(
+                    f"Cannot move the new puzzle for {puzzle.name} as we can't find a drive folder"
+                )
+
+            if puzzle.chat_room:
+                handle_sheet_created.delay(puzzle_id)
+
+        # Only run these other tasks if we successfully commit this particular sheet ID
+        # We might not be able to if there's some race condition
+        # (for example, two puzzles claiming the same sheet at the same time)
+        transaction.on_commit(post_create_tasks)
 
 
 def extract_id_from_sheets_url(url) -> str:
