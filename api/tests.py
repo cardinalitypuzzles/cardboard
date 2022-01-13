@@ -268,19 +268,20 @@ class ApiTests(CardboardTestCase, APITestCase):
         puzzle = Puzzle.objects.get()
         self.check_response_status(
             self.create_tag(
-                puzzle.pk, {"name": "HIGH PRIORITY", "color": PuzzleTag.RED}
+                puzzle.pk, {"name": PuzzleTag.HIGH_PRIORITY, "color": PuzzleTag.RED}
             )
         )
         self.assertEqual(puzzle.tags.count(), 1)
         tag = puzzle.tags.get()
+        self.assertEqual(tag.name, PuzzleTag.HIGH_PRIORITY)
 
         response = self.create_tag(
-            puzzle.pk, {"name": "LOW PRIORITY", "color": PuzzleTag.YELLOW}
+            puzzle.pk, {"name": PuzzleTag.LOW_PRIORITY, "color": PuzzleTag.YELLOW}
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         # Should still have only 1 tag.
         self.assertEqual(puzzle.tags.count(), 1)
-        self.assertEqual(puzzle.tags.all()[0].name, "LOW PRIORITY")
+        self.assertEqual(puzzle.tags.all()[0].name, PuzzleTag.LOW_PRIORITY)
         # Should return a puzzle
         self.assertEqual(response.data[0]["name"], puzzle.name)
 

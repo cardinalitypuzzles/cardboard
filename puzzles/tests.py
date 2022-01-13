@@ -179,7 +179,7 @@ class TestPuzzle(APITestCase):
 
         self.client.post(
             f"/api/v1/puzzles/{feeder.pk}/tags",
-            {"name": Puzzle.BACKSOLVED_TAG.upper(), "color": "primary"},
+            {"name": PuzzleTag.BACKSOLVED.upper(), "color": "primary"},
         )
         # Not backsolved as it hasn't been solved yet
         self.assertFalse(feeder.is_backsolved())
@@ -189,7 +189,7 @@ class TestPuzzle(APITestCase):
         # Now we're backsolved!
         self.assertTrue(feeder.is_backsolved())
 
-        tag = feeder.tags.get(name=Puzzle.BACKSOLVED_TAG.upper())
+        tag = feeder.tags.get(name=PuzzleTag.BACKSOLVED.upper())
         self.client.delete(f"/api/v1/puzzles/{feeder.pk}/tags/{tag.id}")
         # Missing the tag
         self.assertFalse(feeder.is_backsolved())
@@ -197,7 +197,7 @@ class TestPuzzle(APITestCase):
         # Lowercase tag should work too
         self.client.post(
             f"/api/v1/puzzles/{feeder.pk}/tags",
-            {"name": Puzzle.BACKSOLVED_TAG.lower(), "color": "primary"},
+            {"name": PuzzleTag.BACKSOLVED.lower(), "color": "primary"},
         )
         # Now it should be backsolved again
         self.assertTrue(feeder.is_backsolved())

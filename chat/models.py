@@ -2,6 +2,8 @@ from django.conf import settings
 from django.db import models
 from django.dispatch import receiver
 
+from puzzles.puzzle_tag import PuzzleTag
+
 
 def _get_default_service():
     return settings.CHAT_DEFAULT_SERVICE
@@ -143,7 +145,7 @@ class ChatRoom(models.Model):
         self.send_message(msg, embedded_urls)
 
     def handle_tag_added(self, puzzle, tag_name):
-        if tag_name in ["HIGH PRIORITY", "LOW PRIORITY"]:
+        if tag_name in [PuzzleTag.HIGH_PRIORITY, PuzzleTag.LOW_PRIORITY]:
             self.send_message(f"This puzzle was marked {tag_name}")
         # Any service-specific logic should go in the handler below
         self.get_service().handle_tag_added(puzzle, tag_name)
