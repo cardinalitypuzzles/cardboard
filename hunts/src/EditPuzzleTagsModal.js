@@ -9,7 +9,7 @@ import { hideModal } from "./modalSlice";
 import TagPill from "./TagPill";
 import EditableTagList from "./EditableTagList";
 
-function EditPuzzleTagsModal({ puzzleId }) {
+function EditPuzzleTagsModal({ puzzleId, puzzleName }) {
   const allTags = useSelector(selectAllTags);
   const [newTagName, setNewTagName] = React.useState("");
   const [newTagColor, setNewTagColor] = React.useState(DEFAULT_TAG_COLOR);
@@ -17,7 +17,7 @@ function EditPuzzleTagsModal({ puzzleId }) {
   return (
     <>
       <Modal.Header closeButton>
-        <Modal.Title>Edit Tags</Modal.Title>
+        <Modal.Title>Edit Tags for {puzzleName}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <h5 style={{ textAlign: "center" }}>Metas</h5>

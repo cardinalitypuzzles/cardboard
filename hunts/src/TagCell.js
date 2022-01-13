@@ -31,6 +31,7 @@ function TagCell({ row, value }) {
               props: {
                 huntId,
                 puzzleId: row.values.id,
+                puzzleName: row.values.name,
               },
             })
           )
