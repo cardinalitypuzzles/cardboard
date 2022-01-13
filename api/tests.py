@@ -1,6 +1,7 @@
 from .test_helpers import CardboardTestCase
 from django.conf import settings
 from django.test import override_settings, TransactionTestCase
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APITestCase
 from puzzles.models import Puzzle, PuzzleTag
@@ -82,6 +83,9 @@ class ApiTests(CardboardTestCase, APITestCase):
                 "metas": [],
                 "feeders": [],
                 "is_meta": False,
+                "created_on": puzzle.created_on.astimezone(
+                    timezone.get_current_timezone()
+                ).isoformat(),
             },
         )
 

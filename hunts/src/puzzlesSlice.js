@@ -108,8 +108,7 @@ function puzzleComparator(a, b) {
     return priority(b) - priority(a);
   }
   // Newer puzzles before old ones
-  // TODO: once creation times are added to puzzles, use those instead
-  return b.id - a.id;
+  return Date.parse(b.created_on) - Date.parse(a.created_on);
 }
 
 const puzzlesAdapter = createEntityAdapter();
