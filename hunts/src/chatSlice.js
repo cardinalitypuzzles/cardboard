@@ -1,8 +1,8 @@
 import { createSlice, createSelector } from "@reduxjs/toolkit";
 
 export const CHAT_VERSION_OPTIONS = {
-  APP: 0,
-  WEB: 1,
+  APP: 1,
+  WEB: 2,
 };
 
 export const chatSlice = createSlice({

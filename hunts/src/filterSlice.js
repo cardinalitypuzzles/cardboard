@@ -1,9 +1,9 @@
 import { createSlice, createSelector } from "@reduxjs/toolkit";
 
 export const SOLVE_STATE_FILTER_OPTIONS = {
-  ALL: 0,
-  UNSOLVED: 1, // Excludes all solved puzzles and their feeders.
-  UNSOLVED_WITH_SOLVED_METAS: 2, // Includes unsolved feeders with solved metas.
+  ALL: 1,
+  UNSOLVED: 2, // Excludes all solved puzzles and their feeders.
+  UNSOLVED_WITH_SOLVED_METAS: 3, // Includes unsolved feeders with solved metas.
 };
 
 export const filterSlice = createSlice({
