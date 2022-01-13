@@ -160,6 +160,14 @@ class HuntSettings(models.Model):
     # This should be part of the url (https://docs.google.com/spreadsheets/d/<sheet_id>)
     google_sheets_template_file_id = models.CharField(max_length=128, blank=True)
 
+    # The id of a Google Drive folder where template files for this hunt can be found
+    # Used as a way to get around #372
+    # Cardboard will try to use one of the files in here if possible, before making a copy
+    # of the master sheet.
+    # TODO: Figure out a better solution to this longer-term, like getting Drive permission on sign-in
+    # and using those instead of the service account, or using an add-on somehow
+    google_sheets_template_folder_id = models.CharField(max_length=128, blank=True)
+
     # A link to the Google Drive folder that solvers can use for misc. files
     google_drive_human_url = models.URLField(blank=True)
 
