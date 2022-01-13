@@ -423,12 +423,6 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
                 else:
                     # the post m2m hook will add tag
                     puzzle.metas.add(meta)
-                    if puzzle.chat_room:
-                        transaction.on_commit(
-                            lambda: chat.tasks.handle_puzzle_meta_change.delay(
-                                puzzle.id
-                            )
-                        )
             else:
                 PuzzleTag.objects.filter(name=tag_name, hunt=puzzle.hunt).update(
                     color=tag_color,
