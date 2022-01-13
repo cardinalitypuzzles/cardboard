@@ -82,6 +82,7 @@ class ApiTests(CardboardTestCase, APITestCase):
                 "metas": [],
                 "feeders": [],
                 "is_meta": False,
+                "created_on": puzzle.created_on,
             },
         )
 
