@@ -374,3 +374,61 @@ class SheetTests(CardboardTestCase, TransactionTestCase):
             rename_sheet.assert_called_with(
                 sheet_url=google_api_lib.tests.TEST_SHEET, name=f"{puzzle.name}"
             )
+
+    @patch("google_api_lib.tasks.rename_sheet.delay")
+    @patch(
+        "google_api_lib.tasks.create_google_sheets_helper",
+        google_api_lib.tests.mock_create_google_sheets_helper,
+    )
+    @patch(
+        "google_api_lib.tasks.transfer_ownership.delay",
+        google_api_lib.tests.mock_transfer_ownership,
+    )
+    @patch(
+        "google_api_lib.tasks.add_puzzle_link_to_sheet",
+        google_api_lib.tests.mock_add_puzzle_link_to_sheet,
+    )
+    def test_sheets_title_editing_case_insensitive(self, rename_sheet):
+        self.check_response_status(
+            self.create_puzzle({"name": TEST_NAME, "url": TEST_URL})
+        )
+        puzzle = Puzzle.objects.get()
+        google_api_lib.tasks.create_google_sheets(puzzle.id)
+
+        with override_settings(GOOGLE_API_AUTHN_INFO={}):
+            self.check_response_status(self.create_answer(puzzle.pk, {"text": "ans"}))
+            rename_sheet.assert_called_with(
+                sheet_url=google_api_lib.tests.TEST_SHEET,
+                name=f"[SOLVED: ANS] {puzzle.name}",
+            )
+
+            self.check_response_status(self.create_answer(puzzle.pk, {"text": "ans2"}))
+            rename_sheet.assert_called_with(
+                sheet_url=google_api_lib.tests.TEST_SHEET,
+                name=f"[SOLVED: ANS, ANS2] {puzzle.name}",
+            )
+
+            self.check_response_status(
+                self.create_tag(
+                    puzzle.pk, {"name": "backSoLvEd", "color": PuzzleTag.GREEN}
+                )
+            )
+            rename_sheet.assert_called_with(
+                sheet_url=google_api_lib.tests.TEST_SHEET,
+                name=f"[BACKSOLVED: ANS, ANS2] {puzzle.name}",
+            )
+
+            self.check_response_status(
+                self.delete_answer(puzzle.pk, puzzle.guesses.get(text="ANS").pk)
+            )
+            rename_sheet.assert_called_with(
+                sheet_url=google_api_lib.tests.TEST_SHEET,
+                name=f"[BACKSOLVED: ANS2] {puzzle.name}",
+            )
+
+            self.check_response_status(
+                self.delete_answer(puzzle.pk, puzzle.guesses.get(text="ANS2").pk)
+            )
+            rename_sheet.assert_called_with(
+                sheet_url=google_api_lib.tests.TEST_SHEET, name=f"{puzzle.name}"
+            )
