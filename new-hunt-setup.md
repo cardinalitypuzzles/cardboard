@@ -139,7 +139,7 @@ Miscellaneous configs:
 
 #### Discord role pings
 
-To associate Discord roles with Cardboard tags, so that puzzles with certain tags will ping certain roles (for example, a "comic books" Cardboard tag could ping the "@comics" Discord role), you must use the Django admin. 
+To associate Discord roles with Cardboard tags, so that puzzles with certain tags will ping certain roles (for example, a "comic books" Cardboard tag could ping the "@comics" Discord role), you must use the Django admin.
 
 * Log in to the Django admin page for your Cardboard instance at `/admin`
 * Go to the ChatRole tab on the left (located at `/admin/chat/chatrole`)
