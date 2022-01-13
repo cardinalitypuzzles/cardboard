@@ -66,20 +66,49 @@ class ChatRoom(models.Model):
     def get_service(self):
         return settings.CHAT_SERVICES[self.service].get_instance()
 
+    def get_guild_id(self):
+        return self.puzzle.hunt.settings.discord_guild_id
+
+    def _get_category_name(self):
+        if self.puzzle.is_meta:
+            return self.puzzle.hunt.settings.discord_metas_category
+
+        metas = self.puzzle.metas.order_by("created_on").all()
+        if len(metas) > 0:
+            return metas[0].name  # default to the oldest created meta
+        else:
+            None
+
+    def _get_text_category_name(self):
+        return (
+            self._get_category_name()
+            or self.puzzle.hunt.settings.discord_unassigned_text_category
+        )
+
+    def _get_audio_category_name(self):
+        return (
+            self._get_category_name()
+            or self.puzzle.hunt.settings.discord_unassigned_voice_category
+        )
+
     def create_channels(self):
         service = self.get_service()
         update_fields = []
         if self.text_channel_id is None:
-            self.text_channel_id = service.create_text_channel(self.name)
+            self.text_channel_id = service.create_text_channel(
+                self.get_guild_id(), self.name, self._get_text_category_name()
+            )
             self.text_channel_url = service.create_channel_url(
-                self.text_channel_id, is_audio=False
+                self.get_guild_id(), self.text_channel_id, is_audio=False
             )
             update_fields.extend(["text_channel_id", "text_channel_url"])
 
         if self.audio_channel_id is None:
-            self.audio_channel_id = service.create_audio_channel(self.name)
+            self.audio_channel_id = service.create_audio_channel(
+                self.get_guild_id(), self.name, self._get_audio_category_name()
+            )
             self.audio_channel_url = service.create_channel_url(
-                self.audio_channel_id, is_audio=True
+                self.get_guild_id(), self.audio_channel_id, is_audio=True
             )
             update_fields.extend(["audio_channel_id", "audio_channel_url"])
 
@@ -87,17 +116,45 @@ class ChatRoom(models.Model):
 
     def archive_channels(self):
         service = self.get_service()
+        archive_category = self.puzzle.hunt.settings.discord_archive_category
         if self.text_channel_id:
-            service.archive_channel(self.text_channel_id)
+            service.archive_channel(
+                self.get_guild_id(), self.text_channel_id, archive_category
+            )
         if self.audio_channel_id:
-            service.archive_channel(self.audio_channel_id)
+            service.archive_channel(
+                self.get_guild_id(), self.audio_channel_id, archive_category
+            )
+
+    def update_category(self):
+        service = self.get_service()
+        if self.text_channel_id:
+            service.categorize_channel(
+                self.get_guild_id(),
+                self.text_channel_id,
+                self._get_text_category_name(),
+            )
+        if self.audio_channel_id:
+            service.categorize_channel(
+                self.get_guild_id(),
+                self.audio_channel_id,
+                self._get_audio_category_name(),
+            )
 
     def unarchive_channels(self):
         service = self.get_service()
         if self.text_channel_id:
-            service.unarchive_text_channel(self.text_channel_id)
+            service.unarchive_text_channel(
+                self.get_guild_id(),
+                self.text_channel_id,
+                self._get_text_category_name(),
+            )
         if self.audio_channel_id:
-            service.unarchive_voice_channel(self.audio_channel_id)
+            service.unarchive_voice_channel(
+                self.get_guild_id(),
+                self.audio_channel_id,
+                self._get_audio_category_name(),
+            )
 
     def delete_channels(self, check_if_used=False):
         service = self.get_service()
@@ -109,12 +166,12 @@ class ChatRoom(models.Model):
         )
 
         if should_delete_text_channel:
-            service.delete_text_channel(self.text_channel_id)
+            service.delete_text_channel(self.get_guild_id(), self.text_channel_id)
             self.text_channel_id = None
             self.text_channel_url = ""
             update_fields.extend(["text_channel_id", "text_channel_url"])
         if self.audio_channel_id:
-            service.delete_audio_channel(self.audio_channel_id)
+            service.delete_audio_channel(self.get_guild_id(), self.audio_channel_id)
             self.audio_channel_id = None
             self.audio_channel_url = ""
             update_fields.extend(["audio_channel_id", "audio_channel_url"])
@@ -132,24 +189,38 @@ class ChatRoom(models.Model):
             service.send_message(self.text_channel_id, msg, embedded_urls)
 
     def send_and_announce_message(self, msg):
-        self.get_service().announce(msg)
+        self.get_service().announce(
+            self.puzzle.hunt.settings.discord_puzzle_announcements_channel_id, msg
+        )
         self.send_message(msg)
 
     def send_and_announce_message_with_embedded_urls(self, msg, puzzle):
         embedded_urls = {}
         if puzzle:
             embedded_urls = puzzle.create_field_url_map()
-        self.get_service().announce(msg, embedded_urls)
+        self.get_service().announce(
+            self.puzzle.hunt.settings.discord_puzzle_announcements_channel_id,
+            msg,
+            embedded_urls,
+        )
         self.send_message(msg, embedded_urls)
 
     def handle_tag_added(self, puzzle, tag_name):
         if tag_name in ["HIGH PRIORITY", "LOW PRIORITY"]:
             self.send_message(f"This puzzle was marked {tag_name}")
         # Any service-specific logic should go in the handler below
-        self.get_service().handle_tag_added(puzzle, tag_name)
+        self.get_service().handle_tag_added(
+            self.puzzle.hunt.settings.discord_puzzle_announcements_channel_id,
+            puzzle,
+            tag_name,
+        )
 
     def handle_tag_removed(self, puzzle, tag_name):
-        self.get_service().handle_tag_removed(puzzle, tag_name)
+        self.get_service().handle_tag_removed(
+            self.puzzle.hunt.settings.discord_puzzle_announcements_channel_id,
+            puzzle,
+            tag_name,
+        )
 
     def handle_puzzle_rename(self, new_name):
         service = self.get_service()

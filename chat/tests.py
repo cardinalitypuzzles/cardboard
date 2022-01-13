@@ -1,5 +1,6 @@
 from django.test import TestCase, override_settings
-
+from hunts.models import Hunt
+from puzzles.models import Puzzle
 from .models import ChatRoom
 from .service import ChatService
 from .fake_service import FakeChatService
@@ -14,7 +15,29 @@ from .fake_service import FakeChatService
 )
 class TestChatRoom(TestCase):
     def setUp(self):
-        self.room = ChatRoom.objects.create(name="Test Room 🧩", service="FAKE")
+        hunt = Hunt.objects.create(name="fake hunt", url="google.com")
+        meta = Puzzle.objects.create(
+            name="meta",
+            hunt=hunt,
+            url="meta.com",
+            sheet="sheet.com",
+            is_meta=True,
+        )
+
+        feeder = Puzzle.objects.create(
+            name="puzzle",
+            hunt=hunt,
+            url="url.com",
+            sheet="sheet2.com",
+            is_meta=False,
+        )
+
+        self.room = ChatRoom.objects.create(
+            puzzle=feeder, name="Test Room 🧩", service="FAKE"
+        )
+        self.meta_room = ChatRoom.objects.create(
+            puzzle=meta, name="Meta Room", service="FAKE"
+        )
         self.fake_service = FakeChatService.get_instance()
 
     def test_chat_room_str_uses_name(self):
@@ -29,31 +52,78 @@ class TestChatRoom(TestCase):
 
     def test_chat_room_create_channels_based_on_name(self):
         self.room.create_channels()
-        self.assertIn(self.room.name, self.fake_service.text_channels)
-        self.assertIn(self.room.name, self.fake_service.audio_channels)
+        self.assertIn(self.room.text_channel_id, self.fake_service.text_channels)
+        self.assertIn(self.room.audio_channel_id, self.fake_service.audio_channels)
 
     def test_chat_room_delete_channels(self):
         self.room.create_channels()
         self.room.delete_channels()
-        self.assertNotIn("Test Room 🧩", self.fake_service.text_channels)
-        self.assertNotIn("Test Room 🧩", self.fake_service.audio_channels)
+        self.assertNotIn(self.room.text_channel_id, self.fake_service.text_channels)
+        self.assertNotIn(self.room.audio_channel_id, self.fake_service.audio_channels)
 
     def test_chat_room_object_delete_calls_delete_channels(self):
         self.room.create_channels()
         self.room.delete()
-        self.assertNotIn(self.room.name, self.fake_service.text_channels)
-        self.assertNotIn(self.room.name, self.fake_service.audio_channels)
+        self.assertNotIn(self.room.text_channel_id, self.fake_service.text_channels)
+        self.assertNotIn(self.room.audio_channel_id, self.fake_service.audio_channels)
 
     def test_chat_room_archive_and_unarchive(self):
         self.room.create_channels()
         self.room.archive_channels()
-        self.assertIn("Test Room 🧩", self.fake_service.archived_channels)
+        self.assertIn(self.room.text_channel_id, self.fake_service.archived_channels)
+        self.assertIn(self.room.audio_channel_id, self.fake_service.archived_channels)
         self.room.unarchive_channels()
-        self.assertNotIn("Test Room 🧩", self.fake_service.archived_channels)
+        self.assertNotIn(self.room.text_channel_id, self.fake_service.archived_channels)
+        self.assertNotIn(
+            self.room.audio_channel_id, self.fake_service.archived_channels
+        )
+
+    def test_metas_category(self):
+        meta_category = self.meta_room.puzzle.hunt.settings.discord_metas_category
+        self.meta_room.create_channels()
+        self.meta_room.update_category()
+        self.assertIn(
+            self.meta_room.text_channel_id,
+            self.fake_service.category_to_channel[meta_category],
+        )
+        self.assertIn(
+            self.meta_room.audio_channel_id,
+            self.fake_service.category_to_channel[meta_category],
+        )
+
+        self.meta_room.puzzle.is_meta = False
+        self.meta_room.puzzle.save()
+        self.meta_room.update_category()
+        self.assertNotIn(
+            self.meta_room.text_channel_id,
+            self.fake_service.category_to_channel[meta_category],
+        )
+        self.assertNotIn(
+            self.meta_room.audio_channel_id,
+            self.fake_service.category_to_channel[meta_category],
+        )
+
+    def test_feeder_category(self):
+        text_category = (
+            self.meta_room.puzzle.hunt.settings.discord_unassigned_text_category
+        )
+        voice_category = (
+            self.meta_room.puzzle.hunt.settings.discord_unassigned_voice_category
+        )
+        self.room.create_channels()
+        self.room.update_category()
+        self.assertIn(
+            self.room.text_channel_id,
+            self.fake_service.category_to_channel[text_category],
+        )
+        self.assertIn(
+            self.room.audio_channel_id,
+            self.fake_service.category_to_channel[voice_category],
+        )
 
     def test_send_message_and_announce(self):
         self.room.create_channels()
-        msg = "Test Room 🧩"
+        msg = self.room.name
         self.room.send_message(msg)
         self.assertIn(msg, self.fake_service.messages)
 
@@ -75,11 +145,15 @@ class TestChatService(TestCase):
                 continue
             with self.assertRaises(NotImplementedError):
                 func = service.__getattribute__(f)
-                if f == "send_message":
+                if f == "send_message" or f == "announce":
                     func("channel-name-or-id", "msg")
                 elif f == "handle_tag_added" or f == "handle_tag_removed":
-                    func("puzzle", "tag")
+                    func("channel-id", "puzzle", "tag")
                 elif f == "handle_puzzle_rename":
                     func("channel", "name")
+                elif f == "categorize_channel":
+                    func("guild-id", "channel-name-or-id", "category-name")
+                elif f == "get_text_channel_participants":
+                    func("channel-id")
                 else:
-                    func("channel-name-or-id")
+                    func("guild-id", "channel-name-or-id")

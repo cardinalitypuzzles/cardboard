@@ -10,7 +10,7 @@ from puzzles.models import Puzzle
 @login_required(login_url="/")
 def redirect_to_sheet(request, puzzle_pk):
     try:
-        puzzle = Puzzle.objects.get(pk=puzzle_pk)
+        puzzle = Puzzle.objects.select_related("hunt__settings").get(pk=puzzle_pk)
     except ObjectDoesNotExist:
         messages.error(
             request, f"Puzzle ID {puzzle_pk} does not exist, cannot redirect."
@@ -24,6 +24,6 @@ def redirect_to_sheet(request, puzzle_pk):
         messages.error(
             request,
             f"Sheets does not exist yet for {puzzle.name}.\n"
-            f"Please wait a few minutes. If you have been waiting for a while, please ping @{settings.DISCORD_DEVS_ROLE}",
+            f"Please wait a few minutes. If you have been waiting for a while, please ping @{puzzle.hunt.settings.discord_devs_role}",
         )
         return redirect("/", {"hunt_pk": puzzle.hunt.pk})

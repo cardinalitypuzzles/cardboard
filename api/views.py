@@ -230,11 +230,13 @@ class PuzzleViewSet(viewsets.ModelViewSet):
                 serializer.is_valid(raise_exception=True)
                 data = serializer.validated_data
                 new_url = data.get("url", puzzle.url)
-                is_new_url = new_url != puzzle.url
+                url_changed = new_url != puzzle.url
+                new_is_meta = data.get("is_meta", puzzle.is_meta)
+                meta_status_changed = new_is_meta != puzzle.is_meta
                 puzzle.update_metadata(
                     new_name=data.get("name", puzzle.name),
                     new_url=new_url,
-                    new_is_meta=data.get("is_meta", puzzle.is_meta),
+                    new_is_meta=new_is_meta,
                 )
                 if "status" in data:
                     old_status = puzzle.status
@@ -284,7 +286,7 @@ class PuzzleViewSet(viewsets.ModelViewSet):
                         lambda: AnswerViewSet._maybe_update_sheets_title(puzzle)
                     )
 
-                if is_new_url and google_api_lib.enabled():
+                if url_changed and google_api_lib.enabled():
                     transaction.on_commit(
                         lambda: google_api_lib.tasks.add_puzzle_link_to_sheet.delay(
                             new_url, puzzle.sheet
@@ -295,6 +297,11 @@ class PuzzleViewSet(viewsets.ModelViewSet):
                         lambda: google_api_lib.tasks.update_meta_sheet_feeders.delay(
                             puzzle.id
                         )
+                    )
+
+                if meta_status_changed and puzzle.chat_room:
+                    transaction.on_commit(
+                        lambda: chat.tasks.handle_puzzle_meta_change.delay(puzzle.id)
                     )
 
         except PuzzleModelError as e:

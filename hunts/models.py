@@ -178,14 +178,19 @@ class HuntSettings(models.Model):
         max_length=128, blank=True
     )
 
-    # The category name to create all Discord text channels in
-    discord_text_category = models.CharField(
-        max_length=128, default="text [puzzles]", blank=True
+    # The category name to create all metas in
+    discord_metas_category = models.CharField(
+        max_length=128, default="metas", blank=True
     )
 
-    # The category name to create all Discord voice channels in
-    discord_voice_category = models.CharField(
-        max_length=128, default="voice [puzzles]", blank=True
+    # The category name to create all unassigned Discord text channels in
+    discord_unassigned_text_category = models.CharField(
+        max_length=128, default="text [unassigned]", blank=True
+    )
+
+    # The category name to create all unassigned Discord voice channels in
+    discord_unassigned_voice_category = models.CharField(
+        max_length=128, default="voice [unassigned]", blank=True
     )
 
     # The category name to archive all Discord channels for solved puzzles in

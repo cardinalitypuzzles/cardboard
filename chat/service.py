@@ -25,43 +25,46 @@ class ChatService:
             cls.__instances[cls] = cls(settings)
         return cls.__instances[cls]
 
-    def create_text_channel(self, name):
+    def create_text_channel(self, guild_id, name, *args, **kwargs):
         raise NotImplementedError
 
     def get_text_channel_participants(self, channel_id):
         raise NotImplementedError
 
-    def delete_text_channel(self, channel_id):
+    def delete_text_channel(self, guild_id, channel_id):
         raise NotImplementedError
 
-    def create_audio_channel(self, name):
+    def create_audio_channel(self, guild_id, name, *args, **kwargs):
         raise NotImplementedError
 
-    def delete_audio_channel(self, channel_id):
+    def delete_audio_channel(self, guild_id, channel_id):
         raise NotImplementedError
 
-    def create_channel_url(self, channel_id, is_audio=False):
+    def create_channel_url(self, guild_id, channel_id, is_audio=False):
         raise NotImplementedError
 
-    def archive_channels(self, channel_id):
+    def categorize_channel(self, guild_id, channel_id, category_name):
         raise NotImplementedError
 
-    def unarchive_text_channel(self, channel_id):
+    def archive_channel(self, guild_id, channel_id, *args, **kwargs):
         raise NotImplementedError
 
-    def unarchive_voice_channel(self, channel_id):
+    def unarchive_text_channel(self, guild_id, channel_id, *args, **kwargs):
+        raise NotImplementedError
+
+    def unarchive_voice_channel(self, guild_id, channel_id, *args, **kwargs):
         raise NotImplementedError
 
     def send_message(self, channel_id, msg, embedded_urls={}):
         raise NotImplementedError
 
-    def announce(self, msg, embedded_urls={}):
+    def announce(self, channel_id, msg, embedded_urls={}):
         raise NotImplementedError
 
-    def handle_tag_added(self, puzzle, tag_name):
+    def handle_tag_added(self, channel_id, puzzle, tag_name):
         raise NotImplementedError
 
-    def handle_tag_removed(self, puzzle, tag_name):
+    def handle_tag_removed(self, channel_id, puzzle, tag_name):
         raise NotImplementedError
 
     def handle_puzzle_rename(self, channel_id, new_name):
