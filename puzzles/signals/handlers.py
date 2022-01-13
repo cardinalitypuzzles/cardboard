@@ -4,6 +4,7 @@ from django.dispatch import receiver
 from puzzles.models import Puzzle
 from puzzles.puzzle_tag import PuzzleTag
 import google_api_lib.tasks
+import chat.tasks
 
 # Hooks for syncing metas and tags
 
@@ -108,3 +109,12 @@ def update_meta_sheets_m2m(sender, instance, action, reverse, model, pk_set, **k
 
         if google_api_lib.enabled():
             transaction.on_commit(update_metas)
+
+
+@receiver(m2m_changed, sender=Puzzle.metas.through)
+def update_meta_chat_m2m(sender, instance, action, reverse, model, pk_set, **kwargs):
+    if action == "post_add" or action == "post_remove":
+        if instance.chat_room:
+            transaction.on_commit(
+                lambda: chat.tasks.handle_puzzle_meta_change.delay(instance.id)
+            )

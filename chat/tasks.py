@@ -53,13 +53,17 @@ def cleanup_puzzle_channels(puzzle_id):
                 logger.warn(f"cleanup_puzzle_channels failed with error: {e}")
 
 
+# TODO(#565): replace this rate limiting with global discord API rate limit
 @shared_task(rate_limit="6/m")
 def handle_puzzle_meta_change(puzzle_id):
+    """
+    handles when the set of a puzzle's metas has changed OR the puzzle itself has toggled its is_meta state.
+    """
     puzzle = _get_puzzles_queryset().prefetch_related("metas").get(id=puzzle_id)
     try:
         puzzle.chat_room.update_category()
     except Exception as e:
-        logger.warn(f"handle_puzzle_category_change failed with error: {e}")
+        logger.warn(f"handle_puzzle_meta_change failed with error: {e}")
 
 
 @shared_task

@@ -231,7 +231,7 @@ class PuzzleViewSet(viewsets.ModelViewSet):
                 serializer.is_valid(raise_exception=True)
                 data = serializer.validated_data
                 new_url = data.get("url", puzzle.url)
-                is_new_url = new_url != puzzle.url
+                url_changed = new_url != puzzle.url
                 new_is_meta = data.get("is_meta", puzzle.is_meta)
                 meta_status_changed = new_is_meta != puzzle.is_meta
                 puzzle.update_metadata(
@@ -287,7 +287,7 @@ class PuzzleViewSet(viewsets.ModelViewSet):
                         lambda: AnswerViewSet._maybe_update_sheets_title(puzzle)
                     )
 
-                if is_new_url and google_api_lib.enabled():
+                if url_changed and google_api_lib.enabled():
                     transaction.on_commit(
                         lambda: google_api_lib.tasks.add_puzzle_link_to_sheet.delay(
                             new_url, puzzle.sheet
@@ -371,10 +371,6 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
                 meta = Puzzle.objects.get(name=tag.name, hunt=puzzle.hunt)
                 # the post m2m hook will remove tag
                 puzzle.metas.remove(meta)
-                if puzzle.chat_room:
-                    transaction.on_commit(
-                        lambda: chat.tasks.handle_puzzle_meta_change.delay(puzzle.id)
-                    )
             else:
                 puzzle.tags.remove(tag)
 

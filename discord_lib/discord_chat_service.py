@@ -38,7 +38,7 @@ class DiscordChatService(ChatService):
 
     def create_text_channel(self, guild_id, name, text_category_name="text"):
         if not guild_id:
-            return None
+            raise Exception("Missing guild_id")
 
         channel = self._create_channel(
             guild_id,
@@ -58,7 +58,7 @@ class DiscordChatService(ChatService):
 
     def create_audio_channel(self, guild_id, name, voice_category_name="voice"):
         if not guild_id:
-            return None
+            raise Exception("Missing guild_id")
 
         channel = self._create_channel(
             guild_id,
@@ -122,7 +122,7 @@ class DiscordChatService(ChatService):
 
     def categorize_channel(self, guild_id, channel_id, category_name):
         if not guild_id or not channel_id:
-            return
+            raise Exception("Missing guild_id or channel_id")
         parent = self._get_or_create_category(guild_id, category_name)
         self._client.channels_modify(int(channel_id), parent_id=parent.id)
 
@@ -139,7 +139,7 @@ class DiscordChatService(ChatService):
 
     def get_channels(self, guild_id, name, chan_type=ChannelType.GUILD_TEXT):
         if not guild_id:
-            return None
+            raise Exception("Missing guild_id")
         channels_by_id = self._client.guilds_channels_list(guild_id)
         channels = []
         for c in channels_by_id.values():
@@ -149,7 +149,7 @@ class DiscordChatService(ChatService):
 
     def get_or_create_channel(self, guild_id, name, chan_type=ChannelType.GUILD_TEXT):
         if not guild_id:
-            return None
+            raise Exception("Missing guild_id")
 
         channels = self.get_channels(name, chan_type)
         if channels:
@@ -160,7 +160,7 @@ class DiscordChatService(ChatService):
 
     def create_channel_url(self, guild_id, channel_id, is_audio=False):
         if not guild_id or not channel_id:
-            return ""
+            raise Exception("Missing guild_id or channel_id")
         # Only generate invite links via discord API for voice channel invites.
         # This is necessary because the manual link does not auto-join the channel.
         if is_audio:
