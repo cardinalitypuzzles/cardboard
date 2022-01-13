@@ -58,38 +58,13 @@ You'll also see three dyno instances on the Resources page: "web", "bot", and "w
 
 If you have a large team or are using Cardboard for a hunt with many puzzles, you may want to increase the number or tier of the dynos in your Heroku deployment.
 
-##### Heroku config variables
+#### Configuration
 
-Settings to enable logging in using a Google account:
+At the moment, Cardboard is configured via a combination of two ways: setting global environmental variables and setting per-hunt variables (called HuntSettings) in the Django admin.
 
-* `SOCIAL_AUTH_GOOGLE_OAUTH2_KEY` - this is the "Client ID" of the OAuth 2.0 Client you created on the API & Services > Credentials page.
-* `SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET` - the "Client secret" for your OAuth2 Client (click on the Name of the OAuth2 Client you created on the APIs & Services > Credentials page, which will bring you to a details page that shows the Client secret)
+##### Admin account
 
-Google Drive, Sheets, and API settings for automatic sheets creation:
-
-* `GOOGLE_DRIVE_HUNT_FOLDER_ID` - the id of your Google Drive folder, should be part of the URL (`https://drive.google.com/drive/folders/<folder_id>`)
-* `GOOGLE_SHEETS_TEMPLATE_FILE_ID` - the id of your Google Sheets template file, should be part of the URL (`https://docs.google.com/spreadsheets/d/<sheet_id>`)
-* `GOOGLE_API_PROJECT_ID` - the "Project ID" of the Google Cloud project your service account belongs to. You can find it under "Project info" on the Google Cloud dashboard for your project.
-* `GOOGLE_API_CLIENT_ID` - the "Unique ID" found on your service account's "Details" page
-* `GOOGLE_API_CLIENT_EMAIL` - email address of your service account (should end in `.iam.gserviceaccount.com`)
-* `GOOGLE_API_PRIVATE_KEY_ID` - the 40-character hex id of the key you added on the "Keys" page of your service account
-* `GOOGLE_API_PRIVATE_KEY` - the private key for the key you added, with newlines replaced with `\n` (should be the value of the `private_key` field in the downloaded JSON when you [created the key](https://cloud.google.com/iam/docs/creating-managing-service-account-keys#creating_service_account_keys); should look something like `-----BEGIN ... KEY-----\n...<long base64-encoded key>...\n-----END ... KEY-----\n`)
-* `GOOGLE_API_X509_CERT_URL` - the value of the `client_x509_cert_url` field in the downloaded JSON when you [created the key](https://cloud.google.com/iam/docs/creating-managing-service-account-keys#creating_service_account_keys)
-
-For Discord integration:
-
-* `DISCORD_API_TOKEN` - This is the "Token" for your bot, which you can find on the "Bot" settings page (you may have to click "Click to Reveal Token")
-
-Miscellaneous configs:
-
-* `DJANGO_SECRET_KEY` - used by Django to generate secrets, such as for user sessions. It's best to set this so that user sessions will not expire after each restart. You can generate a key using `python -c "import secrets; print(secrets.token_urlsafe())"`.
-* `DEBUG` - you probably want to set this to `False` in production so users don't get gory error pages
-
-### Discord setup
-
-#### Admin account
-
-To do discord setup, you must have an admin account in your Cardboard instance:
+To set the per-hunt configuration, you must have an admin account in your Cardboard instance:
 
 * Start `python manage.py shell`. If you are using Heroku, you can do this by running `heroku run python manage.py shell`
 * Enter and run the following Python code:
@@ -104,29 +79,73 @@ user.is_superuser = True
 user.save()
 ```
 
-#### Server setup
+##### HuntSettings setup
 
-To connect a hunt with a discord server:
+These changes are made in the Django admin after you have created a new hunt in Cardboard. To adjust them:
 
 * Log in to the Django admin page for your Cardboard instance at `/admin`
-* Go to the Hunts tab on the left (located at `/admin/hunts/hunt/`) and pick the hunt to add a server to
-* Scroll to the bottom and fill out the following fields:
-  * **Discord guild id:** your server id. It's usually part of the URL when you're in your server: `discord.com/channels/<server_id>/<channel_id>`. You can also find it on the "Widget" page in your Server Settings.
-  * **Discord puzzle announcements channel id:**  this is the id of the channel you want puzzle announcements (puzzle unlocked, solved, etc.) to be posted. The channel id can be found in the URL when in the channel: `discord.com/channels/<server_id>/<channel_id>`. You probably want to set this to something separate from the channel where you make human announcements or have general discussions since the puzzle announcements can be a bit noisy (users may want to mute the channel).
-  * **Discord metas category:** category to create text & voice channels for metas (defaults to "metas")
-  * **Discord unassigned text category:** category to create text channels for unassigned feeders under (defaults to "text [unassigned]")
-  * **Discord unassigned voice category:** category to create voice channels for unassigned feeders under (defaults to "voice [unassigned]")
-  * **Discord archive category:** category to archive solved puzzles' text and voice channels under (defaults to "archive")
-  * **Discord devs role:** the Discord role to tell users to ping in case of issues opening a puzzle's sheet link (defaults to "dev")
+* Go to the Hunts tab on the left (located at `/admin/hunts/hunt/`) and pick the hunt to configure.
 
-#### Role pings
+###### Discord setup
 
-To associate the Discord roles with Cardboard tags:
+To connect a hunt with a discord server, fill out the following fields
+
+* **Discord guild id:** your server id. It's usually part of the URL when you're in your server: `discord.com/channels/<server_id>/<channel_id>`. You can also find it on the "Widget" page in your Server Settings.
+* **Discord puzzle announcements channel id:**  this is the id of the channel you want puzzle announcements (puzzle unlocked, solved, etc.) to be posted. The channel id can be found in the URL when in the channel: `discord.com/channels/<server_id>/<channel_id>`. You probably want to set this to something separate from the channel where you make human announcements or have general discussions since the puzzle announcements can be a bit noisy (users may want to mute the channel).
+* **Discord metas category:** category to create text & voice channels for metas (defaults to "metas")
+* **Discord unassigned text category:** category to create text channels for unassigned feeders under (defaults to "text [unassigned]")
+* **Discord unassigned voice category:** category to create voice channels for unassigned feeders under (defaults to "voice [unassigned]")
+* **Discord archive category:** category to archive solved puzzles' text and voice channels under (defaults to "archive")
+* **Discord devs role:** the Discord role to tell users to ping in case of issues opening a puzzle's sheet link (defaults to "dev")
+
+###### Google Drive setup
+
+For the Google Drive/Sheets integration, fill out the following fields. Many of them can also be configured as global config variables in Heroku, below; the values in the Django admin will take precedence.
+
+* **Google Drive folder id:** the id of your Google Drive folder, should be part of the URL (`https://drive.google.com/drive/folders/<folder_id>`). This folder is where puzzle spreadsheets will be stored, and access to this folder determines login access to Cardboard.
+* **Google Sheets template file id:** the id of your Google Sheets template file, should be part of the URL (`https://docs.google.com/spreadsheets/d/<sheet_id>`)
+* **Google Sheets template folder id:** the id of a Google Drive folder where extra Sheet templates can be found. If this folder is not empty, Cardboard will rename and move one of othese sheets when a new puzzle is created, instead of copying the template file. This maybe be useful because of #372, where scripts in Google sheets will stop working on new sheets if you create too many in one day. This way you can create sheets in advance to get around the daily limits.
+* **Google Drive human URL:** the URL of a Google Drive folder where human-generated files can be uploaded. This folder is linked at the top of Cardboard. If this value is not set, Cardboard will create one automatically.
+
+##### Heroku config variables
+
+Settings to enable logging in using a Google account:
+
+* `SOCIAL_AUTH_GOOGLE_OAUTH2_KEY` - this is the "Client ID" of the OAuth 2.0 Client you created on the API & Services > Credentials page.
+* `SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET` - the "Client secret" for your OAuth2 Client (click on the Name of the OAuth2 Client you created on the APIs & Services > Credentials page, which will bring you to a details page that shows the Client secret)
+
+Global Google Drive, Sheets, and API settings for automatic sheets creation:
+
+* `GOOGLE_API_PROJECT_ID` - the "Project ID" of the Google Cloud project your service account belongs to. You can find it under "Project info" on the Google Cloud dashboard for your project.
+* `GOOGLE_API_CLIENT_ID` - the "Unique ID" found on your service account's "Details" page
+* `GOOGLE_API_CLIENT_EMAIL` - email address of your service account (should end in `.iam.gserviceaccount.com`)
+* `GOOGLE_API_PRIVATE_KEY_ID` - the 40-character hex id of the key you added on the "Keys" page of your service account
+* `GOOGLE_API_PRIVATE_KEY` - the private key for the key you added, with newlines replaced with `\n` (should be the value of the `private_key` field in the downloaded JSON when you [created the key](https://cloud.google.com/iam/docs/creating-managing-service-account-keys#creating_service_account_keys); should look something like `-----BEGIN ... KEY-----\n...<long base64-encoded key>...\n-----END ... KEY-----\n`)
+* `GOOGLE_API_X509_CERT_URL` - the value of the `client_x509_cert_url` field in the downloaded JSON when you [created the key](https://cloud.google.com/iam/docs/creating-managing-service-account-keys#creating_service_account_keys)
+
+Hunt-specific Google settings (deprecated; you may use HuntSettings above):
+
+* `GOOGLE_DRIVE_HUNT_FOLDER_ID` - the id of your Google Drive folder, should be part of the URL (`https://drive.google.com/drive/folders/<folder_id>`)
+* `GOOGLE_SHEETS_TEMPLATE_FILE_ID` - the id of your Google Sheets template file, should be part of the URL (`https://docs.google.com/spreadsheets/d/<sheet_id>`)
+
+For Discord integration:
+
+* `DISCORD_API_TOKEN` - This is the "Token" for your bot, which you can find on the "Bot" settings page (you may have to click "Click to Reveal Token")
+
+Miscellaneous configs:
+
+* `DJANGO_SECRET_KEY` - used by Django to generate secrets, such as for user sessions. It's best to set this so that user sessions will not expire after each restart. You can generate a key using `python -c "import secrets; print(secrets.token_urlsafe())"`.
+* `DEBUG` - you probably want to set this to `False` in production so users don't get gory error pages
+
+#### Discord role pings
+
+To associate Discord roles with Cardboard tags, so that puzzles with certain tags will ping certain roles (for example, a "comic books" Cardboard tag could ping the "@comics" Discord role), you must use the Django admin. 
 
 * Log in to the Django admin page for your Cardboard instance at `/admin`
 * Go to the ChatRole tab on the left (located at `/admin/chat/chatrole`)
 * Add a Chat Role for each Cardboard tag/Discord role relationship that you want to set up. The Cardboard tag name should go as "Name", and the role id is found in Discord via right-clicking a role and selecting "Copy ID", or Server Settings > Roles > ... > Copy ID.
   * You may especially want to do this for some or all of the default role tags, found in [hunts/src/constants.js](https://github.com/cardinalitypuzzles/cardboard/blob/master/hunts/src/constants.js)
+
 
 ### Giving a new user access to Cardboard
 
