@@ -53,8 +53,11 @@ def cleanup_puzzle_channels(puzzle_id):
                 logger.warn(f"cleanup_puzzle_channels failed with error: {e}")
 
 
+# Disco-py actually kills the process when it is rate limited instead of throwing an exception
+# acks_late=True and CELERY_TASK_REJECT_ON_WORKER_LOST in settings requeues those tasks
+# the rate limit makes it wait. This is indeed really jank.
 # TODO(#565): replace this rate limiting with global discord API rate limit
-@shared_task(rate_limit="6/m")
+@shared_task(rate_limit="6/m", acks_late=True, priority=TaskPriority.LOW.value)
 def handle_puzzle_meta_change(puzzle_id):
     """
     handles when the set of a puzzle's metas has changed OR the puzzle itself has toggled its is_meta state.

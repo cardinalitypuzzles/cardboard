@@ -287,6 +287,7 @@ CELERY_BROKER_TRANSPORT_OPTIONS = {"max_retries": 3, "queue_order_strategy": "pr
 CELERY_BROKER_POOL_LIMIT = 1
 CELERY_REDIS_MAX_CONNECTIONS = 1  # Only for sending results, not enqueueing tasks
 CELERY_TASK_DEFAULT_PRIORITY = TaskPriority.MED.value
+CELERY_TASK_REJECT_ON_WORKER_LOST = True
 
 # Logging configuration
 LOGGING = {
