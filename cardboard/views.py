@@ -6,6 +6,12 @@ from hunts.views import LastAccessedHuntRedirectView
 def privacy(request):
     return render(request, "privacy.html")
 
+def instructions(request):
+    return render(request, "instructions.html")
+
+def troubleshooting(request):
+    return render(request, "troubleshooting.html")
+
 
 @login_required(login_url="/")
 def tools(request):

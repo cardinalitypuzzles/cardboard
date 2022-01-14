@@ -28,6 +28,8 @@ urlpatterns = [
     path("puzzles/", include("puzzles.urls")),
     path("tools", views.tools, name="tools"),
     path("privacy", views.privacy, name="privacy"),
+    path("instructions", views.instructions, name="instructions"),
+    path("troubleshooting", views.troubleshooting, name="troubleshooting"),
     path("", views.home, name="home"),
     path("", include("social_django.urls", namespace="social")),
 ]

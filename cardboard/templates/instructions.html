@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_content %}
+
+
+<div class="container">
+  <div class="row">
+    <div class="col-sm">
+      <h1>How do i?</h1>
+      <dl>
+        <dt>Find the web page</dt>
+        <dd>
+          The URL for our cardboard dashboard is <a href="http://unseen-cardboard-2022.herokuapp.com/">http://unseen-cardboard-2022.herokuapp.com/</a>
+        </dd>
+        <dt>Log in</dt>
+
+        <dd>You should already have been added to the list of users
+        with access to
+        our <a href="https://drive.google.com/drive/u/0/folders/1Cd6au1sEPd0HYDfEoeTFT1JqKCPwshdl">google
+        drive directory</a> for this years hunt. Use this same google
+        account to log in with google at the bottom of the home
+        page.<br>  If this doesn't work, see our troubleshooting page.
+        </dd>
+        <dt>Pick a hunt</dt>
+        <dd>After logging on, you may be shown a list of hunts. Choose the 2022 MIT Mystery Hunt. This won't exist until we have a URL.</dd>
+        <dt>Add a puzzle</dt>
+        <dd>
+          Once you pick a hunt, there will be a list of existing
+          puzzles. If the puzzle you want to work on isn't there,
+          click the "Add Puzzle" button in the upper right hand
+          corner. Type in the name of the puzzle and copy the URL from
+          your browser header. If the puzzle is a meta puzzle, click
+          the "Is meta" checkbox.
+          <br>
+          The puzzle spreadsheet will be created in the Mystery Hunt
+          2022 Folder. Please move it to the folder for the
+          corresponding round or meta if this is easy for you. Someone
+          else will do it if you don't, but it's helpful for folks not
+          using the dashboard. The system won't move the sheet once
+          it's created. We plan to add autosorting next year, but
+          haven't had time this year. The system will rename the
+          puzzle when it's solved, so changing the name won't stick.
+          <br>
+          If someone else creates the puzzle while you're typing, the
+          system won't let you create it. A red box with the text
+          "There is already a puzzle with this name." will show
+          up. The puzzle should automatically appear, but if it
+          doesn't, reload the page. This will occur if the name or the
+          URL matches, so if there are multiple puzzles with the same
+          name in this year's hunt, just add the name of the meta in
+          parentheses or something.
+        </dd>
+        <dt>Set the meta of a puzzle</dt>
+        <dd>
+          Whenever a meta is created, the system will create a tag
+          named after that meta. To set the meta of a puzzle, simply
+          add that tag to the puzzle. See the next section.
+          <br>
+          A puzzle can have multiple meta tags which will cause the
+          solution to be added to the spreadsheet of each of the metas.
+        </dd>
+        <dt>Add a tag to a puzzle</dt>
+        <dd>
+          The rightmost column of the puzzle list is the list of tags
+          and metas for the given puzzle. There will be a plus symbol
+          in this column. If the puzzle already has tags, it will be
+          at the end of the list of tags.
+          <br>
+          Clicking the plus button will cause a modal dialog to pop up
+          asking what tags you want to add. There will be a list of
+          metas at the top, a list of existing tags below that, and a
+          text box where you can enter new tags. Click on as many tags
+          as apply to this puzzle (including the tag for its meta
+          puzzle). Clicking on a tag a second time will unselect it,
+          or you can click on the x in its bubble on the main
+          dashboard.
+          <br>
+          To create a new tag, type in any string, choose a
+          color (they can be white or blue. The only distinction is
+          that white tags are sorted before blue tags in the list),
+          then click the "Create" button. Any tags you create will
+          automatically be added to the current puzzle. When you're
+          done, click the "Done" button.
+        </dd>
+        <dt>Submit a guess for a puzzle</dt>
+        <dd>
+          To submit a guess for a puzzle, go to the hunt page for that
+          puzzle. There will be a link in the "Puzzle" column of the
+          dashboard that will take you there and a link in the
+          standard place in the corresponding spreadsheet. Submit the
+          answer there. If it's correct, proceed to the next
+          section. If it's not, you can go back to working on the
+          puzzle or go do something else. Up to you.
+          <br>
+          If you're used to other cardboard instances, you may be used
+          to submitting answers through cardboard and having someone
+          whose job it is to submit guesses to the hunt website. We do
+          not have such a team.
+        </dd>
+        <dt>Tell cardboard about a correct answer</dt>
+        <dd>
+          Once the hunt website has told you that your answer is correct, you can mark it here. Click on the "Enter Correct Answer" button. A dialog titled "Enter Correct Answer for &lt;puzzle name&gt;" will show up. Enter the correct answer and hit Submit. If you got here by accident, hit cancel.
+          <br>
+          This will have 4 effects.
+          <ul>
+            <li>Show the correct answer on the dashboard and turn the row for that puzzle green.</li>
+            <li>Change the title of the spreadsheet to include the correct answer.</li>
+            <li>Add the answer to the AUTOGENERATED tab of any associated metas.</li>
+            <li>Announce that the puzzle was solved in discord.</li>
+          </ul>
+        </dd>
+        <dt>Fix it if I entered the wrong information</dt>
+        <dd>
+          <ul>
+            <li>
+              If you named a puzzle incorrectly or gave the wrong
+              URL, there is a pencil icon next to the name which you can
+              use to fix it.
+            </li>
+            <li>
+              If you created a second instance of a puzzle because
+              of typos, there is a trash can icon next to the name which
+              you can use to delete one of the puzzles. Doing so doesn't
+              delete the spreadsheet, it just renames it, so if someone
+              already started work, you can copy the data over.
+            </li>
+            <li>
+              If you entered an incorrect answer and know the correct
+              answer (confirmed by the hunt website), there's a pencil
+              icon next to your answer which will let you change it.
+            </li>
+            <li>
+              If you entered an incorrect answer and don't know the
+              correct answer, there's a trash can icon next to the
+              answer. Deleting all the answers for a puzzle will
+              change its state back to "SOLVING", rename the
+              spreadsheet, and so forth.
+            </li>
+            <li>
+              If you created an extra hunt on the hunts page, let
+              clahey or AlanBM know and they will take care of it.
+            </li>
+          </ul>
+        </dd>
+        <dt>Change the status of a puzzle</dt>
+        <dd>
+          There is a status column in the dashboard. It defaults to
+          SOLVING, but can be changed to STUCK or EXTRACTION if you
+          want to communicate this state. This does not change the
+          name of the spreadsheet, but it does color the row in the
+          dashboard red.
+          <br>
+          Once a puzzle is solved, this column will change to
+          SOLVED. You can change it here, but in general, it's
+          preferable to delete the incorrect answers and let the
+          system change it. The main reason I can think of that you
+          wouldn't do this is if you know a puzzle has two answers,
+          but you only know one of them. In that case, enter the
+          single correct answer and then change the status back to
+          SOLVING one of the other states.
+        </dd>
+        <dt>Find documents related to the puzzle</dt>
+        <dd>
+          There are three columns related to finding the puzzle in
+          other places.
+          <br>
+          The "Puzzle" column contains links to the puzzle on the
+          mystery hunt web page (or whatever URL was entered when
+          creating the puzzle.
+          <br>
+          The "Sheet" column contains links to the google spreadsheet
+          corresponding to this puzzle.
+          <br>
+          The "Channel" column contains links to the discord channel
+          for this puzzle. There is a radio button above the list of
+          puzzles ("Chat version: O App O Web") where you can tell the
+          dashboard whether to open discord in an app or on the web.
+        </dd>
+        <dt>Make the page not so bright</dt>
+        <dd>
+          There's a toggle in the upper right hand corner that will
+          let you switch between light and dark mode.
+        </dd>
+        <dt>Find the Google Drive folder</dt>
+        <dd>
+          There's a link labeled "Google Drive Folder 🎨🖌️📁" that will
+          take you to a folder called "FOLDER FOR HUMANS". This link
+          will replace the dashboard, so you probably want to open it
+          in a new tab/window. This folder will be a child of the 2022
+          Hunt folder and you can click on "2022 Hunt" in the list of
+          directories at the top of the page. You are also welcome to
+          use the "FOLDER FOR HUMANS" if you want to, but it's not
+          required.
+        </dd>
+        <dt>Find Tools to help solve puzzles</dt>
+        <dd>
+          Click on "Tools and References" on the top of the
+          page. Links on this page replace the dashboard, so you
+          probably want to open them in a new tab/window.  Click on
+          "Unseen Cardboard" to get back to the puzzle list.
+        </dd>
+        <dt>See stats about how we're doing.</dt>
+        <dd>
+          Click on the Stats button above the puzzle list. Click on
+          "Unseen Cardboard" to get back to the puzzle list.
+        </dd>
+        <dt>Log out</dt>
+        <dd>
+          Click on "Logout" on the top of the page. This will take you
+          to the log in page.
+        </dd>
+    </div>
+  </div>
+</div>
+{% endblock %}
