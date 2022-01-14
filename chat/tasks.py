@@ -16,7 +16,7 @@ def _get_puzzles_queryset():
     return Puzzle.objects.select_related("chat_room").select_related("hunt__settings")
 
 
-@shared_task(priority=TaskPriority.HIGH.value)
+@shared_task(rate_limit="6/m", acks_late=True, priority=TaskPriority.HIGH.value)
 def create_chat_for_puzzle(puzzle_id):
     puzzle = _get_puzzles_queryset().get(id=puzzle_id)
     try:
@@ -27,7 +27,7 @@ def create_chat_for_puzzle(puzzle_id):
         logger.warn(f"create_chat_for_puzzle failed with error: {e}")
 
 
-@shared_task
+@shared_task(rate_limit="6/m", acks_late=True)
 def cleanup_puzzle_channels(puzzle_id):
     puzzle = (
         _get_puzzles_queryset()
@@ -69,7 +69,7 @@ def handle_puzzle_meta_change(puzzle_id):
         logger.warn(f"handle_puzzle_meta_change failed with error: {e}")
 
 
-@shared_task
+@shared_task(rate_limit="6/m", acks_late=True)
 def handle_puzzle_solved(puzzle_id, answer_text):
     puzzle = _get_puzzles_queryset().get(id=puzzle_id)
     try:
@@ -80,7 +80,7 @@ def handle_puzzle_solved(puzzle_id, answer_text):
         logger.warn(f"handle_puzzle_solved failed with error: {e}")
 
 
-@shared_task
+@shared_task(rate_limit="6/m", acks_late=True)
 def handle_puzzle_unsolved(puzzle_id):
     puzzle = _get_puzzles_queryset().prefetch_related("metas").get(id=puzzle_id)
     try:
@@ -92,7 +92,7 @@ def handle_puzzle_unsolved(puzzle_id):
         logger.warn(f"handle_puzzle_unsolved failed with error: {e}")
 
 
-@shared_task
+@shared_task(rate_limit="6/m", acks_late=True)
 def handle_tag_added(puzzle_id, tag_name):
     puzzle = _get_puzzles_queryset().get(id=puzzle_id)
     try:
@@ -101,7 +101,7 @@ def handle_tag_added(puzzle_id, tag_name):
         logger.warn(f"handle_tag_added failed with error: {e}")
 
 
-@shared_task
+@shared_task(rate_limit="6/m", acks_late=True)
 def handle_tag_removed(puzzle_id, tag_name):
     puzzle = _get_puzzles_queryset().get(id=puzzle_id)
     try:
@@ -110,7 +110,7 @@ def handle_tag_removed(puzzle_id, tag_name):
         logger.warn(f"handle_tag_removed failed with error: {e}")
 
 
-@shared_task
+@shared_task(rate_limit="6/m", acks_late=True)
 def handle_answer_change(puzzle_id, old_answer, new_answer):
     puzzle = _get_puzzles_queryset().get(id=puzzle_id)
     try:
@@ -120,7 +120,7 @@ def handle_answer_change(puzzle_id, old_answer, new_answer):
         logger.warn(f"handle_answer_change failed with error: {e}")
 
 
-@shared_task
+@shared_task(rate_limit="6/m", acks_late=True)
 def handle_puzzle_rename(puzzle_id, old_name, new_name):
     puzzle = _get_puzzles_queryset().get(id=puzzle_id)
     try:
@@ -131,7 +131,7 @@ def handle_puzzle_rename(puzzle_id, old_name, new_name):
         logger.warn(f"handle_puzzle_rename failed with error: {e}")
 
 
-@shared_task
+@shared_task(rate_limit="6/m", acks_late=True)
 def handle_sheet_created(puzzle_id):
     puzzle = _get_puzzles_queryset().get(id=puzzle_id)
     try:
