@@ -72,6 +72,9 @@ class ChatRoom(models.Model):
         return self.puzzle.hunt.settings.discord_guild_id
 
     def _get_category_name(self):
+        if self.puzzle.is_solved():
+            return self.puzzle.hunt.settings.discord_archive_category
+
         if self.puzzle.is_meta:
             return self.puzzle.hunt.settings.discord_metas_category
 
