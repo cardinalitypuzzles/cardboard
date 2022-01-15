@@ -46,7 +46,7 @@ def cleanup_puzzle_channels(puzzle_id):
             return
 
         now = datetime.now(tz=solved_time.tzinfo)
-        if now - solved_time < timedelta(minutes=30):
+        if now - solved_time > timedelta(minutes=30):
             try:
                 puzzle.chat_room.delete_channels(check_if_used=True)
             except Exception as e:
