@@ -16,7 +16,7 @@ from .fake_service import FakeChatService
 class TestChatRoom(TestCase):
     def setUp(self):
         hunt = Hunt.objects.create(name="fake hunt", url="google.com")
-        meta = Puzzle.objects.create(
+        self.meta = Puzzle.objects.create(
             name="meta",
             hunt=hunt,
             url="meta.com",
@@ -24,7 +24,7 @@ class TestChatRoom(TestCase):
             is_meta=True,
         )
 
-        feeder = Puzzle.objects.create(
+        self.feeder = Puzzle.objects.create(
             name="puzzle",
             hunt=hunt,
             url="url.com",
@@ -33,10 +33,10 @@ class TestChatRoom(TestCase):
         )
 
         self.room = ChatRoom.objects.create(
-            puzzle=feeder, name="Test Room 🧩", service="FAKE"
+            puzzle=self.feeder, name="Test Room 🧩", service="FAKE"
         )
         self.meta_room = ChatRoom.objects.create(
-            puzzle=meta, name="Meta Room", service="FAKE"
+            puzzle=self.meta, name="Meta Room", service="FAKE"
         )
         self.fake_service = FakeChatService.get_instance()
 
@@ -103,7 +103,7 @@ class TestChatRoom(TestCase):
             self.fake_service.category_to_channel[meta_category],
         )
 
-    def test_feeder_category(self):
+    def test_unassigned_feeder_category(self):
         text_category = (
             self.meta_room.puzzle.hunt.settings.discord_unassigned_text_category
         )
@@ -119,6 +119,47 @@ class TestChatRoom(TestCase):
         self.assertIn(
             self.room.audio_channel_id,
             self.fake_service.category_to_channel[voice_category],
+        )
+
+    def test_meta_feeder_category(self):
+        self.room.create_channels()
+        self.room.update_category()
+
+        # should be archived after answering
+        self.feeder.set_answer("ANSWER")
+        archive_category = self.meta_room.puzzle.hunt.settings.discord_archive_category
+        self.room.update_category()
+        self.assertIn(
+            self.room.text_channel_id,
+            self.fake_service.category_to_channel[archive_category],
+        )
+        self.assertIn(
+            self.room.audio_channel_id,
+            self.fake_service.category_to_channel[archive_category],
+        )
+
+        # assigning meta should not unarchive it
+        self.feeder.metas.add(self.meta)
+        self.room.update_category()
+        self.assertIn(
+            self.room.text_channel_id,
+            self.fake_service.category_to_channel[archive_category],
+        )
+        self.assertIn(
+            self.room.audio_channel_id,
+            self.fake_service.category_to_channel[archive_category],
+        )
+
+        # should be in metas category after deleting the answer
+        self.feeder.clear_answer("ANSWER")
+        self.room.update_category()
+        self.assertIn(
+            self.room.text_channel_id,
+            self.fake_service.category_to_channel[self.meta.name],
+        )
+        self.assertIn(
+            self.room.audio_channel_id,
+            self.fake_service.category_to_channel[self.meta.name],
         )
 
     def test_send_message_and_announce(self):
