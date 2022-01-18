@@ -9,7 +9,7 @@ class Answer(models.Model):
     created_on = models.DateTimeField(auto_now_add=True)
     updated_on = models.DateTimeField(auto_now=True)
     # for partial answers
-    response = models.TextField(default="")
+    response = models.TextField(default="", blank=True)
 
     NEW = "NEW"
     SUBMITTED = "SUBMITTED"
