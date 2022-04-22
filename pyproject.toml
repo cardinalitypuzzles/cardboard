@@ -7,7 +7,7 @@ license = "MIT"
 
 [tool.poetry.dependencies]
 python = "3.8.12"
-Django = "^4.0.2"
+Django = "^4.0.4"
 python-dotenv = "^0.19.2"
 django-heroku = "^0.3.1"
 google-api-python-client = "^2.33.0"
