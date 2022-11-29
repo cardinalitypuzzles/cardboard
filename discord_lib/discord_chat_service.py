@@ -147,7 +147,7 @@ class DiscordChatService(ChatService):
         #     self.categorize_channel(guild_id, channel_id, voice_category_name)
         return
 
-    def get_channels(self, guild_id, name, chan_type=ChannelType.GUILD_TEXT):
+    def get_channels(self, guild_id, name, chan_type):
         # if not guild_id:
         #     raise Exception("Missing guild_id")
         # channels_by_id = self._client.guilds_channels_list(guild_id)
@@ -158,7 +158,7 @@ class DiscordChatService(ChatService):
         # return channels
         return
 
-    def get_or_create_channel(self, guild_id, name, chan_type=ChannelType.GUILD_TEXT):
+    def get_or_create_channel(self, guild_id, name, chan_type):
         # if not guild_id:
         #     raise Exception("Missing guild_id")
 
