@@ -22,7 +22,7 @@ class SlackClient:
 
     @staticmethod
     def getInstance():
-        """ Static access method. """
+        """Static access method."""
         if SlackClient.__instance == None:
             SlackClient()
         return SlackClient.__instance
@@ -32,7 +32,7 @@ class SlackClient:
         announcement_channel_name="puzzle-announcements",
         answer_queue_channel_name="answer-queue",
     ):
-        """ Private constructor. """
+        """Private constructor."""
         if SlackClient.__instance != None:
             raise Exception(
                 "SlackClient is a singleton and should not be "
