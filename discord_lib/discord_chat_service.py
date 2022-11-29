@@ -14,6 +14,7 @@ class DiscordChatService(ChatService):
         """Accepts Django settings object and optional Discord APIClient (for testing)."""
         # self._client = client or APIClient(settings.DISCORD_API_TOKEN)
         # self._max_channels_per_category = max_channels_per_category
+        return
 
     def send_message(self, channel_id, msg, embedded_urls={}):
         """
@@ -28,10 +29,12 @@ class DiscordChatService(ChatService):
         #         embed.add_field(name=text, value=f"[link]({url})", inline=True)
         #     embed.color = "12852794"  # cardinal
         # self._client.channels_messages_create(channel_id, content=msg, embed=embed)
+        return
 
     def announce(self, puzzle_announcements_id, msg, embedded_urls={}):
         # if puzzle_announcements_id:
         #     self.send_message(puzzle_announcements_id, msg, embedded_urls)
+        return
 
     def create_text_channel(self, guild_id, name, text_category_name="text"):
         # if not guild_id:
@@ -44,14 +47,17 @@ class DiscordChatService(ChatService):
         #     parent_name=text_category_name,
         # )
         # return channel.id
+        return
 
     def get_text_channel_participants(self, channel_id):
         # messages = self._client.channels_messages_list(channel_id)
         # usernames = [m.author.username for m in messages if not m.author.bot]
         # return list(set(usernames))
+        return
 
     def delete_text_channel(self, guild_id, channel_id):
         # self.delete_channel(guild_id, channel_id)
+        return
 
     def create_audio_channel(self, guild_id, name, voice_category_name="voice"):
         # if not guild_id:
@@ -64,9 +70,11 @@ class DiscordChatService(ChatService):
         #     parent_name=voice_category_name,
         # )
         # return channel.id
+        return
 
     def delete_audio_channel(self, guild_id, channel_id):
-        self.delete_channel(guild_id, channel_id)
+        # self.delete_channel(guild_id, channel_id)
+        return
 
     def delete_channel(self, guild_id, channel_id):
         # if not guild_id:
@@ -75,6 +83,7 @@ class DiscordChatService(ChatService):
         # # channel_id is a string, but the discord API returns/expects int.
         # if int(channel_id) in channels_by_id:
         #     self._client.channels_delete(int(channel_id))
+        return
 
     def _get_or_create_category(self, guild_id, category_name):
         """
@@ -100,10 +109,9 @@ class DiscordChatService(ChatService):
         #     category_name,
         #     parent_id=None,
         # )
+        return
 
-    def _create_channel(
-        self, guild_id, name, chan_type, parent_name=None
-    ):
+    def _create_channel(self, guild_id, name, chan_type, parent_name=None):
         # parent_id = None
         # if parent_name:
         #     # Use a Discord category as the parent folder for this channel.
@@ -116,23 +124,28 @@ class DiscordChatService(ChatService):
         #     parent_id=parent_id,
         # )
         # return channel
+        return
 
     def categorize_channel(self, guild_id, channel_id, category_name):
         # if not guild_id or not channel_id:
         #     raise Exception("Missing guild_id or channel_id")
         # parent = self._get_or_create_category(guild_id, category_name)
         # self._client.channels_modify(int(channel_id), parent_id=parent.id)
+        return
 
     def archive_channel(self, guild_id, channel_id, discord_archive_category="archive"):
         # self.categorize_channel(guild_id, channel_id, discord_archive_category)
+        return
 
     def unarchive_text_channel(self, guild_id, channel_id, text_category_name="text"):
         # self.categorize_channel(guild_id, channel_id, text_category_name)
+        return
 
     def unarchive_voice_channel(
-    #     self, guild_id, channel_id, voice_category_name="voice"
-    # ):
-    #     self.categorize_channel(guild_id, channel_id, voice_category_name)
+        self, guild_id, channel_id, voice_category_name="voice"
+    ):
+        #     self.categorize_channel(guild_id, channel_id, voice_category_name)
+        return
 
     def get_channels(self, guild_id, name, chan_type=ChannelType.GUILD_TEXT):
         # if not guild_id:
@@ -143,6 +156,7 @@ class DiscordChatService(ChatService):
         #     if c.name == name and c.type == chan_type:
         #         channels.append(c)
         # return channels
+        return
 
     def get_or_create_channel(self, guild_id, name, chan_type=ChannelType.GUILD_TEXT):
         # if not guild_id:
@@ -154,6 +168,7 @@ class DiscordChatService(ChatService):
         # else:
         #     channel = self._create_channel(guild_id, name, chan_type)
         # return channel
+        return
 
     def create_channel_url(self, guild_id, channel_id, is_audio=False):
         # if not guild_id or not channel_id:
@@ -165,6 +180,7 @@ class DiscordChatService(ChatService):
         #     if invite.code:
         #         return f"https://discord.gg/{invite.code}"
         # return f"https://discord.com/channels/{guild_id}/{channel_id}"
+        return
 
     def handle_tag_added(self, puzzle_announcements_id, puzzle, tag_name):
         # from chat.models import ChatRole
@@ -176,9 +192,11 @@ class DiscordChatService(ChatService):
         #         f"{puzzle.name} was tagged with <@&{role.role_id}>",
         #         puzzle.create_field_url_map(),
         #     )
+        return
 
     def handle_tag_removed(self, puzzle_announcements_id, puzzle, tag_name):
         pass
 
     def handle_puzzle_rename(self, channel_id, new_name):
         # self._client.channels_modify(int(channel_id), name=new_name)
+        return
