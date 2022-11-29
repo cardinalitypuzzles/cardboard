@@ -23,7 +23,7 @@ redis = "^4.1.0"
 
 [tool.poetry.dev-dependencies]
 pre-commit = "*"
-black = "*"
+black = "^22.3.0"
 coverage = "*"
 
 [build-system]
