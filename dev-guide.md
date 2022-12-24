@@ -82,6 +82,8 @@ On Ubuntu, you can accomplish this by running:
 $ sudo apt install python3
 ```
 
+You might also need to install `python3-dev` and `libpq-dev`.
+
 Next, install [poetry](https://python-poetry.org/docs/#installation)
 
 Once you have `poetry`, you can create an environment by running:
