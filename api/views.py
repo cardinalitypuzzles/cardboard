@@ -42,7 +42,7 @@ class AnswerViewSet(viewsets.ModelViewSet):
     def _maybe_update_meta_sheets_for_feeder(feeder):
         if google_api_lib.enabled():
             for meta in feeder.metas.all():
-                google_api_lib.tasks.update_meta_sheet_feeders.delay(meta.id)
+                google_api_lib.tasks.update_meta_and_metameta_sheets_delayed(meta)
 
     def get_queryset(self):
         puzzle_id = self.kwargs["puzzle_id"]
@@ -294,8 +294,8 @@ class PuzzleViewSet(viewsets.ModelViewSet):
                     )
                 if puzzle.is_meta and google_api_lib.enabled():
                     transaction.on_commit(
-                        lambda: google_api_lib.tasks.update_meta_sheet_feeders.delay(
-                            puzzle.id
+                        lambda: google_api_lib.tasks.update_meta_and_metameta_sheets_delayed(
+                            puzzle
                         )
                     )
 
