@@ -7,3 +7,7 @@ def google_auth(request):
         if settings.SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET
         else False
     }
+
+
+def contact_email(request):
+    return {"CONTACT_EMAIL": settings.CONTACT_EMAIL}

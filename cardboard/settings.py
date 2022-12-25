@@ -98,6 +98,7 @@ TEMPLATES = [
                 "social_django.context_processors.backends",
                 "social_django.context_processors.login_redirect",
                 "cardboard.context_processors.google_auth",
+                "cardboard.context_processors.contact_email",
             ],
         },
     },
@@ -172,6 +173,9 @@ import dj_database_url
 DATABASES = {}
 DATABASES["default"] = dj_database_url.config(conn_max_age=600, ssl_require=False)
 DATABASES["default"]["TEST"] = {"NAME": "test_cardboard"}
+
+# Contact email
+CONTACT_EMAIL = os.environ.get("CONTACT_EMAIL", "FIXME@FIXME.COM")
 
 # Discord API. See
 # https://support.discord.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID-
