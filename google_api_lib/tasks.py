@@ -221,7 +221,7 @@ def _clear_sheet(sheets_service, http, spreadsheet_id, sheet_id) -> None:
     ).execute(http=http)
 
 
-def _get_feeder_table(feeders) -> int:
+def _build_feeder_table(feeders) -> int:
     feeders_to_answers = {f: f.correct_answers() for f in feeders}
 
     if len(feeders_to_answers) > 0:
@@ -291,13 +291,14 @@ def _update_meta_sheet_feeders(self, puzzle_id) -> None:
     spreadsheet_id = extract_id_from_sheets_url(meta_puzzle.sheet)
     feeders = meta_puzzle.feeders.all()
     feeders = sorted(feeders, key=lambda p: p.name)
-    feeder_table = _get_feeder_table(feeders)
+    feeder_table = _build_feeder_table(feeders)
     width = len(feeder_table[0]["values"])
 
     grandfeeder_tables = {}
     for feeder in feeders:
         if feeder.is_meta:
-            grandfeeder_table = _get_feeder_table(feeder.feeders.all())
+            feeders_of_feeders = sorted(feeder.feeders.all(), key=lambda p: p.name)
+            grandfeeder_table = _build_feeder_table(feeders_of_feeders)
             grandfeeder_tables[feeder.name] = grandfeeder_table
             width = max(width, len(grandfeeder_table[0]["values"]))
 
@@ -333,7 +334,8 @@ def _update_meta_sheet_feeders(self, puzzle_id) -> None:
                 ]
             }
         )
-        rows += grandfeeder_table
+        # ignore headers
+        rows += grandfeeder_table[1:]
 
     # Each thread needs its own http object because httplib2.Http()
     # is used under the hood and that is not thread safe.
