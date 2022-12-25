@@ -119,6 +119,7 @@ def create_google_sheets(self, puzzle_id) -> None:
                 rename_sheet.delay(sheet_url, puzzle.name)
 
             transfer_ownership.delay(new_file, template_file_id)
+            add_puzzle_link_to_sheet.delay(puzzle.url, sheet_url)
 
             if destination_folder_id:
                 move_drive_file.delay(
