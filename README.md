@@ -10,15 +10,17 @@ For development instructions, see the [dev guide](dev-guide.md).
 
 ### Overview
 
-![overview](https://user-images.githubusercontent.com/544734/71759676-6a283b80-2e7e-11ea-82d0-f2f4fc737c71.png)
+![overview](https://user-images.githubusercontent.com/1312469/209477999-b9996cd5-e8c8-4020-8d74-007ebe5558cb.png)
 
-The default page you see is a list of all puzzles in a table. The puzzle name is a link to the puzzle page on the hunt website. The puzzles are grouped by meta, and each puzzle has a Google spreadsheet ("Sheet" column) associated with it.
+The default page you see is a list of all puzzles in a table. The puzzle name is a link to the puzzle page on the hunt website. The puzzles are grouped by meta, and each puzzle has a Google spreadsheet associated with it.
 
 In case you need to edit the puzzle name, URL, or meta status, you can use the pencil icon next to the puzzle name. Use the trash icon to delete a puzzle.
 
-To submit a guess for a puzzle, click the "Submit Answer" button for that puzzle. Once a guess has been submitted, the puzzle status will be changed to PENDING and the row will be highlighted in yellow. Note that this does not actually submit the answer on the hunt website. A dedicated person monitoring the "Answer Queue" page should be responsible for submitting the answers on the hunt website and reporting back whether the answer was correct or not.
+The default status of a new puzzle is SOLVING. To submit a guess for a puzzle, click the "Submit Answer" button for that puzzle. By default, once a guess has been submitted, the puzzle status will be changed to SOLVED and the row will be highlighted in green. Note that this does not actually submit the answer on the hunt website and you will need to submit there separately. 
 
-The default status of a new puzzle is SOLVING. When an answer is submitted, the status automatically changes to PENDING, and when a puzzle is solved (an answer is confirmed to be correct), the status changes to SOLVED. In addition, you can set a puzzle's status to STUCK or EXTRACTION by using the pencil icon in the "Status" column to indicate that the solvers are stuck on the puzzle or the puzzle just needs a final extraction to get an answer.
+If the answer queue is turned on, then the status is instead PENDING and the row will be highlighted in yellow. A dedicated person monitoring the "Answer Queue" page should be responsible for submitting the answers on the hunt website and reporting back whether the answer was correct or not. 
+
+In addition, you can set a puzzle's status to STUCK or EXTRACTION using the "Status" column dropdown to indicate that the solvers are stuck on the puzzle or the puzzle just needs a final extraction to get an answer.
 
 Users can also tag puzzles as belonging to one or more metas, mark puzzles as high priority or low priority, logic or word puzzles, backsolved, or create new tags by clicking the "+" icon in the "Tags" column.
 
@@ -46,13 +48,13 @@ You must specify a name but the URL is optional. If you know the puzzle is a met
 
 In case you need to delete a puzzle (perhaps you accidentally created a duplicate), you can do so using the trash icon next to a puzzle name.
 
-When a puzzle is created, a Google Spreadsheet are automatically created for the puzzle. These are accessible from the links in the "Sheet" column.
+When a puzzle is created, a Google Spreadsheet are automatically created for the puzzle. These are linked from the Sheets icon.
 
 ### Searching
 
 As a hunt progresses, the number of puzzles can get quite large (especially for a hunt like the MIT Mystery Hunt). To make things more manageable, you can use the "Search" box in the top-right to filter puzzles. The search matches puzzle name, answer, status, or tags. For example, the following shows filtering to just the puzzles that need extraction:
 
-![extraction](https://user-images.githubusercontent.com/544734/71759824-38fd3a80-2e81-11ea-8670-d0a1039f6502.png)
+![extraction](https://user-images.githubusercontent.com/1312469/209478179-85516d11-9701-4cc5-b608-f5691cab1d5c.png)
 
 ### Metas and Tags
 
@@ -66,10 +68,10 @@ In addition to meta tags for puzzles, users can also tag puzzles as high or low 
 
 ### Google Sheets integration
 
-When a puzzle is added, a Google Sheet is automatically created for it, accessible from the link under the "Sheet" column. The puzzle sheet is a clone of a template sheet, which may have some useful formulas pre-populated.
+When a puzzle is added, a Google Sheet is automatically created for it, linked from the Sheet icon. The puzzle sheet is a clone of a template sheet, which may have some useful formulas pre-populated. Ownership of the puzzle sheets is transferred to the owner of the the template sheet - search `pendingowner:me` to see and accept the transfers.
 
 ### Tools and References
 
-![tools](https://user-images.githubusercontent.com/544734/71760134-8def7f80-2e86-11ea-82cf-b6b8e906ebf7.png)
+![tools](https://user-images.githubusercontent.com/1312469/209479516-9d2195d3-40b0-40d2-be35-11fccce7ef01.png)
 
 A static list of tools and references is collected on the "Tools and References" page. You can add more by editing the [tools.html](hunts/templates/tools.html) page.
