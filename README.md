@@ -16,9 +16,9 @@ The default page you see is a list of all puzzles in a table. The puzzle name is
 
 In case you need to edit the puzzle name, URL, or meta status, you can use the pencil icon next to the puzzle name. Use the trash icon to delete a puzzle.
 
-The default status of a new puzzle is SOLVING. To submit a guess for a puzzle, click the "Submit Answer" button for that puzzle. By default, once a guess has been submitted, the puzzle status will be changed to SOLVED and the row will be highlighted in green. Note that this does not actually submit the answer on the hunt website and you will need to submit there separately. 
+The default status of a new puzzle is SOLVING. To submit a guess for a puzzle, click the "Submit Answer" button for that puzzle. By default, once a guess has been submitted, the puzzle status will be changed to SOLVED and the row will be highlighted in green. Note that this does not actually submit the answer on the hunt website and you will need to submit there separately.
 
-If the answer queue is turned on, then the status is instead PENDING and the row will be highlighted in yellow. A dedicated person monitoring the "Answer Queue" page should be responsible for submitting the answers on the hunt website and reporting back whether the answer was correct or not. 
+If the answer queue is turned on, then the status is instead PENDING and the row will be highlighted in yellow. A dedicated person monitoring the "Answer Queue" page should be responsible for submitting the answers on the hunt website and reporting back whether the answer was correct or not.
 
 In addition, you can set a puzzle's status to STUCK or EXTRACTION using the "Status" column dropdown to indicate that the solvers are stuck on the puzzle or the puzzle just needs a final extraction to get an answer.
 
