@@ -332,7 +332,7 @@ class SheetTests(CardboardTestCase, TransactionTestCase):
         google_api_lib.tests.mock_transfer_ownership,
     )
     @patch(
-        "google_api_lib.tasks.add_puzzle_link_to_sheet",
+        "google_api_lib.tasks.add_puzzle_link_to_sheet.delay",
         google_api_lib.tests.mock_add_puzzle_link_to_sheet,
     )
     def test_sheets_title_editing(self, rename_sheet):
@@ -390,7 +390,7 @@ class SheetTests(CardboardTestCase, TransactionTestCase):
         google_api_lib.tests.mock_transfer_ownership,
     )
     @patch(
-        "google_api_lib.tasks.add_puzzle_link_to_sheet",
+        "google_api_lib.tasks.add_puzzle_link_to_sheet.delay",
         google_api_lib.tests.mock_add_puzzle_link_to_sheet,
     )
     def test_sheets_title_editing_case_insensitive(self, rename_sheet):
