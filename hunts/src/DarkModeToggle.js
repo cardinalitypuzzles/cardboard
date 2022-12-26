@@ -15,7 +15,6 @@ export const DarkModeToggle = () => {
           className="form-check-input"
           checked={isDark}
           onChange={(e) => {
-            console.log(e.target.checked);
             if (isDark) {
               // Light
               document.body.classList.remove("bootstrap-dark");
@@ -29,7 +28,7 @@ export const DarkModeToggle = () => {
             }
             setIsDark(e.target.checked);
           }}
-        ></input>
+        />
         <label className="form-check-label" htmlFor="dark-mode-checkbox">
           Dark Mode
         </label>
