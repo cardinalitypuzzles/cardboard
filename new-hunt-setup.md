@@ -136,6 +136,7 @@ Miscellaneous configs:
 
 * `DJANGO_SECRET_KEY` - used by Django to generate secrets, such as for user sessions. It's best to set this so that user sessions will not expire after each restart. You can generate a key using `python -c "import secrets; print(secrets.token_urlsafe())"`.
 * `DEBUG` - you probably want to set this to `False` in production so users don't get gory error pages
+* `CONTACT_EMAIL` - contact email for login help and privacy statement
 
 #### Discord role pings
 
