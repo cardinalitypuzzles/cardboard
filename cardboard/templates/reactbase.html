@@ -1,0 +1,60 @@
+{% load static %}
+<html lang="en">
+    <head>
+        <title>Cardinality Cardboard</title>
+        <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}"/>
+
+        <!-- https://github.com/ForEvolve/bootstrap-dark -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@forevolve/bootstrap-dark@1.0.0/dist/css/toggle-bootstrap.min.css" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@forevolve/bootstrap-dark@1.0.0/dist/css/toggle-bootstrap-dark.min.css" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@forevolve/bootstrap-dark@1.0.0/dist/css/toggle-bootstrap-print.min.css" />
+
+
+        <!-- https://github.com/gitbrent/bootstrap-switch-button -->
+        <link href="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap-switch-button@1.1.0/css/bootstrap-switch-button.min.css" rel="stylesheet" />
+        <script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap-switch-button@1.1.0/dist/bootstrap-switch-button.min.js"></script>
+
+        <link rel="stylesheet" href="{% static 'style.css' %}">
+
+        <meta name="google-site-verification" content="Ti5cGx93wum_wEEzeEhSPrfyyhJmrza9sv_1ee25FAY" />
+
+        <!--Light/Dark Mode-->
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const storedTheme = localStorage.getItem('cardboard-theme');
+                if (storedTheme) {
+                    document.body.classList.add(storedTheme);
+                } else {
+                    document.body.classList.add('bootstrap');
+                    localStorage.setItem('cardboard-theme', 'bootstrap')
+                }
+            })
+        </script>
+
+        {% block head_content %}{% endblock %}
+    </head>
+
+    <body>
+        <div id='ajax-messages'></div>
+        {% for message in messages %}
+        {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+            <div class="alert alert-danger" style="white-space: pre-line" role="alert">{{ message }}</div>
+        {% endif %}
+        {% if message.level == DEFAULT_MESSAGE_LEVELS.WARNING %}
+            <div class="alert alert-warning" style="white-space: pre-line" role="alert">{{ message }}</div>
+        {% endif %}
+        {% endfor %}
+
+        {% block page_content %}{% endblock %}
+
+        <div class="navbar fixed-bottom navbar-themed">
+            <p class="small text-muted mb-0">By using our site, you acknowledge that you have read and understand our <a href="{% url 'privacy'%}">Privacy Policy</a></p>
+            <p class="small text-muted mb-0">Find us on <a href="https://github.com/cardinalitypuzzles/cardboard">GitHub</a></p>
+        </div>
+        <script>
+           LOGGED_IN_USER = `{% if user.first_name %}{{user.first_name}} {{user.last_name}}{% else %}{{ user.username }}{% endif %}{% if user.email %} ({{user.email}}){% endif %}`
+        </script>
+    </body>
+
+
+</html>

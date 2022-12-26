@@ -26,7 +26,7 @@ import {
 } from "./filterSlice";
 import TagPill from "./TagPill";
 import { SolvedStateFilter } from "./solveStateFilter";
-import { ChatVersionSelector } from "./chatSelector";
+import { SiteHeader } from "./SiteHeader";
 
 const MODAL_COMPONENTS = {
   DELETE_PUZZLE: DeletePuzzleModal,
@@ -69,82 +69,84 @@ export const HuntViewMain = (props) => {
   }, [alert.id]);
 
   return (
-    <div
-      style={{
-        margin: "0 20px",
-      }}
-    >
-      <Alert
-        dismissible
-        variant={alert.variant}
-        show={alert.show}
-        onClose={() => dispatch(hideAlert())}
-      >
-        {alert.text}
-      </Alert>
-      <HuntViewHeader hunt={hunt} />
+    <>
+      <SiteHeader />
       <div
         style={{
-          display: "flex",
-          justifyContent: "space-between",
-          padding: "2px",
-          alignItems: "center",
+          margin: "0 20px",
         }}
       >
-        <div>
-          <GlobalFilter />
-          <SolvedStateFilter />
-        </div>
-        <div>
-          <ChatVersionSelector />
-        </div>
-        <div>
-          {filterTags.length > 0 ? "Viewing puzzles with tags: " : ""}
-          {filterTags.map(({ name, color, id }) => {
-            // This use of toggleFilterTag will remove the tag from the list
-            return (
-              <TagPill
-                name={name}
-                color={color}
-                id={id}
-                puzzleId={null}
-                key={name}
-                onDelete={() => dispatch(toggleFilterTag({ name, color, id }))}
-              />
-            );
-          })}
-        </div>
-
-        <Button
-          variant="primary"
-          size="lg"
-          onClick={() =>
-            dispatch(
-              showModal({
-                type: "ADD_PUZZLE",
-                props: {
-                  huntId: props.huntId,
-                },
-              })
-            )
-          }
+        <Alert
+          dismissible
+          variant={alert.variant}
+          show={alert.show}
+          onClose={() => dispatch(hideAlert())}
         >
-          Add Puzzle
-        </Button>
+          {alert.text}
+        </Alert>
+        <HuntViewHeader hunt={hunt} />
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            padding: "2px",
+            alignItems: "center",
+          }}
+        >
+          <div>
+            <GlobalFilter />
+            <SolvedStateFilter />
+          </div>
+          <div>
+            {filterTags.length > 0 ? "Viewing puzzles with tags: " : ""}
+            {filterTags.map(({ name, color, id }) => {
+              // This use of toggleFilterTag will remove the tag from the list
+              return (
+                <TagPill
+                  name={name}
+                  color={color}
+                  id={id}
+                  puzzleId={null}
+                  key={name}
+                  onDelete={() =>
+                    dispatch(toggleFilterTag({ name, color, id }))
+                  }
+                />
+              );
+            })}
+          </div>
+
+          <Button
+            variant="primary"
+            size="lg"
+            onClick={() =>
+              dispatch(
+                showModal({
+                  type: "ADD_PUZZLE",
+                  props: {
+                    huntId: props.huntId,
+                  },
+                })
+              )
+            }
+          >
+            Add Puzzle
+          </Button>
+        </div>
+        <PuzzleTable
+          data={tableData}
+          filterSolved={filterSolved}
+          filterTags={filterTags}
+        />
+        <Modal
+          animation={false}
+          show={modal.show}
+          onHide={() => dispatch(hideModal())}
+        >
+          {ModalComponent ? <ModalComponent {...modal.props} /> : null}
+        </Modal>
       </div>
-      <PuzzleTable
-        data={tableData}
-        filterSolved={filterSolved}
-        filterTags={filterTags}
-      />
-      <Modal
-        animation={false}
-        show={modal.show}
-        onHide={() => dispatch(hideModal())}
-      >
-        {ModalComponent ? <ModalComponent {...modal.props} /> : null}
-      </Modal>
-    </div>
+    </>
   );
 };
 
