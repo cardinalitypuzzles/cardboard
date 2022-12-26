@@ -1,5 +1,6 @@
 #!/bin/sh
 
+yarn install
 # Compiles the js bundle(s) and runs in background to hot reload
 yarn run dev &
 
