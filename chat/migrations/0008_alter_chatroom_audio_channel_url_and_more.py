@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('chat', '0007_chatrole'),
+        ("chat", "0007_chatrole"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='chatroom',
-            name='audio_channel_url',
+            model_name="chatroom",
+            name="audio_channel_url",
             field=models.URLField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='chatroom',
-            name='text_channel_url',
+            model_name="chatroom",
+            name="text_channel_url",
             field=models.URLField(blank=True, null=True),
         ),
     ]
