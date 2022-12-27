@@ -26,6 +26,41 @@ class PuzzleTag(models.Model):
     HIGH_PRIORITY = "High priority"
     LOW_PRIORITY = "Low priority"
 
+    DEFAULT_TAGS = [
+        (HIGH_PRIORITY, RED),
+        (LOW_PRIORITY, YELLOW),
+        (BACKSOLVED, GREEN),
+        ("Slog", GRAY),
+        ("Grid logic", WHITE),
+        ("Non-grid logic", WHITE),
+        ("Crossword", BLUE),
+        ("Cryptics", BLUE),
+        ("Wordplay", BLUE),
+        ("Media manipulation", WHITE),
+        ("Programming", WHITE),
+        ("Art ID", BLUE),
+        ("Bio", BLUE),
+        ("Chem", BLUE),
+        ("Foreign languages", BLUE),
+        ("Geography", BLUE),
+        ("Literature", BLUE),
+        ("Math", BLUE),
+        ("Physics", BLUE),
+        ("Anime", WHITE),
+        ("Board games", WHITE),
+        ("Boomer", WHITE),
+        ("Knitting", WHITE),
+        ("Movies", WHITE),
+        ("Music ID", WHITE),
+        ("Sports", WHITE),
+        ("TV", WHITE),
+        ("Video games", WHITE),
+        ("Zoomer", WHITE),
+        ("MIT", BLUE),
+        ("Printing", BLUE),
+        ("Teamwork", BLUE),
+    ]
+
     hunt = models.ForeignKey(
         "hunts.Hunt", on_delete=models.CASCADE, related_name="puzzle_tags"
     )
@@ -38,9 +73,20 @@ class PuzzleTag(models.Model):
         return self.name
 
     class Meta:
-        ordering = ("color", "name")
+        ordering = ("id",)
         constraints = [
             models.UniqueConstraint(
                 fields=["name", "hunt"], name="unique_tag_names_per_hunt"
             ),
         ]
+
+    @classmethod
+    def create_default_tags(cls, hunt):
+        for (name, color) in cls.DEFAULT_TAGS:
+            PuzzleTag.objects.get_or_create(name=name, hunt=hunt, color=color)
+
+    def is_high_pri(self):
+        return self.name == PuzzleTag.HIGH_PRIORITY
+
+    def is_low_pri(self):
+        return self.name == PuzzleTag.LOW_PRIORITY

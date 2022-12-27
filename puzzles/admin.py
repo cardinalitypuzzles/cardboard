@@ -1,6 +1,5 @@
 from django.contrib import admin
-from .models import Puzzle
-from .puzzle_tag import PuzzleTag
+from .models import Puzzle, PuzzleTag
 from answers.models import Answer
 
 
