@@ -50,9 +50,9 @@ class ChatRoom(models.Model):
     name = models.CharField(max_length=255)
 
     text_channel_id = models.CharField(max_length=255, null=True, blank=True)
-    text_channel_url = models.URLField(blank=True)
+    text_channel_url = models.URLField(null=True, blank=True)
 
-    audio_channel_url = models.URLField(blank=True)
+    audio_channel_url = models.URLField(null=True, blank=True)
     audio_channel_id = models.CharField(max_length=255, null=True, blank=True)
 
     class Meta:

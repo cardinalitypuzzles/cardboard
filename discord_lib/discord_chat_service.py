@@ -1,6 +1,15 @@
 from collections import defaultdict
+import json
+
+import requests
 
 from chat.service import ChatService
+
+DISCORD_BASE_API_URL = "https://discord.com/api"
+
+CHANNEL_CATEGORY_TYPE = 4
+CHANNEL_TEXT_TYPE = 0
+CHANNEL_VOICE_TYPE = 2
 
 
 class DiscordChatService(ChatService):
@@ -12,8 +21,11 @@ class DiscordChatService(ChatService):
 
     def __init__(self, settings, client=None, max_channels_per_category=50):
         """Accepts Django settings object and optional Discord APIClient (for testing)."""
-        # self._client = client or APIClient(settings.DISCORD_API_TOKEN)
-        # self._max_channels_per_category = max_channels_per_category
+        self._headers = {
+            "Authorization": f"Bot {settings.DISCORD_API_TOKEN}",
+            "Content-Type": "application/json",
+        }
+        self._max_channels_per_category = max_channels_per_category
         return
 
     def send_message(self, channel_id, msg, embedded_urls={}):
@@ -32,22 +44,20 @@ class DiscordChatService(ChatService):
         return
 
     def announce(self, puzzle_announcements_id, msg, embedded_urls={}):
-        # if puzzle_announcements_id:
-        #     self.send_message(puzzle_announcements_id, msg, embedded_urls)
+        if puzzle_announcements_id:
+            self.send_message(puzzle_announcements_id, msg, embedded_urls)
         return
 
     def create_text_channel(self, guild_id, name, text_category_name="text"):
-        # if not guild_id:
-        #     raise Exception("Missing guild_id")
+        if not guild_id:
+            raise Exception("Missing guild_id")
 
-        # channel = self._create_channel(
-        #     guild_id,
-        #     name,
-        #     chan_type=ChannelType.GUILD_TEXT,
-        #     parent_name=text_category_name,
-        # )
-        # return channel.id
-        return
+        return self._create_channel(
+            guild_id,
+            name,
+            chan_type=CHANNEL_TEXT_TYPE,
+            parent_name=text_category_name,
+        )
 
     def get_text_channel_participants(self, channel_id):
         # messages = self._client.channels_messages_list(channel_id)
@@ -60,17 +70,15 @@ class DiscordChatService(ChatService):
         return
 
     def create_audio_channel(self, guild_id, name, voice_category_name="voice"):
-        # if not guild_id:
-        #     raise Exception("Missing guild_id")
+        if not guild_id:
+            raise Exception("Missing guild_id")
 
-        # channel = self._create_channel(
-        #     guild_id,
-        #     name,
-        #     chan_type=ChannelType.GUILD_VOICE,
-        #     parent_name=voice_category_name,
-        # )
-        # return channel.id
-        return
+        return self._create_channel(
+            guild_id,
+            name,
+            chan_type=CHANNEL_VOICE_TYPE,
+            parent_name=voice_category_name,
+        )
 
     def delete_audio_channel(self, guild_id, channel_id):
         # self.delete_channel(guild_id, channel_id)
@@ -87,44 +95,57 @@ class DiscordChatService(ChatService):
 
     def _get_or_create_category(self, guild_id, category_name):
         """
-        Returns category that has fewer than _max_channels_per_category. If none
+        Returns id for category that has fewer than _max_channels_per_category. If none
         exists, a new one is created.
         """
-        # channels_by_id = self._client.guilds_channels_list(guild_id)
-        # num_children_per_parent = defaultdict(int)
-        # category_channels = []
-        # for c in channels_by_id.values():
-        #     if c.name == category_name and c.type == ChannelType.GUILD_CATEGORY:
-        #         category_channels.append(c)
-        #     if c.parent_id:
-        #         num_children_per_parent[c.parent_id] += 1
+        all_channels = self._get_channels_for_guild(guild_id)
+        num_children_per_parent = defaultdict(int)
+        category_channels = []
+        for c in all_channels:
+            if c["name"] == category_name and c["type"] == CHANNEL_CATEGORY_TYPE:
+                category_channels.append(c)
+            if "parent_id" in c:
+                num_children_per_parent[c["parent_id"]] += 1
 
-        # for parent in category_channels:
-        #     if num_children_per_parent[parent.id] < self._max_channels_per_category:
-        #         return parent
+        for parent in category_channels:
+            if num_children_per_parent[parent["id"]] < self._max_channels_per_category:
+                return parent["id"]
 
-        # return self._client.guilds_channels_create(
-        #     guild_id,
-        #     ChannelType.GUILD_CATEGORY,
-        #     category_name,
-        #     parent_id=None,
-        # )
+        return self._create_channel_impl(
+            guild_id,
+            CHANNEL_CATEGORY_TYPE,
+            category_name,
+            parent_id=None,
+        )
         return
+
+    def _create_channel_impl(self, guild_id, name, chan_type, parent_id=None):
+        """
+        Returns channel id
+        """
+        data = {"name": name, "type": chan_type, "parent_id": parent_id}
+        try:
+            response = requests.post(
+                f"{DISCORD_BASE_API_URL}/guilds/{guild_id}/channels",
+                headers=self._headers,
+                json={"name": name, "type": chan_type, "parent_id": parent_id},
+                timeout=5,
+            )
+            json_dict = json.loads(response.content.decode("utf-8"))
+            if "id" in json_dict:
+                return json_dict["id"]
+        except Exception as e:
+            print(f"Error getting channels from discord: {e}")
 
     def _create_channel(self, guild_id, name, chan_type, parent_name=None):
-        # parent_id = None
-        # if parent_name:
-        #     # Use a Discord category as the parent folder for this channel.
-        #     parent = self._get_or_create_category(guild_id, parent_name)
-        #     parent_id = parent.id
-        # channel = self._client.guilds_channels_create(
-        #     guild_id,
-        #     chan_type,
-        #     name,
-        #     parent_id=parent_id,
-        # )
-        # return channel
-        return
+        """
+        Returns channel id
+        """
+        parent_id = None
+        if parent_name:
+            # Use a Discord category as the parent folder for this channel.
+            parent_id = self._get_or_create_category(guild_id, parent_name)
+        return self._create_channel_impl(guild_id, name, chan_type, parent_id)
 
     def categorize_channel(self, guild_id, channel_id, category_name):
         # if not guild_id or not channel_id:
@@ -147,28 +168,19 @@ class DiscordChatService(ChatService):
         #     self.categorize_channel(guild_id, channel_id, voice_category_name)
         return
 
-    def get_channels(self, guild_id, name, chan_type):
-        # if not guild_id:
-        #     raise Exception("Missing guild_id")
-        # channels_by_id = self._client.guilds_channels_list(guild_id)
-        # channels = []
-        # for c in channels_by_id.values():
-        #     if c.name == name and c.type == chan_type:
-        #         channels.append(c)
-        # return channels
-        return
-
-    def get_or_create_channel(self, guild_id, name, chan_type):
-        # if not guild_id:
-        #     raise Exception("Missing guild_id")
-
-        # channels = self.get_channels(name, chan_type)
-        # if channels:
-        #     channel = channels[0]
-        # else:
-        #     channel = self._create_channel(guild_id, name, chan_type)
-        # return channel
-        return
+    def _get_channels_for_guild(self, guild_id):
+        if not guild_id:
+            raise Exception("Missing guild_id")
+        try:
+            response = requests.get(
+                f"{DISCORD_BASE_API_URL}/guilds/{guild_id}/channels",
+                headers=self._headers,
+                timeout=5,
+            )
+            channels = json.loads(response.content.decode("utf-8"))
+            return channels
+        except Exception as e:
+            print(f"Error getting channels from discord: {e}")
 
     def create_channel_url(self, guild_id, channel_id, is_audio=False):
         # if not guild_id or not channel_id:
