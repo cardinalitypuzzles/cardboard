@@ -11,7 +11,7 @@ const createSheetLink = (puzzle) => {
 };
 
 const hasDiscordLink = (puzzle) => {
-  return !!puzzle.chat_room.text_channel_url;
+  return !!puzzle.chat_room?.text_channel_url;
 };
 
 const createDiscordLink = (puzzle, chatVersion) => {
