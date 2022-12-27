@@ -9,6 +9,7 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.views import View
 from django.views.generic.base import RedirectView
+from puzzles.models import PuzzleTag
 
 from .forms import HuntForm, HuntSettingsForm
 from .models import Hunt
@@ -28,13 +29,18 @@ def index(request):
         if user.is_staff:
             form = HuntForm(request.POST)
             if form.is_valid():
-                hunt = Hunt(
-                    name=form.cleaned_data["name"],
-                    url=form.cleaned_data["url"],
-                    start_time=form.cleaned_data["start_time"],
-                    end_time=form.cleaned_data["end_time"],
-                )
-                hunt.save()
+                with transaction.atomic():
+                    hunt = Hunt(
+                        name=form.cleaned_data["name"],
+                        url=form.cleaned_data["url"],
+                        start_time=form.cleaned_data["start_time"],
+                        end_time=form.cleaned_data["end_time"],
+                    )
+                    hunt.save()
+
+                    if form.cleaned_data["populate_tags"]:
+                        transaction.on_commit(lambda: PuzzleTag.create_default_tags(hunt))
+    
                 return redirect(reverse("hunts:edit", kwargs={"hunt_slug": hunt.slug}))
         else:
             return HttpResponseForbidden()

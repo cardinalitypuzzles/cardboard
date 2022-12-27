@@ -42,6 +42,10 @@
             <div class="form-group">
                 {{ form.end_time }}
             </div>
+            <div class="form-group">
+                {{ form.populate_tags.label_tag }}
+                {{ form.populate_tags }}
+            </div>
             <button type="submit" class="btn btn-primary">Submit</button>
         </form>
         {% endif %}
