@@ -22,7 +22,7 @@ export const SiteHeader = () => {
           <img height="40" src="/static/favicon.ico" alt="" /> Cardboard
         </a>
         {hunt.name}
-        <button className="btn ml-auto" onClick={toggleDrawer}>
+        <button type="button" className="btn ml-auto" onClick={toggleDrawer}>
           <IconMenu2 aria-label="expand menu" />
         </button>
       </nav>
@@ -36,10 +36,9 @@ export const SiteHeader = () => {
           flexDirection: "column",
         }}
       >
-        <a className="nav-link" href={"/hunts"}>
+        <a className="nav-link" href="/hunts">
           Back to Hunt Index
         </a>
-        <div></div>
         <a className="nav-link" href="/tools">
           Tools and References
         </a>

@@ -12,7 +12,7 @@ function GlobalFilter() {
         onChange={(e) => {
           dispatch(updateTextFilter(e.target.value));
         }}
-        placeholder={"Search"}
+        placeholder="Search"
       />
     </span>
   );

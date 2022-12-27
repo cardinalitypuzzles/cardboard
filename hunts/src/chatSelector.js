@@ -23,7 +23,7 @@ export const ChatVersionSelector = () => {
               dispatch(updateChatVersion(CHAT_VERSION_OPTIONS.APP));
             }
           }}
-        ></input>
+        />
         <label htmlFor="chat-version-app-radio" className="form-check-label">
           App
         </label>
@@ -39,7 +39,7 @@ export const ChatVersionSelector = () => {
               dispatch(updateChatVersion(CHAT_VERSION_OPTIONS.WEB));
             }
           }}
-        ></input>
+        />
         <label htmlFor="chat-version-web-radio" className="form-check-label">
           Web
         </label>

@@ -4,7 +4,6 @@ import {
   createAsyncThunk,
   createEntityAdapter,
 } from "@reduxjs/toolkit";
-import { selectHuntId } from "./huntSlice";
 import api from "./api";
 import { DEFAULT_TAGS, HIGH_PRIORITY_TAG, LOW_PRIORITY_TAG } from "./constants";
 
@@ -19,7 +18,7 @@ export const addPuzzle = createAsyncThunk(
 export const deletePuzzle = createAsyncThunk(
   "puzzles/deletePuzzle",
   async ({ huntId, id }) => {
-    const response = await api.deletePuzzle(huntId, id);
+    await api.deletePuzzle(huntId, id);
     return id;
   }
 );
@@ -269,7 +268,7 @@ export const selectAllTags = createSelector(
 export const selectNumUnlocked = createSelector(
   [puzzlesSelectors.selectAll],
   (puzzles) => {
-    const count = puzzles.reduce((count, puzzle) => count + 1, 0);
+    const count = puzzles.reduce((count) => count + 1, 0);
     return count;
   }
 );

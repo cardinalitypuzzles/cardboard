@@ -1,5 +1,5 @@
 import React from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import {
   selectNumUnlocked,
   selectNumSolved,
@@ -28,7 +28,7 @@ function HuntViewHeader({ hunt }) {
         </Tooltip>
       }
     >
-      <a href={"drive"}>Google Drive Folder 🎨🖌️📁</a>
+      <a href="drive">Google Drive Folder 🎨🖌️📁</a>
     </OverlayTrigger>
   ) : null;
 
@@ -70,7 +70,7 @@ function HuntViewHeader({ hunt }) {
               {numMetasUnsolved}
             </Col>
             <Col xs={1} className="text-nowrap">
-              <a href={"stats"}>Stats 📈</a>
+              <a href="stats">Stats 📈</a>
             </Col>
             <Col xs={1} className="text-nowrap">
               {driveRedirect}

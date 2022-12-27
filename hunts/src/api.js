@@ -14,7 +14,7 @@ function handleErrors(response) {
           throw new Error(JSON.stringify(json));
         }
       },
-      (err) => {
+      () => {
         throw new Error("An unknown error occurred.");
       }
     );
@@ -61,7 +61,6 @@ function updatePuzzle(huntId, puzzleId, data) {
 
 function addAnswer(puzzleId, data) {
   const answerApiUrl = `${API_PREFIX}/puzzles/${puzzleId}/answers`;
-  console.log(data);
   return fetch(answerApiUrl, {
     method: "POST",
     headers: {

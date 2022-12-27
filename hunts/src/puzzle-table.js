@@ -126,7 +126,7 @@ export const PuzzleTable = React.memo(({ data, filterSolved, filterTags }) => {
     []
   );
 
-  const getRowId = React.useCallback((row, relativeIndex, parent) => {
+  const getRowId = React.useCallback((row, _, parent) => {
     if (parent) {
       return `${parent.id}.${row.id}`;
     } else {
@@ -138,11 +138,7 @@ export const PuzzleTable = React.memo(({ data, filterSolved, filterTags }) => {
     getTableBodyProps,
     allColumns,
     rows,
-    state,
     prepareRow,
-    toggleAllRowsExpanded,
-    flatRows,
-    preGlobalFilteredRows,
     setGlobalFilter,
     setFilter,
   } = useTable(
@@ -191,7 +187,7 @@ export const PuzzleTable = React.memo(({ data, filterSolved, filterTags }) => {
           </tr>
         </thead>
         <tbody {...getTableBodyProps()}>
-          {rows.map((row, i) => {
+          {rows.map((row) => {
             prepareRow(row);
             return (
               <tr className={rowClassName(row)} {...row.getRowProps()}>
