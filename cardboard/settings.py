@@ -209,19 +209,6 @@ except KeyError as e:
         f"No {e.args[0]} found in environment. Automatic sheets creation disabled."
     )
 
-# TODO: make this a per hunt setting
-from google_api_lib import sync_tasks
-
-GOOGLE_HUMAN_DRIVE_HUNT_FOLDER_URL = ""
-if GOOGLE_API_AUTHN_INFO is not None:
-    GOOGLE_HUMAN_DRIVE_HUNT_FOLDER_URL = sync_tasks.get_human_drive_folder(
-        GOOGLE_DRIVE_HUNT_FOLDER_ID
-    )
-else:
-    logger.warn(
-        "Google Drive integration not set up. All emails will be accepted. Sheets will not be created."
-    )
-
 
 AUTHENTICATION_BACKENDS = [
     "social_core.backends.google.GoogleOAuth2",

@@ -15,10 +15,7 @@ class HuntSerializer(serializers.ModelSerializer):
     has_drive = serializers.SerializerMethodField()
 
     def get_has_drive(self, obj):
-        return bool(
-            obj.settings.google_drive_human_url
-            or settings.GOOGLE_HUMAN_DRIVE_HUNT_FOLDER_URL
-        )
+        return bool(obj.settings.google_drive_human_url)
 
     class Meta:
         model = Hunt
