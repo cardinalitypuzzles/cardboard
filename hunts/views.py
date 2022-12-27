@@ -84,10 +84,7 @@ def stats(request, hunt_slug):
 @login_required(login_url="/")
 def redirect_to_drive(request, hunt_slug):
     hunt = get_object_or_404(Hunt.objects.select_related("settings"), slug=hunt_slug)
-    human_url = (
-        hunt.settings.google_drive_human_url
-        or settings.GOOGLE_HUMAN_DRIVE_HUNT_FOLDER_URL
-    )
+    human_url = hunt.settings.google_drive_human_url
     if human_url:
         return HttpResponseRedirect(human_url)
     else:
