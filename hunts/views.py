@@ -1,14 +1,16 @@
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpResponseRedirect
+from django.db import transaction
+from django.http import HttpResponseRedirect, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.views import View
 from django.views.generic.base import RedirectView
 
-from .forms import HuntForm
+from .forms import HuntForm, HuntSettingsForm
 from .models import Hunt
 from .chart_utils import *
 
@@ -23,15 +25,19 @@ def index(request):
     form = HuntForm()
 
     if request.method == "POST":
-        form = HuntForm(request.POST)
-        if form.is_valid():
-            hunt = Hunt(
-                name=form.cleaned_data["name"],
-                url=form.cleaned_data["url"],
-                start_time=form.cleaned_data["start_time"],
-                end_time=form.cleaned_data["end_time"],
-            )
-            hunt.save()
+        if user.is_staff:
+            form = HuntForm(request.POST)
+            if form.is_valid():
+                hunt = Hunt(
+                    name=form.cleaned_data["name"],
+                    url=form.cleaned_data["url"],
+                    start_time=form.cleaned_data["start_time"],
+                    end_time=form.cleaned_data["end_time"],
+                )
+                hunt.save()
+                return redirect(reverse("hunts:edit", kwargs={"hunt_slug": hunt.slug}))
+        else:
+            return HttpResponseForbidden()
 
     context = {
         "active_hunts": Hunt.objects.filter(active=True).order_by("-created_on"),
@@ -39,6 +45,31 @@ def index(request):
         "form": form,
     }
     return render(request, "index.html", context)
+
+
+@login_required(login_url="/")
+@staff_member_required
+def edit(request, hunt_slug):
+
+    if request.method == "POST":
+        with transaction.atomic():
+            hunt = get_object_or_404(Hunt.objects.select_for_update(), slug=hunt_slug)
+            hunt_form = HuntForm(request.POST, instance=hunt)
+            settings_form = HuntSettingsForm(request.POST, instance=hunt.settings)
+            if hunt_form.is_valid() and settings_form.is_valid():
+                hunt_form.save()
+                settings_form.save()
+
+    else:
+        hunt = Hunt.get_object_or_404(user=request.user, slug=hunt_slug)
+        hunt_form = HuntForm(instance=hunt)
+        settings_form = HuntSettingsForm(instance=hunt.settings)
+
+    context = {
+        "hunt_form": hunt_form,
+        "settings_form": settings_form,
+    }
+    return render(request, "edit.html", context)
 
 
 @login_required(login_url="/")
