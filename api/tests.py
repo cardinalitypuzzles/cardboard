@@ -30,6 +30,7 @@ class ApiTests(CardboardTestCase, APITestCase):
                 "url": self._hunt.url,
                 "active": self._hunt.active,
                 "has_drive": bool(self._hunt.settings.google_drive_human_url),
+                "puzzle_tags": [],
             },
         )
 
