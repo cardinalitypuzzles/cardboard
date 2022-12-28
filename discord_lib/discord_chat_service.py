@@ -83,8 +83,8 @@ class DiscordChatService(ChatService):
         # return list(set(usernames))
         return
 
-    def delete_text_channel(self, guild_id, channel_id):
-        # self.delete_channel(guild_id, channel_id)
+    def delete_text_channel(self, channel_id):
+        self.delete_channel(channel_id)
         return
 
     def create_audio_channel(self, guild_id, name, voice_category_name="voice"):
@@ -98,18 +98,18 @@ class DiscordChatService(ChatService):
             parent_name=voice_category_name,
         )
 
-    def delete_audio_channel(self, guild_id, channel_id):
-        # self.delete_channel(guild_id, channel_id)
-        return
+    def delete_audio_channel(self, channel_id):
+        self.delete_channel(channel_id)
 
-    def delete_channel(self, guild_id, channel_id):
-        # if not guild_id:
-        #     return
-        # channels_by_id = self._client.guilds_channels_list(guild_id)
-        # # channel_id is a string, but the discord API returns/expects int.
-        # if int(channel_id) in channels_by_id:
-        #     self._client.channels_delete(int(channel_id))
-        return
+    def delete_channel(self, channel_id):
+        try:
+            requests.delete(
+                f"{DISCORD_BASE_API_URL}/channels/{channel_id}",
+                headers=self._headers,
+                timeout=5,
+            )
+        except Exception as e:
+            print(f"Error deleting channel: {e}")
 
     def _get_or_create_category(self, guild_id, category_name):
         """
@@ -135,7 +135,6 @@ class DiscordChatService(ChatService):
             CHANNEL_CATEGORY_TYPE,
             parent_id=None,
         )
-        return
 
     def _create_channel_impl(self, guild_id, name, chan_type, parent_id=None):
         """

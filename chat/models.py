@@ -171,12 +171,12 @@ class ChatRoom(models.Model):
         )
 
         if should_delete_text_channel:
-            service.delete_text_channel(self.get_guild_id(), self.text_channel_id)
+            service.delete_text_channel(self.text_channel_id)
             self.text_channel_id = None
             self.text_channel_url = ""
             update_fields.extend(["text_channel_id", "text_channel_url"])
         if self.audio_channel_id:
-            service.delete_audio_channel(self.get_guild_id(), self.audio_channel_id)
+            service.delete_audio_channel(self.audio_channel_id)
             self.audio_channel_id = None
             self.audio_channel_url = ""
             update_fields.extend(["audio_channel_id", "audio_channel_url"])
