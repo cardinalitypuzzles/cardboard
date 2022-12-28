@@ -19,14 +19,13 @@ class DiscordChatService(ChatService):
 
     """
 
-    def __init__(self, settings, client=None, max_channels_per_category=50):
+    def __init__(self, settings, max_channels_per_category=50):
         """Accepts Django settings object and optional Discord APIClient (for testing)."""
         self._headers = {
             "Authorization": f"Bot {settings.DISCORD_API_TOKEN}",
             "Content-Type": "application/json",
         }
         self._max_channels_per_category = max_channels_per_category
-        return
 
     def _make_link_embeds(self, embedded_urls):
         if not embedded_urls:
@@ -253,5 +252,14 @@ class DiscordChatService(ChatService):
         pass
 
     def handle_puzzle_rename(self, channel_id, new_name):
-        # self._client.channels_modify(int(channel_id), name=new_name)
-        return
+        try:
+            requests.patch(
+                f"{DISCORD_BASE_API_URL}/channels/{channel_id}",
+                headers=self._headers,
+                json={
+                    "name": new_name,
+                },
+                timeout=5,
+            )
+        except Exception as e:
+            print(f"Error renaming channel: {e}")
