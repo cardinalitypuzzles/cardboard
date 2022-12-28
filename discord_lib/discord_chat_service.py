@@ -28,20 +28,38 @@ class DiscordChatService(ChatService):
         self._max_channels_per_category = max_channels_per_category
         return
 
+    def _make_link_embeds(self, embedded_urls):
+        if not embedded_urls:
+            return None
+        fields = [
+            {
+                "name": text,
+                "value": f"[link]({url})",
+                "inline": True,
+            }
+            for text, url in embedded_urls.items()
+        ]
+        if not len(fields):
+            return None
+        # 12852794 is Cardinal
+        return [{"fields": fields, "color": 12852794, "type": "rich"}]
+
     def send_message(self, channel_id, msg, embedded_urls={}):
         """
         Sends msg to specified channel_id.
         embedded_urls is a map mapping display_text to url.
         e.g. { "Join voice channel": "https://discord.gg/XXX" }
         """
-        # embed = None
-        # if embedded_urls:
-        #     embed = MessageEmbed()
-        #     for text, url in embedded_urls.items():
-        #         embed.add_field(name=text, value=f"[link]({url})", inline=True)
-        #     embed.color = "12852794"  # cardinal
-        # self._client.channels_messages_create(channel_id, content=msg, embed=embed)
-        return
+        try:
+            embeds = self._make_link_embeds(embedded_urls)
+            requests.post(
+                f"{DISCORD_BASE_API_URL}/channels/{channel_id}/messages",
+                headers=self._headers,
+                json={"content": msg, "embeds": embeds},
+                timeout=5,
+            )
+        except Exception as e:
+            print(f"Error getting channels from discord: {e}")
 
     def announce(self, puzzle_announcements_id, msg, embedded_urls={}):
         if puzzle_announcements_id:
@@ -123,7 +141,6 @@ class DiscordChatService(ChatService):
         """
         Returns channel id
         """
-        data = {"name": name, "type": chan_type, "parent_id": parent_id}
         try:
             response = requests.post(
                 f"{DISCORD_BASE_API_URL}/guilds/{guild_id}/channels",
@@ -195,15 +212,15 @@ class DiscordChatService(ChatService):
         return
 
     def handle_tag_added(self, puzzle_announcements_id, puzzle, tag_name):
-        # from chat.models import ChatRole
+        from chat.models import ChatRole
 
-        # role = ChatRole.objects.filter(name__iexact=tag_name, hunt=puzzle.hunt).first()
-        # if role is not None:
-        #     self.announce(
-        #         puzzle_announcements_id,
-        #         f"{puzzle.name} was tagged with <@&{role.role_id}>",
-        #         puzzle.create_field_url_map(),
-        #     )
+        role = ChatRole.objects.filter(name__iexact=tag_name, hunt=puzzle.hunt).first()
+        if role is not None:
+            self.announce(
+                puzzle_announcements_id,
+                f"{puzzle.name} was tagged with <@&{role.role_id}>",
+                puzzle.create_field_url_map(),
+            )
         return
 
     def handle_tag_removed(self, puzzle_announcements_id, puzzle, tag_name):

@@ -213,6 +213,7 @@ class ChatRoom(models.Model):
     def handle_tag_added(self, puzzle, tag_name):
         if tag_name in [PuzzleTag.HIGH_PRIORITY, PuzzleTag.LOW_PRIORITY]:
             self.send_message(f"This puzzle was marked {tag_name}")
+            return
         # Any service-specific logic should go in the handler below
         self.get_service().handle_tag_added(
             self.puzzle.hunt.settings.discord_puzzle_announcements_channel_id,
