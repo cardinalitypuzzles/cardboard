@@ -31,8 +31,11 @@ export const filterSlice = createSlice({
   },
 });
 
-export const { updateTextFilter, updateSolveStateFilter, toggleFilterTag } =
-  filterSlice.actions;
+export const {
+  updateTextFilter,
+  updateSolveStateFilter,
+  toggleFilterTag,
+} = filterSlice.actions;
 export default filterSlice.reducer;
 export const getFilterOptions = (state) => state.filter;
 export const getTextFilter = createSelector([getFilterOptions], (filter) => {
