@@ -194,7 +194,7 @@ class TestChatService(TestCase):
                     func("channel", "name")
                 elif f == "categorize_channel":
                     func("guild-id", "channel-name-or-id", "category-name")
-                elif f == "get_text_channel_participants":
+                elif f == "get_text_channel_participants" or f == "delete_channel":
                     func("channel-id")
                 else:
                     func("guild-id", "channel-name-or-id")
