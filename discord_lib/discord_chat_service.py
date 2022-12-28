@@ -59,7 +59,7 @@ class DiscordChatService(ChatService):
                 timeout=5,
             )
         except Exception as e:
-            print(f"Error getting channels from discord: {e}")
+            print(f"Error sending discord message: {e}")
 
     def announce(self, puzzle_announcements_id, msg, embedded_urls={}):
         if puzzle_announcements_id:
@@ -131,8 +131,8 @@ class DiscordChatService(ChatService):
 
         return self._create_channel_impl(
             guild_id,
-            CHANNEL_CATEGORY_TYPE,
             category_name,
+            CHANNEL_CATEGORY_TYPE,
             parent_id=None,
         )
         return
@@ -151,8 +151,9 @@ class DiscordChatService(ChatService):
             json_dict = json.loads(response.content.decode("utf-8"))
             if "id" in json_dict:
                 return json_dict["id"]
+            print(f"Unable to create channel")
         except Exception as e:
-            print(f"Error getting channels from discord: {e}")
+            print(f"Error creating channel: {e}")
 
     def _create_channel(self, guild_id, name, chan_type, parent_name=None):
         """
@@ -164,26 +165,36 @@ class DiscordChatService(ChatService):
             parent_id = self._get_or_create_category(guild_id, parent_name)
         return self._create_channel_impl(guild_id, name, chan_type, parent_id)
 
+    def _modify_channel_parent(self, channel_id, parent_id):
+        try:
+            requests.patch(
+                f"{DISCORD_BASE_API_URL}/channels/{channel_id}",
+                headers=self._headers,
+                json={
+                    "parent_id": parent_id,
+                },
+                timeout=5,
+            )
+        except Exception as e:
+            print(f"Error categorizing channel: {e}")
+
     def categorize_channel(self, guild_id, channel_id, category_name):
-        # if not guild_id or not channel_id:
-        #     raise Exception("Missing guild_id or channel_id")
-        # parent = self._get_or_create_category(guild_id, category_name)
-        # self._client.channels_modify(int(channel_id), parent_id=parent.id)
+        if not guild_id or not channel_id:
+            raise Exception("Missing guild_id or channel_id")
+        parent_id = self._get_or_create_category(guild_id, category_name)
+        self._modify_channel_parent(channel_id, parent_id)
         return
 
     def archive_channel(self, guild_id, channel_id, discord_archive_category="archive"):
-        # self.categorize_channel(guild_id, channel_id, discord_archive_category)
-        return
+        self.categorize_channel(guild_id, channel_id, discord_archive_category)
 
     def unarchive_text_channel(self, guild_id, channel_id, text_category_name="text"):
-        # self.categorize_channel(guild_id, channel_id, text_category_name)
-        return
+        self.categorize_channel(guild_id, channel_id, text_category_name)
 
     def unarchive_voice_channel(
         self, guild_id, channel_id, voice_category_name="voice"
     ):
-        #     self.categorize_channel(guild_id, channel_id, voice_category_name)
-        return
+        self.categorize_channel(guild_id, channel_id, voice_category_name)
 
     def _get_channels_for_guild(self, guild_id):
         if not guild_id:
@@ -199,17 +210,33 @@ class DiscordChatService(ChatService):
         except Exception as e:
             print(f"Error getting channels from discord: {e}")
 
+    def _create_channel_invite(self, channel_id, max_age=0):
+        """
+        Returns invite code
+        """
+        try:
+            response = requests.post(
+                f"{DISCORD_BASE_API_URL}/channels/{channel_id}/invites",
+                headers=self._headers,
+                json={"max_age": max_age},
+                timeout=5,
+            )
+            json_dict = json.loads(response.content.decode("utf-8"))
+            if "code" in json_dict:
+                return json_dict["code"]
+        except Exception as e:
+            print(f"Error creating discord invite: {e}")
+
     def create_channel_url(self, guild_id, channel_id, is_audio=False):
-        # if not guild_id or not channel_id:
-        #     raise Exception("Missing guild_id or channel_id")
-        # # Only generate invite links via discord API for voice channel invites.
-        # # This is necessary because the manual link does not auto-join the channel.
-        # if is_audio:
-        #     invite = self._client.channels_invites_create(channel_id, max_age=0)
-        #     if invite.code:
-        #         return f"https://discord.gg/{invite.code}"
-        # return f"https://discord.com/channels/{guild_id}/{channel_id}"
-        return
+        if not guild_id or not channel_id:
+            raise Exception("Missing guild_id or channel_id")
+        # Only generate invite links via discord API for voice channel invites.
+        # This is necessary because the manual link does not auto-join the channel.
+        if is_audio:
+            invite_code = self._create_channel_invite(channel_id, max_age=0)
+            if invite_code:
+                return f"https://discord.gg/{invite_code}"
+        return f"https://discord.com/channels/{guild_id}/{channel_id}"
 
     def handle_tag_added(self, puzzle_announcements_id, puzzle, tag_name):
         from chat.models import ChatRole
