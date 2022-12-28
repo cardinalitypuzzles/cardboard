@@ -39,8 +39,10 @@ def index(request):
                     hunt.save()
 
                     if form.cleaned_data["populate_tags"]:
-                        transaction.on_commit(lambda: PuzzleTag.create_default_tags(hunt))
-    
+                        transaction.on_commit(
+                            lambda: PuzzleTag.create_default_tags(hunt)
+                        )
+
                 return redirect(reverse("hunts:edit", kwargs={"hunt_slug": hunt.slug}))
         else:
             return HttpResponseForbidden()
@@ -65,6 +67,11 @@ def edit(request, hunt_slug):
             if hunt_form.is_valid() and settings_form.is_valid():
                 hunt_form.save()
                 settings_form.save()
+
+                if hunt_form.cleaned_data["populate_tags"]:
+                    transaction.on_commit(lambda: PuzzleTag.create_default_tags(hunt))
+                else:
+                    transaction.on_commit(lambda: PuzzleTag.remove_default_tags(hunt))
 
     else:
         hunt = Hunt.get_object_or_404(user=request.user, slug=hunt_slug)

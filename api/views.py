@@ -374,7 +374,7 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
                 puzzle.tags.remove(tag)
 
             # clear db of dangling tags
-            if not tag.puzzles.exists():
+            if not tag.is_default and not tag.puzzles.exists():
                 tag.delete()
 
             if puzzle.chat_room:

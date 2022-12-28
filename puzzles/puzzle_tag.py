@@ -69,6 +69,8 @@ class PuzzleTag(models.Model):
     # internal flag to know when to sync meta puzzles
     is_meta = models.BooleanField(default=False)
 
+    is_default = models.BooleanField(default=False)
+
     def __str__(self):
         return self.name
 
@@ -83,7 +85,15 @@ class PuzzleTag(models.Model):
     @classmethod
     def create_default_tags(cls, hunt):
         for (name, color) in cls.DEFAULT_TAGS:
-            PuzzleTag.objects.get_or_create(name=name, hunt=hunt, color=color)
+            PuzzleTag.objects.get_or_create(
+                name=name, hunt=hunt, color=color, is_default=True
+            )
+
+    @classmethod
+    def remove_default_tags(cls, hunt):
+        PuzzleTag.objects.filter(hunt=hunt).filter(is_default=True).annotate(
+            models.Count("puzzles")
+        ).filter(puzzles__count=0).delete()
 
     def is_high_pri(self):
         return self.name == PuzzleTag.HIGH_PRIORITY

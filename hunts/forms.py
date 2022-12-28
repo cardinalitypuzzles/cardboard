@@ -34,7 +34,7 @@ class HuntForm(forms.ModelForm):
     )
 
     populate_tags = forms.BooleanField(
-        label="Populate hunt with default tags?", initial=True
+        label="Populate hunt with default tags?", initial=True, required=False
     )
 
     def clean(self):
