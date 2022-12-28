@@ -144,43 +144,6 @@ class TestPuzzle(APITestCase):
         )
         self.assertTrue(feeder.tags.filter(name="newname").exists())
 
-    def test_default_tag_creation(self):
-        PuzzleTag.create_default_tags(self._test_hunt)
-
-        for (name, color) in PuzzleTag.DEFAULT_TAGS:
-            self.assertTrue(
-                PuzzleTag.objects.filter(
-                    hunt=self._test_hunt, name=name, color=color
-                ).exists()
-            )
-
-    def test_unused_default_tag_deletion(self):
-        PuzzleTag.create_default_tags(self._test_hunt)
-        PuzzleTag.remove_default_tags(self._test_hunt)
-
-        for (name, color) in PuzzleTag.DEFAULT_TAGS:
-            self.assertFalse(
-                PuzzleTag.objects.filter(
-                    hunt=self._test_hunt, name=name, color=color
-                ).exists()
-            )
-
-    def test_used_default_tag_deletion(self):
-        PuzzleTag.create_default_tags(self._test_hunt)
-        puzzle = self.create_puzzle("puzzle", False)
-
-        for tag in PuzzleTag.objects.filter(is_default=True):
-            puzzle.tags.add(tag)
-
-        PuzzleTag.remove_default_tags(self._test_hunt)
-
-        for (name, color) in PuzzleTag.DEFAULT_TAGS:
-            self.assertTrue(
-                PuzzleTag.objects.filter(
-                    hunt=self._test_hunt, name=name, color=color
-                ).exists()
-            )
-
     def test_empty_custom_tags_deletion(self):
         # test that a empty custom tag is reaped
         puzzle = self.create_puzzle("puzzle", False)
