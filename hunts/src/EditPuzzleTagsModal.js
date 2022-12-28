@@ -12,7 +12,6 @@ import EditableTagList from "./EditableTagList";
 
 function EditPuzzleTagsModal({ puzzleId, puzzleName }) {
   const allTags = useSelector(selectHuntTags);
-  console.log(allTags);
   const [newTagName, setNewTagName] = React.useState("");
   const [newTagColor, setNewTagColor] = React.useState(DEFAULT_TAG_COLOR);
   const dispatch = useDispatch();
