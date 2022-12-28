@@ -8,7 +8,7 @@ from puzzles.models import Puzzle
 def migrate_to_ci_tag_name(apps, schema_editor):
     ci_name_to_tag = dict()
 
-    for tag in PuzzleTag.objects.all():
+    for tag in PuzzleTag.objects.values("name", "puzzles").all():
         ci_tag_name = tag.name.lower()
         if ci_tag_name in ci_name_to_tag:
             # move puzzle with duplicate tag to the one we keep

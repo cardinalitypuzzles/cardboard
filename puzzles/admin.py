@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Puzzle
+from .models import Puzzle, PuzzleTag
 from answers.models import Answer
 
 
@@ -15,4 +15,10 @@ class PuzzleAdmin(admin.ModelAdmin):
     ]
 
 
+class PuzzleTagAdmin(admin.ModelAdmin):
+    list_display = ["hunt", "name", "color", "is_meta"]
+    list_filter = ["hunt", "is_meta"]
+
+
 admin.site.register(Puzzle, PuzzleAdmin)
+admin.site.register(PuzzleTag, PuzzleTagAdmin)
