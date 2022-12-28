@@ -218,6 +218,18 @@ class ApiTests(CardboardTestCase, APITestCase):
         # Should return a puzzle
         self.assertEqual(response.data[0]["name"], puzzle.name)
 
+    def test_create_location_tag(self):
+        self.check_response_status(
+            self.create_puzzle({"name": TEST_NAME, "url": TEST_URL})
+        )
+        puzzle = Puzzle.objects.get()
+        response = self.create_tag(
+            puzzle.pk, {"name": "location", "color": PuzzleTag.TEAL}
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(puzzle.tags.count(), 1)
+        self.assertTrue(puzzle.tags.first().is_location)
+
     def test_delete_tag(self):
         self.check_response_status(
             self.create_puzzle({"name": TEST_NAME, "url": TEST_URL})
@@ -313,6 +325,41 @@ class ApiTests(CardboardTestCase, APITestCase):
 
         meta_tag = puzzle.tags.get(name=meta.name)
         self.assertEqual(meta_tag.color, PuzzleTag.BLACK)
+
+    def test_empty_custom_tags_deletion(self):
+        # test that a empty custom tag is reaped
+        self.create_puzzle({"name": TEST_NAME, "url": TEST_URL})
+        puzzle = Puzzle.objects.get()
+        custom_tag = PuzzleTag.objects.create(
+            name="custom", hunt=self._hunt, is_default=False
+        )
+        puzzle.tags.add(custom_tag)
+        self.client.delete(
+            f"/api/v1/puzzles/{puzzle.pk}/tags/{custom_tag.pk}",
+        )
+        self.assertFalse(
+            PuzzleTag.objects.filter(hunt=self._hunt, name="custom").exists()
+        )
+
+    def test_empty_default_tags_deletion(self):
+        # test that a empty default tag is NOT reaped
+        self.create_puzzle({"name": TEST_NAME, "url": TEST_URL})
+        puzzle = Puzzle.objects.get()
+        PuzzleTag.create_default_tags(self._hunt)
+
+        for tag in PuzzleTag.objects.filter(is_default=True):
+            puzzle.tags.add(tag)
+
+            self.client.delete(
+                f"/api/v1/puzzles/{puzzle.pk}/tags/{tag.pk}",
+            )
+
+        for (name, color) in PuzzleTag.DEFAULT_TAGS:
+            self.assertTrue(
+                PuzzleTag.objects.filter(
+                    hunt=self._hunt, name=name, color=color
+                ).exists()
+            )
 
 
 @override_settings(

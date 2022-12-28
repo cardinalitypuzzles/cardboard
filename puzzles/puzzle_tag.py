@@ -5,11 +5,12 @@ from django.contrib.postgres.fields import CICharField
 class PuzzleTag(models.Model):
     BLUE = "primary"
     GRAY = "secondary"
-    GREEN = "success"  # reserved for back solved
+    GREEN = "success"  # reserved for backsolved
     RED = "danger"  # reserved for high pri
     YELLOW = "warning"  # reserved for low pri
     WHITE = "light"
     BLACK = "dark"  # reserved for meta tags
+    TEAL = "info"  # reserved for location tags
     COLORS = {
         BLUE: "blue",
         GRAY: "gray",
@@ -18,6 +19,7 @@ class PuzzleTag(models.Model):
         YELLOW: "yellow",
         WHITE: "white",
         BLACK: "black",
+        TEAL: "teal",
     }
 
     # Some special tag names
@@ -25,6 +27,8 @@ class PuzzleTag(models.Model):
     BACKSOLVED = "Backsolved"
     HIGH_PRIORITY = "High priority"
     LOW_PRIORITY = "Low priority"
+
+    LOCATION_COLOR = TEAL
 
     DEFAULT_TAGS = [
         (HIGH_PRIORITY, RED),
@@ -59,6 +63,9 @@ class PuzzleTag(models.Model):
         ("MIT", BLUE),
         ("Printing", BLUE),
         ("Teamwork", BLUE),
+        ("Classroom 1", TEAL),
+        ("Classroom 2", TEAL),
+        ("Remote", TEAL),
     ]
 
     hunt = models.ForeignKey(
@@ -71,6 +78,8 @@ class PuzzleTag(models.Model):
 
     is_default = models.BooleanField(default=False)
 
+    is_location = models.BooleanField(default=False)
+
     def __str__(self):
         return self.name
 
@@ -82,15 +91,20 @@ class PuzzleTag(models.Model):
             ),
         ]
 
-    @classmethod
-    def create_default_tags(cls, hunt):
-        for (name, color) in cls.DEFAULT_TAGS:
+    @staticmethod
+    def create_default_tags(hunt):
+        for (name, color) in PuzzleTag.DEFAULT_TAGS:
+            is_location = color == PuzzleTag.LOCATION_COLOR
             PuzzleTag.objects.get_or_create(
-                name=name, hunt=hunt, color=color, is_default=True
+                name=name,
+                hunt=hunt,
+                color=color,
+                is_default=True,
+                is_location=is_location,
             )
 
-    @classmethod
-    def remove_default_tags(cls, hunt):
+    @staticmethod
+    def remove_default_tags(hunt):
         PuzzleTag.objects.filter(hunt=hunt).filter(is_default=True).annotate(
             models.Count("puzzles")
         ).filter(puzzles__count=0).delete()

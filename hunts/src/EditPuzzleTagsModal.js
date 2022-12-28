@@ -27,10 +27,16 @@ function EditPuzzleTagsModal({ puzzleId, puzzleName }) {
           tags={allTags.filter((tag) => tag.is_meta)}
         />
         <br />
+        <h5 style={{ textAlign: "center" }}>Locations</h5>
+        <EditableTagList
+          puzzleId={puzzleId}
+          tags={allTags.filter((tag) => tag.is_location)}
+        />
+        <br />
         <h5 style={{ textAlign: "center" }}>Tags</h5>
         <EditableTagList
           puzzleId={puzzleId}
-          tags={allTags.filter((tag) => !tag.is_meta)}
+          tags={allTags.filter((tag) => !tag.is_meta && !tag.is_location)}
         />
         <br />
         <Form

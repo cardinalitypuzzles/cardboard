@@ -406,9 +406,9 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
                 serializer.validated_data["name"],
                 serializer.validated_data["color"],
             )
+            is_location = tag_color == PuzzleTag.LOCATION_COLOR
             tag, _ = PuzzleTag.objects.get_or_create(
-                name=tag_name,
-                hunt=puzzle.hunt,
+                name=tag_name, hunt=puzzle.hunt, is_location=is_location
             )
             if tag.is_meta:
                 meta = get_object_or_404(Puzzle, name=tag.name, hunt=puzzle.hunt)
