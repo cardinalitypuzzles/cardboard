@@ -20,7 +20,6 @@ class Hunt(models.Model):
     )
     active = models.BooleanField(default=True)
     slug = models.SlugField(blank=True, unique=True)
-    answer_queue_enabled = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
@@ -145,6 +144,8 @@ class HuntSettings(models.Model):
         on_delete=models.CASCADE,
         related_name="settings",
     )
+
+    answer_queue_enabled = models.BooleanField(default=False)
 
     #
     # Google-specific settings

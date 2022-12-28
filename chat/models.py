@@ -50,9 +50,9 @@ class ChatRoom(models.Model):
     name = models.CharField(max_length=255)
 
     text_channel_id = models.CharField(max_length=255, null=True, blank=True)
-    text_channel_url = models.URLField(blank=True)
+    text_channel_url = models.URLField(null=True, blank=True)
 
-    audio_channel_url = models.URLField(blank=True)
+    audio_channel_url = models.URLField(null=True, blank=True)
     audio_channel_id = models.CharField(max_length=255, null=True, blank=True)
 
     class Meta:
@@ -171,12 +171,12 @@ class ChatRoom(models.Model):
         )
 
         if should_delete_text_channel:
-            service.delete_text_channel(self.get_guild_id(), self.text_channel_id)
+            service.delete_text_channel(self.text_channel_id)
             self.text_channel_id = None
             self.text_channel_url = ""
             update_fields.extend(["text_channel_id", "text_channel_url"])
         if self.audio_channel_id:
-            service.delete_audio_channel(self.get_guild_id(), self.audio_channel_id)
+            service.delete_audio_channel(self.audio_channel_id)
             self.audio_channel_id = None
             self.audio_channel_url = ""
             update_fields.extend(["audio_channel_id", "audio_channel_url"])
@@ -213,6 +213,7 @@ class ChatRoom(models.Model):
     def handle_tag_added(self, puzzle, tag_name):
         if tag_name in [PuzzleTag.HIGH_PRIORITY, PuzzleTag.LOW_PRIORITY]:
             self.send_message(f"This puzzle was marked {tag_name}")
+            return
         # Any service-specific logic should go in the handler below
         self.get_service().handle_tag_added(
             self.puzzle.hunt.settings.discord_puzzle_announcements_channel_id,

@@ -75,7 +75,7 @@ class AnswerViewSet(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             text = serializer.validated_data["text"]
             answer = Answer(text=text, puzzle=puzzle)
-            if puzzle.hunt.answer_queue_enabled:
+            if puzzle.hunt.settings.answer_queue_enabled:
                 puzzle.status = Puzzle.PENDING
             else:
                 # If no answer queue, we assume that the submitted answer is the
@@ -374,7 +374,7 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
                 puzzle.tags.remove(tag)
 
             # clear db of dangling tags
-            if not tag.puzzles.exists():
+            if not tag.is_default and not tag.puzzles.exists():
                 tag.delete()
 
             if puzzle.chat_room:

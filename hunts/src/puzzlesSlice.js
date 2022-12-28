@@ -5,7 +5,6 @@ import {
   createEntityAdapter,
 } from "@reduxjs/toolkit";
 import api from "./api";
-import { DEFAULT_TAGS, HIGH_PRIORITY_TAG, LOW_PRIORITY_TAG } from "./constants";
 
 export const addPuzzle = createAsyncThunk(
   "puzzles/addPuzzle",
@@ -96,9 +95,9 @@ function puzzleComparator(a, b) {
   }
   // High-priority before untagged before low-priority
   function priority(row) {
-    if (row.tags.some((x) => x.name === HIGH_PRIORITY_TAG)) {
+    if (row.tags.some((x) => x.is_high_pri)) {
       return 1;
-    } else if (row.tags.some((x) => x.name === LOW_PRIORITY_TAG)) {
+    } else if (row.tags.some((x) => x.is_low_pri)) {
       return -1;
     }
     return 0;
@@ -223,45 +222,6 @@ export const selectPuzzleTableData = createSelector(
     const outerRows = rowsCopy.filter((row) => row.metas.length == 0);
     outerRows.sort(puzzleComparator);
     return outerRows;
-  }
-);
-
-export const selectAllTags = createSelector(
-  [puzzlesSelectors.selectAll],
-  (puzzles) => {
-    // uniqueTags is set of unique Tags objects.
-    // After a default tag is used at least once, a Tag is created in the DB and this needs to be
-    // the version of the object in uniqueTags, instead of the dummy one created in the constants file.
-    // The DB versions are needed to display whether puzzle already has the tag.
-    // Logic below is to select the DB versions. The set is then split between default and non-default.
-    const tags = puzzles
-      .map((puzzle) => puzzle.tags)
-      .flat()
-      .concat(DEFAULT_TAGS);
-    const tagNames = new Set();
-    const uniqueTags = tags.reduce(
-      (uniqueTags, tag) =>
-        tagNames.has(tag.name)
-          ? uniqueTags
-          : tagNames.add(tag.name) && [...uniqueTags, tag],
-      []
-    );
-    const defaultTagNames = DEFAULT_TAGS.map((tag) => tag.name);
-    const defaultTags = uniqueTags.filter((tag) =>
-      defaultTagNames.includes(tag.name)
-    );
-    const customTags = uniqueTags.filter(
-      (tag) => !defaultTagNames.includes(tag.name)
-    );
-    defaultTags.sort(
-      (a, b) =>
-        defaultTagNames.indexOf(a.name) - defaultTagNames.indexOf(b.name)
-    );
-    customTags.sort(
-      (a, b) => a.color.localeCompare(b.color) || a.name.localeCompare(b.name)
-    );
-
-    return defaultTags.concat(customTags);
   }
 );
 

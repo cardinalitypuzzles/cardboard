@@ -5,6 +5,7 @@ from accounts.models import Puzzler
 from .models import Hunt
 from .forms import HuntForm
 from puzzles.models import Puzzle
+from puzzles.puzzle_tag import PuzzleTag
 from answers.models import Answer
 from .chart_utils import *
 
@@ -224,6 +225,7 @@ class HuntFormTests(TestCase):
         self._user = Puzzler.objects.create_user(
             username="test", email="test@ing.com", password="testingpwd"
         )
+        self._test_hunt = Hunt.objects.create(name="fake hunt", url="google.com")
         self.client.login(username="test", password="testingpwd")
 
     def tearDown(self):
@@ -260,3 +262,46 @@ class HuntFormTests(TestCase):
         self.assertEqual(
             form.non_field_errors(), ["End time must be after start time."]
         )
+
+    def test_default_tag_creation(self):
+        PuzzleTag.create_default_tags(self._test_hunt)
+
+        for (name, color) in PuzzleTag.DEFAULT_TAGS:
+            self.assertTrue(
+                PuzzleTag.objects.filter(
+                    hunt=self._test_hunt, name=name, color=color
+                ).exists()
+            )
+
+    def test_unused_default_tag_deletion(self):
+        PuzzleTag.create_default_tags(self._test_hunt)
+        PuzzleTag.remove_default_tags(self._test_hunt)
+
+        for (name, color) in PuzzleTag.DEFAULT_TAGS:
+            self.assertFalse(
+                PuzzleTag.objects.filter(
+                    hunt=self._test_hunt, name=name, color=color
+                ).exists()
+            )
+
+    def test_used_default_tag_deletion(self):
+        PuzzleTag.create_default_tags(self._test_hunt)
+        puzzle = Puzzle.objects.create(
+            name="puzzle",
+            hunt=self._test_hunt,
+            url="test.com",
+            sheet="sheet.com",
+            is_meta=False,
+        )
+
+        for tag in PuzzleTag.objects.filter(is_default=True):
+            puzzle.tags.add(tag)
+
+        PuzzleTag.remove_default_tags(self._test_hunt)
+
+        for (name, color) in PuzzleTag.DEFAULT_TAGS:
+            self.assertTrue(
+                PuzzleTag.objects.filter(
+                    hunt=self._test_hunt, name=name, color=color
+                ).exists()
+            )
