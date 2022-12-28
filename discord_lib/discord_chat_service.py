@@ -19,7 +19,7 @@ class DiscordChatService(ChatService):
 
     """
 
-    def __init__(self, settings, client=None, max_channels_per_category=10):
+    def __init__(self, settings, client=None, max_channels_per_category=50):
         """Accepts Django settings object and optional Discord APIClient (for testing)."""
         self._headers = {
             "Authorization": f"Bot {settings.DISCORD_API_TOKEN}",
