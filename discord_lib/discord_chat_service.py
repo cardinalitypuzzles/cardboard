@@ -43,6 +43,22 @@ class DiscordChatService(ChatService):
         # 12852794 is Cardinal
         return [{"fields": fields, "color": 12852794, "type": "rich"}]
 
+    def _make_link_embeds(self, embedded_urls):
+        if not embedded_urls:
+            return None
+        fields = [
+            {
+                "name": text,
+                "value": f"[link]({url})",
+                "inline": True,
+            }
+            for text, url in embedded_urls.items()
+        ]
+        if not len(fields):
+            return None
+        # 12852794 is Cardinal
+        return [{"fields": fields, "color": 12852794, "type": "rich"}]
+
     def send_message(self, channel_id, msg, embedded_urls={}):
         """
         Sends msg to specified channel_id.
