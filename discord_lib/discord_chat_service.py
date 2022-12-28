@@ -131,8 +131,8 @@ class DiscordChatService(ChatService):
 
         return self._create_channel_impl(
             guild_id,
-            CHANNEL_CATEGORY_TYPE,
             category_name,
+            CHANNEL_CATEGORY_TYPE,
             parent_id=None,
         )
         return
@@ -151,6 +151,7 @@ class DiscordChatService(ChatService):
             json_dict = json.loads(response.content.decode("utf-8"))
             if "id" in json_dict:
                 return json_dict["id"]
+            print(f"Unable to create channel")
         except Exception as e:
             print(f"Error creating channel: {e}")
 
@@ -164,26 +165,36 @@ class DiscordChatService(ChatService):
             parent_id = self._get_or_create_category(guild_id, parent_name)
         return self._create_channel_impl(guild_id, name, chan_type, parent_id)
 
+    def _modify_channel_parent(self, channel_id, parent_id):
+        try:
+            requests.patch(
+                f"{DISCORD_BASE_API_URL}/channels/{channel_id}",
+                headers=self._headers,
+                json={
+                    "parent_id": parent_id,
+                },
+                timeout=5,
+            )
+        except Exception as e:
+            print(f"Error categorizing channel: {e}")
+
     def categorize_channel(self, guild_id, channel_id, category_name):
-        # if not guild_id or not channel_id:
-        #     raise Exception("Missing guild_id or channel_id")
-        # parent = self._get_or_create_category(guild_id, category_name)
-        # self._client.channels_modify(int(channel_id), parent_id=parent.id)
+        if not guild_id or not channel_id:
+            raise Exception("Missing guild_id or channel_id")
+        parent_id = self._get_or_create_category(guild_id, category_name)
+        self._modify_channel_parent(channel_id, parent_id)
         return
 
     def archive_channel(self, guild_id, channel_id, discord_archive_category="archive"):
-        # self.categorize_channel(guild_id, channel_id, discord_archive_category)
-        return
+        self.categorize_channel(guild_id, channel_id, discord_archive_category)
 
     def unarchive_text_channel(self, guild_id, channel_id, text_category_name="text"):
-        # self.categorize_channel(guild_id, channel_id, text_category_name)
-        return
+        self.categorize_channel(guild_id, channel_id, text_category_name)
 
     def unarchive_voice_channel(
         self, guild_id, channel_id, voice_category_name="voice"
     ):
-        #     self.categorize_channel(guild_id, channel_id, voice_category_name)
-        return
+        self.categorize_channel(guild_id, channel_id, voice_category_name)
 
     def _get_channels_for_guild(self, guild_id):
         if not guild_id:
