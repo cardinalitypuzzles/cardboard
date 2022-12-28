@@ -19,10 +19,10 @@ class FakeChatService(ChatService):
         self.audio_channels.add(channel_id)
         return channel_id
 
-    def delete_text_channel(self, guild_id, channel_id):
+    def delete_text_channel(self, channel_id):
         self.text_channels.remove(channel_id)
 
-    def delete_audio_channel(self, guild_id, channel_id):
+    def delete_audio_channel(self, channel_id):
         self.audio_channels.remove(channel_id)
 
     def archive_channel(self, guild_id, channel_id, *args, **kwargs):

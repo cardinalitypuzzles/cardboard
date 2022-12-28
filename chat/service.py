@@ -31,13 +31,13 @@ class ChatService:
     def get_text_channel_participants(self, channel_id):
         raise NotImplementedError
 
-    def delete_text_channel(self, guild_id, channel_id):
+    def delete_text_channel(self, channel_id):
         raise NotImplementedError
 
     def create_audio_channel(self, guild_id, name, *args, **kwargs):
         raise NotImplementedError
 
-    def delete_audio_channel(self, guild_id, channel_id):
+    def delete_audio_channel(self, channel_id):
         raise NotImplementedError
 
     def create_channel_url(self, guild_id, channel_id, is_audio=False):
