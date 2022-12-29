@@ -4,20 +4,33 @@ import { useSelector, useDispatch } from "react-redux";
 import { faEdit, faTrashAlt } from "@fortawesome/free-regular-svg-icons";
 import { showModal } from "./modalSlice";
 import ClickableIcon from "./ClickableIcon";
+import { toggleCollapsed } from "./collapsedPuzzlesSlice";
+
+const useToggleRowExpandedProps = (row) => {
+  const dispatch = useDispatch();
+  const originalProps = row.getToggleRowExpandedProps({
+    style: {
+      paddingLeft: `${row.depth * 2}rem`,
+    },
+  });
+
+  return {
+    ...originalProps,
+    onClick: (e) => {
+      dispatch(toggleCollapsed({ rowId: row.id, huntId: CURRENT_HUNT_ID }));
+      return originalProps.onClick(e);
+    },
+  };
+};
 
 export default function NameCell({ row, value }) {
   const { id: huntId } = useSelector((state) => state.hunt);
+  const toggleRowExpandedProps = useToggleRowExpandedProps(row);
   const dispatch = useDispatch();
   return (
     <>
       {row.canExpand ? (
-        <span
-          {...row.getToggleRowExpandedProps({
-            style: {
-              paddingLeft: `${row.depth * 2}rem`,
-            },
-          })}
-        >
+        <span {...toggleRowExpandedProps}>
           {row.isExpanded ? "▼" : "▶"} <b>{value}</b>
         </span>
       ) : (
