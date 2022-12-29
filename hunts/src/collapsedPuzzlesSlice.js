@@ -10,9 +10,7 @@ export const collapsedPuzzlesSlice = createSlice({
         state[action.payload.huntId] = {};
       }
       const currentHunt = state[action.payload.huntId];
-      currentHunt[`${action.payload.rowId}`] = !currentHunt[
-        `${action.payload.rowId}`
-      ];
+      currentHunt[action.payload.rowId] = !currentHunt[action.payload.rowId];
     },
   },
 });

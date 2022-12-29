@@ -25,12 +25,12 @@ const useToggleRowExpandedProps = (row) => {
 
 export default function NameCell({ row, value }) {
   const { id: huntId } = useSelector((state) => state.hunt);
-  const props = useToggleRowExpandedProps(row);
+  const toggleRowExpandedProps = useToggleRowExpandedProps(row);
   const dispatch = useDispatch();
   return (
     <>
       {row.canExpand ? (
-        <span {...props}>
+        <span {...toggleRowExpandedProps}>
           {row.isExpanded ? "▼" : "▶"} <b>{value}</b>
         </span>
       ) : (
