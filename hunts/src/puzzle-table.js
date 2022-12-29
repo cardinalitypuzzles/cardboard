@@ -18,6 +18,7 @@ import StatusCell from "./StatusCell";
 import CreationCell from "./CreationCell";
 import TagCell from "./TagCell";
 import { LinkCell } from "./LinkCell";
+import { getCollapsedPuzzles } from "./collapsedPuzzlesSlice";
 
 const TABLE_COLUMNS = [
   {
@@ -133,6 +134,9 @@ export const PuzzleTable = React.memo(({ data, filterSolved, filterTags }) => {
       return row.id.toString();
     }
   }, []);
+
+  const collapsedPuzzles = useSelector(getCollapsedPuzzles);
+
   const {
     getTableProps,
     getTableBodyProps,
@@ -158,6 +162,9 @@ export const PuzzleTable = React.memo(({ data, filterSolved, filterTags }) => {
       initialState: {
         hiddenColumns: ["is_meta", "id", "url"],
         filters: [],
+        // Apparently our patch of react-table introduces the 'collapsed'
+        // object that has the opposite semantics of the 'expanded' API.
+        collapsed: collapsedPuzzles,
       },
     },
     useGlobalFilter,
