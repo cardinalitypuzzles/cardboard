@@ -17,7 +17,7 @@ const useToggleRowExpandedProps = (row) => {
   return {
     ...originalProps,
     onClick: (e) => {
-      dispatch(toggleCollapsed({ rowId: row.id }));
+      dispatch(toggleCollapsed({ rowId: row.id, huntId: CURRENT_HUNT_ID }));
       return originalProps.onClick(e);
     },
   };

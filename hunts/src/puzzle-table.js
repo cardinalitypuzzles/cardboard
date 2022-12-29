@@ -19,6 +19,7 @@ import CreationCell from "./CreationCell";
 import TagCell from "./TagCell";
 import { LinkCell } from "./LinkCell";
 import { getCollapsedPuzzles } from "./collapsedPuzzlesSlice";
+import { selectHuntId } from "./huntSlice";
 
 const TABLE_COLUMNS = [
   {
@@ -135,7 +136,7 @@ export const PuzzleTable = React.memo(({ data, filterSolved, filterTags }) => {
     }
   }, []);
 
-  const collapsedPuzzles = useSelector(getCollapsedPuzzles);
+  const collapsedPuzzles = useSelector(getCollapsedPuzzles(CURRENT_HUNT_ID));
 
   const {
     getTableProps,
