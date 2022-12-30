@@ -14,6 +14,7 @@ module.exports = {
     sourceType: "module",
   },
   plugins: ["react", "prettier"],
+  globals: { CURRENT_HUNT_ID: true },
   rules: {
     "prefer-object-spread": ["off"],
     "prettier/prettier": "error",
@@ -37,5 +38,6 @@ module.exports = {
     "jsx-a11y/no-static-element-interactions": ["off"],
     "jsx-a11y/click-events-have-key-events": ["off"],
     "react/destructuring-assignment": ["off"],
+    "no-prototype-builtins": ["off"],
   },
 };

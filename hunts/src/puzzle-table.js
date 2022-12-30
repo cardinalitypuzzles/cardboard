@@ -19,7 +19,6 @@ import CreationCell from "./CreationCell";
 import TagCell from "./TagCell";
 import { LinkCell } from "./LinkCell";
 import { getCollapsedPuzzles } from "./collapsedPuzzlesSlice";
-import { selectHuntId } from "./huntSlice";
 
 const TABLE_COLUMNS = [
   {
