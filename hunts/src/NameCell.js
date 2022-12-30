@@ -5,6 +5,7 @@ import { faEdit, faTrashAlt } from "@fortawesome/free-regular-svg-icons";
 import { showModal } from "./modalSlice";
 import ClickableIcon from "./ClickableIcon";
 import { toggleCollapsed } from "./collapsedPuzzlesSlice";
+import { IconChevronDown, IconChevronRight } from "@tabler/icons";
 
 const useToggleRowExpandedProps = (row) => {
   const dispatch = useDispatch();
@@ -31,7 +32,8 @@ export default function NameCell({ row, value }) {
     <>
       {row.canExpand ? (
         <span {...toggleRowExpandedProps}>
-          {row.isExpanded ? "▼" : "▶"} <b>{value}</b>
+          {row.isExpanded ? <IconChevronDown /> : <IconChevronRight />}
+          <b>{value}</b>
         </span>
       ) : (
         <span style={{ paddingLeft: `${row.depth * 2}rem` }}>
