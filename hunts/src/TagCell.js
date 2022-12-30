@@ -6,7 +6,7 @@ import { toggleFilterTag } from "./filterSlice";
 import TagPill from "./TagPill";
 import ClickableIcon from "./ClickableIcon";
 
-function TagCell({ row, value }) {
+function TagCell({ row }) {
   const dispatch = useDispatch();
   const { id: huntId } = useSelector((state) => state.hunt);
   const puzzleId = row.original.id;

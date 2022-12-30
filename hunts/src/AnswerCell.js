@@ -6,7 +6,7 @@ import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { showModal } from "./modalSlice";
 import ClickableIcon from "./ClickableIcon";
 
-export default function AnswerCell({ row, value }) {
+export default function AnswerCell({ row }) {
   const dispatch = useDispatch();
   if (row.original.guesses === undefined || row.original.guesses.length == 0) {
     return (

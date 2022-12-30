@@ -4,7 +4,6 @@ import {
   createAsyncThunk,
   createEntityAdapter,
 } from "@reduxjs/toolkit";
-import { selectHuntId } from "./huntSlice";
 import api from "./api";
 
 export const addPuzzle = createAsyncThunk(
@@ -18,7 +17,7 @@ export const addPuzzle = createAsyncThunk(
 export const deletePuzzle = createAsyncThunk(
   "puzzles/deletePuzzle",
   async ({ huntId, id }) => {
-    const response = await api.deletePuzzle(huntId, id);
+    await api.deletePuzzle(huntId, id);
     return id;
   }
 );
@@ -229,7 +228,7 @@ export const selectPuzzleTableData = createSelector(
 export const selectNumUnlocked = createSelector(
   [puzzlesSelectors.selectAll],
   (puzzles) => {
-    const count = puzzles.reduce((count, puzzle) => count + 1, 0);
+    const count = puzzles.reduce((count) => count + 1, 0);
     return count;
   }
 );

@@ -1,14 +1,12 @@
-import React, { Component } from "react";
+import React from "react";
 import { render } from "react-dom";
 import { Provider } from "react-redux";
 import store from "./store";
 import { HuntViewMain } from "./HuntViewMain";
 
-class App extends Component {
-  render() {
-    return <HuntViewMain huntId={window.CURRENT_HUNT_ID} />;
-  }
-}
+const App = () => {
+  return <HuntViewMain huntId={window.CURRENT_HUNT_ID} />;
+};
 
 export default App;
 

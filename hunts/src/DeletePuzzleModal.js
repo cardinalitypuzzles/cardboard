@@ -1,8 +1,8 @@
 import React from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
-import { selectPuzzleById, deletePuzzle } from "./puzzlesSlice";
+import { deletePuzzle } from "./puzzlesSlice";
 import { hideModal } from "./modalSlice";
 
 function DeletePuzzleModal({ huntId, puzzleId, puzzleName }) {
