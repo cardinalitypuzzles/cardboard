@@ -1,4 +1,4 @@
-FROM python:3.8.12-alpine
+FROM python:3.10.9-alpine
 
 WORKDIR /usr/src/cardboard
 

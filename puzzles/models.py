@@ -37,12 +37,12 @@ class Puzzle(models.Model):
     hunt = models.ForeignKey(
         "hunts.Hunt", on_delete=models.CASCADE, related_name="puzzles"
     )
-    url = models.URLField(blank=True)
+    url = models.URLField()
 
     created_on = models.DateTimeField(auto_now_add=True)
     updated_on = models.DateTimeField(auto_now=True)
 
-    notes = models.TextField(default="")
+    notes = models.TextField(default="", blank=True)
     sheet = models.URLField(default=None, unique=True, null=True, blank=True)
 
     SOLVING = "SOLVING"
@@ -62,20 +62,23 @@ class Puzzle(models.Model):
 
     # Deprecated. Use guesses instead (see answers/models.py) which points to an Answer
     # object.
-    answer = models.CharField(max_length=128)
+    # TODO: remove this
+    answer = models.CharField(max_length=128, blank=True)
 
-    tags = models.ManyToManyField(PuzzleTag, related_name="puzzles")
+    tags = models.ManyToManyField(PuzzleTag, related_name="puzzles", blank=True)
 
-    metas = models.ManyToManyField("self", symmetrical=False, related_name="feeders")
+    metas = models.ManyToManyField(
+        "self", symmetrical=False, related_name="feeders", blank=True
+    )
 
     is_meta = models.BooleanField(default=False)
 
     active_users = models.ManyToManyField(
-        get_user_model(), related_name="active_puzzles"
+        get_user_model(), related_name="active_puzzles", blank=True
     )
 
     chat_room = models.OneToOneField(
-        "chat.ChatRoom", on_delete=models.SET_NULL, null=True
+        "chat.ChatRoom", on_delete=models.SET_NULL, null=True, blank=True
     )
 
     discord_channel_id = models.CharField(

@@ -10,7 +10,7 @@ import TagPill from "./TagPill";
 
 function EditableTagList({ puzzleId, tags }) {
   const selectPuzzleTags = React.useMemo(
-    () => (state) => selectPuzzleById(state, puzzleId)["tags"],
+    () => (state) => selectPuzzleById(state, puzzleId).tags,
     [puzzleId]
   );
   const puzzleTags = useSelector(selectPuzzleTags);
@@ -22,7 +22,7 @@ function EditableTagList({ puzzleId, tags }) {
   /* Assumes that tags are given in the order they should be displayed and */
   /* breaks them up into rows, with the first row being of the non-selectable colors */
   /* and subsequent rows alternating between the selectable colors */
-  const groupedTags = tags.reduce((result, item, index) => {
+  const groupedTags = tags.reduce((result, item) => {
     if (result.length == 0) {
       result.push([item]);
     } else if (!selectable_colors.includes(item.color)) {

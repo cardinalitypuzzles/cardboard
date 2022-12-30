@@ -11,18 +11,24 @@ from url_normalize import url_normalize
 import re
 
 
+class PuzzleTagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PuzzleTag
+        fields = ("id", "name", "color", "is_meta", "is_high_pri", "is_low_pri")
+
+        read_only_fields = ("id", "is_meta", "is_high_pri", "is_low_pri")
+
+
 class HuntSerializer(serializers.ModelSerializer):
     has_drive = serializers.SerializerMethodField()
+    puzzle_tags = PuzzleTagSerializer(required=False, many=True)
 
     def get_has_drive(self, obj):
-        return bool(
-            obj.settings.google_drive_human_url
-            or settings.GOOGLE_HUMAN_DRIVE_HUNT_FOLDER_URL
-        )
+        return bool(obj.settings.google_drive_human_url)
 
     class Meta:
         model = Hunt
-        fields = ("id", "name", "active", "url", "has_drive")
+        fields = ("id", "name", "active", "url", "has_drive", "puzzle_tags")
 
 
 class CurrentHuntDefault:
@@ -90,14 +96,6 @@ class ChatRoomSerializer(serializers.ModelSerializer):
             "text_channel_url",
             "audio_channel_url",
         )
-
-
-class PuzzleTagSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PuzzleTag
-        fields = ("id", "name", "color", "is_meta")
-
-        read_only_fields = ("id", "is_meta")
 
 
 class PuzzleSerializer(serializers.ModelSerializer):

@@ -10,11 +10,12 @@ export const ChatVersionSelector = () => {
   const version = useSelector(getChatVersion);
   const dispatch = useDispatch();
   return (
-    <>
-      <span>Chat Version:</span>
-      <label>
+    <div className="">
+      <div>Chat Version</div>
+      <div className="form-check">
         <input
-          style={{ margin: "0 5px 0 10px" }}
+          className="form-check-input"
+          id="chat-version-app-radio"
           type="radio"
           checked={version === CHAT_VERSION_OPTIONS.APP}
           onChange={(evt) => {
@@ -22,12 +23,15 @@ export const ChatVersionSelector = () => {
               dispatch(updateChatVersion(CHAT_VERSION_OPTIONS.APP));
             }
           }}
-        ></input>
-        App
-      </label>
-      <label>
+        />
+        <label htmlFor="chat-version-app-radio" className="form-check-label">
+          App
+        </label>
+      </div>
+      <div className="form-check">
         <input
-          style={{ margin: "0 5px 0 10px" }}
+          className="form-check-input"
+          id="chat-version-web-radio"
           type="radio"
           checked={version === CHAT_VERSION_OPTIONS.WEB}
           onChange={(evt) => {
@@ -35,9 +39,11 @@ export const ChatVersionSelector = () => {
               dispatch(updateChatVersion(CHAT_VERSION_OPTIONS.WEB));
             }
           }}
-        ></input>
-        Web
-      </label>
-    </>
+        />
+        <label htmlFor="chat-version-web-radio" className="form-check-label">
+          Web
+        </label>
+      </div>
+    </div>
   );
 };

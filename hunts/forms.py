@@ -1,7 +1,8 @@
 from django import forms
+from .models import Hunt, HuntSettings
 
 
-class HuntForm(forms.Form):
+class HuntForm(forms.ModelForm):
     name = forms.CharField(
         max_length=128,
         widget=forms.TextInput(
@@ -32,6 +33,10 @@ class HuntForm(forms.Form):
         required=False,
     )
 
+    populate_tags = forms.BooleanField(
+        label="Populate hunt with default tags?", initial=True, required=False
+    )
+
     def clean(self):
         data = super().clean()
 
@@ -52,3 +57,13 @@ class HuntForm(forms.Form):
                 )
 
         return data
+
+    class Meta:
+        model = Hunt
+        fields = ["name", "url", "start_time", "end_time"]
+
+
+class HuntSettingsForm(forms.ModelForm):
+    class Meta:
+        model = HuntSettings
+        exclude = ["hunt"]

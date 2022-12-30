@@ -21,7 +21,7 @@ def create_chat_for_puzzle(puzzle_id):
     puzzle = _get_puzzles_queryset().get(id=puzzle_id)
     try:
         puzzle.chat_room.create_channels()
-        msg = f"{puzzle.name} has been unlocked!"
+        msg = f"**{puzzle.name}** has been unlocked!"
         puzzle.chat_room.send_and_announce_message_with_embedded_urls(msg, puzzle)
     except Exception as e:
         logger.warn(f"create_chat_for_puzzle failed with error: {e}")
@@ -74,7 +74,7 @@ def handle_puzzle_solved(puzzle_id, answer_text):
     puzzle = _get_puzzles_queryset().get(id=puzzle_id)
     try:
         puzzle.chat_room.archive_channels()
-        msg = f"{puzzle.name} has been solved with {answer_text}!"
+        msg = f"**{puzzle.name}** has been solved with `{answer_text}`!"
         puzzle.chat_room.send_and_announce_message_with_embedded_urls(msg, puzzle)
     except Exception as e:
         logger.warn(f"handle_puzzle_solved failed with error: {e}")
@@ -86,7 +86,7 @@ def handle_puzzle_unsolved(puzzle_id):
     try:
         puzzle.chat_room.unarchive_channels()
         puzzle.chat_room.create_channels()
-        msg = f"{puzzle.name} is no longer solved!"
+        msg = f"**{puzzle.name}** is no longer solved!"
         puzzle.chat_room.send_and_announce_message_with_embedded_urls(msg, puzzle)
     except Exception as e:
         logger.warn(f"handle_puzzle_unsolved failed with error: {e}")
@@ -114,7 +114,9 @@ def handle_tag_removed(puzzle_id, tag_name):
 def handle_answer_change(puzzle_id, old_answer, new_answer):
     puzzle = _get_puzzles_queryset().get(id=puzzle_id)
     try:
-        msg = f"{puzzle.name}'s answer changed from {old_answer} to {new_answer}."
+        msg = (
+            f"**{puzzle.name}**'s answer changed from `{old_answer}` to `{new_answer}`."
+        )
         puzzle.chat_room.send_and_announce_message_with_embedded_urls(msg, puzzle)
     except Exception as e:
         logger.warn(f"handle_answer_change failed with error: {e}")

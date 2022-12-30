@@ -77,7 +77,7 @@ export const SolvedStateFilter = () => {
               dispatch(updateSolveStateFilter(SOLVE_STATE_FILTER_OPTIONS.ALL));
             }
           }}
-        ></input>
+        />
         All
       </label>
       <label>
@@ -96,7 +96,7 @@ export const SolvedStateFilter = () => {
               );
             }
           }}
-        ></input>
+        />
         Unsolved
       </label>
       {(filterSolved === SOLVE_STATE_FILTER_OPTIONS.UNSOLVED ||
@@ -123,7 +123,7 @@ export const SolvedStateFilter = () => {
                 );
               }
             }}
-          ></input>
+          />
           Include unsolved with solved metas
         </label>
       )}

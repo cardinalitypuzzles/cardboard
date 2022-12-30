@@ -98,6 +98,7 @@ TEMPLATES = [
                 "social_django.context_processors.backends",
                 "social_django.context_processors.login_redirect",
                 "cardboard.context_processors.google_auth",
+                "cardboard.context_processors.contact_email",
             ],
         },
     },
@@ -173,6 +174,9 @@ DATABASES = {}
 DATABASES["default"] = dj_database_url.config(conn_max_age=600, ssl_require=False)
 DATABASES["default"]["TEST"] = {"NAME": "test_cardboard"}
 
+# Contact email
+CONTACT_EMAIL = os.environ.get("CONTACT_EMAIL", "FIXME@FIXME.COM")
+
 # Discord API. See
 # https://support.discord.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID-
 DISCORD_API_TOKEN = os.environ.get("DISCORD_API_TOKEN", None)
@@ -203,19 +207,6 @@ except KeyError as e:
     GOOGLE_API_AUTHN_INFO = None
     logger.warn(
         f"No {e.args[0]} found in environment. Automatic sheets creation disabled."
-    )
-
-# TODO: make this a per hunt setting
-from google_api_lib import sync_tasks
-
-GOOGLE_HUMAN_DRIVE_HUNT_FOLDER_URL = ""
-if GOOGLE_API_AUTHN_INFO is not None:
-    GOOGLE_HUMAN_DRIVE_HUNT_FOLDER_URL = sync_tasks.get_human_drive_folder(
-        GOOGLE_DRIVE_HUNT_FOLDER_ID
-    )
-else:
-    logger.warn(
-        "Google Drive integration not set up. All emails will be accepted. Sheets will not be created."
     )
 
 

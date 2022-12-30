@@ -29,10 +29,8 @@ class ApiTests(CardboardTestCase, APITestCase):
                 "name": self._hunt.name,
                 "url": self._hunt.url,
                 "active": self._hunt.active,
-                "has_drive": bool(
-                    self._hunt.settings.google_drive_human_url
-                    or settings.GOOGLE_HUMAN_DRIVE_HUNT_FOLDER_URL
-                ),
+                "has_drive": bool(self._hunt.settings.google_drive_human_url),
+                "puzzle_tags": [],
             },
         )
 
@@ -332,7 +330,7 @@ class SheetTests(CardboardTestCase, TransactionTestCase):
         google_api_lib.tests.mock_transfer_ownership,
     )
     @patch(
-        "google_api_lib.tasks.add_puzzle_link_to_sheet",
+        "google_api_lib.tasks.add_puzzle_link_to_sheet.delay",
         google_api_lib.tests.mock_add_puzzle_link_to_sheet,
     )
     def test_sheets_title_editing(self, rename_sheet):
@@ -390,7 +388,7 @@ class SheetTests(CardboardTestCase, TransactionTestCase):
         google_api_lib.tests.mock_transfer_ownership,
     )
     @patch(
-        "google_api_lib.tasks.add_puzzle_link_to_sheet",
+        "google_api_lib.tasks.add_puzzle_link_to_sheet.delay",
         google_api_lib.tests.mock_add_puzzle_link_to_sheet,
     )
     def test_sheets_title_editing_case_insensitive(self, rename_sheet):

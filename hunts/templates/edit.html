@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block page_content %}
+
+<div class="m-2 col">
+    <h1>Hunt Settings</h1>
+
+    <form action="" method="post">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-6">
+                {{hunt_form.as_p}}
+            </div>
+
+            <div class="col-md-6">
+                {{settings_form.as_p}}
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <a class="btn btn-primary mx-2" href="/">Go to Puzzles</a>
+            <button type="submit" class="btn btn-primary mx-2">Submit</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

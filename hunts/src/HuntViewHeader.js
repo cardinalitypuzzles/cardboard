@@ -1,5 +1,5 @@
 import React from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import {
   selectNumUnlocked,
   selectNumSolved,
@@ -14,8 +14,6 @@ import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
 
 function HuntViewHeader({ hunt }) {
-  const dispatch = useDispatch();
-
   const numUnlocked = useSelector(selectNumUnlocked);
   const numSolved = useSelector(selectNumSolved);
   const numUnsolved = useSelector(selectNumUnsolved);
@@ -30,23 +28,12 @@ function HuntViewHeader({ hunt }) {
         </Tooltip>
       }
     >
-      <a href={"drive"}>Google Drive Folder 🎨🖌️📁</a>
+      <a href="drive">Google Drive Folder 🎨🖌️📁</a>
     </OverlayTrigger>
   ) : null;
 
   return (
     <div>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          padding: "2px",
-          alignItems: "center",
-        }}
-      >
-        <h1>{hunt.name} - All Puzzles</h1>
-        <a href={"/hunts"}>Back to Hunt Index</a>
-      </div>
       <div
         style={{
           display: "flex",
@@ -83,7 +70,7 @@ function HuntViewHeader({ hunt }) {
               {numMetasUnsolved}
             </Col>
             <Col xs={1} className="text-nowrap">
-              <a href={"stats"}>Stats 📈</a>
+              <a href="stats">Stats 📈</a>
             </Col>
             <Col xs={1} className="text-nowrap">
               {driveRedirect}

@@ -8,7 +8,12 @@
         <h2>Active</h2>
         <ul>
             {% for h in active_hunts %}
-                <li><a href="{% url 'hunts:all_puzzles_react' h.slug %}">{{ h.name }}</a></li>
+                <li>
+                    <a href="{% url 'hunts:all_puzzles_react' h.slug %}">{{ h.name }}</a>
+                    {% if request.user.is_staff %}
+                    | <a href="{% url 'hunts:edit' h.slug %}">Edit</a>
+                    {% endif %}
+                </li>
             {% endfor %}
         </ul>
 
@@ -20,6 +25,8 @@
         </ul>
     </div>
     <div class="col-md-6">
+        {% if request.user.is_staff %}
+
         <h2>Add New Hunt</h2>
         <form action="/hunts/" method="post">
             {% csrf_token %}
@@ -35,8 +42,13 @@
             <div class="form-group">
                 {{ form.end_time }}
             </div>
+            <div class="form-group">
+                {{ form.populate_tags.label_tag }}
+                {{ form.populate_tags }}
+            </div>
             <button type="submit" class="btn btn-primary">Submit</button>
         </form>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

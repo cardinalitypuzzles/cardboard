@@ -15,7 +15,13 @@ export default function ClickableIcon({ icon, onClick }) {
 
 export const IconLink = ({ icon, url, size, style }) => {
   return (
-    <a href={url} target="_blank" className="text-muted" style={style}>
+    <a
+      href={url}
+      target="_blank"
+      rel="noreferrer"
+      className="text-muted"
+      style={style}
+    >
       <FontAwesomeIcon icon={icon} size={size} />
     </a>
   );
