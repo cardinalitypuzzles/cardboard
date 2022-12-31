@@ -9,7 +9,14 @@ from rest_framework import viewsets
 from answers.models import Answer
 from chat.models import ChatRoom
 from hunts.models import Hunt
-from puzzles.models import Puzzle, PuzzleModelError, PuzzleTag, is_ancestor
+from puzzles.models import (
+    Puzzle,
+    PuzzleModelError,
+    PuzzleTag,
+    PuzzleTagColor,
+    is_ancestor,
+)
+from puzzles.puzzle_tag import LOCATION_COLOR
 from .serializers import (
     AnswerSerializer,
     HuntSerializer,
@@ -404,12 +411,9 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             tag_name, tag_color = (
                 serializer.validated_data["name"],
-                serializer.validated_data["color"],
+                PuzzleTagColor(serializer.validated_data["color"]),
             )
-            is_location = tag_color == PuzzleTag.LOCATION_COLOR
-            tag, _ = PuzzleTag.objects.get_or_create(
-                name=tag_name, hunt=puzzle.hunt, is_location=is_location
-            )
+            tag, _ = PuzzleTag.objects.get_or_create(name=tag_name, hunt=puzzle.hunt)
             if tag.is_meta:
                 meta = get_object_or_404(Puzzle, name=tag.name, hunt=puzzle.hunt)
                 if is_ancestor(puzzle, meta):
@@ -423,8 +427,9 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
                     # the post m2m hook will add tag
                     puzzle.metas.add(meta)
             else:
+                is_location = tag_color == LOCATION_COLOR
                 PuzzleTag.objects.filter(name=tag_name, hunt=puzzle.hunt).update(
-                    color=tag_color,
+                    color=tag_color, is_location=is_location
                 )
                 puzzle.tags.add(tag)
                 if (

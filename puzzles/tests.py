@@ -107,7 +107,7 @@ class TestPuzzle(APITestCase):
 
         self.client.post(
             f"/api/v1/puzzles/{feeder.pk}/tags",
-            {"name": meta.name, "color": "primary"},
+            {"name": meta.name, "color": "dark"},
         )
         self.assertTrue(feeder.metas.filter(pk=meta.pk).exists())
 
@@ -179,7 +179,7 @@ class TestPuzzle(APITestCase):
 
         self.client.post(
             f"/api/v1/puzzles/{feeder.pk}/tags",
-            {"name": PuzzleTag.BACKSOLVED.upper(), "color": "primary"},
+            {"name": PuzzleTag.BACKSOLVED.upper(), "color": "success"},
         )
         # Not backsolved as it hasn't been solved yet
         self.assertFalse(feeder.is_backsolved())
@@ -197,7 +197,7 @@ class TestPuzzle(APITestCase):
         # Lowercase tag should work too
         self.client.post(
             f"/api/v1/puzzles/{feeder.pk}/tags",
-            {"name": PuzzleTag.BACKSOLVED.lower(), "color": "primary"},
+            {"name": PuzzleTag.BACKSOLVED.lower(), "color": "success"},
         )
         # Now it should be backsolved again
         self.assertTrue(feeder.is_backsolved())
