@@ -14,9 +14,17 @@ import re
 class PuzzleTagSerializer(serializers.ModelSerializer):
     class Meta:
         model = PuzzleTag
-        fields = ("id", "name", "color", "is_meta", "is_high_pri", "is_low_pri")
+        fields = (
+            "id",
+            "name",
+            "color",
+            "is_meta",
+            "is_high_pri",
+            "is_low_pri",
+            "is_location",
+        )
 
-        read_only_fields = ("id", "is_meta", "is_high_pri", "is_low_pri")
+        read_only_fields = ("id", "is_meta", "is_high_pri", "is_low_pri", "is_location")
 
 
 class HuntSerializer(serializers.ModelSerializer):
