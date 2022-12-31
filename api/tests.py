@@ -5,7 +5,7 @@ from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APITestCase
 from puzzles.models import Puzzle, PuzzleTag, PuzzleTagColor
-from puzzles.puzzle_tag import LOCATION_COLOR
+from puzzles.puzzle_tag import LOCATION_COLOR, META_COLOR
 from unittest.mock import patch
 import google_api_lib
 import google_api_lib.tests
@@ -330,7 +330,7 @@ class ApiTests(CardboardTestCase, APITestCase):
         self.assertEqual(puzzle.tags.count(), 1)
 
         meta_tag = puzzle.tags.get(name=meta.name)
-        self.assertEqual(meta_tag.color, PuzzleTagColor.BLACK)
+        self.assertEqual(meta_tag.color, META_COLOR)
 
     def test_empty_custom_tags_deletion(self):
         # test that a empty custom tag is reaped

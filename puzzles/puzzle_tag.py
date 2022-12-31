@@ -15,6 +15,7 @@ class PuzzleTagColor(models.TextChoices):
 
 
 LOCATION_COLOR = PuzzleTagColor.TEAL
+META_COLOR = PuzzleTagColor.BLACK
 
 
 class PuzzleTag(models.Model):
@@ -96,8 +97,8 @@ class PuzzleTag(models.Model):
             models.CheckConstraint(
                 name="%(app_label)s_%(class)s_meta_color",
                 check=(
-                    (models.Q(is_meta=False) & ~models.Q(color=PuzzleTagColor.BLACK))
-                    | (models.Q(is_meta=True) & models.Q(color=PuzzleTagColor.BLACK))
+                    (models.Q(is_meta=False) & ~models.Q(color=META_COLOR))
+                    | (models.Q(is_meta=True) & models.Q(color=META_COLOR))
                 ),
             ),
         ]
