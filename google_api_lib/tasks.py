@@ -533,6 +533,7 @@ def update_active_users(self, hunt_id):
         "ancestorName": f"items/{hunt.settings.google_drive_folder_id}",
     }
 
+    latest = {}
     while True:
         response = self.drive_activity_service().activity().query(body=body).execute()
         activities = response.get("activities", [])
@@ -568,7 +569,6 @@ def update_active_users(self, hunt_id):
         else:
             body["pageToken"] = response["nextPageToken"]
 
-    print(latest)
     with transaction.atomic():
         user_puzzle_pairs = [
             f"{user_pk}-{puzzle_pk}" for (user_pk, puzzle_pk) in latest.keys()
