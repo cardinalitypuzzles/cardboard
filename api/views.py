@@ -211,7 +211,6 @@ class PuzzleViewSet(viewsets.ModelViewSet):
         )
 
     def destroy(self, request, pk=None, **kwargs):
-        metas = None
         with transaction.atomic():
             puzzle = self.get_object()
             if not puzzle.can_delete():

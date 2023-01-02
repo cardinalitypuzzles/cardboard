@@ -8,7 +8,7 @@ from answers.models import Answer
 from puzzles.models import Puzzle
 from puzzles.puzzle_tag import PuzzleTag
 
-from .chart_utils import *
+from .chart_utils import can_use_chart, get_chart_data
 from .forms import HuntForm
 from .models import Hunt
 
@@ -213,7 +213,7 @@ class TestHunt(TestCase):
             start=timezone.now() - timedelta(days=100),
             end=timezone.now() - timedelta(days=1),
         )
-        solve_after_end = self.create_puzzle(solved_name, hunt_past, False)
+        self.create_puzzle(solved_name, hunt_past, False)
         labels, times, counts, is_meta = get_chart_data(hunt_past)
         self.assertEqual(labels, [start_pt_name, end_pt_name])
         self.assertEqual(
