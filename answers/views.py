@@ -1,18 +1,19 @@
-from .forms import UpdateAnswerNotesForm
-from .forms import UpdateAnswerStatusForm
-from .models import Answer
+import logging
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 from django.http import JsonResponse
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404, render
 from django.views import View
 from django.views.decorators.http import require_GET, require_POST
+
 import google_api_lib
 from hunts.models import Hunt
 
-import logging
+from .forms import UpdateAnswerNotesForm, UpdateAnswerStatusForm
+from .models import Answer
 
 logger = logging.getLogger(__name__)
 

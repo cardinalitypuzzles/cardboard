@@ -1,11 +1,12 @@
-from .utils import GoogleApiClientTask
+import logging
+from typing import List
+
 from celery import shared_task
 from django.conf import settings
 from googleapiclient.errors import Error
 from social_core.exceptions import AuthForbidden
-from typing import List
 
-import logging
+from .utils import GoogleApiClientTask
 
 logger = logging.getLogger(__name__)
 

@@ -1,6 +1,7 @@
 from django.test import TestCase
-from cardboard import views
+
 from accounts.models import Puzzler
+from cardboard import views
 from hunts.models import Hunt
 
 

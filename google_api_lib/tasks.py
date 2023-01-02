@@ -1,16 +1,16 @@
 import logging
 import random
 
+from celery import shared_task
 from django.conf import settings
 from django.db import transaction
-
 from googleapiclient import _auth
 
-from celery import shared_task
-from chat.tasks import handle_sheet_created
-from .utils import GoogleApiClientTask
 from cardboard.settings import TaskPriority
+from chat.tasks import handle_sheet_created
 from puzzles.models import Puzzle
+
+from .utils import GoogleApiClientTask
 
 logger = logging.getLogger(__name__)
 

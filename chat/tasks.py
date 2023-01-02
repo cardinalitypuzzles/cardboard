@@ -1,13 +1,13 @@
-from cardboard.settings import TaskPriority
-from celery import shared_task
 import logging
-from django.db import transaction
-from django.db.models import Prefetch
 from datetime import datetime, timedelta
 
-from puzzles.models import Puzzle
-from answers.models import Answer
+from celery import shared_task
+from django.db import transaction
+from django.db.models import Prefetch
 
+from answers.models import Answer
+from cardboard.settings import TaskPriority
+from puzzles.models import Puzzle
 
 logger = logging.getLogger(__name__)
 

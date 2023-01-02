@@ -4,6 +4,7 @@ from django.db.models import Q
 from django.dispatch import receiver
 
 from answers.models import Answer
+
 from .puzzle_tag import PuzzleTag, PuzzleTagColor
 
 

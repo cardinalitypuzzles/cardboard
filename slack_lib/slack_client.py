@@ -1,11 +1,11 @@
 import logging
 import re
-import slack
 
+import slack
 from django.conf import settings
-from puzzles.models import is_unassigned_channel
 from slack.errors import SlackApiError
 
+from puzzles.models import is_unassigned_channel
 
 _logger = logging.getLogger(__name__)
 

@@ -1,11 +1,15 @@
+import logging
+
 from django.conf import settings
 from django.db import transaction
 from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404
+from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework import viewsets
 
+import chat.tasks
+import google_api_lib.tasks
 from answers.models import Answer
 from chat.models import ChatRoom
 from hunts.models import Hunt
@@ -17,16 +21,13 @@ from puzzles.models import (
     is_ancestor,
 )
 from puzzles.puzzle_tag import LOCATION_COLOR
+
 from .serializers import (
     AnswerSerializer,
     HuntSerializer,
     PuzzleSerializer,
     PuzzleTagSerializer,
 )
-import google_api_lib.tasks
-import chat.tasks
-
-import logging
 
 logger = logging.getLogger(__name__)
 

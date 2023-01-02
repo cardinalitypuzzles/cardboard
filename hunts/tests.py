@@ -1,15 +1,16 @@
+from datetime import timedelta
+
 from django.test import TestCase
 from django.utils import timezone
 
 from accounts.models import Puzzler
-from .models import Hunt
-from .forms import HuntForm
+from answers.models import Answer
 from puzzles.models import Puzzle
 from puzzles.puzzle_tag import PuzzleTag
-from answers.models import Answer
-from .chart_utils import *
 
-from datetime import timedelta
+from .chart_utils import *
+from .forms import HuntForm
+from .models import Hunt
 
 
 class TestHunt(TestCase):

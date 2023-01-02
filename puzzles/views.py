@@ -1,9 +1,10 @@
-from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
+
 from puzzles.models import Puzzle
 
 
