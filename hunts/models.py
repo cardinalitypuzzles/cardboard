@@ -209,3 +209,8 @@ class HuntSettings(models.Model):
 
     # The Discord role for the people maintaining the Cardboard instance, in case of problems
     discord_devs_role = models.CharField(max_length=128, default="dev", blank=True)
+
+    active_user_lookback = models.DurationField(
+        default=timedelta(minutes=10),
+        help_text="Amount of time to look back for active users of a puzzle.",
+    )

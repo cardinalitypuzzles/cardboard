@@ -22,6 +22,11 @@ app.config_from_object("django.conf:settings", namespace="CELERY")
 # Load task modules from all registered Django app configs.
 app.autodiscover_tasks()
 
+# single worker queue for querying drive activity
+app.conf.task_routes = {
+    "google_api_lib.tasks.update_active_users": {"queue": "activity_updates_queue"}
+}
+
 
 @app.task(bind=True)
 def debug_task(self):

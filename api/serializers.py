@@ -116,6 +116,7 @@ class PuzzleSerializer(serializers.ModelSerializer):
     hunt_id = serializers.PrimaryKeyRelatedField(
         read_only=True, default=CurrentHuntDefault()
     )
+    recent_editors = serializers.SerializerMethodField()
 
     def get_guesses(self, obj):
         # Show only correct guesses.
@@ -127,6 +128,9 @@ class PuzzleSerializer(serializers.ModelSerializer):
 
     def get_has_sheet(self, obj):
         return bool(obj.sheet)
+
+    def get_recent_editors(self, obj):
+        return [str(user) for user in obj.recent_editors]
 
     def validate_url(self, url):
         return url_normalize(url)
@@ -176,6 +180,7 @@ class PuzzleSerializer(serializers.ModelSerializer):
             "feeders",
             "is_meta",
             "created_on",
+            "recent_editors",
         )
 
         read_only_fields = (
@@ -188,6 +193,7 @@ class PuzzleSerializer(serializers.ModelSerializer):
             "metas",
             "feeders",
             "created_on",
+            "recent_editors",
         )
 
         validators = (
