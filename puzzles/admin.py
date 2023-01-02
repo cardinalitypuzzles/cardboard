@@ -22,6 +22,7 @@ class PuzzleTagAdmin(admin.ModelAdmin):
 
 class PuzzleActivityAdmin(admin.ModelAdmin):
     list_display = ["user", "puzzle", "last_edit_time"]
+    ordering = ("-last_edit_time",)
 
 
 admin.site.register(Puzzle, PuzzleAdmin)
