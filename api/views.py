@@ -1,4 +1,5 @@
 import datetime
+from dateutil import tz
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import transaction
@@ -198,7 +199,9 @@ class PuzzleViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         hunt_id = self.kwargs["hunt_id"]
         hunt = get_object_or_404(Hunt.objects.select_related("settings"), pk=hunt_id)
-        before_time = datetime.datetime.now() - hunt.settings.active_user_lookback
+        before_time = (
+            datetime.datetime.now(tz=tz.UTC) - hunt.settings.active_user_lookback
+        )
         from puzzles.models import PuzzleActivity
 
         return (
@@ -219,7 +222,7 @@ class PuzzleViewSet(viewsets.ModelViewSet):
                     queryset=get_user_model()
                     .objects.filter(puzzle_activities__last_edit_time__gt=before_time)
                     .distinct(),
-                    to_attr="recent_editors",
+                    to_attr="_recent_editors",
                 )
             )
         )

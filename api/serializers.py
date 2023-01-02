@@ -9,6 +9,8 @@ from puzzles.models import Puzzle, PuzzleTag
 from url_normalize import url_normalize
 
 import re
+import datetime
+from dateutil import tz
 
 
 class PuzzleTagSerializer(serializers.ModelSerializer):
@@ -130,7 +132,18 @@ class PuzzleSerializer(serializers.ModelSerializer):
         return bool(obj.sheet)
 
     def get_recent_editors(self, obj):
-        return [str(user) for user in obj.recent_editors]
+        if hasattr(obj, "_recent_editors"):
+            return [str(user) for user in obj._recent_editors]
+
+        before_time = (
+            datetime.datetime.now(tz=tz.UTC) - obj.hunt.settings.active_user_lookback
+        )
+
+        recent_editors = obj.active_users.filter(
+            puzzle_activities__puzzle_id=obj.id,
+            puzzle_activities__last_edit_time__gt=before_time,
+        ).all()
+        return [str(user) for user in recent_editors]
 
     def validate_url(self, url):
         return url_normalize(url)

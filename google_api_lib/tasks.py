@@ -4,6 +4,7 @@ import itertools
 import logging
 import random
 import re
+from dateutil import tz
 from typing import Optional
 
 from django.conf import settings
@@ -520,7 +521,7 @@ def update_active_users(self, hunt_id):
     if not hunt.settings.google_drive_folder_id:
         return
 
-    now = round(datetime.datetime.now().timestamp() * 1000)
+    now = round(datetime.datetime.now(tz=tz.UTC).timestamp() * 1000)
     last_update_time = cache.get(
         "last_update_time", round(hunt.start_time.timestamp() * 1000)
     )
