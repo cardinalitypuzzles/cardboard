@@ -1,9 +1,11 @@
 from django.test import TestCase, override_settings
+
 from hunts.models import Hunt
 from puzzles.models import Puzzle
+
+from .fake_service import FakeChatService
 from .models import ChatRoom
 from .service import ChatService
-from .fake_service import FakeChatService
 
 
 @override_settings(

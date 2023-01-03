@@ -1,8 +1,9 @@
-from django.db.models import Max, Case, When
+from django.db.models import Case, Max, When
 from django.utils import timezone
 
-from .models import Hunt
 from puzzles.models import Puzzle
+
+from .models import Hunt
 
 
 def can_use_chart(hunt):
