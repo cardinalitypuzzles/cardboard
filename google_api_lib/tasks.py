@@ -521,13 +521,17 @@ def update_active_users(self, hunt_id):
     if not hunt.settings.google_drive_folder_id:
         return
 
-    now = round(datetime.datetime.now(tz=tz.UTC).timestamp() * 1000)
-    last_update_time = cache.get(
-        "last_update_time", round(hunt.start_time.timestamp() * 1000)
-    )
+    now = datetime.datetime.now(tz=tz.UTC)
+
+    if hunt.last_active_users_update_time:
+        last_update_time = hunt.last_active_users_update_time
+    else:
+        last_update_time = hunt.start_time
 
     action_filter = "detail.action_detail_case: EDIT"
-    time_filter = f"time > {last_update_time} AND time <= {now}"
+    time_filter = "time > {} AND time <= {}".format(
+        round(last_update_time.timestamp() * 1000), round(now.timestamp() * 1000)
+    )
 
     body = {
         "filter": f"{action_filter} AND {time_filter}",
@@ -605,4 +609,5 @@ def update_active_users(self, hunt_id):
         if updates:
             PuzzleActivity.objects.bulk_update(updates, fields=["last_edit_time"])
 
-    cache.set("last_update_time", now)
+        hunt.last_active_users_update_time = now
+        hunt.save()
