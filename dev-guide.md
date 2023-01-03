@@ -324,3 +324,6 @@ Then generate the report based on data collected by the previous command:
 ```
 coverage report
 ```
+### Performance profiling
+
+Silk is enabled if DEBUG is set to true and can be accessed at `/silk/`.
