@@ -5,7 +5,7 @@ from django.dispatch import receiver
 import chat.tasks
 import google_api_lib.tasks
 from puzzles.models import Puzzle
-from puzzles.puzzle_tag import META_COLOR, PuzzleTag, PuzzleTagColor
+from puzzles.puzzle_tag import META_COLOR, PuzzleTag
 
 # Hooks for syncing metas and tags
 
