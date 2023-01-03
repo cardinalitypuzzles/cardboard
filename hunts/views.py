@@ -14,7 +14,7 @@ from django.views.generic.base import RedirectView
 
 from puzzles.models import PuzzleTag
 
-from .chart_utils import get_chart_data, user
+from .chart_utils import get_chart_data
 from .forms import HuntForm, HuntSettingsForm
 from .models import Hunt
 
