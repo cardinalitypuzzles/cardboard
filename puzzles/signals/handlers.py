@@ -1,10 +1,11 @@
 from django.db import transaction
-from django.db.models.signals import pre_save, post_save, pre_delete, m2m_changed
+from django.db.models.signals import m2m_changed, post_save, pre_delete, pre_save
 from django.dispatch import receiver
-from puzzles.models import Puzzle
-from puzzles.puzzle_tag import PuzzleTag, PuzzleTagColor, META_COLOR
-import google_api_lib.tasks
+
 import chat.tasks
+import google_api_lib.tasks
+from puzzles.models import Puzzle
+from puzzles.puzzle_tag import META_COLOR, PuzzleTag
 
 # Hooks for syncing metas and tags
 

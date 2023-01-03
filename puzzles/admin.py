@@ -1,6 +1,8 @@
 from django.contrib import admin
-from .models import Puzzle, PuzzleTag, PuzzleActivity
+
 from answers.models import Answer
+
+from .models import Puzzle, PuzzleActivity, PuzzleTag
 
 
 class AnswerInline(admin.TabularInline):

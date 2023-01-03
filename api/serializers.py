@@ -1,16 +1,16 @@
+import datetime
+import re
+
+from dateutil import tz
+from django.conf import settings
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
-from django.conf import settings
+from url_normalize import url_normalize
+
 from answers.models import Answer
 from chat.models import ChatRoom
 from hunts.models import Hunt
 from puzzles.models import Puzzle, PuzzleTag
-
-from url_normalize import url_normalize
-
-import re
-import datetime
-from dateutil import tz
 
 
 class PuzzleTagSerializer(serializers.ModelSerializer):

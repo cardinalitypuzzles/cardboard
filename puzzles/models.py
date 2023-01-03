@@ -4,32 +4,25 @@ from django.db.models import Q
 from django.dispatch import receiver
 
 from answers.models import Answer
+
 from .puzzle_tag import PuzzleTag, PuzzleTagColor
 
 
 class PuzzleModelError(Exception):
     """Base class for puzzle exceptions"""
 
-    pass
-
 
 class DuplicatePuzzleNameError(PuzzleModelError):
     """Raised when there is a duplicate puzzle name is found."""
-
-    pass
 
 
 class DuplicatePuzzleUrlError(PuzzleModelError):
     """Raised when there is a duplicate puzzle url is found."""
 
-    pass
-
 
 class InvalidMetaPuzzleError(PuzzleModelError):
     """Raised when the meta status of a puzzle is invalid (i.e. cycles, dangling
     metas)."""
-
-    pass
 
 
 class Puzzle(models.Model):

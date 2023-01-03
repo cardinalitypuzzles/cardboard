@@ -1,13 +1,12 @@
-import json
 from django.test import override_settings
-from unittest.mock import patch
 from rest_framework.test import APITestCase
 
 from accounts.models import Puzzler
-from chat.models import ChatRoom
-from chat.fake_service import FakeChatService
-from hunts.models import Hunt
 from answers.models import Answer
+from chat.fake_service import FakeChatService
+from chat.models import ChatRoom
+from hunts.models import Hunt
+
 from .models import Puzzle, is_ancestor
 from .puzzle_tag import PuzzleTag
 

@@ -10,11 +10,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
-from distutils.util import strtobool
-from django.core.management.utils import get_random_secret_key
-
 import logging
 import os
+from distutils.util import strtobool
+
+from django.core.management.utils import get_random_secret_key
 
 logger = logging.getLogger(__name__)
 

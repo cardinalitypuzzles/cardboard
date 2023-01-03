@@ -1,15 +1,17 @@
-from .test_helpers import CardboardTestCase
+from unittest.mock import patch
+
 from django.conf import settings
-from django.test import override_settings, TransactionTestCase
+from django.test import TransactionTestCase, override_settings
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APITestCase
-from puzzles.models import Puzzle, PuzzleTag, PuzzleTagColor
-from puzzles.puzzle_tag import LOCATION_COLOR, META_COLOR
-from unittest.mock import patch
+
 import google_api_lib
 import google_api_lib.tests
+from puzzles.models import Puzzle, PuzzleTag, PuzzleTagColor
+from puzzles.puzzle_tag import LOCATION_COLOR, META_COLOR
 
+from .test_helpers import CardboardTestCase
 
 TEST_URL = "https://cardboard.test/"
 TEST_NAME = "Test"

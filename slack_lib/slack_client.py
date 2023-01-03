@@ -1,11 +1,11 @@
 import logging
 import re
-import slack
 
+import slack
 from django.conf import settings
-from puzzles.models import is_unassigned_channel
 from slack.errors import SlackApiError
 
+from puzzles.models import is_unassigned_channel
 
 _logger = logging.getLogger(__name__)
 
@@ -151,7 +151,6 @@ class SlackClient:
                 return self.__create_or_join_channel_impl(channel_name)
 
         if response and response["ok"]:
-            cleaned_channel_name = response["channel"]["name"]
             channel_id = response["channel"]["id"]
             # A puzzle with this channel already exists.
             if not is_unassigned_channel(channel_id):

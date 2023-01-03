@@ -1,6 +1,6 @@
 import os
-import dotenv
 
+import dotenv
 from celery import Celery
 
 # set the default Django settings module for the 'celery' program.

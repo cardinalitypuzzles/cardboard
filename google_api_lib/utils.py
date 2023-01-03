@@ -1,12 +1,11 @@
-from django.conf import settings
+import logging
+
 import googleapiclient
 import googleapiclient.discovery
 import googleapiclient.errors
-from google.oauth2 import service_account
-
 from celery import Task
-
-import logging
+from django.conf import settings
+from google.oauth2 import service_account
 
 logger = logging.getLogger(__name__)
 

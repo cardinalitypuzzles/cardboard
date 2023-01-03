@@ -1,4 +1,5 @@
 from django.urls import path
+
 from . import views
 
 hunt_detail = views.HuntViewSet.as_view(

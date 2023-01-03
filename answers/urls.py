@@ -1,9 +1,10 @@
-from .views import AnswerView, answers, update_note
 from django.conf import settings
 from django.http import HttpResponseRedirect
 from django.urls import path
 
 from hunts.views import LastAccessedHuntRedirectView
+
+from .views import AnswerView, answers, update_note
 
 app_name = "answers"
 urlpatterns = [

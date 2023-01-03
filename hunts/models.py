@@ -1,11 +1,13 @@
+from datetime import timedelta
+
 from django.contrib.auth import get_user_model
 from django.db import models
-from django.db.models import Q, Max, Case, When
+from django.db.models import Case, Max, Q, When
 from django.shortcuts import get_object_or_404
 from django.template.defaultfilters import slugify
 from django.utils import timezone
+
 from puzzles.models import Puzzle
-from datetime import timedelta
 
 
 class Hunt(models.Model):
