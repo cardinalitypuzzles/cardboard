@@ -83,6 +83,11 @@ MIDDLEWARE = [
     "social_django.middleware.SocialAuthExceptionMiddleware",
 ]
 
+
+if DEBUG:
+    INSTALLED_APPS += ["silk"]
+    MIDDLEWARE = ["silk.middleware.SilkyMiddleware"] + MIDDLEWARE
+
 ROOT_URLCONF = "cardboard.urls"
 
 TEMPLATES = [
