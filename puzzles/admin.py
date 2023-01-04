@@ -2,7 +2,7 @@ from django.contrib import admin
 
 from answers.models import Answer
 
-from .models import Puzzle, PuzzleTag
+from .models import Puzzle, PuzzleActivity, PuzzleTag
 
 
 class AnswerInline(admin.TabularInline):
@@ -22,5 +22,11 @@ class PuzzleTagAdmin(admin.ModelAdmin):
     list_filter = ["hunt", "is_meta"]
 
 
+class PuzzleActivityAdmin(admin.ModelAdmin):
+    list_display = ["user", "puzzle", "last_edit_time"]
+    ordering = ("-last_edit_time",)
+
+
 admin.site.register(Puzzle, PuzzleAdmin)
 admin.site.register(PuzzleTag, PuzzleTagAdmin)
+admin.site.register(PuzzleActivity, PuzzleActivityAdmin)

@@ -1,16 +1,27 @@
+import datetime
+import itertools
 import logging
 import random
+import re
+from typing import Optional
 
+import dateutil.parser
 from celery import shared_task
+from dateutil import tz
 from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.core.cache import cache
 from django.db import transaction
+from django.db.models import CharField, F, Value
+from django.db.models.functions import Concat
 from googleapiclient import _auth
 
 from cardboard.settings import TaskPriority
 from chat.tasks import handle_sheet_created
-from puzzles.models import Puzzle
+from hunts.models import Hunt
+from puzzles.models import Puzzle, PuzzleActivity
 
-from .utils import GoogleApiClientTask
+from .utils import GoogleApiClientTask, enabled
 
 logger = logging.getLogger(__name__)
 
@@ -426,3 +437,177 @@ def update_meta_and_metameta_sheets_delayed(meta):
 
     for metameta in meta.metas.all():
         _update_meta_sheet_feeders.delay(metameta.id)
+
+
+def extract_id_from_person_name(person_name) -> Optional[str]:
+    """
+    Person name is identifier for Google People API and is of the format `people/ACCOUNT_ID`
+    See https://developers.google.com/drive/activity/v2/reference/rest/v2/activity/user
+    and https://developers.google.com/people/ for more.
+    Returns the <ACCOUNT_ID> portion
+    """
+    result = re.search("people/([0-9]+)", person_name)
+    return result.group(1) if result else None
+
+
+def extract_id_from_drive_item_name(drive_item_name) -> Optional[str]:
+    """
+    Drive item identifiers are of the format `items/ITEM_ID`
+    See https://developers.google.com/drive/activity/v2/reference/rest/v2/activity/driveitem#DriveItem
+    for more.
+    Returns the <ITEM_ID> portion
+    """
+    result = re.search("items/(.+)", drive_item_name)
+    return result.group(1) if result else None
+
+
+def get_puzzler_from_uid(uid) -> Optional[str]:
+    UserModel = get_user_model()
+    try:
+        return UserModel.objects.get(social_auth__uid=uid)
+    except UserModel.DoesNotExist:
+        return None
+
+
+def get_user_pk_from_person_name(person_name) -> Optional[int]:
+    cached_user_pk = cache.get(person_name, None)
+    if cached_user_pk:
+        return cached_user_pk
+    else:
+        uid = extract_id_from_person_name(person_name)
+        user = get_puzzler_from_uid(uid) if uid else None
+        if not user:
+            return None
+        cache.set(person_name, user.pk, timeout=None)
+        return user.pk
+
+
+def get_puzzle_pk_from_drive_item(drive_item_name) -> Optional[int]:
+    cached_puzzle_pk = cache.get(drive_item_name, None)
+    if cached_puzzle_pk:
+        return cached_puzzle_pk
+
+    drive_item_id = extract_id_from_drive_item_name(drive_item_name)
+    if not drive_item_id:
+        return None
+
+    try:
+        puzzle = Puzzle.objects.get(sheet__contains=drive_item_id)
+        cache.set(drive_item_name, puzzle.pk, timeout=None)
+        return puzzle.pk
+    except Puzzle.DoesNotExist:
+        return None
+
+
+def get_timestamp_from_activity(activity) -> Optional[datetime.datetime]:
+    if "timestamp" in activity:
+        timestamp = activity["timestamp"]
+    elif "timeRange" in activity:
+        timestamp = activity["timeRange"]["endTime"]
+    else:
+        return None
+
+    # builtin datetime.datetime.fromisoformat should work in the future w/ python 3.11+
+    return dateutil.parser.isoparse(timestamp)
+
+
+@shared_task(base=GoogleApiClientTask, bind=True)
+def update_active_users(self, hunt_id):
+    if not enabled():
+        return
+
+    hunt = Hunt.objects.select_related("settings").get(pk=hunt_id)
+
+    if not hunt.settings.google_drive_folder_id:
+        return
+
+    now = datetime.datetime.now(tz=tz.UTC)
+
+    if hunt.last_active_users_update_time:
+        last_update_time = hunt.last_active_users_update_time
+    else:
+        last_update_time = hunt.start_time
+
+    action_filter = "detail.action_detail_case: EDIT"
+    time_filter = "time > {} AND time <= {}".format(
+        round(last_update_time.timestamp() * 1000), round(now.timestamp() * 1000)
+    )
+
+    body = {
+        "filter": f"{action_filter} AND {time_filter}",
+        "ancestorName": f"items/{hunt.settings.google_drive_folder_id}",
+    }
+
+    latest = {}
+    while True:
+        response = self.drive_activity_service().activity().query(body=body).execute()
+        activities = response.get("activities", [])
+
+        for activity in activities:
+            users = [
+                a["user"]["knownUser"]
+                for a in activity["actors"]
+                if "user" in a and "knownUser" in a["user"]
+            ]
+            drive_items = [
+                t["driveItem"] for t in activity["targets"] if "driveItem" in t
+            ]
+            for user, drive_item in itertools.product(users, drive_items):
+                user_pk = get_user_pk_from_person_name(user["personName"])
+                if not user_pk:
+                    continue
+                puzzle_pk = get_puzzle_pk_from_drive_item(drive_item["name"])
+                if not puzzle_pk:
+                    continue
+
+                timestamp = get_timestamp_from_activity(activity)
+
+                if (user_pk, puzzle_pk) not in latest:
+                    latest[(user_pk, puzzle_pk)] = timestamp
+                else:
+                    latest[(user_pk, puzzle_pk)] = max(
+                        timestamp, latest[(user_pk, puzzle_pk)]
+                    )
+
+        if "nextPageToken" not in response:
+            break
+        else:
+            body["pageToken"] = response["nextPageToken"]
+
+    with transaction.atomic():
+        user_puzzle_pairs = [
+            f"{user_pk}-{puzzle_pk}" for (user_pk, puzzle_pk) in latest.keys()
+        ]
+        old_activities = (
+            PuzzleActivity.objects.annotate(
+                user_puzzle_pair=Concat(
+                    F("user_id"), Value("-"), F("puzzle_id"), output_field=CharField()
+                )
+            )
+            .filter(user_puzzle_pair__in=user_puzzle_pairs)
+            .select_for_update()
+        )
+        old_keys = [(e.user_id, e.puzzle_id) for e in old_activities]
+
+        PuzzleActivity.objects.bulk_create(
+            [
+                PuzzleActivity(
+                    puzzle_id=puzzle_pk,
+                    user_id=user_pk,
+                    last_edit_time=timestamp,
+                )
+                for ((user_pk, puzzle_pk), timestamp) in latest.items()
+                if (user_pk, puzzle_pk) not in old_keys
+            ],
+        )
+
+        updates = []
+        for activity in old_activities:
+            activity.last_edit_time = latest[(activity.user_id, activity.puzzle_id)]
+            updates.append(activity)
+
+        if updates:
+            PuzzleActivity.objects.bulk_update(updates, fields=["last_edit_time"])
+
+        hunt.last_active_users_update_time = now
+        hunt.save()

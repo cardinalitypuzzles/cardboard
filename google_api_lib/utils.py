@@ -35,6 +35,11 @@ class GoogleApiClientTask(Task):
             "drive", "v3", credentials=self._credentials, cache_discovery=False
         )
 
+    def drive_activity_service(self):
+        return googleapiclient.discovery.build(
+            "driveactivity", "v2", credentials=self._credentials, cache_discovery=False
+        )
+
     def sheets_service(self):
         return googleapiclient.discovery.build(
             "sheets", "v4", credentials=self._credentials, cache_discovery=False

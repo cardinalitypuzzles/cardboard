@@ -1,6 +1,9 @@
+import datetime
 import logging
 
+from dateutil import tz
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404
@@ -196,6 +199,11 @@ class PuzzleViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         hunt_id = self.kwargs["hunt_id"]
+        hunt = get_object_or_404(Hunt.objects.select_related("settings"), pk=hunt_id)
+        before_time = (
+            datetime.datetime.now(tz=tz.UTC) - hunt.settings.active_user_lookback
+        )
+
         return (
             Puzzle.objects.filter(hunt__id=hunt_id)
             .select_related("chat_room")
@@ -206,6 +214,15 @@ class PuzzleViewSet(viewsets.ModelViewSet):
                     "guesses",
                     queryset=Answer.objects.filter(status=Answer.CORRECT),
                     to_attr="_prefetched_correct_answers",
+                )
+            )
+            .prefetch_related(
+                Prefetch(
+                    "active_users",
+                    queryset=get_user_model()
+                    .objects.filter(puzzle_activities__last_edit_time__gt=before_time)
+                    .distinct(),
+                    to_attr="_recent_editors",
                 )
             )
         )

@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django_celery_beat",
     "puzzles",
     "accounts",
     "chat",
@@ -207,7 +208,10 @@ try:
         "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
         "client_x509_cert_url": os.environ["GOOGLE_API_X509_CERT_URL"],
     }
-    GOOGLE_DRIVE_PERMISSIONS_SCOPES = ["https://www.googleapis.com/auth/drive"]
+    GOOGLE_DRIVE_PERMISSIONS_SCOPES = [
+        "https://www.googleapis.com/auth/drive",
+        "https://www.googleapis.com/auth/drive.activity",
+    ]
 except KeyError as e:
     GOOGLE_API_AUTHN_INFO = None
     logger.warn(
@@ -226,6 +230,8 @@ SOCIAL_AUTH_URL_NAMESPACE = "social"
 try:
     SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.environ["SOCIAL_AUTH_GOOGLE_OAUTH2_KEY"]
     SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.environ["SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET"]
+    # store google UID, so it can be used in lookups for sheet activity.
+    SOCIAL_AUTH_GOOGLE_OAUTH2_USE_UNIQUE_USER_ID = True
 except KeyError as e:
     SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = None
     SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = None
@@ -286,6 +292,7 @@ CELERY_BROKER_POOL_LIMIT = 1
 CELERY_REDIS_MAX_CONNECTIONS = 1  # Only for sending results, not enqueueing tasks
 CELERY_TASK_DEFAULT_PRIORITY = TaskPriority.MED.value
 CELERY_TASK_REJECT_ON_WORKER_LOST = True
+CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers.DatabaseScheduler"
 
 # Logging configuration
 LOGGING = {
@@ -302,4 +309,13 @@ LOGGING = {
             "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
         },
     },
+}
+
+# Redis settings
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": os.environ.get("REDIS_URL", "redis://"),
+    }
 }
