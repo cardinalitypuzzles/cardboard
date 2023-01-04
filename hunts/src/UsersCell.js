@@ -34,7 +34,7 @@ export default ({ row }) => {
     );
     return (
       <OverlayTrigger
-        trigger={["click"]}
+        trigger={["hover", "focus"]}
         placement="right"
         overlay={recentEditorsPopover}
       >
