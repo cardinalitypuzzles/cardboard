@@ -27,24 +27,6 @@ export const fetchPuzzles = createAsyncThunk(
   async (huntId, { getState }) => {
     const { timestamp } = getState().puzzles;
     const response = await api.getPuzzles(huntId);
-    response.forEach((puzzle) => {
-      puzzle.recent_editors = [
-        "Peter Vera",
-        "Shuxin Zhan",
-        "Ryan Gossiaux",
-        "Ryan Liu",
-        "Anthony Hsu",
-        "Max Chang",
-        "Benji Nguyen",
-        "Ali Chang",
-        "Akira Baruah",
-      ].filter((v, idx) => {
-        if (puzzle.id === 9) {
-          return false;
-        }
-        return idx < puzzle.id;
-      });
-    });
     return { timestamp, result: response };
   }
 );

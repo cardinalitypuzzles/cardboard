@@ -20,8 +20,8 @@ const getColor = (count) => {
 };
 
 export default ({ row }) => {
-  if (row.original.recent_editors && row.original.recent_editors.length) {
-    const recentEditors = row.original.recent_editors;
+  if (row.values.recentEditors && row.values.recentEditors.length) {
+    const recentEditors = row.values.recentEditors;
     const recentEditorsPopover = (
       <Popover className="bootstrap">
         <Popover.Title>Current Editors</Popover.Title>
