@@ -24,7 +24,7 @@ export default ({ row }) => {
     const recentEditors = row.values.recentEditors;
     const recentEditorsPopover = (
       <Popover className="bootstrap">
-        <Popover.Title>Current Editors</Popover.Title>
+        <Popover.Title>Recent Editors</Popover.Title>
         <Popover.Content>
           {recentEditors.map((editor) => (
             <div key={editor}>{editor}</div>
