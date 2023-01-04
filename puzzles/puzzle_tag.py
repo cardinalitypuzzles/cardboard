@@ -1,24 +1,24 @@
-from django.db import models
 from django.contrib.postgres.fields import CICharField
+from django.db import models
+from django.utils.translation import gettext_lazy as _
+
+
+class PuzzleTagColor(models.TextChoices):
+    BLUE = "primary", _("blue")
+    GRAY = "secondary", _("gray")
+    GREEN = "success", _("green")  # reserved for backsolved
+    RED = "danger", _("red")  # reserved for high pri
+    YELLOW = "warning", _("yellow")  # reserved for low pri
+    WHITE = "light", _("white")
+    BLACK = "dark", _("black")  # reserved for meta tags
+    TEAL = "info", _("teal")  # reserved for location tags
+
+
+LOCATION_COLOR = PuzzleTagColor.TEAL
+META_COLOR = PuzzleTagColor.BLACK
 
 
 class PuzzleTag(models.Model):
-    BLUE = "primary"
-    GRAY = "secondary"
-    GREEN = "success"  # reserved for back solved
-    RED = "danger"  # reserved for high pri
-    YELLOW = "warning"  # reserved for low pri
-    WHITE = "light"
-    BLACK = "dark"  # reserved for meta tags
-    COLORS = {
-        BLUE: "blue",
-        GRAY: "gray",
-        GREEN: "green",
-        RED: "red",
-        YELLOW: "yellow",
-        WHITE: "white",
-        BLACK: "black",
-    }
 
     # Some special tag names
     # These must be kept in sync with the default tag list
@@ -27,49 +27,56 @@ class PuzzleTag(models.Model):
     LOW_PRIORITY = "Low priority"
 
     DEFAULT_TAGS = [
-        (HIGH_PRIORITY, RED),
-        (LOW_PRIORITY, YELLOW),
-        (BACKSOLVED, GREEN),
-        ("Slog", GRAY),
-        ("Grid logic", WHITE),
-        ("Non-grid logic", WHITE),
-        ("Crossword", BLUE),
-        ("Cryptics", BLUE),
-        ("Wordplay", BLUE),
-        ("Media manipulation", WHITE),
-        ("Programming", WHITE),
-        ("Art ID", BLUE),
-        ("Bio", BLUE),
-        ("Chem", BLUE),
-        ("Foreign languages", BLUE),
-        ("Geography", BLUE),
-        ("Literature", BLUE),
-        ("Math", BLUE),
-        ("Physics", BLUE),
-        ("Anime", WHITE),
-        ("Board games", WHITE),
-        ("Boomer", WHITE),
-        ("Knitting", WHITE),
-        ("Movies", WHITE),
-        ("Music ID", WHITE),
-        ("Sports", WHITE),
-        ("TV", WHITE),
-        ("Video games", WHITE),
-        ("Zoomer", WHITE),
-        ("MIT", BLUE),
-        ("Printing", BLUE),
-        ("Teamwork", BLUE),
+        (HIGH_PRIORITY, PuzzleTagColor.RED),
+        (LOW_PRIORITY, PuzzleTagColor.YELLOW),
+        (BACKSOLVED, PuzzleTagColor.GREEN),
+        ("Slog", PuzzleTagColor.GRAY),
+        ("Grid logic", PuzzleTagColor.WHITE),
+        ("Non-grid logic", PuzzleTagColor.WHITE),
+        ("Crossword", PuzzleTagColor.BLUE),
+        ("Cryptics", PuzzleTagColor.BLUE),
+        ("Wordplay", PuzzleTagColor.BLUE),
+        ("Media manipulation", PuzzleTagColor.WHITE),
+        ("Programming", PuzzleTagColor.WHITE),
+        ("Art ID", PuzzleTagColor.BLUE),
+        ("Bio", PuzzleTagColor.BLUE),
+        ("Chem", PuzzleTagColor.BLUE),
+        ("Foreign languages", PuzzleTagColor.BLUE),
+        ("Geography", PuzzleTagColor.BLUE),
+        ("Literature", PuzzleTagColor.BLUE),
+        ("Math", PuzzleTagColor.BLUE),
+        ("Physics", PuzzleTagColor.BLUE),
+        ("Anime", PuzzleTagColor.WHITE),
+        ("Board games", PuzzleTagColor.WHITE),
+        ("Boomer", PuzzleTagColor.WHITE),
+        ("Knitting", PuzzleTagColor.WHITE),
+        ("Movies", PuzzleTagColor.WHITE),
+        ("Music ID", PuzzleTagColor.WHITE),
+        ("Sports", PuzzleTagColor.WHITE),
+        ("TV", PuzzleTagColor.WHITE),
+        ("Video games", PuzzleTagColor.WHITE),
+        ("Zoomer", PuzzleTagColor.WHITE),
+        ("MIT", PuzzleTagColor.BLUE),
+        ("Printing", PuzzleTagColor.BLUE),
+        ("Teamwork", PuzzleTagColor.BLUE),
+        ("Classroom 1", LOCATION_COLOR),
+        ("Classroom 2", LOCATION_COLOR),
+        ("Remote", LOCATION_COLOR),
     ]
 
     hunt = models.ForeignKey(
         "hunts.Hunt", on_delete=models.CASCADE, related_name="puzzle_tags"
     )
     name = CICharField(max_length=100)
-    color = models.CharField(max_length=10, choices=COLORS.items(), default=BLUE)
+    color = models.CharField(
+        max_length=10, choices=PuzzleTagColor.choices, default=PuzzleTagColor.BLUE
+    )
     # internal flag to know when to sync meta puzzles
     is_meta = models.BooleanField(default=False)
 
     is_default = models.BooleanField(default=False)
+
+    is_location = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
@@ -80,17 +87,36 @@ class PuzzleTag(models.Model):
             models.UniqueConstraint(
                 fields=["name", "hunt"], name="unique_tag_names_per_hunt"
             ),
+            models.CheckConstraint(
+                name="%(app_label)s_%(class)s_location_color",
+                check=(
+                    (models.Q(is_location=False) & ~models.Q(color=LOCATION_COLOR))
+                    | (models.Q(is_location=True) & models.Q(color=LOCATION_COLOR))
+                ),
+            ),
+            models.CheckConstraint(
+                name="%(app_label)s_%(class)s_meta_color",
+                check=(
+                    (models.Q(is_meta=False) & ~models.Q(color=META_COLOR))
+                    | (models.Q(is_meta=True) & models.Q(color=META_COLOR))
+                ),
+            ),
         ]
 
-    @classmethod
-    def create_default_tags(cls, hunt):
-        for (name, color) in cls.DEFAULT_TAGS:
+    @staticmethod
+    def create_default_tags(hunt):
+        for (name, color) in PuzzleTag.DEFAULT_TAGS:
+            is_location = color == LOCATION_COLOR
             PuzzleTag.objects.get_or_create(
-                name=name, hunt=hunt, color=color, is_default=True
+                name=name,
+                hunt=hunt,
+                color=color,
+                is_default=True,
+                is_location=is_location,
             )
 
-    @classmethod
-    def remove_default_tags(cls, hunt):
+    @staticmethod
+    def remove_default_tags(hunt):
         PuzzleTag.objects.filter(hunt=hunt).filter(is_default=True).annotate(
             models.Count("puzzles")
         ).filter(puzzles__count=0).delete()

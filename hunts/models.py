@@ -1,11 +1,13 @@
+from datetime import timedelta
+
 from django.contrib.auth import get_user_model
 from django.db import models
-from django.db.models import Q, Max, Case, When
+from django.db.models import Case, Max, Q, When
 from django.shortcuts import get_object_or_404
 from django.template.defaultfilters import slugify
 from django.utils import timezone
+
 from puzzles.models import Puzzle
-from datetime import timedelta
 
 
 class Hunt(models.Model):
@@ -14,6 +16,9 @@ class Hunt(models.Model):
     created_on = models.DateTimeField(auto_now_add=True)
     start_time = models.DateTimeField(default=None, blank=True, null=True)
     end_time = models.DateTimeField(default=None, blank=True, null=True)
+    last_active_users_update_time = models.DateTimeField(
+        default=None, blank=True, null=True
+    )
 
     puzzlers = models.ManyToManyField(
         get_user_model(), related_name="hunts", blank=True
@@ -209,3 +214,8 @@ class HuntSettings(models.Model):
 
     # The Discord role for the people maintaining the Cardboard instance, in case of problems
     discord_devs_role = models.CharField(max_length=128, default="dev", blank=True)
+
+    active_user_lookback = models.DurationField(
+        default=timedelta(minutes=10),
+        help_text="Amount of time to look back for active users of a puzzle.",
+    )

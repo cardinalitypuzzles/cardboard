@@ -1,14 +1,17 @@
-from .test_helpers import CardboardTestCase
+from unittest.mock import patch
+
 from django.conf import settings
-from django.test import override_settings, TransactionTestCase
+from django.test import TransactionTestCase, override_settings
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APITestCase
-from puzzles.models import Puzzle, PuzzleTag
-from unittest.mock import patch
+
 import google_api_lib
 import google_api_lib.tests
+from puzzles.models import Puzzle, PuzzleTag, PuzzleTagColor
+from puzzles.puzzle_tag import LOCATION_COLOR, META_COLOR
 
+from .test_helpers import CardboardTestCase
 
 TEST_URL = "https://cardboard.test/"
 TEST_NAME = "Test"
@@ -84,6 +87,7 @@ class ApiTests(CardboardTestCase, APITestCase):
                 "created_on": puzzle.created_on.astimezone(
                     timezone.get_current_timezone()
                 ).isoformat(),
+                "recent_editors": [],
             },
         )
 
@@ -211,12 +215,24 @@ class ApiTests(CardboardTestCase, APITestCase):
         puzzle = Puzzle.objects.get()
 
         response = self.create_tag(
-            puzzle.pk, {"name": "taggy", "color": PuzzleTag.BLUE}
+            puzzle.pk, {"name": "taggy", "color": PuzzleTagColor.BLUE}
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(puzzle.tags.count(), 1)
         # Should return a puzzle
         self.assertEqual(response.data[0]["name"], puzzle.name)
+
+    def test_create_location_tag(self):
+        self.check_response_status(
+            self.create_puzzle({"name": TEST_NAME, "url": TEST_URL})
+        )
+        puzzle = Puzzle.objects.get()
+        response = self.create_tag(
+            puzzle.pk, {"name": "location", "color": LOCATION_COLOR}
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(puzzle.tags.count(), 1)
+        self.assertTrue(puzzle.tags.first().is_location)
 
     def test_delete_tag(self):
         self.check_response_status(
@@ -224,7 +240,7 @@ class ApiTests(CardboardTestCase, APITestCase):
         )
         puzzle = Puzzle.objects.get()
         self.check_response_status(
-            self.create_tag(puzzle.pk, {"name": "taggy", "color": PuzzleTag.BLUE})
+            self.create_tag(puzzle.pk, {"name": "taggy", "color": PuzzleTagColor.BLUE})
         )
         self.assertEqual(puzzle.tags.count(), 1)
         tag = puzzle.tags.get()
@@ -238,7 +254,9 @@ class ApiTests(CardboardTestCase, APITestCase):
         )
         puzzle = Puzzle.objects.get()
         self.check_response_status(
-            self.create_tag(puzzle.pk, {"name": TEST_NAME, "color": PuzzleTag.BLUE})
+            self.create_tag(
+                puzzle.pk, {"name": TEST_NAME, "color": PuzzleTagColor.BLUE}
+            )
         )
         self.assertEqual(puzzle.tags.count(), 1)
         tag = puzzle.tags.get()
@@ -266,7 +284,8 @@ class ApiTests(CardboardTestCase, APITestCase):
         puzzle = Puzzle.objects.get()
         self.check_response_status(
             self.create_tag(
-                puzzle.pk, {"name": PuzzleTag.HIGH_PRIORITY, "color": PuzzleTag.RED}
+                puzzle.pk,
+                {"name": PuzzleTag.HIGH_PRIORITY, "color": PuzzleTagColor.RED},
             )
         )
         self.assertEqual(puzzle.tags.count(), 1)
@@ -274,7 +293,7 @@ class ApiTests(CardboardTestCase, APITestCase):
         self.assertEqual(tag.name, PuzzleTag.HIGH_PRIORITY)
 
         response = self.create_tag(
-            puzzle.pk, {"name": PuzzleTag.LOW_PRIORITY, "color": PuzzleTag.YELLOW}
+            puzzle.pk, {"name": PuzzleTag.LOW_PRIORITY, "color": PuzzleTagColor.YELLOW}
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         # Should still have only 1 tag.
@@ -307,12 +326,49 @@ class ApiTests(CardboardTestCase, APITestCase):
         puzzle = Puzzle.objects.get(is_meta=False)
 
         self.check_response_status(
-            self.create_tag(puzzle.pk, {"name": meta.name, "color": PuzzleTag.BLUE})
+            self.create_tag(
+                puzzle.pk, {"name": meta.name, "color": PuzzleTagColor.BLUE}
+            )
         )
         self.assertEqual(puzzle.tags.count(), 1)
 
         meta_tag = puzzle.tags.get(name=meta.name)
-        self.assertEqual(meta_tag.color, PuzzleTag.BLACK)
+        self.assertEqual(meta_tag.color, META_COLOR)
+
+    def test_empty_custom_tags_deletion(self):
+        # test that a empty custom tag is reaped
+        self.create_puzzle({"name": TEST_NAME, "url": TEST_URL})
+        puzzle = Puzzle.objects.get()
+        custom_tag = PuzzleTag.objects.create(
+            name="custom", hunt=self._hunt, is_default=False
+        )
+        puzzle.tags.add(custom_tag)
+        self.client.delete(
+            f"/api/v1/puzzles/{puzzle.pk}/tags/{custom_tag.pk}",
+        )
+        self.assertFalse(
+            PuzzleTag.objects.filter(hunt=self._hunt, name="custom").exists()
+        )
+
+    def test_empty_default_tags_deletion(self):
+        # test that a empty default tag is NOT reaped
+        self.create_puzzle({"name": TEST_NAME, "url": TEST_URL})
+        puzzle = Puzzle.objects.get()
+        PuzzleTag.create_default_tags(self._hunt)
+
+        for tag in PuzzleTag.objects.filter(is_default=True):
+            puzzle.tags.add(tag)
+
+            self.client.delete(
+                f"/api/v1/puzzles/{puzzle.pk}/tags/{tag.pk}",
+            )
+
+        for (name, color) in PuzzleTag.DEFAULT_TAGS:
+            self.assertTrue(
+                PuzzleTag.objects.filter(
+                    hunt=self._hunt, name=name, color=color
+                ).exists()
+            )
 
 
 @override_settings(
@@ -355,7 +411,7 @@ class SheetTests(CardboardTestCase, TransactionTestCase):
 
             self.check_response_status(
                 self.create_tag(
-                    puzzle.pk, {"name": "BACKSOLVED", "color": PuzzleTag.GREEN}
+                    puzzle.pk, {"name": "BACKSOLVED", "color": PuzzleTagColor.GREEN}
                 )
             )
             rename_sheet.assert_called_with(
@@ -413,7 +469,7 @@ class SheetTests(CardboardTestCase, TransactionTestCase):
 
             self.check_response_status(
                 self.create_tag(
-                    puzzle.pk, {"name": "backSoLvEd", "color": PuzzleTag.GREEN}
+                    puzzle.pk, {"name": "backSoLvEd", "color": PuzzleTagColor.GREEN}
                 )
             )
             rename_sheet.assert_called_with(

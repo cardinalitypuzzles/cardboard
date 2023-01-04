@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 """Django's command-line utility for administrative tasks."""
-import dotenv
 import os
 import sys
 
+import dotenv
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))

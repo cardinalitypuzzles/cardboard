@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import ChatRoom, ChatRole
+
+from .models import ChatRole, ChatRoom
 
 
 class ChatRoleAdmin(admin.ModelAdmin):

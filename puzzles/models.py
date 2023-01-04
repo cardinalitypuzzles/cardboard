@@ -4,32 +4,25 @@ from django.db.models import Q
 from django.dispatch import receiver
 
 from answers.models import Answer
-from .puzzle_tag import PuzzleTag
+
+from .puzzle_tag import PuzzleTag, PuzzleTagColor
 
 
 class PuzzleModelError(Exception):
     """Base class for puzzle exceptions"""
 
-    pass
-
 
 class DuplicatePuzzleNameError(PuzzleModelError):
     """Raised when there is a duplicate puzzle name is found."""
-
-    pass
 
 
 class DuplicatePuzzleUrlError(PuzzleModelError):
     """Raised when there is a duplicate puzzle url is found."""
 
-    pass
-
 
 class InvalidMetaPuzzleError(PuzzleModelError):
     """Raised when the meta status of a puzzle is invalid (i.e. cycles, dangling
     metas)."""
-
-    pass
 
 
 class Puzzle(models.Model):
@@ -74,7 +67,10 @@ class Puzzle(models.Model):
     is_meta = models.BooleanField(default=False)
 
     active_users = models.ManyToManyField(
-        get_user_model(), related_name="active_puzzles", blank=True
+        get_user_model(),
+        related_name="active_puzzles",
+        blank=True,
+        through="PuzzleActivity",
     )
 
     chat_room = models.OneToOneField(
@@ -225,3 +221,18 @@ def is_ancestor(potential_ancestor, child):
         if is_ancestor(potential_ancestor, parent):
             return True
     return False
+
+
+class PuzzleActivity(models.Model):
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    puzzle = models.ForeignKey(Puzzle, on_delete=models.CASCADE)
+    last_edit_time = models.DateTimeField()
+
+    class Meta:
+        default_related_name = "puzzle_activities"
+        verbose_name_plural = "puzzle activities"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "puzzle"], name="unique_user_puzzle_activity_entry"
+            )
+        ]

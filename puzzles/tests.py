@@ -1,13 +1,12 @@
-import json
 from django.test import override_settings
-from unittest.mock import patch
 from rest_framework.test import APITestCase
 
 from accounts.models import Puzzler
-from chat.models import ChatRoom
-from chat.fake_service import FakeChatService
-from hunts.models import Hunt
 from answers.models import Answer
+from chat.fake_service import FakeChatService
+from chat.models import ChatRoom
+from hunts.models import Hunt
+
 from .models import Puzzle, is_ancestor
 from .puzzle_tag import PuzzleTag
 
@@ -107,7 +106,7 @@ class TestPuzzle(APITestCase):
 
         self.client.post(
             f"/api/v1/puzzles/{feeder.pk}/tags",
-            {"name": meta.name, "color": "primary"},
+            {"name": meta.name, "color": "dark"},
         )
         self.assertTrue(feeder.metas.filter(pk=meta.pk).exists())
 
@@ -144,39 +143,6 @@ class TestPuzzle(APITestCase):
         )
         self.assertTrue(feeder.tags.filter(name="newname").exists())
 
-    def test_empty_custom_tags_deletion(self):
-        # test that a empty custom tag is reaped
-        puzzle = self.create_puzzle("puzzle", False)
-        custom_tag = PuzzleTag.objects.create(
-            name="custom", hunt=self._test_hunt, is_default=False
-        )
-        puzzle.tags.add(custom_tag)
-        self.client.delete(
-            f"/api/v1/puzzles/{puzzle.pk}/tags/{custom_tag.pk}",
-        )
-        self.assertFalse(
-            PuzzleTag.objects.filter(hunt=self._test_hunt, name="custom").exists()
-        )
-
-    def test_empty_default_tags_deletion(self):
-        # test that a empty default tag is NOT reaped
-        puzzle = self.create_puzzle("puzzle", False)
-        PuzzleTag.create_default_tags(self._test_hunt)
-
-        for tag in PuzzleTag.objects.filter(is_default=True):
-            puzzle.tags.add(tag)
-
-            self.client.delete(
-                f"/api/v1/puzzles/{puzzle.pk}/tags/{tag.pk}",
-            )
-
-        for (name, color) in PuzzleTag.DEFAULT_TAGS:
-            self.assertTrue(
-                PuzzleTag.objects.filter(
-                    hunt=self._test_hunt, name=name, color=color
-                ).exists()
-            )
-
     def test_sheets_redirect(self):
         puzzle = self.create_puzzle("test_redirects", False)
         response = self.client.get(f"/puzzles/s/{puzzle.pk}", follow=False)
@@ -212,7 +178,7 @@ class TestPuzzle(APITestCase):
 
         self.client.post(
             f"/api/v1/puzzles/{feeder.pk}/tags",
-            {"name": PuzzleTag.BACKSOLVED.upper(), "color": "primary"},
+            {"name": PuzzleTag.BACKSOLVED.upper(), "color": "success"},
         )
         # Not backsolved as it hasn't been solved yet
         self.assertFalse(feeder.is_backsolved())
@@ -230,7 +196,7 @@ class TestPuzzle(APITestCase):
         # Lowercase tag should work too
         self.client.post(
             f"/api/v1/puzzles/{feeder.pk}/tags",
-            {"name": PuzzleTag.BACKSOLVED.lower(), "color": "primary"},
+            {"name": PuzzleTag.BACKSOLVED.lower(), "color": "success"},
         )
         # Now it should be backsolved again
         self.assertTrue(feeder.is_backsolved())

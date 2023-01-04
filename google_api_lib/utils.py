@@ -1,12 +1,11 @@
-from django.conf import settings
+import logging
+
 import googleapiclient
 import googleapiclient.discovery
 import googleapiclient.errors
-from google.oauth2 import service_account
-
 from celery import Task
-
-import logging
+from django.conf import settings
+from google.oauth2 import service_account
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +33,11 @@ class GoogleApiClientTask(Task):
     def drive_service(self):
         return googleapiclient.discovery.build(
             "drive", "v3", credentials=self._credentials, cache_discovery=False
+        )
+
+    def drive_activity_service(self):
+        return googleapiclient.discovery.build(
+            "driveactivity", "v2", credentials=self._credentials, cache_discovery=False
         )
 
     def sheets_service(self):

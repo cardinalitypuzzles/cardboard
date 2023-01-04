@@ -1,25 +1,36 @@
+import datetime
+import logging
+
+from dateutil import tz
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404
+from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework import viewsets
 
+import chat.tasks
+import google_api_lib.tasks
 from answers.models import Answer
 from chat.models import ChatRoom
 from hunts.models import Hunt
-from puzzles.models import Puzzle, PuzzleModelError, PuzzleTag, is_ancestor
+from puzzles.models import (
+    Puzzle,
+    PuzzleModelError,
+    PuzzleTag,
+    PuzzleTagColor,
+    is_ancestor,
+)
+from puzzles.puzzle_tag import LOCATION_COLOR
+
 from .serializers import (
     AnswerSerializer,
     HuntSerializer,
     PuzzleSerializer,
     PuzzleTagSerializer,
 )
-import google_api_lib.tasks
-import chat.tasks
-
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -188,6 +199,11 @@ class PuzzleViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         hunt_id = self.kwargs["hunt_id"]
+        hunt = get_object_or_404(Hunt.objects.select_related("settings"), pk=hunt_id)
+        before_time = (
+            datetime.datetime.now(tz=tz.UTC) - hunt.settings.active_user_lookback
+        )
+
         return (
             Puzzle.objects.filter(hunt__id=hunt_id)
             .select_related("chat_room")
@@ -200,10 +216,18 @@ class PuzzleViewSet(viewsets.ModelViewSet):
                     to_attr="_prefetched_correct_answers",
                 )
             )
+            .prefetch_related(
+                Prefetch(
+                    "active_users",
+                    queryset=get_user_model()
+                    .objects.filter(puzzle_activities__last_edit_time__gt=before_time)
+                    .distinct(),
+                    to_attr="_recent_editors",
+                )
+            )
         )
 
     def destroy(self, request, pk=None, **kwargs):
-        metas = None
         with transaction.atomic():
             puzzle = self.get_object()
             if not puzzle.can_delete():
@@ -404,12 +428,9 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             tag_name, tag_color = (
                 serializer.validated_data["name"],
-                serializer.validated_data["color"],
+                PuzzleTagColor(serializer.validated_data["color"]),
             )
-            tag, _ = PuzzleTag.objects.get_or_create(
-                name=tag_name,
-                hunt=puzzle.hunt,
-            )
+            tag, _ = PuzzleTag.objects.get_or_create(name=tag_name, hunt=puzzle.hunt)
             if tag.is_meta:
                 meta = get_object_or_404(Puzzle, name=tag.name, hunt=puzzle.hunt)
                 if is_ancestor(puzzle, meta):
@@ -423,8 +444,9 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
                     # the post m2m hook will add tag
                     puzzle.metas.add(meta)
             else:
+                is_location = tag_color == LOCATION_COLOR
                 PuzzleTag.objects.filter(name=tag_name, hunt=puzzle.hunt).update(
-                    color=tag_color,
+                    color=tag_color, is_location=is_location
                 )
                 puzzle.tags.add(tag)
                 if (

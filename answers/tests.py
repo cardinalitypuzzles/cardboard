@@ -1,7 +1,9 @@
 from django.test import TestCase
+
 from accounts.models import Puzzler
 from hunts.models import Hunt
 from puzzles.models import Puzzle
+
 from .models import Answer
 
 

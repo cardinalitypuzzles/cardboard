@@ -1,8 +1,10 @@
-from django.test import TestCase
 from unittest.mock import patch
+
+from django.test import TestCase
+
+import google_api_lib
 from hunts.models import Hunt
 from puzzles.models import Puzzle
-import google_api_lib
 
 TEST_SHEET = "testsheet.com"
 TEST_SHEET_TEMPLATE_ID = "12345abcde"

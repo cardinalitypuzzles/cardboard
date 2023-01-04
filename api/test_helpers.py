@@ -1,4 +1,5 @@
 from rest_framework import status
+
 from accounts.models import Puzzler
 from hunts.models import Hunt
 from puzzles.models import PuzzleTag

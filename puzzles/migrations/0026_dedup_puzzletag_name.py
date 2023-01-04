@@ -1,8 +1,9 @@
-from django.contrib.postgres.operations import CITextExtension
 import django.contrib.postgres.fields.citext
+from django.contrib.postgres.operations import CITextExtension
 from django.db import migrations
-from puzzles.puzzle_tag import PuzzleTag
+
 from puzzles.models import Puzzle
+from puzzles.puzzle_tag import PuzzleTag
 
 
 def migrate_to_ci_tag_name(apps, schema_editor):

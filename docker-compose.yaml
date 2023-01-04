@@ -43,6 +43,19 @@ services:
     depends_on:
       - db
       - redis
+  celery-single-worker:
+    build: .
+    command: celery -A cardboard worker -Q activity_updates_queue -l info --beat --concurrency=1
+    volumes:
+      - .:/usr/src/cardboard/:Z
+    environment:
+      - DATABASE_URL=postgres://cardboard_user:cardboard_password@db/cardboard
+      - REDIS_URL=redis://redis:6379
+    env_file:
+      - ./.env
+    depends_on:
+      - db
+      - redis
 
 volumes:
   postgres_data:

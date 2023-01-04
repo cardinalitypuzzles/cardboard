@@ -19,11 +19,17 @@ djangorestframework = "^3.13.1"
 celery = "^5.2.3"
 redis = "^4.1.0"
 "discord.py" = "^1.7.3"
+django-celery-beat = "^2.4.0"
+python-dateutil = "^2.8.2"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 pre-commit = "*"
 black = "^22.3.0"
 coverage = "*"
+django-silk = "^5.0.2"
+
+[tool.isort]
+profile = "black"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
