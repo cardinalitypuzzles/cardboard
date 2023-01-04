@@ -203,7 +203,6 @@ class PuzzleViewSet(viewsets.ModelViewSet):
         before_time = (
             datetime.datetime.now(tz=tz.UTC) - hunt.settings.active_user_lookback
         )
-        from puzzles.models import PuzzleActivity
 
         return (
             Puzzle.objects.filter(hunt__id=hunt_id)
