@@ -105,15 +105,31 @@ class PuzzleTag(models.Model):
 
     @staticmethod
     def create_default_tags(hunt):
+        default_tag_names = [name for (name, _) in PuzzleTag.DEFAULT_TAGS]
+        already_existing = [
+            p.name
+            for p in PuzzleTag.objects.filter(hunt=hunt, name__in=default_tag_names)
+        ]
+
+        tags_to_create = []
+
         for (name, color) in PuzzleTag.DEFAULT_TAGS:
+            if name in already_existing:
+                continue
+
             is_location = color == LOCATION_COLOR
-            PuzzleTag.objects.get_or_create(
-                name=name,
-                hunt=hunt,
-                color=color,
-                is_default=True,
-                is_location=is_location,
+            tags_to_create.append(
+                PuzzleTag(
+                    name=name,
+                    hunt=hunt,
+                    color=color,
+                    is_default=True,
+                    is_location=is_location,
+                )
             )
+
+        if tags_to_create:
+            PuzzleTag.objects.bulk_create(tags_to_create)
 
     @staticmethod
     def remove_default_tags(hunt):
