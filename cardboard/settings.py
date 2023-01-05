@@ -211,6 +211,8 @@ try:
     GOOGLE_DRIVE_PERMISSIONS_SCOPES = [
         "https://www.googleapis.com/auth/drive",
         "https://www.googleapis.com/auth/drive.activity",
+        "https://www.googleapis.com/auth/contacts",
+        "https://www.googleapis.com/auth/directory.readonly",
     ]
 except KeyError as e:
     GOOGLE_API_AUTHN_INFO = None

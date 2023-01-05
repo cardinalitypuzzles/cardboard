@@ -3,6 +3,7 @@ import itertools
 import logging
 import random
 import re
+import time
 from typing import Optional
 
 import dateutil.parser
@@ -461,21 +462,48 @@ def extract_id_from_drive_item_name(drive_item_name) -> Optional[str]:
     return result.group(1) if result else None
 
 
-def get_puzzler_from_uid(uid) -> Optional[str]:
+def get_puzzler_from_uid(google_api_client, uid) -> Optional[str]:
     UserModel = get_user_model()
     try:
         return UserModel.objects.get(social_auth__uid=uid)
     except UserModel.DoesNotExist:
+        pass
+
+    # Fall back to People API
+    # Note that this API depends on the email being added as service account's contact list
+    # It also has a tight request limit
+    time.sleep(2)
+
+    response = (
+        google_api_client.people_service()
+        .people()
+        .get(resourceName=f"people/{uid}", personFields="emailAddresses")
+        .execute()
+    )
+
+    emails = response.get("emailAddresses", [])
+    emails = [email.get("value", None) for email in emails]
+    users = UserModel.objects.filter(email__in=emails)
+    if users.count() == 1:
+        user = users.get()
+
+        # We stored email instead of google UID in previous years, this backfills this data.
+        if user.social_auth.exists():
+            sa = user.social_auth.get()
+            sa.uid = uid
+            sa.save()
+        return user
+    else:
         return None
 
 
-def get_user_pk_from_person_name(person_name) -> Optional[int]:
+def get_user_pk_from_person_name(google_api_client, person_name) -> Optional[int]:
     cached_user_pk = cache.get(person_name, None)
     if cached_user_pk:
         return cached_user_pk
     else:
         uid = extract_id_from_person_name(person_name)
-        user = get_puzzler_from_uid(uid) if uid else None
+        user = get_puzzler_from_uid(google_api_client, uid) if uid else None
         if not user:
             return None
         cache.set(person_name, user.pk, timeout=None)
@@ -511,7 +539,7 @@ def get_timestamp_from_activity(activity) -> Optional[datetime.datetime]:
     return dateutil.parser.isoparse(timestamp)
 
 
-@shared_task(base=GoogleApiClientTask, bind=True)
+@shared_task(base=GoogleApiClientTask, bind=True, time_limit=6000)
 def update_active_users(self, hunt_id):
     if not enabled():
         return
@@ -528,9 +556,15 @@ def update_active_users(self, hunt_id):
     else:
         last_update_time = hunt.start_time
 
+    # avoid having to get and process too much data at once
+    end = min(last_update_time + datetime.timedelta(minutes=10), now)
+
+    if end > hunt.end_time:
+        return
+
     action_filter = "detail.action_detail_case: EDIT"
     time_filter = "time > {} AND time <= {}".format(
-        round(last_update_time.timestamp() * 1000), round(now.timestamp() * 1000)
+        round(last_update_time.timestamp() * 1000), round(end.timestamp() * 1000)
     )
 
     body = {
@@ -553,7 +587,7 @@ def update_active_users(self, hunt_id):
                 t["driveItem"] for t in activity["targets"] if "driveItem" in t
             ]
             for user, drive_item in itertools.product(users, drive_items):
-                user_pk = get_user_pk_from_person_name(user["personName"])
+                user_pk = get_user_pk_from_person_name(self, user["personName"])
                 if not user_pk:
                     continue
                 puzzle_pk = get_puzzle_pk_from_drive_item(drive_item["name"])
@@ -609,5 +643,5 @@ def update_active_users(self, hunt_id):
         if updates:
             PuzzleActivity.objects.bulk_update(updates, fields=["last_edit_time"])
 
-        hunt.last_active_users_update_time = now
+        hunt.last_active_users_update_time = end
         hunt.save()
