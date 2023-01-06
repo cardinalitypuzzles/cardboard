@@ -26,7 +26,7 @@ def index(request):
     form = HuntForm()
 
     if request.method == "POST":
-        if user.is_staff:
+        if request.user.is_staff:
             form = HuntForm(request.POST)
             if form.is_valid():
                 with transaction.atomic():
