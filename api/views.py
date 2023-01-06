@@ -344,8 +344,9 @@ class PuzzleViewSet(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
 
             name = serializer.validated_data["name"]
+            create_channels = serializer.validated_data["create_channels"]
 
-            if settings.CHAT_DEFAULT_SERVICE:
+            if settings.CHAT_DEFAULT_SERVICE and create_channels:
                 chat_room = ChatRoom.objects.create(
                     service=settings.CHAT_DEFAULT_SERVICE, name=name
                 )

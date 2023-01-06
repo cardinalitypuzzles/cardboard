@@ -10,6 +10,7 @@ function AddPuzzleModal({ huntId }) {
   const [name, setName] = React.useState("");
   const [url, setUrl] = React.useState("");
   const [isMeta, setIsMeta] = React.useState(false);
+  const [createChannels, setCreateChannels] = React.useState(false);
   const dispatch = useDispatch();
   const onSubmit = (e) => {
     e.preventDefault();
@@ -19,6 +20,7 @@ function AddPuzzleModal({ huntId }) {
         name,
         url,
         is_meta: isMeta,
+        create_channels: createChannels,
       })
     ).finally(() => {
       dispatch(hideModal());
@@ -57,6 +59,13 @@ function AddPuzzleModal({ huntId }) {
             id="is-meta-checkbox"
             checked={isMeta}
             onChange={(e) => setIsMeta(e.target.checked)}
+          />
+          <Form.Check
+            type="checkbox"
+            label="Create discord channels"
+            id="create-channels-checkbox"
+            checked={isMeta}
+            onChange={(e) => setCreateChannels(e.target.checked)}
           />
         </Modal.Body>
         <Modal.Footer>
