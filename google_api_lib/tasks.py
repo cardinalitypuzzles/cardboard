@@ -539,7 +539,7 @@ def get_timestamp_from_activity(activity) -> Optional[datetime.datetime]:
     return dateutil.parser.isoparse(timestamp)
 
 
-@shared_task(base=GoogleApiClientTask, bind=True, time_limit=6000)
+@shared_task(base=GoogleApiClientTask, bind=True, time_limit=180)
 def update_active_users(self, hunt_id):
     if not enabled():
         return
