@@ -3,20 +3,14 @@ import React from "react";
 import Popover from "react-bootstrap/Popover";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 
-const TEXT_COLOR_GRADIENT = [
-  "text-secondary",
-  "text-info",
-  "text-primary",
-  "text-success",
-  "text-warning",
-  "text-danger",
-];
-
 const getColor = (count) => {
-  if (count > TEXT_COLOR_GRADIENT.length) {
+  if (count <= 4) {
+    return "text-success";
+  } else if (count <= 8) {
+    return "text-warning";
+  } else {
     return "text-danger";
   }
-  return TEXT_COLOR_GRADIENT[count - 1];
 };
 
 export default ({ row }) => {
