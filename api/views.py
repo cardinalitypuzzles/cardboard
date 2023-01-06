@@ -137,7 +137,7 @@ class AnswerViewSet(viewsets.ModelViewSet):
                 elif settings.CHAT_DEFAULT_SERVICE:
                     # recreate chat if they had already been cleaned up from being marked as SOLVED
                     transaction.on_commit(
-                        lambda: chat.tasks.create_chat_for_puzzle.delay(puzzle.id)
+                        lambda: chat.tasks.create_channels_for_puzzle.delay(puzzle.id)
                     )
                 # remove backsolve tag if puzzle is no longer solved
                 if was_backsolved:
@@ -328,6 +328,16 @@ class PuzzleViewSet(viewsets.ModelViewSet):
                         lambda: chat.tasks.handle_puzzle_meta_change.delay(puzzle.id)
                     )
 
+                if (
+                    "create_channels" in request.data
+                    and request.data["create_channels"]
+                    and puzzle.chat_room
+                    and not puzzle.chat_room.text_channel_id
+                ):
+                    transaction.on_commit(
+                        lambda: chat.tasks.create_channels_for_puzzle.delay(puzzle.id)
+                    )
+
         except PuzzleModelError as e:
             return Response(
                 {"detail": str(e)},
@@ -350,8 +360,15 @@ class PuzzleViewSet(viewsets.ModelViewSet):
                     service=settings.CHAT_DEFAULT_SERVICE, name=name
                 )
                 transaction.on_commit(
-                    lambda: chat.tasks.create_chat_for_puzzle.delay(puzzle.id)
+                    lambda: chat.tasks.announce_puzzle_unlock.delay(puzzle.id)
                 )
+                if (
+                    "create_channels" in request.data
+                    and request.data["create_channels"]
+                ):
+                    transaction.on_commit(
+                        lambda: chat.tasks.create_channels_for_puzzle.delay(puzzle.id)
+                    )
             else:
                 logger.warn("Chat room not created for puzzle %s" % name)
                 chat_room = None
