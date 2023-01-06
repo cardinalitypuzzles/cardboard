@@ -329,7 +329,8 @@ class PuzzleViewSet(viewsets.ModelViewSet):
                     )
 
                 if (
-                    request.data["create_channels"]
+                    "create_channels" in request.data
+                    and request.data["create_channels"]
                     and puzzle.chat_room
                     and not puzzle.chat_room.text_channel_id
                 ):
@@ -353,7 +354,6 @@ class PuzzleViewSet(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
 
             name = serializer.validated_data["name"]
-            create_channels = request.data["create_channels"]
 
             if settings.CHAT_DEFAULT_SERVICE:
                 chat_room = ChatRoom.objects.create(
@@ -362,7 +362,10 @@ class PuzzleViewSet(viewsets.ModelViewSet):
                 transaction.on_commit(
                     lambda: chat.tasks.announce_puzzle_unlock.delay(puzzle.id)
                 )
-                if create_channels:
+                if (
+                    "create_channels" in request.data
+                    and request.data["create_channels"]
+                ):
                     transaction.on_commit(
                         lambda: chat.tasks.create_channels_for_puzzle.delay(puzzle.id)
                     )
