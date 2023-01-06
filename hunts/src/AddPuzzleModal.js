@@ -64,7 +64,7 @@ function AddPuzzleModal({ huntId }) {
             type="checkbox"
             label="Create discord channels"
             id="create-channels-checkbox"
-            checked={isMeta}
+            checked={createChannels}
             onChange={(e) => setCreateChannels(e.target.checked)}
           />
         </Modal.Body>

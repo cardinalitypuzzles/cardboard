@@ -17,12 +17,26 @@ def _get_puzzles_queryset():
 
 
 @shared_task(rate_limit="6/m", acks_late=True, priority=TaskPriority.HIGH.value)
-def create_chat_for_puzzle(puzzle_id):
+def announce_puzzle_unlock(puzzle_id):
     puzzle = _get_puzzles_queryset().get(id=puzzle_id)
+    if not puzzle.chat_room:
+        return
+    try:
+        msg = f"**{puzzle.name}** has been unlocked!"
+        puzzle.chat_room.announce_message_with_embedded_urls(msg, puzzle)
+    except Exception as e:
+        logger.warn(f"create_chat_for_puzzle failed with error: {e}")
+
+
+@shared_task(rate_limit="6/m", acks_late=True, priority=TaskPriority.HIGH.value)
+def create_channels_for_puzzle(puzzle_id):
+    puzzle = _get_puzzles_queryset().get(id=puzzle_id)
+    if not puzzle.chat_room:
+        return
     try:
         puzzle.chat_room.create_channels()
-        msg = f"**{puzzle.name}** has been unlocked!"
-        puzzle.chat_room.send_and_announce_message_with_embedded_urls(msg, puzzle)
+        msg = f"**{puzzle.name}** has been created!"
+        puzzle.chat_room.send_message_with_embedded_urls(msg, puzzle)
     except Exception as e:
         logger.warn(f"create_chat_for_puzzle failed with error: {e}")
 
@@ -63,6 +77,8 @@ def handle_puzzle_meta_change(puzzle_id):
     handles when the set of a puzzle's metas has changed OR the puzzle itself has toggled its is_meta state.
     """
     puzzle = _get_puzzles_queryset().prefetch_related("metas").get(id=puzzle_id)
+    if not puzzle.chat_room:
+        return
     try:
         puzzle.chat_room.update_category()
     except Exception as e:
@@ -72,6 +88,8 @@ def handle_puzzle_meta_change(puzzle_id):
 @shared_task(rate_limit="6/m", acks_late=True)
 def handle_puzzle_solved(puzzle_id, answer_text):
     puzzle = _get_puzzles_queryset().get(id=puzzle_id)
+    if not puzzle.chat_room:
+        return
     try:
         puzzle.chat_room.archive_channels()
         msg = f"**{puzzle.name}** has been solved with `{answer_text}`!"
@@ -83,6 +101,8 @@ def handle_puzzle_solved(puzzle_id, answer_text):
 @shared_task(rate_limit="6/m", acks_late=True)
 def handle_puzzle_unsolved(puzzle_id):
     puzzle = _get_puzzles_queryset().prefetch_related("metas").get(id=puzzle_id)
+    if not puzzle.chat_room:
+        return
     try:
         puzzle.chat_room.unarchive_channels()
         puzzle.chat_room.create_channels()
@@ -95,6 +115,8 @@ def handle_puzzle_unsolved(puzzle_id):
 @shared_task(rate_limit="6/m", acks_late=True)
 def handle_tag_added(puzzle_id, tag_name):
     puzzle = _get_puzzles_queryset().get(id=puzzle_id)
+    if not puzzle.chat_room:
+        return
     try:
         puzzle.chat_room.handle_tag_added(puzzle, tag_name)
     except Exception as e:
@@ -104,6 +126,8 @@ def handle_tag_added(puzzle_id, tag_name):
 @shared_task(rate_limit="6/m", acks_late=True)
 def handle_tag_removed(puzzle_id, tag_name):
     puzzle = _get_puzzles_queryset().get(id=puzzle_id)
+    if not puzzle.chat_room:
+        return
     try:
         puzzle.chat_room.handle_tag_removed(puzzle, tag_name)
     except Exception as e:
@@ -113,6 +137,8 @@ def handle_tag_removed(puzzle_id, tag_name):
 @shared_task(rate_limit="6/m", acks_late=True)
 def handle_answer_change(puzzle_id, old_answer, new_answer):
     puzzle = _get_puzzles_queryset().get(id=puzzle_id)
+    if not puzzle.chat_room:
+        return
     try:
         msg = (
             f"**{puzzle.name}**'s answer changed from `{old_answer}` to `{new_answer}`."
@@ -125,6 +151,8 @@ def handle_answer_change(puzzle_id, old_answer, new_answer):
 @shared_task(rate_limit="6/m", acks_late=True)
 def handle_puzzle_rename(puzzle_id, old_name, new_name):
     puzzle = _get_puzzles_queryset().get(id=puzzle_id)
+    if not puzzle.chat_room:
+        return
     try:
         puzzle.chat_room.handle_puzzle_rename(new_name)
         msg = f"**{old_name}** has been renamed to **{new_name}**."
@@ -136,6 +164,8 @@ def handle_puzzle_rename(puzzle_id, old_name, new_name):
 @shared_task(rate_limit="6/m", acks_late=True)
 def handle_sheet_created(puzzle_id):
     puzzle = _get_puzzles_queryset().get(id=puzzle_id)
+    if not puzzle.chat_room:
+        return
     try:
         msg = "Sheet has been created!"
         puzzle.chat_room.send_message(msg, embedded_urls={"Sheet": puzzle.sheet})

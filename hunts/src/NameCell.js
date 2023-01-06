@@ -57,6 +57,7 @@ export default function NameCell({ row, value }) {
                 name: row.values.name,
                 url: row.values.url,
                 isMeta: row.values.is_meta,
+                hasChannels: !!row.original.chat_room?.text_channel_url,
               },
             })
           )

@@ -210,6 +210,22 @@ class ChatRoom(models.Model):
         )
         self.send_message(msg, embedded_urls)
 
+    def announce_message_with_embedded_urls(self, msg, puzzle):
+        embedded_urls = {}
+        if puzzle:
+            embedded_urls = puzzle.create_field_url_map()
+        self.get_service().announce(
+            self.puzzle.hunt.settings.discord_puzzle_announcements_channel_id,
+            msg,
+            embedded_urls,
+        )
+
+    def send_message_with_embedded_urls(self, msg, puzzle):
+        embedded_urls = {}
+        if puzzle:
+            embedded_urls = puzzle.create_field_url_map()
+        self.send_message(msg, embedded_urls)
+
     def handle_tag_added(self, puzzle, tag_name):
         if tag_name in [PuzzleTag.HIGH_PRIORITY, PuzzleTag.LOW_PRIORITY]:
             self.send_message(f"This puzzle was marked {tag_name}")
