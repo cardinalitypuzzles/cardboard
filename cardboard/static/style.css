@@ -73,3 +73,7 @@ body {
 .bootstrap-dark a {
     color: #007bff;
 }
+
+.bootstrap-dark .popover-header {
+    color: #212529;
+}

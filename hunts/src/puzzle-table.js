@@ -17,6 +17,7 @@ import NameCell from "./NameCell";
 import StatusCell from "./StatusCell";
 import CreationCell from "./CreationCell";
 import TagCell from "./TagCell";
+import UsersCell from "./UsersCell";
 import { LinkCell } from "./LinkCell";
 import { getCollapsedPuzzles } from "./collapsedPuzzlesSlice";
 
@@ -26,6 +27,12 @@ const TABLE_COLUMNS = [
     accessor: "name",
     Cell: NameCell,
     className: "col-4",
+  },
+  {
+    Header: "",
+    accessor: (row) => row.recent_editors,
+    Cell: UsersCell,
+    id: "recentEditors",
   },
   {
     Header: "Answer",
