@@ -2,6 +2,7 @@ import { IconUsers } from "@tabler/icons";
 import React from "react";
 import Popover from "react-bootstrap/Popover";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import { Badge } from "react-bootstrap";
 
 const getColor = (count) => {
   if (count <= 4) {
@@ -32,15 +33,17 @@ export default ({ row }) => {
         placement="right"
         overlay={recentEditorsPopover}
       >
-        <div
+        <Badge
           className={getColor(recentEditors.length)}
           style={{
             whiteSpace: "nowrap",
+            fontSize: "100%",
           }}
+          variant="light"
         >
           <IconUsers size={16} />
           {recentEditors.length}
-        </div>
+        </Badge>
       </OverlayTrigger>
     );
   } else {
