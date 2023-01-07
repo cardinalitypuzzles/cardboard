@@ -10,6 +10,8 @@ This guide assumes you have already done the following at https://console.develo
 * created a Google API service account (go to APIs & Services > Credentials) under that project
 * created an OAuth 2.0 Client (also under APIs & Services > Credentials) in the same project (this is needed to enable logging to Cardboard using a Google account)
 * enabled Google Drive API (APIs & Services > Library > search for "Google Drive API" > select and enable)
+* enabled Drive Activity API (APIs & Services > Library > search for "Drive Activity API" > select and enable)
+* enabled People API (APIs & Services > Library > search for "People API" > select and enable)
 * enabled Google Sheets API (APIs & Services > Library > search for "Google Sheets API" > select and enable)
 
 #### Discord prerequisites
@@ -29,9 +31,9 @@ Cardboard expects a hunt Google Drive folder to already be set up with a templat
 
 To set up a new hunt:
 
-* create a new Google Drive folder for the hunt. Do not change the permissions on the folder; it should be private for now.
+* create a new Google Drive folder for the hunt.
 * add the Google API service account you created above as an Editor to the Drive folder
-* add all your team members as Editors to the Drive folder
+* add all your team members as Editors to the Drive folder. Note that adding a Google Group will *not* propagate down permissions to members of the group.
 * add a template Sheet file to the Drive folder
 
 
@@ -54,7 +56,7 @@ Alternatively, you can use the [Heroku CLI](https://devcenter.heroku.com/article
 
 On the Resources page, you'll need to add the Heroku Postgres and Heroku Redis add-ons. When added, this will automatically add some config variables for you on the Settings page: `REDIS_URL`, `REDIS_TLS_URL`, and `DATABASE_URL`. Cardboard is already configured to read these config variables automatically.
 
-You'll also see three dyno instances on the Resources page: "web", "bot", and "worker". Make sure to enable the "web" and "worker" dynos. The "web" dyno runs the web application and the "worker" dyno runs a Celery process that handles Google Sheets API interactions asynchronously. The "bot" dyno is for a discord bot added in [#214](https://github.com/cardinalitypuzzles/cardboard/issues/214), which is optional. You can only run a max of 2 free dynos, so if you want to enable the "bot" dyno, you have to upgrade to a paid tier. Note that this "bot" dyno is only for supporting users typing `!<command>` in Discord to get information about puzzles. Even without the "bot" dyno, with the Discord application added to your Discord server (see Discord prerequisites above) and the Discord environment variables configured (see below), you will still get automatic Discord channel creation and puzzle solve updates.
+You'll also see a few dyno instances on the Resources page: "web", "bot", and "worker". Make sure to enable the "web" and "worker" dynos. The "web" dyno runs the web application and the "worker" dyno runs a Celery process that handles Google Sheets and Discord API interactions asynchronously. The "bot" dyno is for a discord bot added in [#214](https://github.com/cardinalitypuzzles/cardboard/issues/214), which is optional. You can only run a max of 2 free dynos, so if you want to enable the "bot" dyno, you have to upgrade to a paid tier. Note that this "bot" dyno is only for supporting users typing `!<command>` in Discord to get information about puzzles. Even without the "bot" dyno, with the Discord application added to your Discord server (see Discord prerequisites above) and the Discord environment variables configured (see below), you will still get automatic Discord channel creation and puzzle solve updates.
 
 If you have a large team or are using Cardboard for a hunt with many puzzles, you may want to increase the number or tier of the dynos in your Heroku deployment.
 
@@ -81,10 +83,11 @@ user.save()
 
 ##### HuntSettings setup
 
-These changes are made in the Django admin after you have created a new hunt in Cardboard. To adjust them:
+The page to edit hunt settings is visible to all staff users and above from the hunt index page or at `/hunts/<slug>/edit`.
 
-* Log in to the Django admin page for your Cardboard instance at `/admin`
-* Go to the Hunts tab on the left (located at `/admin/hunts/hunt/`) and pick the hunt to configure.
+###### Default hunt tags
+
+The default tags are found in [puzzles/puzzle_tag.py](https://github.com/cardinalitypuzzles/cardboard/blob/master/puzzles/puzzle_tag.py). Checking "Populate hunt with default tags?" will create any missing default tags. Unchecking will remove any unused default tags.
 
 ###### Discord setup
 
@@ -105,7 +108,11 @@ For the Google Drive/Sheets integration, fill out the following fields. Many of 
 * **Google Drive folder id:** the id of your Google Drive folder, should be part of the URL (`https://drive.google.com/drive/folders/<folder_id>`). This folder is where puzzle spreadsheets will be stored, and access to this folder determines login access to Cardboard.
 * **Google Sheets template file id:** the id of your Google Sheets template file, should be part of the URL (`https://docs.google.com/spreadsheets/d/<sheet_id>`)
 * **Google Sheets template folder id:** the id of a Google Drive folder where extra Sheet templates can be found. If this folder is not empty, Cardboard will rename and move one of othese sheets when a new puzzle is created, instead of copying the template file. This maybe be useful because of #372, where scripts in Google sheets will stop working on new sheets if you create too many in one day. This way you can create sheets in advance to get around the daily limits.
-* **Google Drive human URL:** the URL of a Google Drive folder where human-generated files can be uploaded. This folder is linked at the top of Cardboard. If this value is not set, Cardboard will create one automatically.
+* **Google Drive human URL:** the URL of a Google Drive folder where human-generated files can be uploaded. This folder is linked at the top of Cardboard. If this value is not set, there will not be a link to the folder.
+
+###### Recent editor tracking
+
+The active user lookback sets how recently an user needed to have edited a sheet to be considered a "recent editor." This will not work without the Celery task below for activity tracking.
 
 ##### Heroku config variables
 
@@ -123,10 +130,10 @@ Global Google Drive, Sheets, and API settings for automatic sheets creation:
 * `GOOGLE_API_PRIVATE_KEY` - the private key for the key you added, with newlines replaced with `\n` (should be the value of the `private_key` field in the downloaded JSON when you [created the key](https://cloud.google.com/iam/docs/creating-managing-service-account-keys#creating_service_account_keys); should look something like `-----BEGIN ... KEY-----\n...<long base64-encoded key>...\n-----END ... KEY-----\n`)
 * `GOOGLE_API_X509_CERT_URL` - the value of the `client_x509_cert_url` field in the downloaded JSON when you [created the key](https://cloud.google.com/iam/docs/creating-managing-service-account-keys#creating_service_account_keys)
 
-Hunt-specific Google settings (deprecated; you may use HuntSettings above):
+Hunt-specific Google settings:
 
-* `GOOGLE_DRIVE_HUNT_FOLDER_ID` - the id of your Google Drive folder, should be part of the URL (`https://drive.google.com/drive/folders/<folder_id>`)
-* `GOOGLE_SHEETS_TEMPLATE_FILE_ID` - the id of your Google Sheets template file, should be part of the URL (`https://docs.google.com/spreadsheets/d/<sheet_id>`)
+* `GOOGLE_DRIVE_HUNT_FOLDER_ID` - the id of your Google Drive folder, should be part of the URL (`https://drive.google.com/drive/folders/<folder_id>`). This environment variable is used for getting the list of allowed emails for OAuth. Please keep consistent with the value in HuntSettings. Deprecating this variable is tracked in #662.
+* `GOOGLE_SHEETS_TEMPLATE_FILE_ID` - the id of your Google Sheets template file, should be part of the URL (`https://docs.google.com/spreadsheets/d/<sheet_id>`). This is deprecated and should instead be set in HuntSettings above.
 
 For Discord integration:
 
@@ -145,7 +152,21 @@ To associate Discord roles with Cardboard tags, so that puzzles with certain tag
 * Log in to the Django admin page for your Cardboard instance at `/admin`
 * Go to the ChatRole tab on the left (located at `/admin/chat/chatrole`)
 * Add a Chat Role for each Cardboard tag/Discord role relationship that you want to set up. The Cardboard tag name should go as "Name", and the role id is found in Discord via right-clicking a role and selecting "Copy ID", or Server Settings > Roles > ... > Copy ID.
-  * You may especially want to do this for some or all of the default role tags, found in [hunts/src/constants.js](https://github.com/cardinalitypuzzles/cardboard/blob/master/hunts/src/constants.js)
+  * You may especially want to do this for some or all of the default role tags, found in [puzzles/puzzle_tag.py](https://github.com/cardinalitypuzzles/cardboard/blob/master/puzzles/puzzle_tag.py)
+
+#### User Google sheet activity tracking
+
+Tracking recent editors of the Google sheets is done through the Celery task [google_api_lib.tasks.update_active_users](https://github.com/cardinalitypuzzles/cardboard/blob/master/google_api_lib/tasks.py). The task must be scheduled after the hunt is created through the Django admin:
+
+1. In the admin page, click "Periodic tasks" and add a new task.
+2. Fill out the name.
+3. Pick `google_api_lib.tasks.update_active_users` under "Task (registered)"
+4. Pick a interval schedule, creating a new one if needed (we recommend 60 seconds)
+5. Pick a time for "Start Datetime:" for when the task should start
+6. Under "Arguments", give the hunt ID of the hunt to be tracked under "Keyword Arguments" as a dictionary, i.e. `{"hunt_id": 1}`
+7. Save.
+
+If you have users that logged in prior to the addition of this feature, it is necessary to replace the UID of user social auth objects with the Google UID (prior to this feature, the email was used as the uid). This is done automatically in the task through the Peoples API. However, the Peoples API only works for emails that are in one's contact list. See `scripts/add_service_account_contacts.py` for the script to add all current users to the service account's contacts.
 
 
 ### Giving a new user access to Cardboard
