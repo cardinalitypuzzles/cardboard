@@ -143,6 +143,9 @@ Miscellaneous configs:
 
 * `DJANGO_SECRET_KEY` - used by Django to generate secrets, such as for user sessions. It's best to set this so that user sessions will not expire after each restart. You can generate a key using `python -c "import secrets; print(secrets.token_urlsafe())"`.
 * `DEBUG` - you probably want to set this to `False` in production so users don't get gory error pages and so profiling is disabled.
+* `APP_TITLE` - app title for page titles and headers
+* `APP_SHORT_TITLE` - short version of the app title for the nav bar
+* `CONTACT_AUTHOR_NAME` - contact name for privacy statement
 * `CONTACT_EMAIL` - contact email for login help and privacy statement
 
 #### Discord role pings

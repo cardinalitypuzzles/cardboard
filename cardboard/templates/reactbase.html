@@ -1,7 +1,7 @@
 {% load static %}
 <html lang="en">
     <head>
-        <title>Cardinality Cardboard</title>
+        <title>{{ APP_TITLE }}</title>
         <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}"/>
 
         <!-- https://github.com/ForEvolve/bootstrap-dark -->
@@ -53,6 +53,7 @@
         </div>
         <script>
            LOGGED_IN_USER = `{% if user.first_name %}{{user.first_name}} {{user.last_name}}{% else %}{{ user.username }}{% endif %}{% if user.email %} ({{user.email}}){% endif %}`
+           APP_SHORT_TITLE = `{{ APP_SHORT_TITLE }}`
         </script>
     </body>
 

@@ -104,7 +104,7 @@ TEMPLATES = [
                 "social_django.context_processors.backends",
                 "social_django.context_processors.login_redirect",
                 "cardboard.context_processors.google_auth",
-                "cardboard.context_processors.contact_email",
+                "cardboard.context_processors.app_info",
             ],
         },
     },
@@ -180,7 +180,12 @@ DATABASES = {}
 DATABASES["default"] = dj_database_url.config(conn_max_age=600, ssl_require=False)
 DATABASES["default"]["TEST"] = {"NAME": "test_cardboard"}
 
-# Contact email
+# App title
+APP_TITLE = os.environ.get("APP_TITLE", "Cardinality Cardboard")
+APP_SHORT_TITLE = os.environ.get("APP_SHORT_TITLE", "Cardboard")
+
+# Contact info
+CONTACT_AUTHOR_NAME = os.environ.get("CONTACT_AUTHOR_NAME", "Cardinality")
 CONTACT_EMAIL = os.environ.get("CONTACT_EMAIL", "FIXME@FIXME.COM")
 
 # Discord API. See
