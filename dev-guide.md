@@ -230,8 +230,8 @@ GOOGLE_API_PRIVATE_KEY=...
 # id of the Google Drive hunt folder
 # when you go to the folder, it's the last part of the URL
 # drive.google.com/drive/folders/<HUNT_FOLDER_ID>
-# the whitelist of emails allowed access to Cardboard
-# are the emails of the users who have access to this folder
+# the list of emails allowed access to Cardboard are the
+# emails of the users who have access to this folder
 GOOGLE_DRIVE_HUNT_FOLDER_ID=...
 
 # id of the Google Spreadsheet template to be copied for
@@ -262,7 +262,7 @@ The app uses Google OAuth2 to authenticate users. If the `SOCIAL_AUTH_GOOGLE_OAU
 
 You should be able to use Google OAuth2 locally as well, since the OAuth2 settings above include `localhost` and `127.0.0.1` as authorized redirect URLs.
 
-The whitelist of allowed emails is the emails of the users who have access to `GOOGLE_DRIVE_HUNT_FOLDER_ID`. If you don't have access, please message a Collaborator to be added.
+The list of allowed emails is the emails of the users who have access to `GOOGLE_DRIVE_HUNT_FOLDER_ID`. If you don't have access, please message a Collaborator to be added.
 
 ### Google Sheets Integration (optional)
 

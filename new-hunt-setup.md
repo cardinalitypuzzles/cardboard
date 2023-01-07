@@ -27,7 +27,7 @@ For Discord integration (optional), you will additionally need to set up:
 
 #### Google Drive setup
 
-Cardboard expects a hunt Google Drive folder to already be set up with a template spreadsheet in it (from which puzzle spreadsheets will be cloned). Cardboard uses the list of users who have access to the Google Drive folder as the whitelist for authorizing users on login.
+Cardboard expects a hunt Google Drive folder to already be set up with a template spreadsheet in it (from which puzzle spreadsheets will be cloned). Users can login to Cardboard only if they have access to the Google Drive folder.
 
 To set up a new hunt:
 
