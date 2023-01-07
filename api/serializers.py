@@ -143,7 +143,7 @@ class PuzzleSerializer(serializers.ModelSerializer):
             puzzle_activities__puzzle_id=obj.id,
             puzzle_activities__last_edit_time__gt=before_time,
         ).all()
-        return [str(user) for user in recent_editors]
+        return sorted([str(user) for user in recent_editors])
 
     def validate_url(self, url):
         return url_normalize(url)
