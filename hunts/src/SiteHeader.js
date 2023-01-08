@@ -19,7 +19,8 @@ export const SiteHeader = () => {
         style={{ marginBottom: "5px" }}
       >
         <a className="navbar-brand" href="/">
-          <img height="40" src="/static/favicon.ico" alt="" /> {window.APP_SHORT_TITLE}
+          <img height="40" src="/static/favicon.ico" alt="" />{" "}
+          {window.APP_SHORT_TITLE}
         </a>
         {hunt.name}
         <button type="button" className="btn ml-auto" onClick={toggleDrawer}>
