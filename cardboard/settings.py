@@ -280,9 +280,9 @@ from enum import Enum
 
 
 class TaskPriority(Enum):
-    HIGH = 0
+    HIGH = 9
     MED = 5
-    LOW = 9
+    LOW = 0
 
 
 CELERY_IGNORE_RESULT = True
