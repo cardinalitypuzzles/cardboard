@@ -32,7 +32,7 @@ services:
       - redis
   celery:
     build: .
-    command: celery -A cardboard worker -l info
+    command: celery -A cardboard worker -l info --beat
     volumes:
       - .:/usr/src/cardboard/:Z
     environment:
