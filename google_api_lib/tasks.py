@@ -93,7 +93,15 @@ def transfer_ownership(self, file, template_file_id) -> None:
     ).execute()
 
 
-@shared_task(base=GoogleApiClientTask, bind=True, priority=TaskPriority.HIGH.value)
+@shared_task(
+    base=GoogleApiClientTask,
+    bind=True,
+    priority=TaskPriority.HIGH.value,
+    time_limit=150,
+    soft_time_limit=120,
+    retry_backoff=True,
+    default_retry_delay=30,
+)
 def create_google_sheets(self, puzzle_id) -> None:
     with transaction.atomic():
         puzzle = Puzzle.objects.select_related("hunt__settings").get(pk=puzzle_id)
