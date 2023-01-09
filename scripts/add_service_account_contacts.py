@@ -6,7 +6,7 @@ from google.oauth2 import service_account
 
 from accounts.models import Puzzler
 
-# For adding all registered user into service account's contact list
+# For adding all registered users into service account's contact list
 # Needed on a one-off basis for people API to work to populate UIDs
 # of users that were created before we started storing that data
 
