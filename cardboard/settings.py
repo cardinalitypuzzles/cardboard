@@ -216,6 +216,8 @@ try:
     GOOGLE_DRIVE_PERMISSIONS_SCOPES = [
         "https://www.googleapis.com/auth/drive",
         "https://www.googleapis.com/auth/drive.activity",
+        "https://www.googleapis.com/auth/contacts",
+        "https://www.googleapis.com/auth/directory.readonly",
     ]
 except KeyError as e:
     GOOGLE_API_AUTHN_INFO = None
@@ -283,9 +285,9 @@ from enum import Enum
 
 
 class TaskPriority(Enum):
-    HIGH = 0
+    HIGH = 9
     MED = 5
-    LOW = 9
+    LOW = 0
 
 
 CELERY_IGNORE_RESULT = True

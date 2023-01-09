@@ -30,6 +30,11 @@ class GoogleApiClientTask(Task):
             scopes=settings.GOOGLE_DRIVE_PERMISSIONS_SCOPES,
         )
 
+    def people_service(self):
+        return googleapiclient.discovery.build(
+            "people", "v1", credentials=self._credentials, cache_discovery=False
+        )
+
     def drive_service(self):
         return googleapiclient.discovery.build(
             "drive", "v3", credentials=self._credentials, cache_discovery=False

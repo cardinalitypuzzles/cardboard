@@ -133,7 +133,7 @@ class PuzzleSerializer(serializers.ModelSerializer):
 
     def get_recent_editors(self, obj):
         if hasattr(obj, "_recent_editors"):
-            return [str(user) for user in obj._recent_editors]
+            return sorted([str(user) for user in obj._recent_editors])
 
         before_time = (
             datetime.datetime.now(tz=tz.UTC) - obj.hunt.settings.active_user_lookback
@@ -143,7 +143,7 @@ class PuzzleSerializer(serializers.ModelSerializer):
             puzzle_activities__puzzle_id=obj.id,
             puzzle_activities__last_edit_time__gt=before_time,
         ).all()
-        return [str(user) for user in recent_editors]
+        return sorted([str(user) for user in recent_editors])
 
     def validate_url(self, url):
         return url_normalize(url)
