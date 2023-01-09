@@ -472,7 +472,7 @@ def get_puzzler_from_uid(google_api_client, uid) -> Optional[str]:
     # Fall back to People API
     # Note that this API depends on the email being added as service account's contact list
     # It also has a tight request limit
-    time.sleep(2)
+    time.sleep(1)
 
     response = (
         google_api_client.people_service()
