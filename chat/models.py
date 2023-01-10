@@ -165,6 +165,12 @@ class ChatRoom(models.Model):
         service = self.get_service()
         update_fields = []
 
+        if self.audio_channel_id:
+            service.delete_audio_channel(self.audio_channel_id)
+            self.audio_channel_id = None
+            self.audio_channel_url = ""
+            update_fields.extend(["audio_channel_id", "audio_channel_url"])
+
         if self.text_channel_id is not None:
             if check_if_used:
                 participants = service.get_text_channel_participants(
@@ -184,11 +190,7 @@ class ChatRoom(models.Model):
             self.text_channel_id = None
             self.text_channel_url = ""
             update_fields.extend(["text_channel_id", "text_channel_url"])
-        if self.audio_channel_id:
-            service.delete_audio_channel(self.audio_channel_id)
-            self.audio_channel_id = None
-            self.audio_channel_url = ""
-            update_fields.extend(["audio_channel_id", "audio_channel_url"])
+
         if update_fields:
             self.save(update_fields=update_fields)
 
