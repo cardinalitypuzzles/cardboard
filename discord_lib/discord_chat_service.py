@@ -1,5 +1,6 @@
 import json
 from collections import defaultdict
+from typing import List, Optional
 
 import requests
 
@@ -76,11 +77,21 @@ class DiscordChatService(ChatService):
             parent_name=text_category_name,
         )
 
-    def get_text_channel_participants(self, channel_id):
-        # messages = self._client.channels_messages_list(channel_id)
-        # usernames = [m.author.username for m in messages if not m.author.bot]
-        # return list(set(usernames))
-        return
+    def get_text_channel_participants(self, channel_id) -> Optional[List[str]]:
+        try:
+            response = requests.get(
+                f"{DISCORD_BASE_API_URL}/channels/{channel_id}/messages",
+                headers=self._headers,
+                timeout=5,
+            )
+            messages = json.loads(response.content.decode("utf-8"))
+            usernames = [
+                m["author"]["username"] for m in messages if not m["author"]["bot"]
+            ]
+            return list(set(usernames))
+        except Exception as e:
+            print(f"Error getting channel messages: {e}")
+            return None
 
     def delete_text_channel(self, channel_id):
         self.delete_channel(channel_id)

@@ -59,12 +59,7 @@ def cleanup_puzzle_channels(puzzle_id):
         if solved_time is None:
             return
 
-        now = datetime.now(tz=solved_time.tzinfo)
-        if now - solved_time > timedelta(minutes=30):
-            try:
-                puzzle.chat_room.delete_channels(check_if_used=True)
-            except Exception as e:
-                logger.warn(f"cleanup_puzzle_channels failed with error: {e}")
+        puzzle.chat_room.delete_channels(check_if_used=True)
 
 
 # Disco-py actually kills the process when it is rate limited instead of throwing an exception

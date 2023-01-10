@@ -165,10 +165,19 @@ class ChatRoom(models.Model):
         service = self.get_service()
         update_fields = []
 
-        should_delete_text_channel = (self.text_channel_id is not None) and (
-            not check_if_used
-            or (len(service.get_text_channel_participants(self.text_channel_id)) == 0)
-        )
+        if self.text_channel_id is not None:
+            if check_if_used:
+                participants = service.get_text_channel_participants(
+                    self.text_channel_id
+                )
+                should_delete_text_channel = (
+                    participants is not None and len(participants) == 0
+                )
+            else:
+                should_delete_text_channel = True
+
+        else:
+            should_delete_text_channel = False
 
         if should_delete_text_channel:
             service.delete_text_channel(self.text_channel_id)
