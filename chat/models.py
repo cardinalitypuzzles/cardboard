@@ -176,7 +176,9 @@ class ChatRoom(models.Model):
                 participants = service.get_text_channel_participants(
                     self.text_channel_id
                 )
-                should_delete_text_channel = participants and len(participants) == 0
+                should_delete_text_channel = (
+                    participants is not None and len(participants) == 0
+                )
             else:
                 should_delete_text_channel = True
 
