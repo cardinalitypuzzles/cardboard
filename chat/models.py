@@ -171,14 +171,12 @@ class ChatRoom(models.Model):
             self.audio_channel_url = ""
             update_fields.extend(["audio_channel_id", "audio_channel_url"])
 
-        if self.text_channel_id is not None:
+        if self.text_channel_id:
             if check_if_used:
                 participants = service.get_text_channel_participants(
                     self.text_channel_id
                 )
-                should_delete_text_channel = (
-                    participants is not None and len(participants) == 0
-                )
+                should_delete_text_channel = participants and len(participants) == 0
             else:
                 should_delete_text_channel = True
 

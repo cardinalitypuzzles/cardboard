@@ -91,7 +91,6 @@ class DiscordChatService(ChatService):
             return list(set(usernames))
         except Exception as e:
             print(f"Error getting channel messages: {e}")
-            return None
 
     def delete_text_channel(self, channel_id):
         self.delete_channel(channel_id)
