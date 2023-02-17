@@ -31,7 +31,7 @@ if not SECRET_KEY:
     SECRET_KEY = get_random_secret_key()
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = bool(strtobool(os.environ.get("DEBUG", "True")))
+DEBUG = bool(strtobool(os.environ.get("DEBUG", "false")))
 
 # Hosts/domain names that are valid for this site.
 # "*" matches anything, ".example.com" matches example.com and all subdomains
