@@ -10,7 +10,7 @@ function AddPuzzleModal({ huntId }) {
   const [name, setName] = React.useState("");
   const [url, setUrl] = React.useState("");
   const [isMeta, setIsMeta] = React.useState(false);
-  const [createChannels, setCreateChannels] = React.useState(false);
+  const [createChannels, setCreateChannels] = React.useState(true);
   const dispatch = useDispatch();
   const onSubmit = (e) => {
     e.preventDefault();
