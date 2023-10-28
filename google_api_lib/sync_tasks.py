@@ -23,8 +23,10 @@ def auth_allowed(backend, details, response, *args, **kwargs):
     # Allow all emails if Google Drive integration is not set up
     # or folder is world readable. Otherwise, only allow emails
     # added to the Google Drive folder.
+    logger.info('Verifying email: %s' % email)
     if settings.GOOGLE_API_AUTHN_INFO:
         user_emails = get_file_user_emails(settings.GOOGLE_DRIVE_HUNT_FOLDER_ID)
+        logger.info('Allowed user emails: %s' % user_emails)
         if user_emails is None:
             logger.warn(
                 "The Google Drive folder for the hunt is world-readable, meaning anyone can login to this Cardboard instance."
