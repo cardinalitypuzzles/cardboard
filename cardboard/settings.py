@@ -155,6 +155,10 @@ STATICFILES_DIRS = [
 ]
 STATICFILES_STORAGE = "whitenoise.django.CompressedManifestStaticFilesStorage"
 
+# TODO: Fix the missing manifest issues. This is a workaround.
+# https://github.com/cardinalitypuzzles/cardboard/issues/712
+WHITENOISE_MANIFEST_STRICT = False
+
 # User login
 AUTH_USER_MODEL = "accounts.Puzzler"
 LOGIN_REDIRECT_URL = "/"
