@@ -146,18 +146,19 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/2.2/howto/static-files/
+# https://whitenoise.readthedocs.io/en/latest/django.html
 
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "cardboard/static"),
     os.path.join(BASE_DIR, "hunts/static"),
 ]
-STATICFILES_STORAGE = "whitenoise.django.CompressedManifestStaticFilesStorage"
-
-# TODO: Fix the missing manifest issues. This is a workaround.
-# https://github.com/cardinalitypuzzles/cardboard/issues/712
-WHITENOISE_MANIFEST_STRICT = False
+STORAGE = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    }
+}
 
 # User login
 AUTH_USER_MODEL = "accounts.Puzzler"
@@ -176,7 +177,7 @@ REST_FRAMEWORK = {
 # Configure Django App for Heroku.
 import django_heroku
 
-django_heroku.settings(locals(), test_runner=False)
+django_heroku.settings(locals(), test_runner=False, staticfiles=False)
 
 import dj_database_url
 
