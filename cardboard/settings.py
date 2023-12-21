@@ -177,6 +177,7 @@ REST_FRAMEWORK = {
 # Configure Django App for Heroku.
 import django_heroku
 
+# Set staticfiles=False to avoid clobbering our own staticfiles config.
 django_heroku.settings(locals(), test_runner=False, staticfiles=False)
 
 import dj_database_url
