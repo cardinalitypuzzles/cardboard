@@ -154,7 +154,7 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "cardboard/static"),
     os.path.join(BASE_DIR, "hunts/static"),
 ]
-STORAGE = {
+STORAGES = {
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     }
