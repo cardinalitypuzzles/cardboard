@@ -5,40 +5,11 @@ from django.core.management.base import BaseCommand
 from django.db.models import Q
 
 from puzzles.models import Puzzle
+from puzzles.puzzle_tag import PuzzleTag
 
 client = discord.Client()
 
-
-@client.event
-async def on_ready():
-    print(f'Logged in as "{client.user}"')
-
-
-@client.event
-async def on_message(message):
-    if message.author == client.user:
-        return
-    print(f'{message.channel}/{message.author}: "{message.content}"')
-    if message.content.startswith("!puzzles"):
-        subcommand = parse_subcommand(message.content) or "unsolved"
-        await handle_subcommand(message, subcommand)
-
-
-def parse_subcommand(message_content):
-    tokens = message_content.split()
-    return tokens[1] if len(tokens) > 1 else None
-
-
-async def handle_subcommand(message, subcommand):
-    # Dispatch corresponding message response or default to help text.
-    handle = {
-        "unsolved": send_puzzles_unsolved,
-        "solved": send_puzzles_solved,
-        "stuck": send_puzzles_stuck,
-    }.get(subcommand, send_help)
-    await handle(message)
-
-
+# Message response handlers
 async def send_puzzles_unsolved(message):
     puzzles = await sync_to_async(list)(
         Puzzle.objects.filter(
@@ -68,6 +39,29 @@ async def send_puzzles_stuck(message):
     await send_puzzles(message, puzzles, "Stuck puzzles")
 
 
+async def send_puzzles_tagged(message):
+    tokens = message.content.split()
+    if len(tokens) < 3:
+        await send_tags(message)
+        return
+    tags = [t.replace("_", " ") for t in tokens[2:]]
+    matched_tags = await sync_to_async(list)(PuzzleTag.objects.filter(name__in=tags))
+    puzzles = await sync_to_async(list)(
+        Puzzle.objects.filter(
+            hunt=settings.BOT_ACTIVE_HUNT,
+            tags__in=matched_tags,
+        ).select_related("chat_room")
+    )
+    await send_puzzles(message, puzzles, f"Puzzles tagged with {tags}")
+
+
+async def send_tags(message):
+    tags = await sync_to_async(list)(PuzzleTag.objects.all())
+    embed = discord.Embed(description="`!puzzles tagged <tag> ...` (use `_` for space)")
+    embed.add_field(name="Puzzle Tags", value=f"{tags}", inline=True)
+    await message.channel.send(embed=embed)
+
+
 async def send_puzzles(message, puzzles, title):
     print(f"Sending puzzles {puzzles}")
     lines_with_titles = []
@@ -84,6 +78,8 @@ async def send_puzzles(message, puzzles, title):
             line += f"([sheet](https://smallboard.app/puzzles/s/{p.id}))"
         if p.chat_room and p.chat_room.text_channel_url:
             line += f"([chat]({p.chat_room.text_channel_url}))"
+        if not line:
+            line = "*no data*"
 
         lines_with_titles.append((line_title, line))
     print(f"lines: {lines_with_titles}")
@@ -110,9 +106,36 @@ async def send_puzzles(message, puzzles, title):
 async def send_help(message):
     print("Sending help message")
     embed = discord.Embed(title="Cardi-P", description="Ahoy mateys, puzzle bot here!")
-    commands = ["!puzzles", "!puzzles solved", "!puzzles stuck"]
+    commands = [f"!puzzles {c}" for c in COMMANDS.keys()]
     embed.add_field(name="Commands", value=", ".join(f"`{c}`" for c in commands))
     await message.channel.send(embed=embed)
+
+
+# Mapping from command names to response handlers.
+COMMANDS = {
+    "unsolved": send_puzzles_unsolved,
+    "solved": send_puzzles_solved,
+    "stuck": send_puzzles_stuck,
+    "tagged": send_puzzles_tagged,
+}
+
+
+@client.event
+async def on_ready():
+    print(f'Logged in as "{client.user}"')
+
+
+@client.event
+async def on_message(message):
+    if message.author == client.user:
+        return
+    print(f'{message.channel}/{message.author}: "{message.content}"')
+    if message.content.startswith("!puzzles"):
+        # Dispatch corresponding message response or default to help text.
+        tokens = message.content.split()
+        command = tokens[1].lstrip("!") if len(tokens) > 1 else None
+        handle_message = COMMANDS.get(command, send_help)
+        await handle_message(message)
 
 
 class Command(BaseCommand):
