@@ -326,3 +326,6 @@ CACHES = {
         "LOCATION": os.environ.get("REDIS_URL", "redis://"),
     }
 }
+
+# Use 64 bit primary keys
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
