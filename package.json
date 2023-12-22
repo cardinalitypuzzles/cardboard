@@ -20,6 +20,7 @@
     "eslint-plugin-react": "^7.28.0",
     "eslint-plugin-react-hooks": "^4.3.0",
     "prettier": "^2.2.1",
+    "source-map-loader": "^4.0.1",
     "webpack-merge": "^5.7.0"
   },
   "dependencies": {
