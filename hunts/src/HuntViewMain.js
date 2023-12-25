@@ -142,6 +142,7 @@ export const HuntViewMain = (props) => {
           animation={false}
           show={modal.show}
           onHide={() => dispatch(hideModal())}
+          scrollable={true}
         >
           {ModalComponent ? <ModalComponent {...modal.props} /> : null}
         </Modal>
