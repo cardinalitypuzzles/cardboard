@@ -32,14 +32,22 @@ export default function AnswerCell({ row }) {
   return (
     <>
       {row.original.guesses.map(({ id, text }) => (
-        <div key={text} onMouseOver={() => {
-          setUiHovered(uiHovered.concat(id));
-        }}
+        <div
+          key={text}
+          onMouseOver={() => {
+            setUiHovered(uiHovered.concat(id));
+          }}
           onMouseLeave={() => {
-            setUiHovered(uiHovered.filter(x => x != id));
-          }}>
+            setUiHovered(uiHovered.filter((x) => x != id));
+          }}
+        >
           <span className="text-monospace">{text}</span>{" "}
-          <div style={{ display: "inline-block", visibility: uiHovered.includes(id) ? "visible" : "hidden" }}>
+          <div
+            style={{
+              display: "inline-block",
+              visibility: uiHovered.includes(id) ? "visible" : "hidden",
+            }}
+          >
             <ClickableIcon
               icon={faEdit}
               onClick={() =>
@@ -68,8 +76,7 @@ export default function AnswerCell({ row }) {
                   })
                 )
               }
-            />
-            {" "}
+            />{" "}
             <ClickableIcon
               icon={faPlus}
               onClick={() =>

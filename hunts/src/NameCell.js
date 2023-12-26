@@ -30,7 +30,14 @@ export default function NameCell({ row, value }) {
   const toggleRowExpandedProps = useToggleRowExpandedProps(row);
   const dispatch = useDispatch();
   return (
-    <div onMouseEnter={() => { setUiHovered(true); }} onMouseLeave={() => { setUiHovered(false); }}>
+    <div
+      onMouseEnter={() => {
+        setUiHovered(true);
+      }}
+      onMouseLeave={() => {
+        setUiHovered(false);
+      }}
+    >
       {row.canExpand ? (
         <span {...toggleRowExpandedProps}>
           {row.isExpanded ? <IconChevronDown /> : <IconChevronRight />}
@@ -46,7 +53,12 @@ export default function NameCell({ row, value }) {
           <Badge variant="dark">META</Badge>{" "}
         </>
       ) : null}
-      <div style={{ display: "inline-block", visibility: uiHovered ? "visible" : "hidden" }}>
+      <div
+        style={{
+          display: "inline-block",
+          visibility: uiHovered ? "visible" : "hidden",
+        }}
+      >
         <ClickableIcon
           icon={faEdit}
           onClick={() =>
