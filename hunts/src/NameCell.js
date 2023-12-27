@@ -26,10 +26,18 @@ const useToggleRowExpandedProps = (row) => {
 
 export default function NameCell({ row, value }) {
   const { id: huntId } = useSelector((state) => state.hunt);
+  const [uiHovered, setUiHovered] = React.useState(false);
   const toggleRowExpandedProps = useToggleRowExpandedProps(row);
   const dispatch = useDispatch();
   return (
-    <>
+    <div
+      onMouseEnter={() => {
+        setUiHovered(true);
+      }}
+      onMouseLeave={() => {
+        setUiHovered(false);
+      }}
+    >
       {row.canExpand ? (
         <span {...toggleRowExpandedProps}>
           {row.isExpanded ? <IconChevronDown /> : <IconChevronRight />}
@@ -45,39 +53,46 @@ export default function NameCell({ row, value }) {
           <Badge variant="dark">META</Badge>{" "}
         </>
       ) : null}
-      <ClickableIcon
-        icon={faEdit}
-        onClick={() =>
-          dispatch(
-            showModal({
-              type: "EDIT_PUZZLE",
-              props: {
-                huntId,
-                puzzleId: row.values.id,
-                name: row.values.name,
-                url: row.values.url,
-                isMeta: row.values.is_meta,
-                hasChannels: !!row.original.chat_room?.text_channel_url,
-              },
-            })
-          )
-        }
-      />{" "}
-      <ClickableIcon
-        icon={faTrashAlt}
-        onClick={() =>
-          dispatch(
-            showModal({
-              type: "DELETE_PUZZLE",
-              props: {
-                huntId,
-                puzzleId: row.values.id,
-                puzzleName: value,
-              },
-            })
-          )
-        }
-      />
-    </>
+      <div
+        style={{
+          display: "inline-block",
+          visibility: uiHovered ? "visible" : "hidden",
+        }}
+      >
+        <ClickableIcon
+          icon={faEdit}
+          onClick={() =>
+            dispatch(
+              showModal({
+                type: "EDIT_PUZZLE",
+                props: {
+                  huntId,
+                  puzzleId: row.values.id,
+                  name: row.values.name,
+                  url: row.values.url,
+                  isMeta: row.values.is_meta,
+                  hasChannels: !!row.original.chat_room?.text_channel_url,
+                },
+              })
+            )
+          }
+        />{" "}
+        <ClickableIcon
+          icon={faTrashAlt}
+          onClick={() =>
+            dispatch(
+              showModal({
+                type: "DELETE_PUZZLE",
+                props: {
+                  huntId,
+                  puzzleId: row.values.id,
+                  puzzleName: value,
+                },
+              })
+            )
+          }
+        />
+      </div>
+    </div>
   );
 }
