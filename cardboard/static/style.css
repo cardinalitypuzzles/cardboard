@@ -78,3 +78,8 @@ body {
 .bootstrap-dark .popover-header {
   color: #212529;
 }
+
+.puzzle-answer {
+  max-width: 400px;
+  overflow-wrap: anywhere;
+}
