@@ -5,6 +5,7 @@ import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import { addPuzzle } from "./puzzlesSlice";
 import { hideModal } from "./modalSlice";
+import { fetchHunt } from "./huntSlice";
 
 function AddPuzzleModal({ huntId }) {
   const [name, setName] = React.useState("");
@@ -23,6 +24,8 @@ function AddPuzzleModal({ huntId }) {
         create_channels: createChannels,
       })
     ).finally(() => {
+      // Used to update hunt tags.
+      dispatch(fetchHunt(huntId));
       dispatch(hideModal());
     });
     return false;
