@@ -90,6 +90,8 @@ def stats(request, hunt_slug):
     hunt = Hunt.get_object_or_404(user=request.user, slug=hunt_slug)
 
     num_solved = hunt.get_num_solved()
+    num_backsolved = hunt.get_num_backsolved()
+    num_freebie = hunt.get_num_freebie()
     num_unsolved = hunt.get_num_unsolved()
     num_unlocked = hunt.get_num_unlocked()
     num_metas_solved = hunt.get_num_metas_solved()
@@ -106,6 +108,9 @@ def stats(request, hunt_slug):
 
     context = {
         "num_solved": num_solved,
+        "num_forward_solved": num_solved - num_backsolved - num_freebie,
+        "num_backsolved": num_backsolved,
+        "num_freebie": num_freebie,
         "num_unsolved": num_unsolved,
         "num_unlocked": num_unlocked,
         "num_metas_solved": num_metas_solved,

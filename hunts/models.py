@@ -46,6 +46,14 @@ class Hunt(models.Model):
 
     def get_num_solved(self):
         return self.puzzles.filter(status=Puzzle.SOLVED).count()
+        
+    def get_num_backsolved(self):
+        all_solved = self.puzzles.filter(status=Puzzle.SOLVED)
+        return sum(1 for puzzle in all_solved if puzzle.is_backsolved())
+
+    def get_num_freebie(self):
+        all_solved = self.puzzles.filter(status=Puzzle.SOLVED)
+        return sum(1 for puzzle in all_solved if puzzle.is_freebie())
 
     def get_num_unsolved(self):
         return self.puzzles.filter(~Q(status=Puzzle.SOLVED)).count()

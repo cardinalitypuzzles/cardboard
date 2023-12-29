@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 class PuzzleTagColor(models.TextChoices):
     BLUE = "primary", _("blue")
     GRAY = "secondary", _("gray")
-    GREEN = "success", _("green")  # reserved for backsolved
+    GREEN = "success", _("green")  # reserved for backsolved and freebie
     RED = "danger", _("red")  # reserved for high pri
     YELLOW = "warning", _("yellow")  # reserved for low pri
     WHITE = "light", _("white")
@@ -25,11 +25,13 @@ class PuzzleTag(models.Model):
     BACKSOLVED = "Backsolved"
     HIGH_PRIORITY = "High priority"
     LOW_PRIORITY = "Low priority"
+    FREEBIE = "Freebie"
 
     DEFAULT_TAGS = [
         (HIGH_PRIORITY, PuzzleTagColor.RED),
         (LOW_PRIORITY, PuzzleTagColor.YELLOW),
         (BACKSOLVED, PuzzleTagColor.GREEN),
+        (FREEBIE, PuzzleTagColor.GREEN),
         ("Slog", PuzzleTagColor.GRAY),
         ("Grid logic", PuzzleTagColor.WHITE),
         ("Non-grid logic", PuzzleTagColor.WHITE),
