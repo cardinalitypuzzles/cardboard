@@ -7,8 +7,8 @@ from django.shortcuts import get_object_or_404
 from django.template.defaultfilters import slugify
 from django.utils import timezone
 
-from puzzles.models import Puzzle
-from puzzles.models import PuzzleTag
+from puzzles.models import Puzzle, PuzzleTag
+
 
 class Hunt(models.Model):
     name = models.CharField(max_length=128)
@@ -48,10 +48,14 @@ class Hunt(models.Model):
         return self.puzzles.filter(status=Puzzle.SOLVED).count()
 
     def get_num_backsolved(self):
-        return self.puzzles.filter(status=Puzzle.SOLVED, tags__name=PuzzleTag.BACKSOLVED).count()
+        return self.puzzles.filter(
+            status=Puzzle.SOLVED, tags__name=PuzzleTag.BACKSOLVED
+        ).count()
 
     def get_num_freebie(self):
-        return self.puzzles.filter(status=Puzzle.SOLVED, tags__name=PuzzleTag.FREEBIE).count()
+        return self.puzzles.filter(
+            status=Puzzle.SOLVED, tags__name=PuzzleTag.FREEBIE
+        ).count()
 
     def get_num_unsolved(self):
         return self.puzzles.filter(~Q(status=Puzzle.SOLVED)).count()
