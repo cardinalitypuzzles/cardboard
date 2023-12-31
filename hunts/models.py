@@ -8,7 +8,7 @@ from django.template.defaultfilters import slugify
 from django.utils import timezone
 
 from puzzles.models import Puzzle
-
+from puzzles.models import PuzzleTag
 
 class Hunt(models.Model):
     name = models.CharField(max_length=128)
@@ -48,12 +48,10 @@ class Hunt(models.Model):
         return self.puzzles.filter(status=Puzzle.SOLVED).count()
 
     def get_num_backsolved(self):
-        all_solved = self.puzzles.filter(status=Puzzle.SOLVED)
-        return sum(1 for puzzle in all_solved if puzzle.is_backsolved())
+        return self.puzzles.filter(status=Puzzle.SOLVED, tags__name=PuzzleTag.BACKSOLVED).count()
 
     def get_num_freebie(self):
-        all_solved = self.puzzles.filter(status=Puzzle.SOLVED)
-        return sum(1 for puzzle in all_solved if puzzle.is_freebie())
+        return self.puzzles.filter(status=Puzzle.SOLVED, tags__name=PuzzleTag.FREEBIE).count()
 
     def get_num_unsolved(self):
         return self.puzzles.filter(~Q(status=Puzzle.SOLVED)).count()
