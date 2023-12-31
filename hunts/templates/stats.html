@@ -29,23 +29,31 @@
 {{ chart_unlock_data.0 | json_script:"unlockLabels" }}
 {{ chart_unlock_data.1 | json_script:"unlockTimes" }}
 {{ chart_unlock_data.2 | json_script:"unlockCounts" }}
-<div class="container justify-content-center" style="height:45vh; width:60vw">
+<div class="container justify-content-center" style="height: 45vh; width: 60vw">
   <canvas id="progressChart"></canvas>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
   <script>
-    var solveTimes = JSON.parse(document.getElementById("solveTimes").textContent);
-    var solveCounts = JSON.parse(document.getElementById("solveCounts").textContent);
+    var solveTimes = JSON.parse(
+      document.getElementById("solveTimes").textContent
+    );
+    var solveCounts = JSON.parse(
+      document.getElementById("solveCounts").textContent
+    );
     var solveDataPoints = [];
     for (i = 0; i < solveTimes.length; i++) {
-      solveDataPoints.push({x:solveTimes[i], y:solveCounts[i]});
-    };
+      solveDataPoints.push({ x: solveTimes[i], y: solveCounts[i] });
+    }
 
-    var unlockTimes = JSON.parse(document.getElementById("unlockTimes").textContent);
-    var unlockCounts = JSON.parse(document.getElementById("unlockCounts").textContent);
+    var unlockTimes = JSON.parse(
+      document.getElementById("unlockTimes").textContent
+    );
+    var unlockCounts = JSON.parse(
+      document.getElementById("unlockCounts").textContent
+    );
     var unlockDataPoints = [];
     for (i = 0; i < unlockTimes.length; i++) {
-      unlockDataPoints.push({x:unlockTimes[i], y:unlockCounts[i]});
+      unlockDataPoints.push({ x: unlockTimes[i], y: unlockCounts[i] });
     }
 
     var pointBackgroundColors = [];
@@ -69,9 +77,12 @@
       type: "scatter",
       data: {
         datasets: [
-          { // solves dataset
+          {
+            // solves dataset
             label: "Solved",
-            labels: JSON.parse(document.getElementById("solveLabels").textContent),
+            labels: JSON.parse(
+              document.getElementById("solveLabels").textContent
+            ),
             data: solveDataPoints,
             showLine: true,
             steppedLine: true,
@@ -83,9 +94,12 @@
             pointRadius: pointRadii,
             pointHoverRadius: pointHoverRadii,
           },
-          { // unlocks dataset
+          {
+            // unlocks dataset
             label: "Unlocked",
-            labels: JSON.parse(document.getElementById("solveLabels").textContent),
+            labels: JSON.parse(
+              document.getElementById("solveLabels").textContent
+            ),
             data: unlockDataPoints,
             showLine: true,
             steppedLine: true,
@@ -94,62 +108,72 @@
             pointBorderWidth: 0,
             pointRadius: 0,
             pointHoverRadius: 0,
-          }
-        ]
+          },
+        ],
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
         scales: {
-          xAxes: [{
-            type: "time",
-            time: {
-              unit: "minute",
-              stepSize: 15,
-              displayFormats: {
-                day: "dd",
-                hour: "dd hA",
-                minute: "dd h:mm a",
+          xAxes: [
+            {
+              type: "time",
+              time: {
+                unit: "minute",
+                stepSize: 15,
+                displayFormats: {
+                  day: "dd",
+                  hour: "dd hA",
+                  minute: "dd h:mm a",
+                },
+              },
+              ticks: {
+                maxTicksLimit: 12,
               },
             },
-            ticks: {
-              maxTicksLimit: 12,
+          ],
+          yAxes: [
+            {
+              ticks: {
+                beginAtZero: true,
+                // Callback ensures that only integers are used as puzzle count tickmarks.
+                callback: function (value) {
+                  if (value % 1 === 0) {
+                    return value;
+                  }
+                },
+                maxTicksLimit: 9,
+              },
+              scaleLabel: {
+                display: true,
+                labelString: "Puzzles",
+                fontStyle: "bold",
+              },
             },
-          }],
-          yAxes: [{
-            ticks: {
-              beginAtZero: true,
-              // Callback ensures that only integers are used as puzzle count tickmarks.
-              callback: function(value) {if (value % 1 === 0) {return value;}},
-              maxTicksLimit: 9,
-            },
-            scaleLabel: {
-              display: true,
-              labelString: "Puzzles",
-              fontStyle: "bold"
-            }
-          }]
+          ],
         },
         animation: {
-          duration: 0
+          duration: 0,
         },
         legend: {
-          display: false
+          display: false,
         },
         tooltips: {
           // Only tooltips for solved metas are displayed.
-          filter: function(tooltipItem, data) {
-            return (tooltipItem.datasetIndex === 0 && isMeta[tooltipItem.index]);
+          filter: function (tooltipItem, data) {
+            return tooltipItem.datasetIndex === 0 && isMeta[tooltipItem.index];
           },
           callbacks: {
             // Formats time labels in "dd h:mm a" (e.g., Fr 4:00 pm) format.
-            label: function(tooltipItem, data) {
+            label: function (tooltipItem, data) {
               var label = data.datasets[0].labels[tooltipItem.index];
-              return label + ": " + moment(tooltipItem.xLabel).format("dd h:mm a");
+              return (
+                label + ": " + moment(tooltipItem.xLabel).format("dd h:mm a")
+              );
             },
           },
         },
-      }
+      },
     });
   </script>
 </div>
@@ -157,29 +181,28 @@
 
 <!-- main stats -->
 <div class="container">
-  <div class="row justify-content-center text-center font-weight-bold align-items-end">
-    <div class="col-sm-2">
-      Metas Solved
-    </div>
-    <div class="col-sm-2">
-      Solved
-    </div>
-    <div class="col-sm-2">
-      Unlocked
-    </div>
-    <div class="col-sm-2">
-      Unsolved
-    </div>
-    <div class="col-sm-2">
-      Metas Unsolved
-    </div>
+  <div
+    class="row justify-content-center text-center font-weight-bold align-items-end"
+  >
+    <div class="col-sm-2">Metas Solved</div>
+    <div class="col-sm-2">Solved</div>
+    <div class="col-sm-2">Unlocked</div>
+    <div class="col-sm-2">Unsolved</div>
+    <div class="col-sm-2">Metas Unsolved</div>
   </div>
   <div class="row justify-content-center text-center font-weight-bold">
     <div class="col-sm-2">
       <h2 class="text-primary">{{ num_metas_solved }}</h2>
     </div>
     <div class="col-sm-2">
-      <h2 class="text-success">{{ num_solved }}</h2>
+      <h2
+        class="text-success"
+        data-toggle="tooltip"
+        data-html="true"
+        title="Forward Solved: {{ num_forward_solved }}&#013;Backsolved: {{ num_backsolved }}&#013;Freebie: {{ num_freebie }}"
+      >
+        {{ num_solved }}
+      </h2>
     </div>
     <div class="col-sm-2">
       <h2 class="text-secondary">{{ num_unlocked }}</h2>
@@ -231,7 +254,9 @@
           {% for meta_solve in meta_names_and_times %}
           <tr class="border-bottom">
             <td class="text-primary">{{ meta_solve.0 }}</td>
-            <td class="text-right">{{ meta_solve.1 | localtime | date:"D h:i A" }}</td>
+            <td class="text-right">
+              {{ meta_solve.1 | localtime | date:"D h:i A" }}
+            </td>
           </tr>
           {% endfor %}
         </tbody>

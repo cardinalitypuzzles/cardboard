@@ -198,6 +198,12 @@ class Puzzle(models.Model):
             and self.tags.filter(name=PuzzleTag.BACKSOLVED, hunt=self.hunt).exists()
         )
 
+    def is_freebie(self):
+        return (
+            self.is_solved()
+            and self.tags.filter(name=PuzzleTag.FREEBIE, hunt=self.hunt).exists()
+        )
+
     @staticmethod
     def maybe_truncate_name(name):
         max_allowed_length = Puzzle._meta.get_field("name").max_length
