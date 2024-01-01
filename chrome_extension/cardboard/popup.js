@@ -16,20 +16,14 @@ for (const tab of tabs) {
   
   if (tab.title != undefined) {
     console.log(tab.title);
-    element.querySelector(".title").textContent = 'Puzzle: ' + tab.title;
     tab_name = tab.title;
+    element.querySelector(".puzzle_name").value = tab.title;
   }
   if (tab.url != undefined) {
     console.log(tab.url);
-    element.querySelector(".pathname").textContent = tab.url;
     tab_url = tab.url;
+    element.querySelector(".puzzle_url").value = tab.url;
   }
-  element.querySelector("a").addEventListener("click", async () => {
-    // need to focus window as well as the active tab
-    await chrome.tabs.update(tab.id, { active: true });
-    await chrome.windows.update(tab.windowId, { focused: true });
-  });
-
   elements.add(element);
 }
 document.querySelector("ul").append(...elements);
@@ -41,19 +35,38 @@ button.addEventListener("click", async e => {
   await chrome.tabGroups.update(group, { title: "DOCS" });
   // Add API call here
   // https://dev.to/debosthefirst/how-to-build-a-chrome-extension-that-makes-api-calls-1g04
-  fetch("http://localhost:8000/api/v1/hunts/3/puzzles", {
-    method: "POST",
-    mode: "cors",
-    body: JSON.stringify({
-      create_channels: false,
-      is_meta: false,
-      name: "B" + tab_name.slice(0, 30),
-      url: tab_url
-    }),
-    headers: {
-      "X-CSRFToken": "MxM3QPBhIakoOyIEiJq81ehOJMrrU7lC",
-      "Content-Type": "application/json",
-      "Cookie": "claimer=Max; sessionid=b7davlvw69lm7uqv742coj3m4iuoan0k; csrftoken=MxM3QPBhIakoOyIEiJq81ehOJMrrU7lC",
-    },
-  });
+  const cardboard_cookie = await chrome.cookies.get({ url: 'http://localhost:8000', name: 'csrftoken' });
+  
+  if (cardboard_cookie) {
+    console.log('Token: ' + cardboard_cookie.value);
+  
+    fetch("http://localhost:8000/api/v1/hunts/3/puzzles", {
+      method: "POST",
+      mode: "cors",
+      body: JSON.stringify({
+        create_channels: document.getElementById('create_channels').checked,
+        is_meta: document.getElementById('is_meta').checked,
+        name: document.getElementById('puzzle_name').value.slice(0, 30),
+        url: document.getElementById('puzzle_url').value
+      }),
+      headers: {
+        "X-CSRFToken": cardboard_cookie.value,
+        "Content-Type": "application/json",
+      },
+    });
+  } else {
+    console.log('No cookie found');
+  }
 });
+
+// Doing a GET in order to get the metas that you can assign this new puzzles to.
+const hunt_puzzles = await fetch("http://localhost:8000/api/v1/hunts/3/puzzles", {
+  method: "GET",
+});
+const response = await hunt_puzzles.json();
+console.log(response);
+for (const puzzle of response) {
+  if (puzzle.is_meta) {
+    console.log(puzzle.name);
+  }
+}

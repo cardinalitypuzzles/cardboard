@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Tab Manager for Chrome Dev Docs",
+  "name": "Cardboard Chrome Extension",
   "version": "1.0",
   "icons": {
     "16": "images/icon-16.png",
@@ -13,11 +13,10 @@
   },
   "permissions": [
     "activeTab",
-    "tabGroups"
+    "tabGroups",
+	"cookies"
   ],
   "host_permissions": [
-    "http://*/*",
-    "https://*/*",
 	"http://localhost:8000/*"
   ]
 }	

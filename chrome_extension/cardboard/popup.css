@@ -18,6 +18,10 @@ li:nth-child(even) {
   background: #ffffff;
 }
 
+input[type=text] {
+  width: 90%;
+}
+
 h3,
 p {
   margin: 0;
