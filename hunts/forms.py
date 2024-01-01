@@ -15,22 +15,30 @@ class HuntForm(forms.ModelForm):
     )
     start_time = forms.SplitDateTimeField(
         widget=forms.SplitDateTimeWidget(
-            date_attrs={"class": "form-control", "placeholder": "Start Date"},
+            date_attrs={
+                "class": "form-control",
+                "type": "date",
+            },
             time_attrs={
                 "class": "form-control",
-                "placeholder": "Start Time (ET, HH:MM, 24 hr)",
+                "type": "time",
             },
         ),
+        label="Start Time (ET)",
         required=False,
     )
     end_time = forms.SplitDateTimeField(
         widget=forms.SplitDateTimeWidget(
-            date_attrs={"class": "form-control", "placeholder": "End Date"},
+            date_attrs={
+                "class": "form-control",
+                "type": "date",
+            },
             time_attrs={
                 "class": "form-control",
-                "placeholder": "End Time (ET, HH:MM, 24 hr)",
+                "type": "time",
             },
         ),
+        label="End Time (ET)",
         required=False,
     )
 
