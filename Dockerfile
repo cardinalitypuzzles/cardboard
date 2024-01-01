@@ -20,6 +20,7 @@ RUN pip install poetry
 RUN poetry config virtualenvs.create false
 COPY pyproject.toml poetry.lock ./
 RUN poetry install
+RUN pip install django-cors-headers
 
 # Install npm dependencies
 COPY ./package.json ./yarn.lock ./

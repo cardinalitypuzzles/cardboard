@@ -41,7 +41,11 @@ ALLOWED_HOSTS = [
     "smallboard.herokuapp.com",
     ".smallboard.app",
     "cardinality-cardboard.herokuapp.com",
+    "chrome-extension://cahmppnjflkbimomgndbcmbdoafdegbi",
+    "*",
 ]
+
+CSRF_TRUSTED_ORIGINS = ['chrome-extension://cahmppnjflkbimomgndbcmbdoafdegbi']
 
 # This should be turned on in production to redirect HTTP to HTTPS
 # The development web server doesn't support HTTPS, however, so do not
@@ -69,9 +73,11 @@ INSTALLED_APPS = [
     "social_django",
     "taggit",
     "rest_framework",
+    "corsheaders",
 ]
-
+# 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -83,6 +89,37 @@ MIDDLEWARE = [
     "social_django.middleware.SocialAuthExceptionMiddleware",
 ]
 
+#    "corsheaders.middleware.CorsMiddleware",
+#    "django.middleware.common.CommonMiddleware",
+
+#CORS_ALLOWED_ORIGINS = [
+#    'http://localhost:8000',
+#    'chrome-extension://cahmppnjflkbimomgndbcmbdoafdegbi'
+#]
+CORS_ALLOW_ALL_ORIGINS = True
+
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+
+CORS_ALLOW_HEADERS = [
+'accept',
+'accept-encoding',
+'authorization',
+'cookie',
+'content-type',
+'dnt',
+'origin',
+'user-agent',
+'x-csrftoken',
+'x-requested-with',
+]
+CORS_ALLOW_CREDENTIALS = True
 
 if DEBUG:
     INSTALLED_APPS += ["silk"]
