@@ -41,8 +41,6 @@ ALLOWED_HOSTS = [
     "smallboard.herokuapp.com",
     ".smallboard.app",
     "cardinality-cardboard.herokuapp.com",
-    "chrome-extension://cahmppnjflkbimomgndbcmbdoafdegbi",
-    "*",
 ]
 
 CSRF_TRUSTED_ORIGINS = ['chrome-extension://cahmppnjflkbimomgndbcmbdoafdegbi']
@@ -88,38 +86,6 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "social_django.middleware.SocialAuthExceptionMiddleware",
 ]
-
-#    "corsheaders.middleware.CorsMiddleware",
-#    "django.middleware.common.CommonMiddleware",
-
-#CORS_ALLOWED_ORIGINS = [
-#    'http://localhost:8000',
-#    'chrome-extension://cahmppnjflkbimomgndbcmbdoafdegbi'
-#]
-CORS_ALLOW_ALL_ORIGINS = True
-
-CORS_ALLOW_METHODS = [
-    'DELETE',
-    'GET',
-    'OPTIONS',
-    'PATCH',
-    'POST',
-    'PUT',
-]
-
-CORS_ALLOW_HEADERS = [
-'accept',
-'accept-encoding',
-'authorization',
-'cookie',
-'content-type',
-'dnt',
-'origin',
-'user-agent',
-'x-csrftoken',
-'x-requested-with',
-]
-CORS_ALLOW_CREDENTIALS = True
 
 if DEBUG:
     INSTALLED_APPS += ["silk"]
