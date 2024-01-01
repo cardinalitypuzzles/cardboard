@@ -276,6 +276,9 @@ class ChatRole(models.Model):
     name = models.CharField(max_length=100)
     role_id = models.CharField(max_length=255)
 
+    def __str__(self):
+        return self.name
+
 
 @receiver(models.signals.pre_delete, sender=ChatRoom)
 def delete_chat_room_channels(sender, instance, using, **kwargs):
