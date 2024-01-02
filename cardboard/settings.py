@@ -44,7 +44,7 @@ ALLOWED_HOSTS = [
 ]
 
 # For Cardboard Chrome Extension
-CSRF_TRUSTED_ORIGINS = ['chrome-extension://cahmppnjflkbimomgndbcmbdoafdegbi']
+CSRF_TRUSTED_ORIGINS = ["chrome-extension://cahmppnjflkbimomgndbcmbdoafdegbi"]
 
 # This should be turned on in production to redirect HTTP to HTTPS
 # The development web server doesn't support HTTPS, however, so do not
