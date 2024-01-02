@@ -43,6 +43,7 @@ ALLOWED_HOSTS = [
     "cardinality-cardboard.herokuapp.com",
 ]
 
+# For Cardboard Chrome Extension
 CSRF_TRUSTED_ORIGINS = ['chrome-extension://cahmppnjflkbimomgndbcmbdoafdegbi']
 
 # This should be turned on in production to redirect HTTP to HTTPS
