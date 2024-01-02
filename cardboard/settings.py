@@ -73,7 +73,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "corsheaders",
 ]
-# 
+
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
