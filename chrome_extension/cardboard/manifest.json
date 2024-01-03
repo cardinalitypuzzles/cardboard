@@ -16,7 +16,8 @@
 	"cookies"
   ],
   "host_permissions": [
-	"http://localhost:8000/*",
+	"0.0.0.0:*",
+	"http://localhost:*/*",
 	"https://cardboard.rocks/*",
 	"https://www.cardboard.rocks/*"
   ]
