@@ -40,6 +40,7 @@ export default function AnswerCell({ row }) {
           onMouseLeave={() => {
             setUiHovered(uiHovered.filter((x) => x != id));
           }}
+          className="puzzle-answer"
         >
           <span className="text-monospace">{text}</span>{" "}
           <div
