@@ -43,6 +43,13 @@ ALLOWED_HOSTS = [
     "cardinality-cardboard.herokuapp.com",
 ]
 
+# The first is the published Cardboard Chrome Extension.
+# The second is a local version being used for development.
+CSRF_TRUSTED_ORIGINS = [
+    "chrome-extension://fhldkjfidcbfienegpehemncionolmfa",
+    "chrome-extension://cahmppnjflkbimomgndbcmbdoafdegbi",
+]
+
 # This should be turned on in production to redirect HTTP to HTTPS
 # The development web server doesn't support HTTPS, however, so do not
 # turn this on in dev.
@@ -69,9 +76,11 @@ INSTALLED_APPS = [
     "social_django",
     "taggit",
     "rest_framework",
+    "corsheaders",
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -82,7 +91,6 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "social_django.middleware.SocialAuthExceptionMiddleware",
 ]
-
 
 if DEBUG:
     INSTALLED_APPS += ["silk"]
