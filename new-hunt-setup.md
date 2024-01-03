@@ -22,7 +22,6 @@ For Discord integration (optional), you will additionally need to set up:
 * a bot for your application (can be done on the "Bot" settings page)
 * invite the application to your Discord server. To do so, go to the OAuth2 > URL Generator settings page for your application. For "Scopes", select "bot" and "applications.commands". After selecting "bot", a "Bot permissions" panel will appear, where you should select "Administrator". Copy the URL that was generated and open it in a new tab. There you can select the Discord server to add the app to. For more details, see [here](https://discordjs.guide/preparations/adding-your-bot-to-servers.html).
 
-
 ### New hunt setup
 
 #### Google Drive setup
@@ -39,10 +38,12 @@ To set up a new hunt:
 
 #### Google OAuth2 login setup
 
-In order for Google OAuth2 login to work, you need to add the URI `https://<YOUR_APP>.herokuapp.com/complete/google-oauth2/` under the "Authorized redirect URIs" in your OAuth 2.0 client settings. You can do this on Google Cloud: APIs & Services > Credentials > click the name of the OAuth 2.0 Client you added > scroll down to the "Authorized redirect URIs" section.
+In order for Google OAuth2 login to work, you need to add the URI `https://<YOUR_APP>.herokuapp.com/complete/google-oauth2/` under the "Authorized redirect URIs" in your OAuth 2.0 client settings. (Recent Heroku apps' [subdomains will include a hex ID](https://devcenter.heroku.com/articles/custom-domains) in their URI too.) You can do this on Google Cloud: APIs & Services > Credentials > click the name of the OAuth 2.0 Client you added > scroll down to the "Authorized redirect URIs" section.
 
 
 #### Heroku setup
+
+Follow the Heroku documentation to [set up a Heroku app](https://devcenter.heroku.com/articles/git#for-an-existing-app) from an existing repository (this one).
 
 After creating a new application on Heroku, you will need to configure some resources, settings, and config variables.
 
@@ -54,7 +55,7 @@ By default, Heroku may only set the heroku/nodejs buildpack when you deploy the 
 
 Alternatively, you can use the [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli): run `heroku buildpacks` to check which buildpacks are installed, and if needed, run `heroku buildpacks:add` to add any missing ones. Make sure again that they are in the correct order.
 
-On the Resources page, you'll need to add the Heroku Postgres and Heroku Redis add-ons. When added, this will automatically add some config variables for you on the Settings page: `REDIS_URL`, `REDIS_TLS_URL`, and `DATABASE_URL`. Cardboard is already configured to read these config variables automatically.
+On the Resources page, you'll need to add the Heroku Postgres and [Heroku Redis](https://elements.heroku.com/addons/heroku-redis) add-ons. When added, this will automatically add some config variables for you on the Settings page: `REDIS_URL`, `REDIS_TLS_URL`, and `DATABASE_URL`. Cardboard is already configured to read these config variables automatically.
 
 You'll also see a few dyno instances on the Resources page: "web", "bot", and "worker". Make sure to enable the "web" and "worker" dynos. The "web" dyno runs the web application and the "worker" dyno runs a Celery process that handles Google Sheets and Discord API interactions asynchronously. The "bot" dyno is for a discord bot added in [#214](https://github.com/cardinalitypuzzles/cardboard/issues/214), which is optional. You can only run a max of 2 free dynos, so if you want to enable the "bot" dyno, you have to upgrade to a paid tier. Note that this "bot" dyno is only for supporting users typing `!<command>` in Discord to get information about puzzles. Even without the "bot" dyno, with the Discord application added to your Discord server (see Discord prerequisites above) and the Discord environment variables configured (see below), you will still get automatic Discord channel creation and puzzle solve updates.
 
@@ -66,7 +67,7 @@ At the moment, Cardboard is configured via a combination of two ways: setting gl
 
 ##### Admin account
 
-To set the per-hunt configuration, you must have an admin account in your Cardboard instance:
+To set the per-hunt configuration, you must have an admin account in your Cardboard instance. You'll need to log in first, so finish all Google OAuth2 and Drive integration (see below). Then:
 
 * Start `python manage.py shell`. If you are using Heroku, you can do this by running `heroku run python manage.py shell`
 * Enter and run the following Python code:
