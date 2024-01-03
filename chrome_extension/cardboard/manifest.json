@@ -17,6 +17,7 @@
   ],
   "host_permissions": [
 	"http://localhost:8000/*",
+	"https://cardboard.rocks/*",
 	"https://www.cardboard.rocks/*"
   ]
-}
+}	

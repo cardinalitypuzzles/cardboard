@@ -9,7 +9,7 @@ const template = document.getElementById("li_template");
 const elements = new Set();
 for (const tab of tabs) {
   const element = template.content.firstElementChild.cloneNode(true);
-
+  
   if (tab.title != undefined) {
     element.querySelector(".puzzle_name").value = tab.title;
   }
@@ -20,24 +20,21 @@ for (const tab of tabs) {
 }
 document.querySelector("ul").append(...elements);
 const button = document.querySelector("button");
-button.addEventListener("click", async (e) => {
+button.addEventListener("click", async e => {
   e.preventDefault();
   // Get Cardboard cookie
-  const cardboard_cookie = await chrome.cookies.get({
-    url: "http://localhost:8000",
-    name: "csrftoken",
-  });
-
+  const cardboard_cookie = await chrome.cookies.get({ url: 'https://cardboard.rocks', name: 'csrftoken' });
+  
   if (cardboard_cookie) {
-    // Create puzzle. Puzzle name is limited to 30 characters
-    fetch("http://localhost:8000/api/v1/hunts/3/puzzles", {
+    // Create puzzle. Puzzle name is limited to 30 characters 
+    fetch("https://cardboard.rocks/api/v1/hunts/10/puzzles", {
       method: "POST",
       mode: "cors",
       body: JSON.stringify({
-        create_channels: document.getElementById("create_channels").checked,
-        is_meta: document.getElementById("is_meta").checked,
-        name: document.getElementById("puzzle_name").value.slice(0, 30),
-        url: document.getElementById("puzzle_url").value,
+        create_channels: document.getElementById('create_channels').checked,
+        is_meta: document.getElementById('is_meta').checked,
+        name: document.getElementById('puzzle_name').value.slice(0, 30),
+        url: document.getElementById('puzzle_url').value
       }),
       headers: {
         "X-CSRFToken": cardboard_cookie.value,
@@ -45,7 +42,7 @@ button.addEventListener("click", async (e) => {
       },
     });
   } else {
-    console.log("No cookie found");
+    console.log('No cookie found');
   }
 });
 
