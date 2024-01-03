@@ -46,7 +46,7 @@ In order for Google OAuth2 login to work, you need to add the URI `https://<YOUR
 
 After creating a new application on Heroku, you will need to configure some resources, settings, and config variables.
 
-By default, Heroku may only set the heroku/nodejs buildpack when you deploy the first time, but Cardboard also requires the heroku/python buildpack and a buildpack specific to Python poetry. You can set the buildpacks on your application's settings page (`https://dashboard.heorku.com/apps/<YOUR_APP>/settings`) under the "Buildpacks" section. They should be set **in the following order**, mimicking the [app.json](https://github.com/cardinalitypuzzles/cardboard/blob/master/app.json) file in the repository:
+By default, Heroku may only set the heroku/nodejs buildpack when you deploy the first time, but Cardboard also requires the heroku/python buildpack and a buildpack specific to Python poetry. You can set the buildpacks on your application's settings page (`https://dashboard.heroku.com/apps/<YOUR_APP>/settings`) under the "Buildpacks" section. They should be set **in the following order**, mimicking the [app.json](https://github.com/cardinalitypuzzles/cardboard/blob/master/app.json) file in the repository:
 
   1. heroku/nodejs
   2. https://github.com/cardinalitypuzzles/python-poetry-buildpack.git
