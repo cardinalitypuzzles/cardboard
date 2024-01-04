@@ -5,6 +5,7 @@ import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import { updatePuzzle } from "./puzzlesSlice";
 import { hideModal } from "./modalSlice";
+import { fetchHunt } from "./huntSlice";
 
 function EditPuzzleModal({ huntId, puzzleId, name, url, isMeta, hasChannels }) {
   const [newName, setNewName] = React.useState(name);
@@ -26,6 +27,8 @@ function EditPuzzleModal({ huntId, puzzleId, name, url, isMeta, hasChannels }) {
         },
       })
     ).finally(() => {
+      // Used to update hunt tags.
+      dispatch(fetchHunt(huntId));
       dispatch(hideModal());
     });
     return false;
