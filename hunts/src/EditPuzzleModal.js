@@ -3,7 +3,7 @@ import { useDispatch } from "react-redux";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
-import { updatePuzzle } from "./puzzlesSlice";
+import { updatePuzzle, fetchPuzzles } from "./puzzlesSlice";
 import { hideModal } from "./modalSlice";
 import { fetchHunt } from "./huntSlice";
 
@@ -29,6 +29,8 @@ function EditPuzzleModal({ huntId, puzzleId, name, url, isMeta, hasChannels }) {
     ).finally(() => {
       // Used to update hunt tags.
       dispatch(fetchHunt(huntId));
+      dispatch(fetchPuzzles(huntId));
+
       dispatch(hideModal());
     });
     return false;
