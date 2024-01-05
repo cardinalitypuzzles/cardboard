@@ -73,7 +73,8 @@ export const HuntViewMain = (props) => {
       <SiteHeader />
       <div
         style={{
-          margin: "0 20px",
+          margin: "0px auto",
+          maxWidth: "1600px",
         }}
       >
         <Alert
