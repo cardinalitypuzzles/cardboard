@@ -62,6 +62,7 @@ const TABLE_COLUMNS = [
   {
     accessor: (row) => row.tags.map(({ name }) => name).join(" "),
     id: "tags",
+    filter: "tagsFilter",
   },
   {
     accessor: "is_meta",
