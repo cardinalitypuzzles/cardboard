@@ -61,7 +61,6 @@ class AnswerViewSet(viewsets.ModelViewSet):
 
     @staticmethod
     def _maybe_update_sheets_title(puzzle):
-
         if google_api_lib.enabled() and puzzle.sheet:
             if puzzle.is_solved():
                 solve_label = "BACKSOLVED" if puzzle.is_backsolved() else "SOLVED"
@@ -223,6 +222,15 @@ class PuzzleViewSet(viewsets.ModelViewSet):
                     .objects.filter(puzzle_activities__last_edit_time__gt=before_time)
                     .distinct(),
                     to_attr="_recent_editors",
+                )
+            )
+            .prefetch_related(
+                Prefetch(
+                    "active_users",
+                    queryset=get_user_model()
+                    .objects.filter(puzzle_activities__num_edits__gt=5)
+                    .order_by("-puzzle_activities__num_edits"),
+                    to_attr="_top_editors",
                 )
             )
         )

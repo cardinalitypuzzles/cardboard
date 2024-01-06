@@ -119,6 +119,7 @@ class PuzzleSerializer(serializers.ModelSerializer):
         read_only=True, default=CurrentHuntDefault()
     )
     recent_editors = serializers.SerializerMethodField()
+    top_editors = serializers.SerializerMethodField()
 
     def get_guesses(self, obj):
         # Show only correct guesses.
@@ -145,11 +146,35 @@ class PuzzleSerializer(serializers.ModelSerializer):
         ).all()
         return sorted([str(user) for user in recent_editors])
 
+    def get_top_editors(self, obj):
+        # distinct and order_by with a related model interact oddly and result in non-distinct results
+        if hasattr(obj, "_top_editors"):
+            top_editors_with_duplicates = obj._top_editors
+        else:
+            top_editors_with_duplicates = (
+                obj.active_users.filter(
+                    puzzle_activities__puzzle_id=obj.id,
+                )
+                .filter(puzzle_activities__num_edits__gt=5)
+                .order_by("-puzzle_activities__num_edits")
+            )
+
+        top_editors = []
+        for user in top_editors_with_duplicates:
+            if str(user) not in top_editors:
+                top_editors.append(str(user))
+
+            if len(top_editors) >= 5:
+                break
+
+        return top_editors
+
     def validate_url(self, url):
         return url_normalize(url)
 
     def validate(self, data, *args, **kwargs):
         data = super().validate(data, *args, **kwargs)
+
         # The django rest framework validation is super clunky for validating
         # partial updates; we need to merge new values with existing ones
         # ourselves annoyingly.
@@ -194,6 +219,7 @@ class PuzzleSerializer(serializers.ModelSerializer):
             "is_meta",
             "created_on",
             "recent_editors",
+            "top_editors",
         )
 
         read_only_fields = (
@@ -207,6 +233,7 @@ class PuzzleSerializer(serializers.ModelSerializer):
             "feeders",
             "created_on",
             "recent_editors",
+            "top_editors",
         )
 
         validators = (
