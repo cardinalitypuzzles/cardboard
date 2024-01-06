@@ -2,6 +2,7 @@ import React from "react";
 import Badge from "react-bootstrap/Badge";
 import { useSelector, useDispatch } from "react-redux";
 import { faEdit, faTrashAlt } from "@fortawesome/free-regular-svg-icons";
+import { faTag } from "@fortawesome/free-solid-svg-icons";
 import { showModal } from "./modalSlice";
 import TagCell from "./TagCell";
 import ClickableIcon from "./ClickableIcon";
@@ -10,8 +11,7 @@ import { IconChevronDown, IconChevronRight } from "@tabler/icons";
 
 const useToggleRowExpandedProps = (row) => {
   const dispatch = useDispatch();
-  const originalProps = row.getToggleRowExpandedProps({
-  });
+  const originalProps = row.getToggleRowExpandedProps({});
 
   return {
     ...originalProps,
@@ -27,17 +27,10 @@ export default function NameCell({ row, value }) {
   const [uiHovered, setUiHovered] = React.useState(false);
   const toggleRowExpandedProps = useToggleRowExpandedProps(row);
   const dispatch = useDispatch();
-
-  const nameText = (
-    row.values.is_meta
-      ? <span style={{fontSize: "larger"}}><b>{value}</b></span>
-      : <span><b>{value}</b></span>
-  )
-
   return (
     <div
       style={{
-	paddingLeft: `${row.depth * 2}rem`,
+        paddingLeft: `${row.depth * 2}rem`,
       }}
     >
       <div
@@ -51,11 +44,11 @@ export default function NameCell({ row, value }) {
         {row.canExpand ? (
           <span {...toggleRowExpandedProps}>
             {row.isExpanded ? <IconChevronDown /> : <IconChevronRight />}
-            {nameText}
+            <b>{value}</b>
           </span>
         ) : (
           <span>
-            {nameText}
+            <b>{value}</b>
           </span>
         )}{" "}
         {row.values.is_meta ? (
@@ -86,7 +79,24 @@ export default function NameCell({ row, value }) {
                 })
               )
             }
-          />{" "}
+          />
+          {" "}
+          <ClickableIcon
+            icon={faTag}
+            onClick={() =>
+              dispatch(
+                showModal({
+                  type: "EDIT_TAGS",
+                  props: {
+                    huntId,
+                    puzzleId: row.values.id,
+                    puzzleName: row.values.name,
+                  },
+                })
+              )
+            }
+          />
+          {" "}
           <ClickableIcon
             icon={faTrashAlt}
             onClick={() =>
@@ -105,7 +115,7 @@ export default function NameCell({ row, value }) {
         </div>
       </div>
       <div>
-	<TagCell row={row} />
+        <TagCell row={row} />
       </div>
     </div>
   );
