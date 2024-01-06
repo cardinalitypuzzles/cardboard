@@ -1,8 +1,8 @@
 import React from "react";
 import Badge from "react-bootstrap/Badge";
 import { useSelector, useDispatch } from "react-redux";
-import { faEdit, faTrashAlt } from "@fortawesome/free-regular-svg-icons";
-import { faTag } from "@fortawesome/free-solid-svg-icons";
+import { faTrashAlt } from "@fortawesome/free-regular-svg-icons";
+import { faWrench, faTag } from "@fortawesome/free-solid-svg-icons";
 import { showModal } from "./modalSlice";
 import TagCell from "./TagCell";
 import ClickableIcon from "./ClickableIcon";
@@ -27,6 +27,13 @@ export default function NameCell({ row, value }) {
   const [uiHovered, setUiHovered] = React.useState(false);
   const toggleRowExpandedProps = useToggleRowExpandedProps(row);
   const dispatch = useDispatch();
+
+  const nameText = (
+    row.values.is_meta
+      ? <span style={{fontSize: "larger"}}><b>{value}</b></span>
+      : <span><b>{value}</b></span>
+  )
+
   return (
     <div
       style={{
@@ -40,15 +47,18 @@ export default function NameCell({ row, value }) {
         onMouseLeave={() => {
           setUiHovered(false);
         }}
+        style={{
+          marginBottom: "3px",
+        }}
       >
         {row.canExpand ? (
           <span {...toggleRowExpandedProps}>
             {row.isExpanded ? <IconChevronDown /> : <IconChevronRight />}
-            <b>{value}</b>
+            {nameText}
           </span>
         ) : (
           <span>
-            <b>{value}</b>
+            {nameText}
           </span>
         )}{" "}
         {row.values.is_meta ? (
@@ -63,7 +73,7 @@ export default function NameCell({ row, value }) {
           }}
         >
           <ClickableIcon
-            icon={faEdit}
+            icon={faWrench}
             onClick={() =>
               dispatch(
                 showModal({

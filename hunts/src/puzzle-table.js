@@ -205,14 +205,28 @@ export const PuzzleTable = React.memo(({ data, filterSolved, filterTags }) => {
 
   for (let i = 0; i < rows.length; ++i) {
     let row = rows[i];
-
-    if (i > 0 && topLevelId(row) != topLevelId(rows[i - 1])) {
-      rowsList.push(
-        <tr key={`spacer-${topLevelId(row)}`} style={{height: "18px"}}></tr>
-      );
-    }
-
     prepareRow(row);
+
+    // Add coloring and space between top-level metas
+    if (i == 0 || topLevelId(row) != topLevelId(rows[i - 1])) {
+      if (i > 0) {
+        rowsList.push(
+          <tr key={`spacer-${row.id}`} style={{height: "20px"}}></tr>
+        );
+      }
+
+      rowsList.push(
+        <tr key={`header-${row.id}`}>
+          <td
+           className="table-top-colorbar"
+           colSpan={`${row.cells.length + 1}`}
+           style={{
+             background: `linear-gradient(90deg, ${roundColours[topLevelId(row) % roundColours.length]}, transparent)`,
+           }}></td>
+        </tr>
+      )
+    }
+    
     rowsList.push(
       <tr className={rowClassName(row)} {...row.getRowProps()}>
         <td

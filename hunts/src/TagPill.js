@@ -32,30 +32,6 @@ function TagPill({
   return (
     <Badge pill variant={color} key={name} onClick={onClick} style={style}>
       {name}
-      {onDelete || editable ? (
-        <span
-          onClick={
-            onDelete ||
-            ((e) => {
-              e.stopPropagation();
-              dispatch(deletePuzzleTag({ puzzleId, tagId: id })).then(
-                (action) => {
-                  if (action.payload && action.payload.is_meta) {
-                    // Deleting meta tags may affect the state of other puzzles
-                    // (specifically their feeders)
-                    // So just trigger a full fetch here.
-                    // Alternatively we could try to duplicate the logic on the client
-                    dispatch(fetchPuzzles(huntId));
-                  }
-                }
-              );
-            })
-          }
-          style={{ marginLeft: "5px", cursor: "pointer" }}
-        >
-          <FontAwesomeIcon icon={faTimes} />
-        </span>
-      ) : null}
     </Badge>
   );
 }

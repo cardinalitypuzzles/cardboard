@@ -109,7 +109,7 @@ export const HuntViewMain = (props) => {
                   id={id}
                   puzzleId={null}
                   key={name}
-                  onDelete={() =>
+                  onClick={() =>
                     dispatch(toggleFilterTag({ name, color, id }))
                   }
                 />
