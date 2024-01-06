@@ -71,6 +71,12 @@ body {
   border-color: var(--table-row-danger-border);
 }
 
+#app .table-side-colorbar {
+  width: 7px;
+  padding: 0rem;
+  border: none;
+}
+
 .bootstrap-dark a {
   color: #007bff;
 }

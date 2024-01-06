@@ -183,11 +183,58 @@ export const PuzzleTable = React.memo(({ data, filterSolved, filterTags }) => {
     setFilter("tags", filterTags);
   }, [filterTags]);
 
+  let rowsList = [];
+  let roundColours = [
+    "crimson",
+    "dodgerblue",
+    "forestgreen",
+    "darkorchid",
+    "darkorange",
+    "goldenrod",
+    "coral",
+    "darkslategray",
+    "powderblue",
+    "aquamarine",
+    "palevioletred",
+    "indigo",
+    "olive",
+    "violet",
+  ];
+
+  let topLevelId = (row) => parseInt(row.id.split('.')[0]);
+
+  for (let i = 0; i < rows.length; ++i) {
+    let row = rows[i];
+
+    if (i > 0 && topLevelId(row) != topLevelId(rows[i - 1])) {
+      rowsList.push(
+        <tr key={`spacer-${topLevelId(row)}`} style={{height: "18px"}}></tr>
+      );
+    }
+
+    prepareRow(row);
+    rowsList.push(
+      <tr className={rowClassName(row)} {...row.getRowProps()}>
+        <td
+         className="table-side-colorbar"
+         style={{
+          backgroundColor: roundColours[topLevelId(row) % roundColours.length],
+        }}></td>
+        {row.cells.map((cell) => {
+          return (
+            <td {...cell.getCellProps()}>{cell.render("Cell")}</td>
+          );
+        })}
+      </tr>
+    );
+  }
+
   return (
     <>
       <Table size="sm" {...getTableProps()}>
         <thead>
           <tr>
+            <th className="table-side-colorbar"></th>
             {allColumns.map((column) =>
               column.isVisible ? (
                 <th {...column.getHeaderProps()} className={column.className}>
@@ -198,18 +245,7 @@ export const PuzzleTable = React.memo(({ data, filterSolved, filterTags }) => {
           </tr>
         </thead>
         <tbody {...getTableBodyProps()}>
-          {rows.map((row) => {
-            prepareRow(row);
-            return (
-              <tr className={rowClassName(row)} {...row.getRowProps()}>
-                {row.cells.map((cell) => {
-                  return (
-                    <td {...cell.getCellProps()}>{cell.render("Cell")}</td>
-                  );
-                })}
-              </tr>
-            );
-          })}
+          {rowsList}
         </tbody>
       </Table>
     </>
