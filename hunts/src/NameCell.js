@@ -29,7 +29,7 @@ export default function NameCell({ row, value }) {
   return (
     <div
       style={{
-	      paddingLeft: `${row.depth * 2}rem`,
+        paddingLeft: `${row.depth * 2}rem`,
       }}
     >
       <div
@@ -97,7 +97,7 @@ export default function NameCell({ row, value }) {
         </div>
       </div>
       <div>
-	      <TagCell row={row} />
+        <TagCell row={row} />
       </div>
     </div>
   );
