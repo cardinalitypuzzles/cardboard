@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Cardboard Chrome Extension",
-  "version": "1.0",
+  "version": "1.0.1",
   "icons": {
     "16": "images/cardboard_bird.png",
     "32": "images/cardboard_bird.png",
@@ -16,8 +16,8 @@
 	"cookies"
   ],
   "host_permissions": [
-	"0.0.0.0:*",
-	"http://localhost:*/*",
+	"http://*:*/*",
+	"http://localhost/*",
 	"https://cardboard.rocks/*",
 	"https://www.cardboard.rocks/*"
   ]
