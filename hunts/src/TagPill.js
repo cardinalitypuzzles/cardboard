@@ -13,7 +13,6 @@ function TagPill({
   selected = false,
   faded = false,
   editable = true,
-  onDelete = null,
   onClick = null,
 }) {
   const { id: huntId } = useSelector((state) => state.hunt);

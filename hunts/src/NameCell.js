@@ -28,11 +28,15 @@ export default function NameCell({ row, value }) {
   const toggleRowExpandedProps = useToggleRowExpandedProps(row);
   const dispatch = useDispatch();
 
-  const nameText = (
-    row.values.is_meta
-      ? <span style={{fontSize: "larger"}}><b>{value}</b></span>
-      : <span><b>{value}</b></span>
-  )
+  const nameText = row.values.is_meta ? (
+    <span style={{ fontSize: "larger" }}>
+      <b>{value}</b>
+    </span>
+  ) : (
+    <span>
+      <b>{value}</b>
+    </span>
+  );
 
   return (
     <div
@@ -57,9 +61,7 @@ export default function NameCell({ row, value }) {
             {nameText}
           </span>
         ) : (
-          <span>
-            {nameText}
-          </span>
+          <span>{nameText}</span>
         )}{" "}
         {row.values.is_meta ? (
           <>
@@ -89,8 +91,7 @@ export default function NameCell({ row, value }) {
                 })
               )
             }
-          />
-          {" "}
+          />{" "}
           <ClickableIcon
             icon={faTag}
             onClick={() =>
@@ -105,8 +106,7 @@ export default function NameCell({ row, value }) {
                 })
               )
             }
-          />
-          {" "}
+          />{" "}
           <ClickableIcon
             icon={faTrashAlt}
             onClick={() =>

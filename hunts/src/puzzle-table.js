@@ -201,7 +201,7 @@ export const PuzzleTable = React.memo(({ data, filterSolved, filterTags }) => {
     "violet",
   ];
 
-  let topLevelId = (row) => parseInt(row.id.split('.')[0]);
+  let topLevelId = (row) => parseInt(row.id.split(".")[0]);
 
   for (let i = 0; i < rows.length; ++i) {
     let row = rows[i];
@@ -211,33 +211,36 @@ export const PuzzleTable = React.memo(({ data, filterSolved, filterTags }) => {
     if (i == 0 || topLevelId(row) != topLevelId(rows[i - 1])) {
       if (i > 0) {
         rowsList.push(
-          <tr key={`spacer-${row.id}`} style={{height: "20px"}}></tr>
+          <tr key={`spacer-${row.id}`} style={{ height: "20px" }}></tr>
         );
       }
 
       rowsList.push(
         <tr key={`header-${row.id}`}>
           <td
-           className="table-top-colorbar"
-           colSpan={`${row.cells.length + 1}`}
-           style={{
-             background: `linear-gradient(90deg, ${roundColours[topLevelId(row) % roundColours.length]}, transparent)`,
-           }}></td>
+            className="table-top-colorbar"
+            colSpan={`${row.cells.length + 1}`}
+            style={{
+              background: `linear-gradient(90deg, ${
+                roundColours[topLevelId(row) % roundColours.length]
+              }, transparent)`,
+            }}
+          ></td>
         </tr>
-      )
+      );
     }
-    
+
     rowsList.push(
       <tr className={rowClassName(row)} {...row.getRowProps()}>
         <td
-         className="table-side-colorbar"
-         style={{
-          backgroundColor: roundColours[topLevelId(row) % roundColours.length],
-        }}></td>
+          className="table-side-colorbar"
+          style={{
+            backgroundColor:
+              roundColours[topLevelId(row) % roundColours.length],
+          }}
+        ></td>
         {row.cells.map((cell) => {
-          return (
-            <td {...cell.getCellProps()}>{cell.render("Cell")}</td>
-          );
+          return <td {...cell.getCellProps()}>{cell.render("Cell")}</td>;
         })}
       </tr>
     );
@@ -258,9 +261,7 @@ export const PuzzleTable = React.memo(({ data, filterSolved, filterTags }) => {
             )}
           </tr>
         </thead>
-        <tbody {...getTableBodyProps()}>
-          {rowsList}
-        </tbody>
+        <tbody {...getTableBodyProps()}>{rowsList}</tbody>
       </Table>
     </>
   );

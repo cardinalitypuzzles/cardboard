@@ -109,9 +109,7 @@ export const HuntViewMain = (props) => {
                   id={id}
                   puzzleId={null}
                   key={name}
-                  onClick={() =>
-                    dispatch(toggleFilterTag({ name, color, id }))
-                  }
+                  onClick={() => dispatch(toggleFilterTag({ name, color, id }))}
                 />
               );
             })}

@@ -11,16 +11,18 @@ function TagCell({ row }) {
   const puzzleId = row.original.id;
   return (
     <>
-      {row.original.tags.filter(t => !t.is_meta).map(({ name, color, id }) => (
-        <TagPill
-          name={name}
-          color={color}
-          id={id}
-          puzzleId={puzzleId}
-          key={name}
-          onClick={() => dispatch(toggleFilterTag({ name, color, id }))}
-        />
-      ))}{" "}
+      {row.original.tags
+        .filter((t) => !t.is_meta)
+        .map(({ name, color, id }) => (
+          <TagPill
+            name={name}
+            color={color}
+            id={id}
+            puzzleId={puzzleId}
+            key={name}
+            onClick={() => dispatch(toggleFilterTag({ name, color, id }))}
+          />
+        ))}{" "}
     </>
   );
 }
