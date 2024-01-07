@@ -347,6 +347,7 @@ class PuzzleViewSet(viewsets.ModelViewSet):
         return Response(PuzzleSerializer(puzzle).data)
 
     def create(self, request, **kwargs):
+        # This is run upon puzzle creation
         puzzle = None
         with transaction.atomic():
             hunt = get_object_or_404(Hunt, pk=self.kwargs["hunt_id"])
@@ -374,7 +375,15 @@ class PuzzleViewSet(viewsets.ModelViewSet):
                 chat_room = None
 
             puzzle = serializer.save(hunt=hunt, chat_room=chat_room)
-
+            
+            if (
+                "assigned_meta" in request.data
+                and request.data["assigned_meta"]
+                and request.data["assigned_meta"] != "none"
+            ):
+                meta = get_object_or_404(Puzzle, name=request.data["assigned_meta"], hunt=puzzle.hunt)
+                puzzle.metas.add(meta)
+            
             if google_api_lib.enabled():
                 transaction.on_commit(
                     lambda: google_api_lib.tasks.create_google_sheets.delay(puzzle.id)
@@ -449,6 +458,7 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
             )
             tag, _ = PuzzleTag.objects.get_or_create(name=tag_name, hunt=puzzle.hunt)
             if tag.is_meta:
+                # Look up the meta and then add it to puzzle.metas
                 meta = get_object_or_404(Puzzle, name=tag.name, hunt=puzzle.hunt)
                 if is_ancestor(puzzle, meta):
                     return Response(

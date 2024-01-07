@@ -8,12 +8,13 @@ import api from "./api";
 
 export const addPuzzle = createAsyncThunk(
   "puzzles/addPuzzle",
-  async ({ huntId, name, url, is_meta, create_channels }) => {
+  async ({ huntId, name, url, is_meta, create_channels, assigned_meta }) => {
     const response = await api.addPuzzle(huntId, {
       name,
       url,
       is_meta,
       create_channels,
+      assigned_meta,
     });
     return response;
   }
