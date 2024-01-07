@@ -347,7 +347,6 @@ class PuzzleViewSet(viewsets.ModelViewSet):
         return Response(PuzzleSerializer(puzzle).data)
 
     def create(self, request, **kwargs):
-        # This is run upon puzzle creation
         puzzle = None
         with transaction.atomic():
             hunt = get_object_or_404(Hunt, pk=self.kwargs["hunt_id"])
