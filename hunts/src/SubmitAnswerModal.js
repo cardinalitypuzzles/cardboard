@@ -3,14 +3,25 @@ import { useDispatch } from "react-redux";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
-import { addAnswer } from "./puzzlesSlice";
+import { addAnswer, addPuzzleTag } from "./puzzlesSlice";
 import { hideModal } from "./modalSlice";
 
 function SubmitAnswerModal({ puzzleId, puzzleName }) {
   const [newAnswer, setNewAnswer] = React.useState("");
+  const [backsolved, setBacksolved] = React.useState(false);
+
   const dispatch = useDispatch();
   const onSubmit = (e) => {
     e.preventDefault();
+    if (backsolved) {
+      dispatch(
+        addPuzzleTag({
+          puzzleId,
+          name: "Backsolved",
+          color: "success",
+        })
+      )
+    }
     dispatch(
       addAnswer({
         puzzleId,
@@ -34,6 +45,15 @@ function SubmitAnswerModal({ puzzleId, puzzleName }) {
             value={newAnswer}
             autoFocus
             onChange={(e) => setNewAnswer(e.target.value)}
+          />
+          <Form.Check
+            type="checkbox"
+            defaultChecked={false}
+            label="backsolved"
+            value={backsolved}
+            onChange={(e) => {
+              e.target.checked ? setBacksolved(true) : setBacksolved(false)
+            }}
           />
         </Modal.Body>
         <Modal.Footer>
