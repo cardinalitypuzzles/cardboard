@@ -5,7 +5,7 @@ import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import { addPuzzle } from "./puzzlesSlice";
 import { hideModal } from "./modalSlice";
-import { selectHuntTags } from "./huntSlice"
+import { selectHuntTags } from "./huntSlice";
 
 function AddPuzzleModal({ huntId }) {
   const allTags = useSelector(selectHuntTags);
@@ -31,7 +31,7 @@ function AddPuzzleModal({ huntId }) {
     });
     return false;
   };
-  
+
   return (
     <>
       <Modal.Header closeButton>
@@ -65,12 +65,16 @@ function AddPuzzleModal({ huntId }) {
               value={assignedMeta}
               onChange={(e) => setAssignedMeta(e.target.value)}
             >
-              <option key="none" value="none">None</option>
-              {allTags.filter((tag) => tag.is_meta).map(( tag, i ) => (
-                <option key={tag.name} value={tag.name}>
-                  {tag.name}
-                </option>
-              ))}
+              <option key="none" value="none">
+                None
+              </option>
+              {allTags
+                .filter((tag) => tag.is_meta)
+                .map((tag, i) => (
+                  <option key={tag.name} value={tag.name}>
+                    {tag.name}
+                  </option>
+                ))}
             </Form.Control>
           </Form.Group>
           <Form.Check
