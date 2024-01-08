@@ -20,7 +20,7 @@ function SubmitAnswerModal({ puzzleId, puzzleName }) {
           name: "Backsolved",
           color: "success",
         })
-      )
+      );
     }
     dispatch(
       addAnswer({
@@ -52,7 +52,7 @@ function SubmitAnswerModal({ puzzleId, puzzleName }) {
             label="backsolved"
             value={backsolved}
             onChange={(e) => {
-              e.target.checked ? setBacksolved(true) : setBacksolved(false)
+              e.target.checked ? setBacksolved(true) : setBacksolved(false);
             }}
           />
         </Modal.Body>
