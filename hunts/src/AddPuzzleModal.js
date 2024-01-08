@@ -11,7 +11,7 @@ function AddPuzzleModal({ huntId }) {
   const allTags = useSelector(selectHuntTags);
   const [name, setName] = React.useState("");
   const [url, setUrl] = React.useState("");
-  const [assignedMeta, setAssignedMeta] = React.useState("none");
+  const [assignedMeta, setAssignedMeta] = React.useState("");
   const [isMeta, setIsMeta] = React.useState(false);
   const [createChannels, setCreateChannels] = React.useState(true);
   const dispatch = useDispatch();
@@ -65,7 +65,7 @@ function AddPuzzleModal({ huntId }) {
               value={assignedMeta}
               onChange={(e) => setAssignedMeta(e.target.value)}
             >
-              <option key="none" value="none">
+              <option key="none" value="">
                 None
               </option>
               {allTags
