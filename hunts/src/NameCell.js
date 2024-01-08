@@ -28,11 +28,7 @@ export default function NameCell({ row, value }) {
   const toggleRowExpandedProps = useToggleRowExpandedProps(row);
   const dispatch = useDispatch();
 
-  const nameText = row.values.is_meta ? (
-    <span style={{ fontSize: "larger" }}>
-      <b>{value}</b>
-    </span>
-  ) : (
+  const nameText = (
     <span>
       <b>{value}</b>
     </span>
