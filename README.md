@@ -2,76 +2,39 @@
 
 [![codecov](https://codecov.io/gh/cardinalitypuzzles/cardboard/branch/master/graph/badge.svg)](https://codecov.io/gh/cardinalitypuzzles/cardboard)
 
-This guide gives an overview of how to use Cardboard and its features.
-
-For instructions on how to set up an existing deployment for a new hunt, see this [new hunt setup guide](new-hunt-setup.md).
-
-For development instructions, see the [dev guide](dev-guide.md).
-
-### Overview
-
 ![overview](https://user-images.githubusercontent.com/1312469/209477999-b9996cd5-e8c8-4020-8d74-007ebe5558cb.png)
 
-The default page you see is a list of all puzzles in a table. The puzzle name is a link to the puzzle page on the hunt website. The puzzles are grouped by meta, and each puzzle has a Google spreadsheet associated with it.
+Cardboard helps teams coordinate solving [puzzle hunts](https://en.wikipedia.org/wiki/Puzzle_hunt). It manages and organizes puzzles, keeps track of team members, integrates with other solving tools, and more.
 
-In case you need to edit the puzzle name, URL, or meta status, you can use the pencil icon next to the puzzle name. Use the trash icon to delete a puzzle.
+For help **using Cardboard as a solver**, see [here](user-guide.md).
 
-The default status of a new puzzle is SOLVING. To submit a guess for a puzzle, click the "Submit Answer" button for that puzzle. By default, once a guess has been submitted, the puzzle status will be changed to SOLVED and the row will be highlighted in green. Note that this does not actually submit the answer on the hunt website and you will need to submit there separately.
+For help **setting Cardboard up for a hunt**, see [here](new-hunt-setup.md).
 
-If the answer queue is turned on, then the status is instead PENDING and the row will be highlighted in yellow. A dedicated person monitoring the "Answer Queue" page should be responsible for submitting the answers on the hunt website and reporting back whether the answer was correct or not.
+For information about **development**, see the [dev guide](dev-guide.md).
 
-In addition, you can set a puzzle's status to STUCK or EXTRACTION using the "Status" column dropdown to indicate that the solvers are stuck on the puzzle or the puzzle just needs a final extraction to get an answer.
+### Features
 
-Users can also tag puzzles as belonging to one or more metas, mark puzzles as high priority or low priority, logic or word puzzles, backsolved, or create new tags by clicking the "+" icon in the "Tags" column.
+* Seamlessly supports (almost) any puzzle hunt structure
+* Create and assign tags to puzzles
+* Quickly search and filter on puzzle names, rounds, and tags
+* Remote-friendly! Real-time display of what everyone's working on at any time
 
-<img src='https://user-images.githubusercontent.com/1312469/147149416-29dda7c5-bde5-4277-8866-9b9954980bcd.png' width='300'>
+### Integrations
 
-Clicking the "x" icon next to an existing tag will remove it from the puzzle.
+#### Google Sheets
 
-There is also a static "Tools and References" page linked on the navigation bar at the top that includes links to useful puzzle tools and resources.
+* Creates a Google Sheet for new puzzles automatically
+* Real-time display of how active each puzzle's sheet is, and who's currently editing it
+* Cleans up unneeded sheets and automatically transfers answers into metapuzzle sheets
 
-### Login
+#### Discord
+* Creates, manages, and archives Discord voice + text channels for each puzzle
+* Announces new puzzles in a central channel
+* Keeps tags synced with Discord roles
+* Automatically `@mention` interested hunters when a puzzle with a specific tag is unlocked
 
-You login to Cardboard using a Google account. If you get an error message like
+### Other
 
-![login-error](https://user-images.githubusercontent.com/544734/71759638-0ef64900-2e7e-11ea-8362-73f789085547.png)
-
-then you should contact an admin and ask them to add you to the Google Drive hunt folder. For more details, see the [hunt setup guide](new-hunt-setup.md#giving-a-new-user-access-to-cardboard).
-
-### Adding and modifying puzzles
-
-Any user can add a new puzzle by using the blue "Add New Puzzle" button in the top right.
-
-<img src='https://user-images.githubusercontent.com/544734/71759777-3cdc8d00-2e80-11ea-9d49-48de77370976.png' width='300'>
-
-You must specify a name but the URL is optional. If you know the puzzle is a meta puzzle, you can check the "Meta?" checkbox. In case you made a mistake or realize a puzzle is a meta later on, you can always go back and edit a puzzle by pressing the pencil icon next to the puzzle name.
-
-In case you need to delete a puzzle (perhaps you accidentally created a duplicate), you can do so using the trash icon next to a puzzle name.
-
-When a puzzle is created, a Google Spreadsheet are automatically created for the puzzle. These are linked from the Sheets icon.
-
-### Searching
-
-As a hunt progresses, the number of puzzles can get quite large (especially for a hunt like the MIT Mystery Hunt). To make things more manageable, you can use the "Search" box in the top-right to filter puzzles. The search matches puzzle name, answer, status, or tags. For example, the following shows filtering to just the puzzles that need extraction:
-
-![extraction](https://user-images.githubusercontent.com/1312469/209478179-85516d11-9701-4cc5-b608-f5691cab1d5c.png)
-
-### Metas and Tags
-
-When adding a new puzzle, if you know it's a meta, you can mark it as such by checking the "Meta?" checkbox. This will automatically create a tag with the same name as the meta puzzle. You can then assign other puzzles as belonging to this meta by using the "Assign Metas" button for a puzzle or adding the meta puzzle tag using the "+" icon in the "Tags" column for a puzzle.
-
-The main puzzles page is grouped by metas, with puzzles belonging to a meta indented underneath the meta. Each puzzle may belong to multiple metas, in which case it will appear multiple times, once under each meta it belongs to.
-
-Meta puzzles may also be assigned to other metas (which might be meta-metas).
-
-In addition to meta tags for puzzles, users can also tag puzzles as high or low priority, logic or word puzzles, or create new tags.
-
-### Google Sheets integration
-
-When a puzzle is added, a Google Sheet is automatically created for it, linked from the Sheet icon. The puzzle sheet is a clone of a template sheet, which may have some useful formulas pre-populated. Ownership of the puzzle sheets is transferred to the owner of the the template sheet - search `pendingowner:me` to see and accept the transfers.
-
-### Tools and References
-
-![tools](https://user-images.githubusercontent.com/1312469/209479516-9d2195d3-40b0-40d2-be35-11fccce7ef01.png)
-
-A static list of tools and references is collected on the "Tools and References" page. You can add more by editing the [tools.html](hunts/templates/tools.html) page.
+* Chrome extension to add new puzzles with one click
+* Supports answer queues (anyone can submit answers to the queue, but only admins can mark them as correct)
+* Dark and light modes
