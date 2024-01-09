@@ -17,17 +17,24 @@ For information about **development**, see the [dev guide](dev-guide.md).
 * Seamlessly supports (almost) any puzzle hunt structure
 * Create and assign tags to puzzles
 * Quickly search and filter on puzzle names, rounds, and tags
-* Remote-friendly! Real-time updates on how recently each puzzle's sheet was active, and who's currently working on it
+* Remote-friendly! Real-time display of what everyone's working on at any time
 
 ### Integrations
 
+#### Google Sheets
+
 * Creates a Google Sheet for new puzzles automatically
-* Creates and manages Discord channels for each puzzle
-* TODO: does it do more than just channel management?
-* Chrome extension (TODO: what does this do)
-* TODO: check with others if there's anything else
+* Real-time display of how active each puzzle's sheet is, and who's currently editing it
+* Cleans up unneeded sheets and automatically transfers answers into metapuzzle sheets
+
+#### Discord
+* Creates, manages, and archives Discord voice + text channels for each puzzle
+* Announces new puzzles in a central channel
+* Keeps tags synced with Discord roles
+* Automatically `@mention` interested hunters when a puzzle with a specific tag is unlocked
 
 ### Other
 
+* Chrome extension to add new puzzles with one click
 * Supports answer queues (anyone can submit answers to the queue, but only admins can mark them as correct)
 * Dark and light modes

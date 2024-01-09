@@ -40,7 +40,7 @@ You must specify a name but the URL is optional. If you know the puzzle is a met
 
 In case you need to delete a puzzle (perhaps you accidentally created a duplicate), you can do so using the trash icon next to a puzzle name.
 
-When a puzzle is created, a Google Spreadsheet are automatically created for the puzzle. These are linked from the Sheets icon.
+When a puzzle is created, a Google Spreadsheet is automatically created for the puzzle. These are linked from the Sheets icon.
 
 ### Searching
 
