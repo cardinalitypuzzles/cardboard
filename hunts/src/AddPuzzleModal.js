@@ -50,7 +50,7 @@ function AddPuzzleModal({ huntId }) {
             />
           </Form.Group>
           <Form.Group controlId="addPuzzle.url">
-            <Form.Label>Puzzle urls</Form.Label>
+            <Form.Label>Puzzle url</Form.Label>
             <Form.Control
               required
               placeholder="https://www.example.com/"
@@ -79,7 +79,7 @@ function AddPuzzleModal({ huntId }) {
           </Form.Group>
           <Form.Check
             type="checkbox"
-            label="Is meta?"
+            label="Is meta"
             id="is-meta-checkbox"
             checked={isMeta}
             onChange={(e) => setIsMeta(e.target.checked)}
