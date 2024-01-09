@@ -16,6 +16,7 @@ from .test_helpers import CardboardTestCase
 TEST_URL = "https://cardboard.test/"
 TEST_NAME = "Test"
 
+
 # Disable all chat features for the purposes of this unit test.
 @override_settings(
     CHAT_DEFAULT_SERVICE=None,
@@ -88,6 +89,7 @@ class ApiTests(CardboardTestCase, APITestCase):
                     timezone.get_current_timezone()
                 ).isoformat(),
                 "recent_editors": [],
+                "top_editors": [],
             },
         )
 
@@ -363,7 +365,7 @@ class ApiTests(CardboardTestCase, APITestCase):
                 f"/api/v1/puzzles/{puzzle.pk}/tags/{tag.pk}",
             )
 
-        for (name, color) in PuzzleTag.DEFAULT_TAGS:
+        for name, color in PuzzleTag.DEFAULT_TAGS:
             self.assertTrue(
                 PuzzleTag.objects.filter(
                     hunt=self._hunt, name=name, color=color
