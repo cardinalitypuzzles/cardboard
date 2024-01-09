@@ -120,9 +120,6 @@ export default function NameCell({ row, value }) {
           />
         </div>
       </div>
-      <div>
-        <TagCell row={row} />
-      </div>
     </div>
   );
 }

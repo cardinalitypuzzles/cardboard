@@ -26,7 +26,15 @@ const TABLE_COLUMNS = [
     Header: "Name",
     accessor: "name",
     Cell: NameCell,
-    className: "col-4",
+    className: "col-3",
+  },
+  {
+    Header: "Tags",
+    id: "tags",
+    Cell: TagCell,
+    className: "col-3",
+    accessor: (row) => row.tags.map(({ name }) => name).join(" "),
+    filter: "tagsFilter",
   },
   {
     Header: "",
@@ -58,11 +66,6 @@ const TABLE_COLUMNS = [
     accessor: "created_on",
     Cell: CreationCell,
     className: "col-1",
-  },
-  {
-    accessor: (row) => row.tags.map(({ name }) => name).join(" "),
-    id: "tags",
-    filter: "tagsFilter",
   },
   {
     accessor: "is_meta",
@@ -160,7 +163,7 @@ export const PuzzleTable = React.memo(({ data, filterSolved, filterTags }) => {
       globalFilter: "globalFilter",
       autoResetFilters: false,
       initialState: {
-        hiddenColumns: ["tags", "is_meta", "id", "url"],
+        hiddenColumns: ["is_meta", "id", "url"],
         filters: [],
         // Apparently our patch of react-table introduces the 'collapsed'
         // object that has the opposite semantics of the 'expanded' API.
@@ -184,7 +187,7 @@ export const PuzzleTable = React.memo(({ data, filterSolved, filterTags }) => {
   }, [filterTags]);
 
   let rowsList = [];
-  let roundColours = [
+  const roundColors = [
     "crimson",
     "dodgerblue",
     "forestgreen",
@@ -201,10 +204,9 @@ export const PuzzleTable = React.memo(({ data, filterSolved, filterTags }) => {
     "violet",
   ];
 
-  let topLevelId = (row) => parseInt(row.id.split(".")[0]);
+  const topLevelId = (row) => parseInt(row.id.split(".")[0]);
 
-  for (let i = 0; i < rows.length; ++i) {
-    let row = rows[i];
+  rows.forEach((row, i) => {
     prepareRow(row);
 
     // Add coloring and space between top-level metas
@@ -222,7 +224,7 @@ export const PuzzleTable = React.memo(({ data, filterSolved, filterTags }) => {
             colSpan={`${row.cells.length + 1}`}
             style={{
               background: `linear-gradient(90deg, ${
-                roundColours[topLevelId(row) % roundColours.length]
+                roundColors[topLevelId(row) % roundColors.length]
               }, transparent)`,
             }}
           ></td>
@@ -235,8 +237,7 @@ export const PuzzleTable = React.memo(({ data, filterSolved, filterTags }) => {
         <td
           className="table-side-colorbar"
           style={{
-            backgroundColor:
-              roundColours[topLevelId(row) % roundColours.length],
+            backgroundColor: roundColors[topLevelId(row) % roundColors.length],
           }}
         ></td>
         {row.cells.map((cell) => {
@@ -244,7 +245,7 @@ export const PuzzleTable = React.memo(({ data, filterSolved, filterTags }) => {
         })}
       </tr>
     );
-  }
+  });
 
   return (
     <>
