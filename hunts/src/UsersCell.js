@@ -15,13 +15,24 @@ const getColor = (count) => {
 };
 
 export default ({ row }) => {
-  if (row.values.recentEditors && row.values.recentEditors.length) {
-    const recentEditors = row.values.recentEditors;
-    const recentEditorsPopover = (
+  const recentEditors = row.values.recentEditors;
+  const topEditors = row.values.topEditors;
+  if (recentEditors.length + topEditors.length > 0) {
+    const editorsPopover = (
       <Popover className="bootstrap">
-        <Popover.Title>Recent Editors</Popover.Title>
+        {row.values.recentEditors.length > 0 && (
+          <>
+            <Popover.Title>Recent Editors</Popover.Title>
+            <Popover.Content>
+              {recentEditors.map((editor) => (
+                <div key={editor}>{editor}</div>
+              ))}
+            </Popover.Content>
+          </>
+        )}
+        <Popover.Title>Top Editors</Popover.Title>
         <Popover.Content>
-          {recentEditors.map((editor) => (
+          {topEditors.map((editor) => (
             <div key={editor}>{editor}</div>
           ))}
         </Popover.Content>
@@ -31,7 +42,7 @@ export default ({ row }) => {
       <OverlayTrigger
         trigger={["hover", "focus"]}
         placement="right"
-        overlay={recentEditorsPopover}
+        overlay={editorsPopover}
       >
         <Badge
           className={getColor(recentEditors.length)}

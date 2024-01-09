@@ -15,6 +15,9 @@ from .test_helpers import CardboardTestCase
 
 TEST_URL = "https://cardboard.test/"
 TEST_NAME = "Test"
+META_URL = "https://thisisameta.puzzle"
+META_NAME = "Meta"
+
 
 # Disable all chat features for the purposes of this unit test.
 @override_settings(
@@ -88,8 +91,23 @@ class ApiTests(CardboardTestCase, APITestCase):
                     timezone.get_current_timezone()
                 ).isoformat(),
                 "recent_editors": [],
+                "top_editors": [],
             },
         )
+
+    def test_create_puzzle_with_meta_assigned(self):
+        # Add meta
+        meta_response = self.create_puzzle(
+            {"name": META_NAME, "url": META_URL, "is_meta": True}
+        )
+        self.assertEqual(meta_response.status_code, status.HTTP_200_OK)
+        meta_id = meta_response.data["id"]
+        response = self.create_puzzle(
+            {"name": TEST_NAME, "url": TEST_URL, "assigned_meta": META_NAME}
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        puzzle = Puzzle.objects.get(is_meta=False)
+        self.assertEqual(response.data["metas"], [meta_id])
 
     def test_delete_puzzle(self):
         self.check_response_status(
@@ -363,7 +381,7 @@ class ApiTests(CardboardTestCase, APITestCase):
                 f"/api/v1/puzzles/{puzzle.pk}/tags/{tag.pk}",
             )
 
-        for (name, color) in PuzzleTag.DEFAULT_TAGS:
+        for name, color in PuzzleTag.DEFAULT_TAGS:
             self.assertTrue(
                 PuzzleTag.objects.filter(
                     hunt=self._hunt, name=name, color=color
