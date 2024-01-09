@@ -1,10 +1,10 @@
-const IS_PROD = false;
+const IS_PROD = true;
 
-const PROD_URL = "https://cardboard.rocks";
-const DEV_URL = "http://localhost:8000";
+const PROD_URL = 'https://cardboard.rocks';
+const DEV_URL = 'http://localhost:8000';
 
 // TODO: Make this configurable
-const HUNT_NUMBER = 3;
+const HUNT_NUMBER = 10;
 
 let URL = DEV_URL;
 if (IS_PROD) {
@@ -12,12 +12,9 @@ if (IS_PROD) {
 }
 
 // Read all puzzles and filter down to those that are metas.
-const hunt_puzzles = await fetch(
-  URL + "/api/v1/hunts/" + HUNT_NUMBER + "/puzzles",
-  {
-    method: "GET",
-  }
-);
+const hunt_puzzles = await fetch(URL + "/api/v1/hunts/" + HUNT_NUMBER + "/puzzles", {
+  method: "GET",
+});
 const response = await hunt_puzzles.json();
 let metas = [];
 for (const puzzle of response) {
@@ -36,7 +33,7 @@ const template = document.getElementById("li_template");
 const elements = new Set();
 for (const tab of tabs) {
   const element = template.content.firstElementChild.cloneNode(true);
-
+  
   if (tab.title != undefined) {
     element.querySelector(".puzzle_name").value = tab.title;
   }
@@ -58,25 +55,22 @@ for (const tab of tabs) {
 document.querySelector("ul").append(...elements);
 
 const button = document.querySelector("button");
-button.addEventListener("click", async (e) => {
+button.addEventListener("click", async e => {
   e.preventDefault();
   // Get Cardboard cookie
-  const cardboard_cookie = await chrome.cookies.get({
-    url: URL,
-    name: "csrftoken",
-  });
-
+  const cardboard_cookie = await chrome.cookies.get({ url: URL, name: 'csrftoken' });
+  
   if (cardboard_cookie) {
-    // Create puzzle. Puzzle name is limited to 30 characters
+    // Create puzzle. Puzzle name is limited to 30 characters 
     fetch(URL + "/api/v1/hunts/" + HUNT_NUMBER + "/puzzles", {
       method: "POST",
       mode: "cors",
       body: JSON.stringify({
-        create_channels: document.getElementById("create_channels").checked,
-        is_meta: document.getElementById("is_meta").checked,
-        name: document.getElementById("puzzle_name").value.slice(0, 30),
-        url: document.getElementById("puzzle_url").value,
-        assigned_meta: document.getElementById("puzzle_meta").value,
+        create_channels: document.getElementById('create_channels').checked,
+        is_meta: document.getElementById('is_meta').checked,
+        name: document.getElementById('puzzle_name').value.slice(0, 30),
+        url: document.getElementById('puzzle_url').value,
+        assigned_meta: document.getElementById('puzzle_meta').value
       }),
       headers: {
         "X-CSRFToken": cardboard_cookie.value,
@@ -84,7 +78,7 @@ button.addEventListener("click", async (e) => {
       },
     });
   } else {
-    console.log("No cookie found");
+    console.log('No cookie found');
   }
 });
 
