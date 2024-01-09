@@ -273,3 +273,30 @@ class DiscordChatService(ChatService):
             )
         except Exception as e:
             print(f"Error renaming channel: {e}")
+
+    def get_all_roles(self, guild_id):
+        try:
+            response = requests.get(
+                f"{DISCORD_BASE_API_URL}/guilds/{guild_id}/roles",
+                headers=self._headers,
+                timeout=5,
+            )
+            return json.loads(response.content.decode("utf-8"))
+        except Exception as e:
+            print(f"Error getting roles from Discord: {e}")
+
+    def create_role(self, guild_id, role_name, color):
+        try:
+            response = requests.post(
+                f"{DISCORD_BASE_API_URL}/guilds/{guild_id}/roles",
+                headers=self._headers,
+                json={
+                    "name": role_name,
+                    "color": color,
+                    "mentionable": True,
+                },
+                timeout=5,
+            )
+            return json.loads(response.content.decode("utf-8"))
+        except Exception as e:
+            print(f"Error creating Discord role: {e}")

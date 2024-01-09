@@ -12,6 +12,7 @@ export const SiteHeader = () => {
   const toggleDrawer = () => {
     setIsOpen((prevState) => !prevState);
   };
+
   return (
     <>
       <nav
@@ -49,6 +50,14 @@ export const SiteHeader = () => {
         <div className="nav-link">Logged in as {window.LOGGED_IN_USER}</div>
 
         <div className="mt-auto" style={{ marginBottom: "36px" }}>
+          <span
+            style={{
+              borderTop: "1px solid black",
+              width: "100%",
+              display: "inline-block",
+            }}
+            className="font-weight-bold nav-link"
+          ></span>
           <span
             style={{
               borderTop: "1px solid black",

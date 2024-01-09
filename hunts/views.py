@@ -144,6 +144,24 @@ def redirect_to_drive(request, hunt_slug):
         return redirect("/")
 
 
+@login_required(login_url="/")
+def sync_discord_roles(request, hunt_slug):
+    if request.method != "POST":
+        return HttpResponseForbidden()
+    if not request.user.is_staff:
+        return HttpResponseForbidden()
+
+    hunt = Hunt.get_object_or_404(user=request.user, slug=hunt_slug)
+
+    import chat.tasks
+    chat.tasks.sync_roles(
+        hunt,
+        settings.CHAT_DEFAULT_SERVICE,
+    )
+
+    return redirect(f"/hunts/{hunt_slug}/edit")
+
+
 class LastAccessedHuntRedirectView(LoginRequiredMixin, RedirectView):
     login_url = "/"
     pattern_name = "hunts:all_puzzles_react"
