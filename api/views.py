@@ -383,6 +383,12 @@ class PuzzleViewSet(viewsets.ModelViewSet):
 
             puzzle = serializer.save(hunt=hunt, chat_room=chat_room)
 
+            if "assigned_meta" in request.data and request.data["assigned_meta"]:
+                meta = get_object_or_404(
+                    Puzzle, name=request.data["assigned_meta"], hunt=puzzle.hunt
+                )
+                puzzle.metas.add(meta)
+
             if google_api_lib.enabled():
                 transaction.on_commit(
                     lambda: google_api_lib.tasks.create_google_sheets.delay(puzzle.id)
@@ -457,6 +463,7 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
             )
             tag, _ = PuzzleTag.objects.get_or_create(name=tag_name, hunt=puzzle.hunt)
             if tag.is_meta:
+                # Look up the meta and then add it to puzzle.metas
                 meta = get_object_or_404(Puzzle, name=tag.name, hunt=puzzle.hunt)
                 if is_ancestor(puzzle, meta):
                     return Response(
