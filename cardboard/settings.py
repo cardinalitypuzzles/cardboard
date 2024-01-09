@@ -74,7 +74,6 @@ INSTALLED_APPS = [
     "hunts",
     "answers",
     "social_django",
-    "taggit",
     "rest_framework",
     "corsheaders",
 ]
@@ -266,10 +265,6 @@ SOCIAL_AUTH_PIPELINE = (
     "social_core.pipeline.social_auth.load_extra_data",
     "social_core.pipeline.user.user_details",
 )
-
-# Taggit Overrides
-TAGGIT_TAGS_FROM_STRING = "puzzles.tag_utils.to_tag"
-
 
 # Chat app settings.
 
