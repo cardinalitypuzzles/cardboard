@@ -8,6 +8,56 @@ import TagCell from "./TagCell";
 import ClickableIcon from "./ClickableIcon";
 import { toggleCollapsed } from "./collapsedPuzzlesSlice";
 import { IconChevronDown, IconChevronRight } from "@tabler/icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircle } from "@fortawesome/free-solid-svg-icons";
+import { OverlayTrigger, Popover } from "react-bootstrap";
+import ReactTimeAgo from "react-time-ago";
+
+const getColor = (min_since_edit) => {
+  if (min_since_edit <= 5) {
+    return "text-success";
+  } else if (min_since_edit <= 30) {
+    return "text-warning";
+  } else {
+    return "text-danger";
+  }
+};
+
+const LastActive = ({ last_edited_on }) => {
+  const last_edited_date = new Date(Date.parse(last_edited_on));
+  const min_since_edit = (Date.now() - last_edited_date) / (1000 * 60);
+  const editedOnPopOver = (
+    <Popover className="bootstrap">
+      <Popover.Content>
+        Last active <ReactTimeAgo date={last_edited_date} locale="en-US" />
+      </Popover.Content>
+    </Popover>
+  );
+  return (
+    <>
+      <OverlayTrigger
+        trigger={["hover", "focus"]}
+        placement="right"
+        overlay={editedOnPopOver}
+      >
+        <FontAwesomeIcon
+          className={getColor(min_since_edit)}
+          style={{ verticalAlign: "-0.125em" }}
+          icon={faCircle}
+        />
+      </OverlayTrigger>
+    </>
+  );
+};
+
+const PuzzleTitle = ({ name, last_edited_on }) => {
+  return (
+    <>
+      {last_edited_on && <LastActive last_edited_on={last_edited_on} />}{" "}
+      <b>{name}</b>
+    </>
+  );
+};
 
 const useToggleRowExpandedProps = (row) => {
   const dispatch = useDispatch();
@@ -54,10 +104,16 @@ export default function NameCell({ row, value }) {
         {row.canExpand ? (
           <span {...toggleRowExpandedProps}>
             {row.isExpanded ? <IconChevronDown /> : <IconChevronRight />}
-            {nameText}
+            <PuzzleTitle
+            name={value}
+            last_edited_on={row.values.last_edited_on}
+          ></PuzzleTitle>
           </span>
         ) : (
-          <span>{nameText}</span>
+          <span><PuzzleTitle
+          name={value}
+          last_edited_on={row.values.last_edited_on}
+        ></PuzzleTitle></span>
         )}{" "}
         {row.values.is_meta ? (
           <>
