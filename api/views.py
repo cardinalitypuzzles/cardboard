@@ -375,11 +375,7 @@ class PuzzleViewSet(viewsets.ModelViewSet):
 
             puzzle = serializer.save(hunt=hunt, chat_room=chat_room)
 
-            if (
-                "assigned_meta" in request.data
-                and request.data["assigned_meta"]
-                and request.data["assigned_meta"] != "none"
-            ):
+            if "assigned_meta" in request.data and request.data["assigned_meta"]:
                 meta = get_object_or_404(
                     Puzzle, name=request.data["assigned_meta"], hunt=puzzle.hunt
                 )
