@@ -6,14 +6,14 @@ const DEV_URL = "http://localhost:8000";
 // TODO: Make this configurable
 const HUNT_NUMBER = 10;
 
-let URL = DEV_URL;
+let TARGET_URL = DEV_URL;
 if (IS_PROD) {
-  URL = PROD_URL;
+  TARGET_URL = PROD_URL;
 }
 
 // Read all puzzles and filter down to those that are metas.
 const hunt_puzzles = await fetch(
-  URL + "/api/v1/hunts/" + HUNT_NUMBER + "/puzzles",
+  TARGET_URL + "/api/v1/hunts/" + HUNT_NUMBER + "/puzzles",
   {
     method: "GET",
   }
@@ -62,13 +62,13 @@ button.addEventListener("click", async (e) => {
   e.preventDefault();
   // Get Cardboard cookie
   const cardboard_cookie = await chrome.cookies.get({
-    url: URL,
+    url: TARGET_URL,
     name: "csrftoken",
   });
 
   if (cardboard_cookie) {
     // Create puzzle. Puzzle name is limited to 30 characters
-    fetch(URL + "/api/v1/hunts/" + HUNT_NUMBER + "/puzzles", {
+    fetch(TARGET_URL + "/api/v1/hunts/" + HUNT_NUMBER + "/puzzles", {
       method: "POST",
       mode: "cors",
       body: JSON.stringify({
@@ -87,17 +87,3 @@ button.addEventListener("click", async (e) => {
     console.log("No cookie found");
   }
 });
-
-// Doing a GET in order to get the metas that you can assign this new puzzles to.
-/*
-const hunt_puzzles = await fetch("http://localhost:8000/api/v1/hunts/3/puzzles", {
-  method: "GET",
-});
-const response = await hunt_puzzles.json();
-console.log(response);
-for (const puzzle of response) {
-  if (puzzle.is_meta) {
-    console.log(puzzle.name);
-  }
-}
-*/
