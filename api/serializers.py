@@ -151,13 +151,9 @@ class PuzzleSerializer(serializers.ModelSerializer):
         if hasattr(obj, "_top_editors"):
             top_editors_with_duplicates = obj._top_editors
         else:
-            top_editors_with_duplicates = (
-                obj.active_users.filter(
-                    puzzle_activities__puzzle_id=obj.id,
-                )
-                .filter(puzzle_activities__num_edits__gt=5)
-                .order_by("-puzzle_activities__num_edits")
-            )
+            top_editors_with_duplicates = obj.active_users.filter(
+                puzzle_activities__num_edits__gt=5
+            ).order_by("-puzzle_activities__num_edits")
 
         top_editors = []
         for user in top_editors_with_duplicates:
