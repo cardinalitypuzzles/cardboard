@@ -1,3 +1,4 @@
+// TODO: Default this to false and control this in the deployment process
 const IS_PROD = true;
 
 const PROD_URL = "https://cardboard.rocks";
