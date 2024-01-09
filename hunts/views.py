@@ -154,15 +154,13 @@ def sync_discord_roles(request, hunt_slug):
     hunt = Hunt.get_object_or_404(user=request.user, slug=hunt_slug)
 
     import chat.tasks
+
     chat.tasks.sync_roles(
         hunt,
         settings.CHAT_DEFAULT_SERVICE,
     )
-    
-    messages.success(
-        request,
-        "Discord roles created."
-    )
+
+    messages.success(request, "Discord roles created.")
 
     return HttpResponse(
         status=200,
