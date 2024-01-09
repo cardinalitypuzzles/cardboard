@@ -71,6 +71,22 @@ body {
   border-color: var(--table-row-danger-border);
 }
 
+#app .table.table-sm thead th {
+  border-bottom: none;
+}
+
+#app .table-top-colorbar {
+  height: 4px;
+  padding: 0rem;
+  border: none;
+}
+
+#app .table-side-colorbar {
+  width: 4px;
+  padding: 0rem;
+  border: none;
+}
+
 .bootstrap-dark a {
   color: #007bff;
 }

@@ -73,7 +73,8 @@ export const HuntViewMain = (props) => {
       <SiteHeader />
       <div
         style={{
-          margin: "0 20px",
+          margin: "0px auto",
+          maxWidth: "1600px",
         }}
       >
         <Alert
@@ -108,9 +109,7 @@ export const HuntViewMain = (props) => {
                   id={id}
                   puzzleId={null}
                   key={name}
-                  onDelete={() =>
-                    dispatch(toggleFilterTag({ name, color, id }))
-                  }
+                  onClick={() => dispatch(toggleFilterTag({ name, color, id }))}
                 />
               );
             })}
