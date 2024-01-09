@@ -26,6 +26,7 @@ from .utils import GoogleApiClientTask, enabled
 
 logger = logging.getLogger(__name__)
 
+
 # helper function that can be mocked for testing
 def create_google_sheets_helper(self, name, template_file_id) -> dict:
     req_body = {"name": name}
@@ -340,7 +341,7 @@ def _update_meta_sheet_feeders(self, puzzle_id) -> None:
         {},
     ] + feeder_table
 
-    for (feeder_name, grandfeeder_table) in grandfeeder_tables.items():
+    for feeder_name, grandfeeder_table in grandfeeder_tables.items():
         rows.append({})
         rows.append(
             {
@@ -605,10 +606,12 @@ def update_active_users(self, hunt_id):
                 timestamp = get_timestamp_from_activity(activity)
 
                 if (user_pk, puzzle_pk) not in latest:
-                    latest[(user_pk, puzzle_pk)] = timestamp
+                    latest[(user_pk, puzzle_pk)] = (timestamp, 1)
                 else:
-                    latest[(user_pk, puzzle_pk)] = max(
-                        timestamp, latest[(user_pk, puzzle_pk)]
+                    (current_latest, num_edits) = latest[(user_pk, puzzle_pk)]
+                    latest[(user_pk, puzzle_pk)] = (
+                        max(timestamp, current_latest),
+                        num_edits + 1,
                     )
 
         if "nextPageToken" not in response:
@@ -636,20 +639,28 @@ def update_active_users(self, hunt_id):
                 PuzzleActivity(
                     puzzle_id=puzzle_pk,
                     user_id=user_pk,
-                    last_edit_time=timestamp,
+                    last_edit_time=last_edit_time,
+                    num_edits=num_edits,
                 )
-                for ((user_pk, puzzle_pk), timestamp) in latest.items()
+                for (
+                    (user_pk, puzzle_pk),
+                    (last_edit_time, num_edits),
+                ) in latest.items()
                 if (user_pk, puzzle_pk) not in old_keys
             ],
         )
 
         updates = []
         for activity in old_activities:
-            activity.last_edit_time = latest[(activity.user_id, activity.puzzle_id)]
+            (last_edit_time, num_edits) = latest[(activity.user_id, activity.puzzle_id)]
+            activity.last_edit_time = last_edit_time
+            activity.num_edits += num_edits
             updates.append(activity)
 
         if updates:
-            PuzzleActivity.objects.bulk_update(updates, fields=["last_edit_time"])
+            PuzzleActivity.objects.bulk_update(
+                updates, fields=["last_edit_time", "num_edits"]
+            )
 
         hunt.last_active_users_update_time = end
         hunt.save()

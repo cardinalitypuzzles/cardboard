@@ -233,6 +233,7 @@ class PuzzleActivity(models.Model):
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     puzzle = models.ForeignKey(Puzzle, on_delete=models.CASCADE)
     last_edit_time = models.DateTimeField()
+    num_edits = models.IntegerField(default=0)
 
     class Meta:
         default_related_name = "puzzle_activities"

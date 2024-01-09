@@ -61,7 +61,6 @@ class AnswerViewSet(viewsets.ModelViewSet):
 
     @staticmethod
     def _maybe_update_sheets_title(puzzle):
-
         if google_api_lib.enabled() and puzzle.sheet:
             if puzzle.is_solved():
                 solve_label = "BACKSOLVED" if puzzle.is_backsolved() else "SOLVED"
@@ -225,6 +224,15 @@ class PuzzleViewSet(viewsets.ModelViewSet):
                     to_attr="_recent_editors",
                 )
             )
+            .prefetch_related(
+                Prefetch(
+                    "active_users",
+                    queryset=get_user_model()
+                    .objects.filter(puzzle_activities__num_edits__gt=5)
+                    .order_by("-puzzle_activities__num_edits"),
+                    to_attr="_top_editors",
+                )
+            )
         )
 
     def destroy(self, request, pk=None, **kwargs):
@@ -375,6 +383,12 @@ class PuzzleViewSet(viewsets.ModelViewSet):
 
             puzzle = serializer.save(hunt=hunt, chat_room=chat_room)
 
+            if "assigned_meta" in request.data and request.data["assigned_meta"]:
+                meta = get_object_or_404(
+                    Puzzle, name=request.data["assigned_meta"], hunt=puzzle.hunt
+                )
+                puzzle.metas.add(meta)
+
             if google_api_lib.enabled():
                 transaction.on_commit(
                     lambda: google_api_lib.tasks.create_google_sheets.delay(puzzle.id)
@@ -449,6 +463,7 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
             )
             tag, _ = PuzzleTag.objects.get_or_create(name=tag_name, hunt=puzzle.hunt)
             if tag.is_meta:
+                # Look up the meta and then add it to puzzle.metas
                 meta = get_object_or_404(Puzzle, name=tag.name, hunt=puzzle.hunt)
                 if is_ancestor(puzzle, meta):
                     return Response(

@@ -23,10 +23,10 @@ class PuzzleTagAdmin(admin.ModelAdmin):
 
 
 class PuzzleActivityAdmin(admin.ModelAdmin):
-    list_display = ["user", "puzzle", "last_edit_time"]
+    list_display = ["user", "puzzle", "last_edit_time", "num_edits"]
     list_filter = ["puzzle__hunt__name", "user", "puzzle"]
 
-    ordering = ("-last_edit_time",)
+    ordering = ("-last_edit_time", "-num_edits")
 
 
 admin.site.register(Puzzle, PuzzleAdmin)
