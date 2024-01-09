@@ -6,7 +6,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
-from django.http import HttpResponseForbidden, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views import View
@@ -158,8 +158,15 @@ def sync_discord_roles(request, hunt_slug):
         hunt,
         settings.CHAT_DEFAULT_SERVICE,
     )
+    
+    messages.success(
+        request,
+        "Discord roles created."
+    )
 
-    return redirect(f"/hunts/{hunt_slug}/edit")
+    return HttpResponse(
+        status=200,
+    )
 
 
 class LastAccessedHuntRedirectView(LoginRequiredMixin, RedirectView):
