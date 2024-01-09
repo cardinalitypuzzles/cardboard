@@ -13,10 +13,6 @@ export const alertSlice = createSlice({
   },
   reducers: {
     showAlert: (state, action) => {
-      console.log(action.payload);
-      console.log(action.payload);
-      console.log(action.payload.variant);
-      console.log(action.payload["variant"]);
       state.show = true;
       state.variant = action.payload.variant;
       state.text = action.payload.text;
