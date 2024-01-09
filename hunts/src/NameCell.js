@@ -87,8 +87,7 @@ export default function NameCell({ row, value }) {
                 })
               )
             }
-          />
-          {" "}
+          />{" "}
           <ClickableIcon
             icon={faTag}
             onClick={() =>
@@ -103,8 +102,7 @@ export default function NameCell({ row, value }) {
                 })
               )
             }
-          />
-          {" "}
+          />{" "}
           <ClickableIcon
             icon={faTag}
             onClick={() =>
