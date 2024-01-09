@@ -104,21 +104,6 @@ export default function NameCell({ row, value }) {
             }
           />{" "}
           <ClickableIcon
-            icon={faTag}
-            onClick={() =>
-              dispatch(
-                showModal({
-                  type: "EDIT_TAGS",
-                  props: {
-                    huntId,
-                    puzzleId: row.values.id,
-                    puzzleName: row.values.name,
-                  },
-                })
-              )
-            }
-          />{" "}
-          <ClickableIcon
             icon={faTrashAlt}
             onClick={() =>
               dispatch(
