@@ -190,40 +190,59 @@ class HuntSettings(models.Model):
     #
     # Discord-specific settings
     #
+    create_channel_by_default = models.BooleanField(
+        default=True,
+        help_text="Toggles whether puzzles should have chat channels created by default",
+    )
 
-    # The id of your Discord server
-    # This can be found on the "Widget" page in the Server Settings
-    discord_guild_id = models.CharField(max_length=128, blank=True)
+    discord_guild_id = models.CharField(
+        max_length=128,
+        blank=True,
+        help_text='The id of your Discord server. This can be found on the "Widget" page in the Server Settings',
+    )
 
-    # The id of the Discord channel to make puzzle announcements in
-    # This channel can get noisy and is recommended to be its own separate channel
-    # This ID can be found by enabling Developer Mode in Discord and right-clicking on the channel
     discord_puzzle_announcements_channel_id = models.CharField(
-        max_length=128, blank=True
+        max_length=128,
+        blank=True,
+        help_text="""The id of the Discord channel to make puzzle announcements in.
+        This channel can get noisy and is recommended to be its own separate channel.
+        This ID can be found by enabling Developer Mode in Discord and right-clicking on the channel""",
     )
 
-    # The category name to create all metas in
     discord_metas_category = models.CharField(
-        max_length=128, default="metas", blank=True
+        max_length=128,
+        default="metas",
+        blank=True,
+        help_text="The category name to create all metas in",
     )
 
-    # The category name to create all unassigned Discord text channels in
     discord_unassigned_text_category = models.CharField(
-        max_length=128, default="text [unassigned]", blank=True
+        max_length=128,
+        default="text [unassigned]",
+        blank=True,
+        help_text="The category name to create all unassigned Discord text channels in",
     )
 
-    # The category name to create all unassigned Discord voice channels in
     discord_unassigned_voice_category = models.CharField(
-        max_length=128, default="voice [unassigned]", blank=True
+        max_length=128,
+        default="voice [unassigned]",
+        blank=True,
+        help_text="The category name to create all unassigned Discord voice channels in",
     )
 
-    # The category name to archive all Discord channels for solved puzzles in
     discord_archive_category = models.CharField(
-        max_length=128, default="archive", blank=True
+        max_length=128,
+        default="archive",
+        blank=True,
+        help_text="The category name to archive all Discord channels for solved puzzles in",
     )
 
-    # The Discord role for the people maintaining the Cardboard instance, in case of problems
-    discord_devs_role = models.CharField(max_length=128, default="dev", blank=True)
+    discord_devs_role = models.CharField(
+        max_length=128,
+        default="dev",
+        blank=True,
+        help_text="The Discord role for the people maintaining the Cardboard instance, in case of problems",
+    )
 
     active_user_lookback = models.DurationField(
         default=timedelta(minutes=10),
