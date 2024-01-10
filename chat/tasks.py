@@ -7,6 +7,7 @@ from django.db.models import Prefetch
 
 from answers.models import Answer
 from cardboard.settings import TaskPriority
+from hunts.models import Hunt
 from puzzles.models import Puzzle, PuzzleTag, PuzzleTagColor
 
 logger = logging.getLogger(__name__)
@@ -173,10 +174,12 @@ DISCORD_ROLE_COLOR_WHITE = 0xFFFFFF
 
 
 @shared_task(rate_limit="6/m", acks_late=True)
-def sync_roles(hunt, service_name):
+def sync_roles(hunt_slug, service_name):
     from django.conf import settings
 
     from chat.models import ChatRole
+    
+    hunt = Hunt.get_object_or_404(slug=hunt_slug)
 
     chat_service = settings.CHAT_SERVICES[service_name].get_instance()
     guild_id = hunt.settings.discord_guild_id
@@ -186,8 +189,10 @@ def sync_roles(hunt, service_name):
     cardboard_tags = PuzzleTag.objects.filter(hunt=hunt)
     existing_chat_roles = ChatRole.objects.filter(hunt=hunt)
 
+    default_tag_names = [n[0] for n in PuzzleTag.DEFAULT_TAGS]
+
     for tag in cardboard_tags:
-        if tag.color != PuzzleTagColor.BLUE and tag.color != PuzzleTagColor.WHITE:
+        if (tag.color != PuzzleTagColor.BLUE and tag.color != PuzzleTagColor.WHITE) or tag.name not in default_tag_names:
             continue
 
         # Create corresponding Discord tag, if needed
@@ -208,14 +213,12 @@ def sync_roles(hunt, service_name):
         if existing_chat_role.exists():
             obj = existing_chat_role.first()
             if obj.role_id != discord_roles_by_name[tag.name]["id"]:
-                with transaction.atomic():
-                    obj.role_id = discord_roles_by_name[tag.name]["id"]
-                    obj.save()
+                obj.role_id = discord_roles_by_name[tag.name]["id"]
+                obj.save()
         else:
             obj = ChatRole(
                 hunt=hunt,
                 name=tag.name,
                 role_id=discord_roles_by_name[tag.name]["id"],
             )
-            with transaction.atomic():
-                obj.save()
+            obj.save()

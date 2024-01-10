@@ -151,12 +151,10 @@ def sync_discord_roles(request, hunt_slug):
     if not request.user.is_staff:
         return HttpResponseForbidden()
 
-    hunt = Hunt.get_object_or_404(user=request.user, slug=hunt_slug)
 
     import chat.tasks
-
-    chat.tasks.sync_roles(
-        hunt,
+    chat.tasks.sync_roles.delay(
+        hunt_slug,
         settings.CHAT_DEFAULT_SERVICE,
     )
 
