@@ -233,6 +233,7 @@ class PuzzleViewSet(viewsets.ModelViewSet):
                     to_attr="_top_editors",
                 )
             )
+            .prefetch_related("puzzle_activities")
         )
 
     def destroy(self, request, pk=None, **kwargs):

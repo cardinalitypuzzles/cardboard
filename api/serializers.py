@@ -120,6 +120,7 @@ class PuzzleSerializer(serializers.ModelSerializer):
     )
     recent_editors = serializers.SerializerMethodField()
     top_editors = serializers.SerializerMethodField()
+    last_edited_on = serializers.SerializerMethodField()
 
     def get_guesses(self, obj):
         # Show only correct guesses.
@@ -164,6 +165,15 @@ class PuzzleSerializer(serializers.ModelSerializer):
                 break
 
         return top_editors
+
+    def get_last_edited_on(self, obj):
+        puzzle_activities = obj.puzzle_activities.all()
+        if len(puzzle_activities) > 0:
+            return max(
+                [activity.last_edit_time for activity in obj.puzzle_activities.all()]
+            )
+        else:
+            return None
 
     def validate_url(self, url):
         return url_normalize(url)
@@ -216,6 +226,7 @@ class PuzzleSerializer(serializers.ModelSerializer):
             "created_on",
             "recent_editors",
             "top_editors",
+            "last_edited_on",
         )
 
         read_only_fields = (
@@ -230,6 +241,7 @@ class PuzzleSerializer(serializers.ModelSerializer):
             "created_on",
             "recent_editors",
             "top_editors",
+            "last_edited_on",
         )
 
         validators = (

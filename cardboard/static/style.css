@@ -55,6 +55,10 @@ body {
   --table-row-danger-text: #e4e4e4;
 }
 
+.bootstrap input[type=search] {
+  outline-offset: unset;
+}
+
 #app .table-success,
 #app .table-success > td,
 #app .table-success > th {

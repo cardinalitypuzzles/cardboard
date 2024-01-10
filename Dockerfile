@@ -10,7 +10,8 @@ RUN apk update && apk add \
     musl-dev \
     postgresql-dev \
     python3-dev \
-    tzdata
+    tzdata \
+    procps
 
 # install npm & yarn
 RUN apk add --update nodejs yarn

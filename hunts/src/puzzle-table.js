@@ -37,6 +37,10 @@ const TABLE_COLUMNS = [
     filter: "tagsFilter",
   },
   {
+    accessor: "last_edited_on",
+    id: "last_edited_on",
+  },
+  {
     Header: "",
     accessor: (row) => row.recent_editors,
     Cell: UsersCell,
@@ -167,7 +171,7 @@ export const PuzzleTable = React.memo(({ data, filterSolved, filterTags }) => {
       globalFilter: "globalFilter",
       autoResetFilters: false,
       initialState: {
-        hiddenColumns: ["is_meta", "id", "url", "topEditors"],
+        hiddenColumns: ["is_meta", "id", "url", "topEditors", "last_edited_on"],
         filters: [],
         // Apparently our patch of react-table introduces the 'collapsed'
         // object that has the opposite semantics of the 'expanded' API.

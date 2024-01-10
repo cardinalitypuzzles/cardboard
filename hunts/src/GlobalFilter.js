@@ -8,6 +8,7 @@ function GlobalFilter() {
   return (
     <span>
       <input
+        type="search"
         value={value || ""}
         onChange={(e) => {
           dispatch(updateTextFilter(e.target.value));

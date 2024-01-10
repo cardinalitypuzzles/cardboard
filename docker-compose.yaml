@@ -32,7 +32,7 @@ services:
       - redis
   celery:
     build: .
-    command: celery -A cardboard worker -l info --beat
+    command: python manage.py celery_worker
     volumes:
       - .:/usr/src/cardboard/:Z
     environment:
