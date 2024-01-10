@@ -32,7 +32,6 @@ class PuzzleAccessPermission(permissions.BasePermission):
         return request.user.has_perm("hunt_access", hunt)
 
     def has_object_permission(self, request, view, obj):
-        logger.info("Just checkin some object permissions")
         return request.user.has_perm("hunt_access", obj.hunt)
 
 
@@ -66,7 +65,6 @@ class AnswerAccessPermission(permissions.BasePermission):
         if not hunt:
             return False
 
-        logger.info("testing some answer obj perms")
         return request.user.has_perm("hunt_access", hunt)
 
     def has_object_permission(self, request, view, obj):
