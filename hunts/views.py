@@ -42,7 +42,8 @@ def index(request):
                     )
                     hunt.save()
 
-                    assign_perm(["hunt_admin", "hunt_access"], request.user, hunt)
+                    assign_perm("hunt_admin", request.user, hunt)
+                    assign_perm("hunt_access", request.user, hunt)
 
                     if form.cleaned_data["populate_tags"]:
                         transaction.on_commit(

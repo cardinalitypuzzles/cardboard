@@ -28,7 +28,7 @@ class Hunt(models.Model):
 
     class Meta:
         permissions = (
-            ("hunt_owner", "Hunt owner"),
+            ("hunt_admin", "Hunt admin"),
             ("hunt_access", "Hunt access"),
         )
 

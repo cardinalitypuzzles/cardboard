@@ -1,3 +1,4 @@
+from guardian.shortcuts import assign_perm
 from rest_framework import status
 
 from accounts.models import Puzzler
@@ -15,6 +16,8 @@ class CardboardTestCase:
         self.client.login(username="test", password="testingpwd")
 
         self._hunt = Hunt.objects.create(name="fake hunt", url="google.com")
+        assign_perm("hunt_admin", self._user, self._hunt)
+        assign_perm("hunt_access", self._user, self._hunt)
 
         self._hunt.settings.google_sheets_template_file_id = TEST_SHEET_TEMPLATE_ID
         self._hunt.settings.save()
