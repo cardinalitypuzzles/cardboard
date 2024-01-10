@@ -152,7 +152,8 @@ class TestPuzzle(APITestCase):
         self.assertEqual(response["Location"], puzzle.sheet)
 
         response = self.client.get(f"/puzzles/s/0", follow=False)
-        self.assertEqual(response["Location"], "/")
+        # If the puzzle doesn't exist we 404
+        self.assertEqual(response.status_code, 404)
 
         Puzzle.objects.select_for_update().filter(id=puzzle.pk).update(sheet=None)
         response = self.client.get(f"/puzzles/s/{puzzle.pk}", follow=False)
