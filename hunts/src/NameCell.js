@@ -105,15 +105,17 @@ export default function NameCell({ row, value }) {
           <span {...toggleRowExpandedProps}>
             {row.isExpanded ? <IconChevronDown /> : <IconChevronRight />}
             <PuzzleTitle
-            name={value}
-            last_edited_on={row.values.last_edited_on}
-          ></PuzzleTitle>
+              name={value}
+              last_edited_on={row.values.last_edited_on}
+            ></PuzzleTitle>
           </span>
         ) : (
-          <span><PuzzleTitle
-          name={value}
-          last_edited_on={row.values.last_edited_on}
-        ></PuzzleTitle></span>
+          <span>
+            <PuzzleTitle
+              name={value}
+              last_edited_on={row.values.last_edited_on}
+            ></PuzzleTitle>
+          </span>
         )}{" "}
         {row.values.is_meta ? (
           <>
