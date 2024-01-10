@@ -90,6 +90,7 @@ class ApiTests(CardboardTestCase, APITestCase):
                 "created_on": puzzle.created_on.astimezone(
                     timezone.get_current_timezone()
                 ).isoformat(),
+                "last_edited_on": None,
                 "recent_editors": [],
                 "top_editors": [],
             },

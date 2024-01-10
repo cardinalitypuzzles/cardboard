@@ -30,12 +30,16 @@ export default ({ row }) => {
             </Popover.Content>
           </>
         )}
-        <Popover.Title>Top Editors</Popover.Title>
-        <Popover.Content>
-          {topEditors.map((editor) => (
-            <div key={editor}>{editor}</div>
-          ))}
-        </Popover.Content>
+        {row.values.topEditors.length > 0 && (
+          <>
+            <Popover.Title>Top Editors</Popover.Title>
+            <Popover.Content>
+              {topEditors.map((editor) => (
+                <div key={editor}>{editor}</div>
+              ))}
+            </Popover.Content>
+          </>
+        )}
       </Popover>
     );
     return (
