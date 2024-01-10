@@ -1,4 +1,5 @@
 from django.test import override_settings
+from guardian.shortcuts import assign_perm
 from rest_framework.test import APITestCase
 
 from accounts.models import Puzzler
@@ -25,6 +26,8 @@ class TestPuzzle(APITestCase):
         self.client.login(username="test", password="testingpwd")
 
         self._test_hunt = Hunt.objects.create(name="fake hunt", url="google.com")
+        assign_perm("hunt_admin", self._user, self._test_hunt)
+        assign_perm("hunt_access", self._user, self._test_hunt)
         self._suffix = 0
         self._puzzles = []
 

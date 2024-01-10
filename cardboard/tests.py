@@ -1,4 +1,5 @@
 from django.test import TestCase
+from guardian.shortcuts import assign_perm
 
 from accounts.models import Puzzler
 from cardboard import views
@@ -12,6 +13,8 @@ class TestHomePage(TestCase):
         )
 
         self._test_hunt = Hunt.objects.create(name="hunt1", url="hunt1.com")
+        assign_perm("hunt_admin", self._user, self._test_hunt)
+        assign_perm("hunt_access", self._user, self._test_hunt)
 
     def tearDown(self):
         self._test_hunt.delete()
