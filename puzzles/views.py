@@ -4,11 +4,14 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
+from guardian.decorators import permission_required_or_403
 
+from hunts.models import Hunt
 from puzzles.models import Puzzle
 
 
 @login_required(login_url="/")
+@permission_required_or_403("hunt_access", (Hunt, "puzzles", "puzzle_pk"))
 def redirect_to_sheet(request, puzzle_pk):
     try:
         puzzle = Puzzle.objects.select_related("hunt__settings").get(pk=puzzle_pk)

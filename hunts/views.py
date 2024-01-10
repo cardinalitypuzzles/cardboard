@@ -5,13 +5,17 @@ from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.http import HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views import View
 from django.views.generic.base import RedirectView
+from guardian.decorators import permission_required_or_403
+from guardian.shortcuts import assign_perm, get_objects_for_user
 
+from google_api_lib.tasks import sync_drive_permissions_for_hunt
 from puzzles.models import PuzzleTag
 
 from .chart_utils import get_chart_data
@@ -38,6 +42,8 @@ def index(request):
                     )
                     hunt.save()
 
+                    assign_perm(["hunt_admin", "hunt_access"], request.user, hunt)
+
                     if form.cleaned_data["populate_tags"]:
                         transaction.on_commit(
                             lambda: PuzzleTag.create_default_tags(hunt)
@@ -48,17 +54,20 @@ def index(request):
             return HttpResponseForbidden()
 
     context = {
-        "active_hunts": Hunt.objects.filter(active=True).order_by("-created_on"),
-        "finished_hunts": Hunt.objects.filter(active=False).order_by("-created_on"),
+        "active_hunts": get_objects_for_user(request.user, "hunt_access", klass=Hunt)
+        .filter(active=True)
+        .order_by("-created_on"),
+        "finished_hunts": get_objects_for_user(request.user, "hunt_access", klass=Hunt)
+        .filter(active=False)
+        .order_by("-created_on"),
         "form": form,
     }
     return render(request, "index.html", context)
 
 
 @login_required(login_url="/")
-@staff_member_required
+@permission_required_or_403("hunt_admin", (Hunt, "slug", "hunt_slug"))
 def edit(request, hunt_slug):
-
     if request.method == "POST":
         with transaction.atomic():
             hunt = get_object_or_404(Hunt.objects.select_for_update(), slug=hunt_slug)
@@ -86,6 +95,7 @@ def edit(request, hunt_slug):
 
 
 @login_required(login_url="/")
+@permission_required_or_403("hunt_access", (Hunt, "slug", "hunt_slug"))
 def stats(request, hunt_slug):
     hunt = Hunt.get_object_or_404(user=request.user, slug=hunt_slug)
 
@@ -131,6 +141,7 @@ def stats(request, hunt_slug):
 
 
 @login_required(login_url="/")
+@permission_required_or_403("hunt_access", (Hunt, "slug", "hunt_slug"))
 def redirect_to_drive(request, hunt_slug):
     hunt = get_object_or_404(Hunt.objects.select_related("settings"), slug=hunt_slug)
     human_url = hunt.settings.google_drive_human_url
@@ -145,10 +156,9 @@ def redirect_to_drive(request, hunt_slug):
 
 
 @login_required(login_url="/")
+@permission_required_or_403("hunt_admin", (Hunt, "slug", "hunt_slug"))
 def sync_discord_roles(request, hunt_slug):
     if request.method != "POST":
-        return HttpResponseForbidden()
-    if not request.user.is_staff:
         return HttpResponseForbidden()
 
     import chat.tasks
@@ -159,6 +169,18 @@ def sync_discord_roles(request, hunt_slug):
     )
 
     messages.success(request, "Discord roles created.")
+    return redirect(f"/hunts/{hunt_slug}/edit")
+
+
+@permission_required_or_403("hunt_admin", (Hunt, "slug", "hunt_slug"))
+def sync_drive_permissions(request, hunt_slug):
+    if request.method != "POST":
+        return HttpResponseForbidden()
+
+    hunt = Hunt.get_object_or_404(user=request.user, slug=hunt_slug)
+    sync_drive_permissions_for_hunt.delay(hunt.id)
+
+    messages.success(request, "Users added to hunt")
     return redirect(f"/hunts/{hunt_slug}/edit")
 
 
@@ -180,6 +202,8 @@ class ReactHuntView(LoginRequiredMixin, View):
 
     def get(self, request, hunt_slug):
         hunt = Hunt.get_object_or_404(user=request.user, slug=hunt_slug)
+        if not request.user.has_perm("hunt_access", hunt):
+            raise PermissionDenied()
 
         context = {
             "hunt_pk": hunt.pk,

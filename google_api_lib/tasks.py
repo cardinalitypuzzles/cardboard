@@ -16,12 +16,14 @@ from django.db import transaction
 from django.db.models import CharField, F, Value
 from django.db.models.functions import Concat
 from googleapiclient import _auth
+from guardian.shortcuts import assign_perm
 
 from cardboard.settings import TaskPriority
 from chat.tasks import handle_sheet_created
 from hunts.models import Hunt
 from puzzles.models import Puzzle, PuzzleActivity
 
+from .sync_tasks import get_file_user_emails
 from .utils import GoogleApiClientTask, enabled
 
 logger = logging.getLogger(__name__)
@@ -664,3 +666,21 @@ def update_active_users(self, hunt_id):
 
         hunt.last_active_users_update_time = end
         hunt.save()
+
+
+@shared_task(base=GoogleApiClientTask, bind=True)
+def sync_drive_permissions_for_hunt(self, hunt_id):
+    if not enabled():
+        return
+
+    hunt = Hunt.objects.select_related("settings").get(pk=hunt_id)
+
+    if not hunt.settings.google_drive_folder_id:
+        return
+
+    UserModel = get_user_model()
+    emails = get_file_user_emails.run(hunt.settings.google_drive_folder_id)
+    print(f"Found emails {emails}")
+    users = UserModel.objects.filter(email__in=emails)
+    print(f"Giving access permissions to {users}")
+    assign_perm("hunt_access", users, hunt)

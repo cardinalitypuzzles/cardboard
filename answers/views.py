@@ -3,11 +3,13 @@ import logging
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.views import View
 from django.views.decorators.http import require_GET, require_POST
+from guardian.decorators import permission_required_or_403
 
 import google_api_lib
 from hunts.models import Hunt
@@ -20,6 +22,7 @@ logger = logging.getLogger(__name__)
 
 @require_POST
 @login_required(login_url="/")
+@permission_required_or_403("hunt_access", (Hunt, "puzzles__guesses", "answer_pk"))
 @transaction.atomic
 def update_note(request, answer_pk):
     notes_form = UpdateAnswerNotesForm(request.POST)
@@ -38,6 +41,7 @@ def update_note(request, answer_pk):
 
 @require_GET
 @login_required(login_url="/")
+@permission_required_or_403("hunt_access", (Hunt, "slug", "hunt_slug"))
 def answers(request, hunt_slug):
     Hunt.get_object_or_404(user=request.user, slug=hunt_slug)
     answer_objects = (
@@ -70,6 +74,9 @@ class AnswerView(LoginRequiredMixin, View):
 
     def get(self, request, hunt_slug):
         hunt = Hunt.get_object_or_404(user=request.user, slug=hunt_slug)
+        if not request.user.has_perm("hunt_access", hunt):
+            raise PermissionDenied()
+
         context = {
             "hunt_slug": hunt_slug,
             "hunt_name": hunt.name,
@@ -78,6 +85,10 @@ class AnswerView(LoginRequiredMixin, View):
 
     def post(self, request, hunt_slug, answer_pk):
         """Handles answer status update"""
+        hunt = Hunt.get_object_or_404(user=request.user, slug=hunt_slug)
+        if not request.user.has_perm("hunt_access", hunt):
+            raise PermissionDenied()
+
         status_form = UpdateAnswerStatusForm(request.POST)
 
         if status_form.is_valid():

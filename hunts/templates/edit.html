@@ -25,5 +25,9 @@
       {% csrf_token %}
       <button type="submit" class="btn btn-primary mx-2">Sync Discord & Cardboard roles</button>
     </form>
+    <form action="sync_drive_permissions" method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary mx-2">Add users from Google Drive</button>
+    </form>
 </div>
 {% endblock %}
