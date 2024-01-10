@@ -77,6 +77,7 @@ INSTALLED_APPS = [
     "taggit",
     "rest_framework",
     "corsheaders",
+    "guardian",
 ]
 
 MIDDLEWARE = [
@@ -237,6 +238,7 @@ except KeyError as e:
 AUTHENTICATION_BACKENDS = [
     "social_core.backends.google.GoogleOAuth2",
     "django.contrib.auth.backends.ModelBackend",
+    "guardian.backends.ObjectPermissionBackend",
 ]
 
 SOCIAL_AUTH_URL_NAMESPACE = "social"
