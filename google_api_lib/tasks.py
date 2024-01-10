@@ -4,7 +4,7 @@ import logging
 import random
 import re
 import time
-from typing import Optional
+from typing import List, Optional
 
 import dateutil.parser
 from celery import shared_task
@@ -23,7 +23,6 @@ from chat.tasks import handle_sheet_created
 from hunts.models import Hunt
 from puzzles.models import Puzzle, PuzzleActivity
 
-from .sync_tasks import get_file_user_emails
 from .utils import GoogleApiClientTask, enabled
 
 logger = logging.getLogger(__name__)
@@ -666,6 +665,29 @@ def update_active_users(self, hunt_id):
 
         hunt.last_active_users_update_time = end
         hunt.save()
+
+
+@shared_task(base=GoogleApiClientTask, bind=True)
+def get_file_user_emails(self, file_id) -> List[str]:
+    """
+    Returns a sorted list of emails that have access to `file_id` or None if the file is
+    world readable.
+    """
+    response = (
+        self.drive_service().files().get(fileId=file_id, fields="permissions").execute()
+    )
+
+    permissions = response["permissions"]
+
+    emails = set()
+    for perm in permissions:
+        if perm["id"] == "anyoneWithLink":
+            return None
+        email = perm["emailAddress"]
+        emails.add(email)
+        emails.add(email.lower())
+
+    return sorted(list(emails))
 
 
 @shared_task(base=GoogleApiClientTask, bind=True)
