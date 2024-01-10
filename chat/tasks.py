@@ -7,7 +7,8 @@ from django.db.models import Prefetch
 
 from answers.models import Answer
 from cardboard.settings import TaskPriority
-from puzzles.models import Puzzle
+from hunts.models import Hunt
+from puzzles.models import Puzzle, PuzzleTag, PuzzleTagColor
 
 logger = logging.getLogger(__name__)
 
@@ -166,3 +167,60 @@ def handle_sheet_created(puzzle_id):
         puzzle.chat_room.send_message(msg, embedded_urls={"Sheet": puzzle.sheet})
     except Exception as e:
         logger.exception(f"handle_sheet_created failed with error: {e}")
+
+
+DISCORD_ROLE_COLOR_BLUE = 0x3498DB
+DISCORD_ROLE_COLOR_WHITE = 0xFFFFFF
+
+
+@shared_task(rate_limit="6/m", acks_late=True)
+def sync_roles(hunt_slug, service_name):
+    from django.conf import settings
+
+    from chat.models import ChatRole
+
+    hunt = Hunt.get_object_or_404(slug=hunt_slug)
+
+    chat_service = settings.CHAT_SERVICES[service_name].get_instance()
+    guild_id = hunt.settings.discord_guild_id
+
+    discord_roles_by_name = {r["name"]: r for r in chat_service.get_all_roles(guild_id)}
+
+    cardboard_tags = PuzzleTag.objects.filter(hunt=hunt)
+    existing_chat_roles = ChatRole.objects.filter(hunt=hunt)
+
+    default_tag_names = [n[0] for n in PuzzleTag.DEFAULT_TAGS]
+
+    for tag in cardboard_tags:
+        if (
+            tag.color != PuzzleTagColor.BLUE and tag.color != PuzzleTagColor.WHITE
+        ) or tag.name not in default_tag_names:
+            continue
+
+        # Create corresponding Discord tag, if needed
+        if tag.name not in discord_roles_by_name:
+            discord_tag_color = (
+                DISCORD_ROLE_COLOR_BLUE
+                if tag.color == PuzzleTagColor.BLUE
+                else DISCORD_ROLE_COLOR_WHITE
+            )
+            new_role_info = chat_service.create_role(
+                guild_id, tag.name, discord_tag_color
+            )
+            discord_roles_by_name[tag.name] = new_role_info
+            logger.info(f"Created new Discord role {tag.name}")
+
+        # Copy tag info into a ChatRole
+        existing_chat_role = existing_chat_roles.filter(name=tag.name)
+        if existing_chat_role.exists():
+            obj = existing_chat_role.first()
+            if obj.role_id != discord_roles_by_name[tag.name]["id"]:
+                obj.role_id = discord_roles_by_name[tag.name]["id"]
+                obj.save()
+        else:
+            obj = ChatRole(
+                hunt=hunt,
+                name=tag.name,
+                role_id=discord_roles_by_name[tag.name]["id"],
+            )
+            obj.save()
