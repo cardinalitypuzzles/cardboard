@@ -178,7 +178,7 @@ def sync_roles(hunt_slug, service_name):
     from django.conf import settings
 
     from chat.models import ChatRole
-    
+
     hunt = Hunt.get_object_or_404(slug=hunt_slug)
 
     chat_service = settings.CHAT_SERVICES[service_name].get_instance()
@@ -192,7 +192,9 @@ def sync_roles(hunt_slug, service_name):
     default_tag_names = [n[0] for n in PuzzleTag.DEFAULT_TAGS]
 
     for tag in cardboard_tags:
-        if (tag.color != PuzzleTagColor.BLUE and tag.color != PuzzleTagColor.WHITE) or tag.name not in default_tag_names:
+        if (
+            tag.color != PuzzleTagColor.BLUE and tag.color != PuzzleTagColor.WHITE
+        ) or tag.name not in default_tag_names:
             continue
 
         # Create corresponding Discord tag, if needed
