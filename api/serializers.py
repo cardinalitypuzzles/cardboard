@@ -32,13 +32,25 @@ class PuzzleTagSerializer(serializers.ModelSerializer):
 class HuntSerializer(serializers.ModelSerializer):
     has_drive = serializers.SerializerMethodField()
     puzzle_tags = PuzzleTagSerializer(required=False, many=True)
+    create_channel_by_default = serializers.SerializerMethodField()
 
     def get_has_drive(self, obj):
         return bool(obj.settings.google_drive_human_url)
 
+    def get_create_channel_by_default(self, obj):
+        return obj.settings.create_channel_by_default
+
     class Meta:
         model = Hunt
-        fields = ("id", "name", "active", "url", "has_drive", "puzzle_tags")
+        fields = (
+            "id",
+            "name",
+            "active",
+            "url",
+            "has_drive",
+            "puzzle_tags",
+            "create_channel_by_default",
+        )
 
 
 class CurrentHuntDefault:

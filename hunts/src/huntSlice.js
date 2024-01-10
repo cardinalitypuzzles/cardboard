@@ -17,6 +17,7 @@ export const huntSlice = createSlice({
     name: null,
     has_drive: false,
     puzzle_tags: [],
+    create_channel_by_default: true,
   },
   reducers: {},
   extraReducers: {
@@ -25,6 +26,8 @@ export const huntSlice = createSlice({
       state.name = action.payload.name;
       state.has_drive = action.payload.has_drive;
       state.puzzle_tags = action.payload.puzzle_tags;
+      state.create_channel_by_default =
+        action.payload.create_channel_by_default;
     },
   },
 });
@@ -39,4 +42,8 @@ export const selectHuntId = createSelector([selectHunt], (hunt) => hunt.id);
 export const selectHuntTags = createSelector(
   [selectHunt],
   (hunt) => hunt.puzzle_tags
+);
+export const selectHuntCreateChannelByDefault = createSelector(
+  [selectHunt],
+  (hunt) => hunt.create_channel_by_default
 );

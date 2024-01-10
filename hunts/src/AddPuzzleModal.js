@@ -5,7 +5,7 @@ import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import { addPuzzle } from "./puzzlesSlice";
 import { hideModal } from "./modalSlice";
-import { selectHuntTags } from "./huntSlice";
+import { selectHuntTags, selectHuntCreateChannelByDefault } from "./huntSlice";
 
 function AddPuzzleModal({ huntId }) {
   const allTags = useSelector(selectHuntTags);
@@ -13,7 +13,9 @@ function AddPuzzleModal({ huntId }) {
   const [url, setUrl] = React.useState("");
   const [assignedMeta, setAssignedMeta] = React.useState("");
   const [isMeta, setIsMeta] = React.useState(false);
-  const [createChannels, setCreateChannels] = React.useState(true);
+  const [createChannels, setCreateChannels] = React.useState(
+    useSelector(selectHuntCreateChannelByDefault)
+  );
   const dispatch = useDispatch();
   const onSubmit = (e) => {
     e.preventDefault();
