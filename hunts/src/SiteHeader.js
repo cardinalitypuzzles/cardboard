@@ -71,32 +71,6 @@ export const SiteHeader = () => {
           Logout
         </a>
         <div className="nav-link">Logged in as {window.LOGGED_IN_USER}</div>
-
-        {window.IS_STAFF ? (
-          <div className="mt-auto" style={{ marginBottom: "36px" }}>
-            <span
-              style={{
-                borderTop: "1px solid black",
-                width: "100%",
-                display: "inline-block",
-              }}
-              className="font-weight-bold nav-link"
-            ></span>
-            <div className="nav-link">
-              <button
-                type="submit"
-                className="btn btn-primary mx-2"
-                onClick={() => {
-                  syncDiscordAndCardboardTags(hunt.id);
-                }}
-              >
-                Sync Discord & Cardboard roles
-              </button>
-            </div>
-          </div>
-        ) : (
-          <></>
-        )}
         <span
           style={{
             borderTop: "1px solid black",

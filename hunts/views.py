@@ -161,10 +161,7 @@ def sync_discord_roles(request, hunt_slug):
     )
 
     messages.success(request, "Discord roles created.")
-
-    return HttpResponse(
-        status=200,
-    )
+    return redirect(f"/hunts/{hunt_slug}/edit")
 
 
 class LastAccessedHuntRedirectView(LoginRequiredMixin, RedirectView):

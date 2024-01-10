@@ -117,6 +117,9 @@
         {% if message.level == DEFAULT_MESSAGE_LEVELS.WARNING %}
             <div class="alert alert-warning" style="white-space: pre-line" role="alert">{{ message }}</div>
         {% endif %}
+        {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+            <div class="alert alert-success" style="white-space: pre-line" role="alert">{{ message }}</div>
+        {% endif %}
         {% endfor %}
 
         <div class="container-fluid pb-5">
