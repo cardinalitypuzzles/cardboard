@@ -131,11 +131,6 @@ Global Google Drive, Sheets, and API settings for automatic sheets creation:
 * `GOOGLE_API_PRIVATE_KEY` - the private key for the key you added, with newlines replaced with `\n` (should be the value of the `private_key` field in the downloaded JSON when you [created the key](https://cloud.google.com/iam/docs/creating-managing-service-account-keys#creating_service_account_keys); should look something like `-----BEGIN ... KEY-----\n...<long base64-encoded key>...\n-----END ... KEY-----\n`)
 * `GOOGLE_API_X509_CERT_URL` - the value of the `client_x509_cert_url` field in the downloaded JSON when you [created the key](https://cloud.google.com/iam/docs/creating-managing-service-account-keys#creating_service_account_keys)
 
-Hunt-specific Google settings:
-
-* `GOOGLE_DRIVE_HUNT_FOLDER_ID` - the id of your Google Drive folder, should be part of the URL (`https://drive.google.com/drive/folders/<folder_id>`). This environment variable is used for getting the list of allowed emails for OAuth. Please keep consistent with the value in HuntSettings. Deprecating this variable is tracked in #662.
-* `GOOGLE_SHEETS_TEMPLATE_FILE_ID` - the id of your Google Sheets template file, should be part of the URL (`https://docs.google.com/spreadsheets/d/<sheet_id>`). This is deprecated and should instead be set in HuntSettings above.
-
 For Discord integration:
 
 * `DISCORD_API_TOKEN` - This is the "Token" for your bot, which you can find on the "Bot" settings page (you may have to click "Click to Reveal Token")
@@ -175,4 +170,4 @@ If you have users that logged in prior to the addition of this feature, it is ne
 
 ### Giving a new user access to Cardboard
 
-The authorized users for a Cardboard deployment are the Google users who have access to the Google Drive folder for the hunt (configured by the `GOOGLE_DRIVE_HUNT_FOLDER_ID` variable). To give a new user access, simply share the Google Drive folder with that user.
+The authorized users for a Cardboard deployment are the Google users who have access to the Google Drive folder for the hunt (configured on the hunt settings page). To give a new user access, simply share the Google Drive folder with that user and re-sync the permissions on the edit page.

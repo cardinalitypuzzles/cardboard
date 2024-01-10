@@ -227,21 +227,6 @@ DATABASE_URL=postgres://myuser:mypass@localhost/cardboard
 # for accessing Google APIs
 GOOGLE_API_PRIVATE_KEY=...
 
-# id of the Google Drive hunt folder
-# when you go to the folder, it's the last part of the URL
-# drive.google.com/drive/folders/<HUNT_FOLDER_ID>
-# the list of emails allowed access to Cardboard are the
-# emails of the users who have access to this folder
-GOOGLE_DRIVE_HUNT_FOLDER_ID=...
-
-# id of the Google Spreadsheet template to be copied for
-# each puzzle. The id is in the URL when you open the spreadsheet:
-# docs.google.com/spreadsheets/d/<SHEETS_ID>/...
-# This file should in inside the hunt folder, since when
-# this template is copied, the new spreadsheet will be
-# put in the same folder as the template.
-GOOGLE_SHEETS_TEMPLATE_FILE_ID=...
-
 # for Google OAuth2 login
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET=...
 
@@ -261,8 +246,6 @@ DEBUG=...
 The app uses Google OAuth2 to authenticate users. If the `SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET` environment variable isn't set, the app will fall back to a "Signup" flow where users can create their own username and password. Even with Google OAuth2 enabled, you can still create superusers using `python manage.py createsuperuser`. The OAuth2 settings are configured at https://console.developers.google.com/apis/credentials?project=cardboard-test-260001.
 
 You should be able to use Google OAuth2 locally as well, since the OAuth2 settings above include `localhost` and `127.0.0.1` as authorized redirect URLs.
-
-The list of allowed emails is the emails of the users who have access to `GOOGLE_DRIVE_HUNT_FOLDER_ID`. If you don't have access, please message a Collaborator to be added.
 
 ### Google Sheets Integration (optional)
 
