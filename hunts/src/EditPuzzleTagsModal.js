@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
-import { addPuzzleTag } from "./puzzlesSlice";
+import { addPuzzleTag, selectPuzzleTags } from "./puzzlesSlice";
 import { selectHuntTags } from "./huntSlice";
 import { DEFAULT_TAG_COLOR, SELECTABLE_TAG_COLORS } from "./constants";
 import { hideModal } from "./modalSlice";
@@ -11,7 +11,15 @@ import TagPill from "./TagPill";
 import EditableTagList from "./EditableTagList";
 
 function EditPuzzleTagsModal({ puzzleId, puzzleName }) {
-  const allTags = useSelector(selectHuntTags);
+  const huntTags = useSelector(selectHuntTags);
+  const puzzleTags = useSelector(selectPuzzleTags);
+  // Use a map to concat huntTags and puzzleTags and then dedupe by id.
+  const tagMap = new Map();
+  for (const tag of huntTags.concat(puzzleTags)) {
+    tagMap.set(tag.id, tag);
+  }
+  const allTags = Array.from(tagMap.values());
+
   const [newTagName, setNewTagName] = React.useState("");
   const [newTagColor, setNewTagColor] = React.useState(DEFAULT_TAG_COLOR);
   const dispatch = useDispatch();
