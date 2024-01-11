@@ -13,10 +13,10 @@ import EditableTagList from "./EditableTagList";
 function EditPuzzleTagsModal({ puzzleId, puzzleName }) {
   const huntTags = useSelector(selectHuntTags);
   const puzzleTags = useSelector(selectPuzzleTags);
-  // Use a map to concat huntTags and puzzleTags and then dedupe.
+  // Use a map to concat huntTags and puzzleTags and then dedupe by id.
   const tagMap = new Map();
   for (const tag of huntTags.concat(puzzleTags)) {
-    tagMap.set(tag.name, tag);
+    tagMap.set(tag.id, tag);
   }
   const allTags = Array.from(tagMap.values());
 

@@ -288,11 +288,11 @@ export const selectNumMetasUnsolved = createSelector(
 export const selectPuzzleTags = createSelector(
   [puzzlesSelectors.selectAll],
   (puzzles) => {
-    // Use a map to dedupe puzzle tags by name.
+    // Use a map to dedupe puzzle tags by id.
     const tagMap = new Map();
     for (const puzzle of puzzles) {
       for (const tag of puzzle.tags) {
-        tagMap.set(tag.name, tag);
+        tagMap.set(tag.id, tag);
       }
     }
     return Array.from(tagMap.values());
