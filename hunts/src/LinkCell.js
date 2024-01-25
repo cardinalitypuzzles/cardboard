@@ -128,19 +128,6 @@ const GreenSheetsSvg = () => {
   );
 };
 
-const Clickable = ({ children, onClick, style, title }) => {
-  return (
-    <span
-      style={{ cursor: "pointer", ...style }}
-      className="text-muted"
-      onClick={onClick}
-      title={title}
-    >
-      {children}
-    </span>
-  );
-};
-
 const SvgLink = ({ children, url, style }) => {
   return (
     <a
@@ -224,8 +211,9 @@ export const LinkCell = ({ row }) => {
       ) : loadingDiscord ? (
         <PulsingBlurpleDiscordSvg />
       ) : (
-        <Clickable
-          onClick={createDiscordChannels}
+        <button
+          onclick={createDiscordChannels}
+          className="text-muted"
           style={{
             margin: "0 5px",
             display: "inline-block",
@@ -233,7 +221,7 @@ export const LinkCell = ({ row }) => {
           title="Create channels"
         >
           <LightBlurpleDiscordSvg />
-        </Clickable>
+        </button>
       )}
     </div>
   );
