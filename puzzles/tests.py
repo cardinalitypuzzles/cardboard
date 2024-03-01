@@ -1,4 +1,5 @@
 from django.test import override_settings
+from guardian.shortcuts import assign_perm
 from rest_framework.test import APITestCase
 
 from accounts.models import Puzzler
@@ -25,6 +26,8 @@ class TestPuzzle(APITestCase):
         self.client.login(username="test", password="testingpwd")
 
         self._test_hunt = Hunt.objects.create(name="fake hunt", url="google.com")
+        assign_perm("hunt_admin", self._user, self._test_hunt)
+        assign_perm("hunt_access", self._user, self._test_hunt)
         self._suffix = 0
         self._puzzles = []
 
@@ -149,7 +152,8 @@ class TestPuzzle(APITestCase):
         self.assertEqual(response["Location"], puzzle.sheet)
 
         response = self.client.get(f"/puzzles/s/0", follow=False)
-        self.assertEqual(response["Location"], "/")
+        # If the puzzle doesn't exist we 404
+        self.assertEqual(response.status_code, 404)
 
         Puzzle.objects.select_for_update().filter(id=puzzle.pk).update(sheet=None)
         response = self.client.get(f"/puzzles/s/{puzzle.pk}", follow=False)
