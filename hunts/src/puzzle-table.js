@@ -13,9 +13,10 @@ import { useSelector } from "react-redux";
 import { getTextFilter } from "./filterSlice";
 
 import AnswerCell from "./AnswerCell";
-import NameCell from "./NameCell";
-import StatusCell from "./StatusCell";
 import CreationCell from "./CreationCell";
+import NameCell from "./NameCell";
+import NotesCell from "./NotesCell";
+import StatusCell from "./StatusCell";
 import TagCell from "./TagCell";
 import UsersCell from "./UsersCell";
 import { LinkCell } from "./LinkCell";
@@ -26,15 +27,22 @@ const TABLE_COLUMNS = [
     Header: "Name",
     accessor: "name",
     Cell: NameCell,
-    className: "col-3",
+    className: "col-2",
   },
   {
     Header: "Tags",
     id: "tags",
     Cell: TagCell,
-    className: "col-3",
+    className: "col-2",
     accessor: (row) => row.tags.map(({ name }) => name).join(" "),
     filter: "tagsFilter",
+  },
+  {
+    Header: "Notes",
+    id: "notes",
+    Cell: NotesCell,
+    className: "col-2",
+    accessor: (row) => row.notes,
   },
   {
     accessor: "last_edited_on",

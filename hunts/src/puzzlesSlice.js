@@ -69,6 +69,14 @@ export const editAnswer = createAsyncThunk(
   }
 );
 
+export const editNotes = createAsyncThunk(
+  "puzzles/editNotes",
+  async ({ puzzleId, body }) => {
+    const response = await api.editNotes(puzzleId, body);
+    return response;
+  }
+);
+
 export const deletePuzzleTag = createAsyncThunk(
   "puzzles/deletePuzzleTag",
   async ({ puzzleId, tagId }) => {
@@ -142,6 +150,13 @@ export const puzzlesSlice = createSlice({
       ++state.timestamp;
     },
     [updatePuzzle.fulfilled]: (state, action) => {
+      puzzlesAdapter.updateOne(state, {
+        id: action.payload.id,
+        changes: { ...action.payload },
+      });
+      ++state.timestamp;
+    },
+    [editNotes.fulfilled]: (state, action) => {
       puzzlesAdapter.updateOne(state, {
         id: action.payload.id,
         changes: { ...action.payload },

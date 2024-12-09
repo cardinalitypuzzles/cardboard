@@ -28,6 +28,7 @@ from puzzles.puzzle_tag import LOCATION_COLOR
 from .serializers import (
     AnswerSerializer,
     HuntSerializer,
+    PuzzleNotesSerializer,
     PuzzleSerializer,
     PuzzleTagSerializer,
 )
@@ -514,3 +515,14 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
             )
         else:
             return Response([PuzzleSerializer(puzzle).data])
+
+
+class PuzzleNotesView(viewsets.ViewSet):
+    def update(self, request, puzzle_id=None):
+        puzzle = get_object_or_404(Puzzle, pk=puzzle_id)
+        serializer = PuzzleNotesSerializer(
+            puzzle, data={"notes": request.data.get("text")}
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(PuzzleNotesSerializer(puzzle).data)
