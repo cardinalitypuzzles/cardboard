@@ -1,5 +1,5 @@
 import React from "react";
-import { render } from "react-dom";
+import { createRoot } from "react-dom/client";
 import { Provider } from "react-redux";
 import store from "./store";
 import { HuntViewMain } from "./HuntViewMain";
@@ -11,9 +11,9 @@ const App = () => {
 export default App;
 
 const container = document.getElementById("app");
-render(
+const root = createRoot(container);
+root.render(
   <Provider store={store}>
     <App />
-  </Provider>,
-  container
+  </Provider>
 );
