@@ -20,15 +20,15 @@ export const huntSlice = createSlice({
     create_channel_by_default: true,
   },
   reducers: {},
-  extraReducers: {
-    [fetchHunt.fulfilled]: (state, action) => {
+  extraReducers: (builder) => {
+    builder.addCase(fetchHunt.fulfilled, (state, action) => {
       state.id = action.payload.id;
       state.name = action.payload.name;
       state.has_drive = action.payload.has_drive;
       state.puzzle_tags = action.payload.puzzle_tags;
       state.create_channel_by_default =
         action.payload.create_channel_by_default;
-    },
+    });
   },
 });
 
