@@ -11,6 +11,7 @@ import GlobalFilter from "./GlobalFilter";
 import DeleteAnswerModal from "./DeleteAnswerModal";
 import DeletePuzzleModal from "./DeletePuzzleModal";
 import EditAnswerModal from "./EditAnswerModal";
+import EditNotesModal from "./EditNotesModal";
 import EditPuzzleModal from "./EditPuzzleModal";
 import AddPuzzleModal from "./AddPuzzleModal";
 import SubmitAnswerModal from "./SubmitAnswerModal";
@@ -35,6 +36,7 @@ const MODAL_COMPONENTS = {
   SUBMIT_ANSWER: SubmitAnswerModal,
   DELETE_ANSWER: DeleteAnswerModal,
   EDIT_ANSWER: EditAnswerModal,
+  EDIT_NOTES: EditNotesModal,
   EDIT_TAGS: EditPuzzleTagsModal,
 };
 

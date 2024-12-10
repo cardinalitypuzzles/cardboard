@@ -29,6 +29,15 @@ class PuzzleTagSerializer(serializers.ModelSerializer):
         read_only_fields = ("id", "is_meta", "is_high_pri", "is_low_pri", "is_location")
 
 
+class PuzzleNotesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Puzzle
+        fields = (
+            "id",
+            "notes",
+        )
+
+
 class HuntSerializer(serializers.ModelSerializer):
     has_drive = serializers.SerializerMethodField()
     puzzle_tags = PuzzleTagSerializer(required=False, many=True)
