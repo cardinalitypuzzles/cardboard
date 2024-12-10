@@ -123,68 +123,69 @@ export const puzzlesSlice = createSlice({
     timestamp: 0, // A logical timestamp for detecting stale fetchPuzzle actions
   }),
   reducers: {},
-  extraReducers: {
-    [addPuzzle.fulfilled]: (state, action) => {
-      puzzlesAdapter.addOne(state, action.payload);
-      ++state.timestamp;
-    },
-    [deletePuzzle.fulfilled]: (state, action) => {
-      puzzlesAdapter.removeOne(state, action.payload);
-      ++state.timestamp;
-    },
-    [fetchPuzzles.fulfilled]: (state, action) => {
-      const { timestamp, result } = action.payload;
-      if (timestamp == state.timestamp) {
-        // Only apply the update if no other action has completed
-        // in between dispatching the fetch and it completing
-        puzzlesAdapter.setAll(state, result);
-      }
-      ++state.timestamp;
-    },
-    [updatePuzzle.fulfilled]: (state, action) => {
-      puzzlesAdapter.updateOne(state, {
-        id: action.payload.id,
-        changes: { ...action.payload },
+  extraReducers: (builder) => {
+    builder
+      .addCase(addPuzzle.fulfilled, (state, action) => {
+        puzzlesAdapter.addOne(state, action.payload);
+        ++state.timestamp;
+      })
+      .addCase(deletePuzzle.fulfilled, (state, action) => {
+        puzzlesAdapter.removeOne(state, action.payload);
+        ++state.timestamp;
+      })
+      .addCase(fetchPuzzles.fulfilled, (state, action) => {
+        const { timestamp, result } = action.payload;
+        if (timestamp == state.timestamp) {
+          // Only apply the update if no other action has completed
+          // in between dispatching the fetch and it completing
+          puzzlesAdapter.setAll(state, result);
+        }
+        ++state.timestamp;
+      })
+      .addCase(updatePuzzle.fulfilled, (state, action) => {
+        puzzlesAdapter.updateOne(state, {
+          id: action.payload.id,
+          changes: { ...action.payload },
+        });
+        ++state.timestamp;
+      })
+      .addCase(addAnswer.fulfilled, (state, action) => {
+        puzzlesAdapter.updateOne(state, {
+          id: action.payload.id,
+          changes: { ...action.payload },
+        });
+        ++state.timestamp;
+      })
+      .addCase(deleteAnswer.fulfilled, (state, action) => {
+        puzzlesAdapter.updateOne(state, {
+          id: action.payload.id,
+          changes: { ...action.payload },
+        });
+        ++state.timestamp;
+      })
+      .addCase(editAnswer.fulfilled, (state, action) => {
+        puzzlesAdapter.updateOne(state, {
+          id: action.payload.id,
+          changes: { ...action.payload },
+        });
+        ++state.timestamp;
+      })
+      .addCase(deletePuzzleTag.fulfilled, (state, action) => {
+        const updates = action.payload.map((updatedRecord) => ({
+          id: updatedRecord.id,
+          changes: updatedRecord,
+        }));
+        puzzlesAdapter.updateMany(state, updates);
+        ++state.timestamp;
+      })
+      .addCase(addPuzzleTag.fulfilled, (state, action) => {
+        const updates = action.payload.map((updatedRecord) => ({
+          id: updatedRecord.id,
+          changes: updatedRecord,
+        }));
+        puzzlesAdapter.updateMany(state, updates);
+        ++state.timestamp;
       });
-      ++state.timestamp;
-    },
-    [addAnswer.fulfilled]: (state, action) => {
-      puzzlesAdapter.updateOne(state, {
-        id: action.payload.id,
-        changes: { ...action.payload },
-      });
-      ++state.timestamp;
-    },
-    [deleteAnswer.fulfilled]: (state, action) => {
-      puzzlesAdapter.updateOne(state, {
-        id: action.payload.id,
-        changes: { ...action.payload },
-      });
-      ++state.timestamp;
-    },
-    [editAnswer.fulfilled]: (state, action) => {
-      puzzlesAdapter.updateOne(state, {
-        id: action.payload.id,
-        changes: { ...action.payload },
-      });
-      ++state.timestamp;
-    },
-    [deletePuzzleTag.fulfilled]: (state, action) => {
-      const updates = action.payload.map((updatedRecord) => ({
-        id: updatedRecord.id,
-        changes: updatedRecord,
-      }));
-      puzzlesAdapter.updateMany(state, updates);
-      ++state.timestamp;
-    },
-    [addPuzzleTag.fulfilled]: (state, action) => {
-      const updates = action.payload.map((updatedRecord) => ({
-        id: updatedRecord.id,
-        changes: updatedRecord,
-      }));
-      puzzlesAdapter.updateMany(state, updates);
-      ++state.timestamp;
-    },
   },
 });
 
