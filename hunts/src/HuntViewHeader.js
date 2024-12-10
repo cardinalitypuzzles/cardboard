@@ -44,30 +44,34 @@ function HuntViewHeader({ hunt }) {
         <Container fluid>
           <Row className="text-center font-weight-bold small">
             <Col xs={1} className="text-nowrap px-0 mx-0">
-              Metas Solved
+              Metas
             </Col>
-            <Col xs={1}>Solved</Col>
-            <Col xs={1}>Unlocked</Col>
-            <Col xs={1}>Unsolved</Col>
             <Col xs={1} className="text-nowrap px-0 mx-0">
-              Metas Unsolved
+              Puzzles
             </Col>
           </Row>
-          <Row className="text-center font-weight-bold">
-            <Col xs={1} className="text-primary">
-              {numMetasSolved}
+          <Row className="text-center">
+            <Col xs={1}>
+              <span
+                className="text-primary font-weight-bold"
+                style={{ fontSize: "1.25rem" }}
+              >
+                {numMetasSolved}
+              </span>{" "}
+              /{" "}
+              <span class="text-secondary font-weight-bold">
+                {numMetasSolved + numMetasUnsolved}
+              </span>
             </Col>
-            <Col xs={1} className="text-success">
-              {numSolved}
-            </Col>
-            <Col xs={1} className="text-secondary">
-              {numUnlocked}
-            </Col>
-            <Col xs={1} className="text-danger">
-              {numUnsolved}
-            </Col>
-            <Col xs={1} className="text-warning">
-              {numMetasUnsolved}
+            <Col xs={1}>
+              <span
+                className="text-success font-weight-bold"
+                style={{ fontSize: "1.25rem" }}
+              >
+                {numSolved}
+              </span>{" "}
+              /{" "}
+              <span class="text-secondary font-weight-bold">{numUnlocked}</span>
             </Col>
             <Col xs={1} className="text-nowrap">
               <a href="stats">Stats 📈</a>
