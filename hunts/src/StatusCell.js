@@ -17,6 +17,7 @@ export default function StatusCell({ row, value }) {
         id={`status-dropdown-${row.id}`}
         title={value}
         variant="outline-primary"
+        className="cb-btn-compact"
         onSelect={(status) => {
           dispatch(
             updatePuzzle({
