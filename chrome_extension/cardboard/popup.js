@@ -1,11 +1,11 @@
 // TODO: Default this to false and control this in the deployment process
-const IS_PROD = true;
+const IS_PROD = false;
 
-const PROD_URL = "https://cardboard.rocks";
+const PROD_URL = "https://cardboard-boat.herokuapp.com";
 const DEV_URL = "http://localhost:8000";
 
 // TODO: Make this configurable
-const HUNT_NUMBER = 10;
+const HUNT_NUMBER = 1;
 
 let TARGET_URL = DEV_URL;
 if (IS_PROD) {
@@ -58,8 +58,60 @@ for (const tab of tabs) {
 }
 document.querySelector("ul").append(...elements);
 
+async function getCreatedPuzzle(url) {
+  console.log("no wait: " + url);
+  const puzzle_list = await fetch(
+    TARGET_URL + "/api/v1/hunts/" + HUNT_NUMBER + "/puzzles",
+    {
+      method: "GET",
+    }
+  );
+  const response = await puzzle_list.json();
+  console.log(response);
+  let found = false;
+  for (const puzzle of response) {
+    if (puzzle.url === url && puzzle.has_sheet) {
+      console.log("wait: " + puzzle.id);
+      found = true;
+    } else {
+      console.log(puzzle.url === url);
+      console.log(puzzle.has_sheet);
+    }
+  }
+  if (!found) {
+    console.log("Not found");
+  }
+}
+
+async function getCreatedPuzzle1(url) {
+  console.log("wait: " + url);
+  const puzzle_list = await fetch(
+    TARGET_URL + "/api/v1/hunts/" + HUNT_NUMBER + "/puzzles",
+    {
+      method: "GET",
+    }
+  );
+  const response = await puzzle_list.json();
+  console.log(response);
+  let found = false;
+  for (const puzzle of response) {
+    if (puzzle.url === url && puzzle.has_sheet) {
+      console.log("wait: " + puzzle.id);
+      found = true;
+    } else {
+      console.log(puzzle.url === url);
+      console.log(puzzle.has_sheet);
+    }
+  }
+  if (!found) {
+    console.log("Not found");
+  }
+}
+
+
 const button = document.querySelector("button");
 button.addEventListener("click", async (e) => {
+  console.log("clicked");
   e.preventDefault();
   // Get Cardboard cookie
   const cardboard_cookie = await chrome.cookies.get({
@@ -69,7 +121,8 @@ button.addEventListener("click", async (e) => {
 
   if (cardboard_cookie) {
     // Create puzzle. Puzzle name is limited to 30 characters
-    fetch(TARGET_URL + "/api/v1/hunts/" + HUNT_NUMBER + "/puzzles", {
+    console.log(cardboard_cookie.value);
+    const response = await fetch(TARGET_URL + "/api/v1/hunts/" + HUNT_NUMBER + "/puzzles", {
       method: "POST",
       mode: "cors",
       body: JSON.stringify({
@@ -84,6 +137,12 @@ button.addEventListener("click", async (e) => {
         "Content-Type": "application/json",
       },
     });
+    console.log(response);
+    getCreatedPuzzle(document.getElementById("puzzle_url").value);
+    //setTimeout(() => {
+    //    getCreatedPuzzle1(document.getElementById("puzzle_url").value);
+    //}, 10000);
+    
   } else {
     console.log("No cookie found");
   }

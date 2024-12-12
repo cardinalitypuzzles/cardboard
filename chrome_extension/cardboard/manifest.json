@@ -13,12 +13,21 @@
   },
   "permissions": [
     "activeTab",
-	"cookies"
+	  "cookies"
   ],
   "host_permissions": [
-	"http://127.0.0.1/*",
-	"http://localhost/*",
-	"https://cardboard.rocks/*",
-	"https://www.cardboard.rocks/*"
-  ]
+    "http://127.0.0.1/*",
+    "http://localhost/*",
+    "https://cardboard.rocks/*",
+    "https://www.cardboard.rocks/*",
+    "https://cardboard-boat.herokuapp.com/*",
+    "https://www.cardboard-boat.herokuapp.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "externally_connectable": {
+    "matches": ["http://localhost:8000/*"]
+  }
 }
