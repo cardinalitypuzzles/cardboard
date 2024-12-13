@@ -105,7 +105,9 @@ body {
 }
 
 .bootstrap button.cb-btn-compact,
-.bootstrap div.cb-btn-compact button {
+.bootstrap div.cb-btn-compact button,
+.bootstrap-dark button.cb-btn-compact,
+.bootstrap-dark div.cb-btn-compact button {
   padding: .15rem .7rem;
   line-height: normal;
 }
