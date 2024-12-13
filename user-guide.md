@@ -2,7 +2,7 @@
 
 ### Overview
 
-![overview](https://user-images.githubusercontent.com/1312469/209477999-b9996cd5-e8c8-4020-8d74-007ebe5558cb.png)
+![overview](https://github.com/user-attachments/assets/abf92304-f3af-43f9-b914-ce7beff09a04)
 
 The default page you see is a list of all puzzles in a table. The puzzle name is a link to the puzzle page on the hunt website. The puzzles are grouped by meta, and each puzzle has a Google spreadsheet associated with it.
 
