@@ -1,4 +1,4 @@
-from guardian.shortcuts import assign_perm
+from guardian.shortcuts import assign_perm, remove_perm
 from rest_framework import status
 
 from accounts.models import Puzzler
@@ -32,6 +32,12 @@ class CardboardTestCase:
 
     def check_response_status(self, response, status=status.HTTP_200_OK):
         self.assertEqual(response.status_code, status)
+
+    def set_permissions_level(self, can_access=False, is_admin=False):
+        if not is_admin:
+            remove_perm("hunt_admin", self._user, self._hunt)
+        if not can_access:
+            remove_perm("hunt_access", self._user, self._hunt)
 
     # Hunt methods
 
