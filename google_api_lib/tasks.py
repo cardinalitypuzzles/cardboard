@@ -702,7 +702,5 @@ def sync_drive_permissions_for_hunt(self, hunt_id):
 
     UserModel = get_user_model()
     emails = get_file_user_emails.run(hunt.settings.google_drive_folder_id)
-    print(f"Found emails {emails}")
     users = UserModel.objects.filter(email__in=emails)
-    print(f"Giving access permissions to {users}")
     assign_perm("hunt_access", users, hunt)
