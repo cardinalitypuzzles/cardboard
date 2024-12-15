@@ -6,7 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("hunts", "0016_alter_hunt_id_alter_huntsettings_id"),
+        ("hunts", "0016_hunt_discord_settings"),
     ]
 
     operations = [
