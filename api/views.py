@@ -25,6 +25,12 @@ from puzzles.models import (
 )
 from puzzles.puzzle_tag import LOCATION_COLOR
 
+from .permissions import (
+    AnswerAccessPermission,
+    HuntAccessPermission,
+    PuzzleAccessPermission,
+    PuzzleTagAccessPermission,
+)
 from .serializers import (
     AnswerSerializer,
     HuntSerializer,
@@ -41,13 +47,13 @@ logger = logging.getLogger(__name__)
 
 
 class HuntViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, HuntAccessPermission]
     serializer_class = HuntSerializer
     queryset = Hunt.objects.all()
 
 
 class AnswerViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, AnswerAccessPermission]
     serializer_class = AnswerSerializer
 
     @staticmethod
@@ -194,7 +200,7 @@ class AnswerViewSet(viewsets.ModelViewSet):
 
 
 class PuzzleViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, PuzzleAccessPermission]
     serializer_class = PuzzleSerializer
 
     def get_queryset(self):
@@ -402,7 +408,7 @@ class PuzzleViewSet(viewsets.ModelViewSet):
 
 
 class PuzzleTagViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, PuzzleTagAccessPermission]
     serializer_class = PuzzleTagSerializer
 
     def get_queryset(self):
