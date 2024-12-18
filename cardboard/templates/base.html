@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         <title>{{ APP_TITLE }}</title>
-        <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}"/>
+        <link rel="shortcut icon" type="image/png" href="{% static FAVICON %}"/>
 
         <!-- https://github.com/ForEvolve/bootstrap-dark -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@forevolve/bootstrap-dark@1.0.0/dist/css/toggle-bootstrap.min.css" />
@@ -56,7 +56,7 @@
     <body>
         <nav class="navbar navbar-expand-lg navbar-themed">
             <a class="navbar-brand" href="/">
-                <img height="40" src="{% static 'favicon.ico' %}" alt="">
+                <img width="48" src="{% static FAVICON %}" alt="">
                 {{ APP_SHORT_TITLE }}
             </a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">

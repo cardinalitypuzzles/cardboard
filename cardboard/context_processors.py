@@ -13,6 +13,7 @@ def app_info(request):
     return {
         "APP_SHORT_TITLE": settings.APP_SHORT_TITLE,
         "APP_TITLE": settings.APP_TITLE,
+        "FAVICON": settings.FAVICON,
         "CONTACT_AUTHOR_NAME": settings.CONTACT_AUTHOR_NAME,
         "CONTACT_EMAIL": settings.CONTACT_EMAIL,
     }

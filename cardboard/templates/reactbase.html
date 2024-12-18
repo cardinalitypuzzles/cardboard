@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         <title>{{ APP_TITLE }}</title>
-        <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}"/>
+        <link rel="shortcut icon" type="image/png" href="{% static FAVICON %}"/>
 
         <!-- https://github.com/ForEvolve/bootstrap-dark -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@forevolve/bootstrap-dark@1.0.0/dist/css/toggle-bootstrap.min.css" />
@@ -54,6 +54,7 @@
         <script>
            LOGGED_IN_USER = `{% if user.first_name %}{{user.first_name}} {{user.last_name}}{% else %}{{ user.username }}{% endif %}{% if user.email %} ({{user.email}}){% endif %}`
            APP_SHORT_TITLE = `{{ APP_SHORT_TITLE }}`
+           FAVICON = `{{ FAVICON }}`
         </script>
     </body>
 
