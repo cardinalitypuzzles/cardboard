@@ -53,7 +53,11 @@ const LastActive = ({ last_edited_on }) => {
 const PuzzleTitle = ({ name, last_edited_on, is_solved }) => {
   return (
     <>
-      {last_edited_on && !is_solved && <LastActive last_edited_on={last_edited_on} />}{" "}
+      {last_edited_on && !is_solved && (
+        <>
+          <LastActive last_edited_on={last_edited_on} />{" "}
+        </>
+      )}
       <b>{name}</b>
     </>
   );
@@ -107,7 +111,7 @@ export default function NameCell({ row, value }) {
             <PuzzleTitle
               name={value}
               last_edited_on={row.values.last_edited_on}
-              is_solved={row.values.status === "SOLVED" }
+              is_solved={row.values.status === "SOLVED"}
             ></PuzzleTitle>
           </span>
         ) : (
@@ -115,7 +119,7 @@ export default function NameCell({ row, value }) {
             <PuzzleTitle
               name={value}
               last_edited_on={row.values.last_edited_on}
-              is_solved={row.values.status === "SOLVED" }
+              is_solved={row.values.status === "SOLVED"}
             ></PuzzleTitle>
           </span>
         )}{" "}
