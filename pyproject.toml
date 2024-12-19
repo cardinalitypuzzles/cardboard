@@ -6,7 +6,7 @@ authors = ["Cardinality Puzzlers <cardinalitypuzzles@gmail.com>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.10" # keep .github/workflows/pre-submit.yaml synced
 Django = "^4.1"
 python-dotenv = "^0.19.2"
 django-heroku = "^0.3.1"
