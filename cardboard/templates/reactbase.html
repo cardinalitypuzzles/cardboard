@@ -45,9 +45,11 @@
         {% endif %}
         {% endfor %}
 
-        {% block page_content %}{% endblock %}
+        <div class="pb-2">
+            {% block page_content %}{% endblock %}
+        </div>
 
-        <div class="navbar fixed-bottom navbar-themed">
+        <div class="navbar navbar-themed">
             <p class="small text-muted mb-0">By using our site, you acknowledge that you have read and understand our <a href="{% url 'privacy'%}">Privacy Policy</a></p>
             <p class="small text-muted mb-0">Find us on <a href="https://github.com/cardinalitypuzzles/cardboard">GitHub</a></p>
         </div>
