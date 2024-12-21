@@ -5,7 +5,7 @@ const PROD_URL = "https://cardboard.rocks";
 const DEV_URL = "http://localhost:8000";
 
 // TODO: Make this configurable
-const HUNT_NUMBER = 10;
+const HUNT_NUMBER = 1;
 
 let TARGET_URL = DEV_URL;
 if (IS_PROD) {
