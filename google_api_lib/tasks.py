@@ -12,7 +12,7 @@ from dateutil import tz
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
-from django.db import transaction
+from django.db import IntegrityError, transaction
 from django.db.models import CharField, F, Value
 from django.db.models.functions import Concat
 from googleapiclient import _auth
@@ -620,51 +620,60 @@ def update_active_users(self, hunt_id):
         else:
             body["pageToken"] = response["nextPageToken"]
 
-    with transaction.atomic():
-        user_puzzle_pairs = [
-            f"{user_pk}-{puzzle_pk}" for (user_pk, puzzle_pk) in latest.keys()
-        ]
-        old_activities = (
-            PuzzleActivity.objects.annotate(
-                user_puzzle_pair=Concat(
-                    F("user_id"), Value("-"), F("puzzle_id"), output_field=CharField()
+    try:
+        with transaction.atomic():
+            user_puzzle_pairs = [
+                f"{user_pk}-{puzzle_pk}" for (user_pk, puzzle_pk) in latest.keys()
+            ]
+            old_activities = (
+                PuzzleActivity.objects.annotate(
+                    user_puzzle_pair=Concat(
+                        F("user_id"),
+                        Value("-"),
+                        F("puzzle_id"),
+                        output_field=CharField(),
+                    )
                 )
+                .filter(user_puzzle_pair__in=user_puzzle_pairs)
+                .select_for_update()
             )
-            .filter(user_puzzle_pair__in=user_puzzle_pairs)
-            .select_for_update()
-        )
-        old_keys = [(e.user_id, e.puzzle_id) for e in old_activities]
+            old_keys = [(e.user_id, e.puzzle_id) for e in old_activities]
 
-        PuzzleActivity.objects.bulk_create(
-            [
-                PuzzleActivity(
-                    puzzle_id=puzzle_pk,
-                    user_id=user_pk,
-                    last_edit_time=last_edit_time,
-                    num_edits=num_edits,
-                )
-                for (
-                    (user_pk, puzzle_pk),
-                    (last_edit_time, num_edits),
-                ) in latest.items()
-                if (user_pk, puzzle_pk) not in old_keys
-            ],
-        )
-
-        updates = []
-        for activity in old_activities:
-            (last_edit_time, num_edits) = latest[(activity.user_id, activity.puzzle_id)]
-            activity.last_edit_time = last_edit_time
-            activity.num_edits += num_edits
-            updates.append(activity)
-
-        if updates:
-            PuzzleActivity.objects.bulk_update(
-                updates, fields=["last_edit_time", "num_edits"]
+            PuzzleActivity.objects.bulk_create(
+                [
+                    PuzzleActivity(
+                        puzzle_id=puzzle_pk,
+                        user_id=user_pk,
+                        last_edit_time=last_edit_time,
+                        num_edits=num_edits,
+                    )
+                    for (
+                        (user_pk, puzzle_pk),
+                        (last_edit_time, num_edits),
+                    ) in latest.items()
+                    if (user_pk, puzzle_pk) not in old_keys
+                ],
             )
 
-        hunt.last_active_users_update_time = end
-        hunt.save()
+            updates = []
+            for activity in old_activities:
+                (last_edit_time, num_edits) = latest[
+                    (activity.user_id, activity.puzzle_id)
+                ]
+                activity.last_edit_time = last_edit_time
+                activity.num_edits += num_edits
+                updates.append(activity)
+
+            if updates:
+                PuzzleActivity.objects.bulk_update(
+                    updates, fields=["last_edit_time", "num_edits"]
+                )
+
+            hunt.last_active_users_update_time = end
+            hunt.save()
+    except IntegrityError:
+        # attempt to avoid the error next time by clearing cache
+        cache.clear()
 
 
 @shared_task(base=GoogleApiClientTask, bind=True)
