@@ -66,4 +66,4 @@ When a puzzle is added, a Google Sheet is automatically created for it, linked f
 
 ![tools](https://user-images.githubusercontent.com/1312469/209479516-9d2195d3-40b0-40d2-be35-11fccce7ef01.png)
 
-A static list of tools and references is collected on the "Tools and References" page. You can add more by editing the [tools.html](hunts/templates/tools.html) page.
+A static list of tools and references is collected on the "Tools and References" page. You can add more by editing the [tools.html](cardboard/templates/tools.html) page.
