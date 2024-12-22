@@ -4,7 +4,7 @@
 <div class="m-2 col">
     <h1>Hunt Settings</h1>
 
-    <form action="" method="post">
+    <form id="hunt_settings" action="" method="post">
         {% csrf_token %}
         <div class="row">
             <div class="col-md-6">
@@ -27,7 +27,7 @@
             <button type="submit" class="btn btn-secondary mx-2">Add users from Google Drive</button>
         </form>
         <a class="btn btn-light ml-auto mx-2" href="/">Go to Puzzles</a>
-        <button type="submit" class="btn btn-primary mx-2">Submit</button>
+        <button type="submit" class="btn btn-primary mx-2" form="hunt_settings" >Submit</button>
     </div>
 </div>
 {% endblock %}
