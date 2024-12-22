@@ -28,41 +28,62 @@ class PuzzleTag(models.Model):
     FREEBIE = "Freebie"
 
     DEFAULT_TAGS = [
+        # unassignable colors
         (HIGH_PRIORITY, PuzzleTagColor.RED),
         (LOW_PRIORITY, PuzzleTagColor.YELLOW),
         (BACKSOLVED, PuzzleTagColor.GREEN),
         (FREEBIE, PuzzleTagColor.GREEN),
         ("Slog", PuzzleTagColor.GRAY),
+        ("Grunt work", PuzzleTagColor.GRAY),
+        # Logic puzzles
         ("Grid logic", PuzzleTagColor.WHITE),
         ("Non-grid logic", PuzzleTagColor.WHITE),
+        # Word puzzles
         ("Crossword", PuzzleTagColor.BLUE),
         ("Cryptics", PuzzleTagColor.BLUE),
-        ("Wordplay", PuzzleTagColor.BLUE),
+        ("Letter soup", PuzzleTagColor.BLUE),
+        ("Phonetic", PuzzleTagColor.BLUE),
+        # ID
+        ("Art ID", PuzzleTagColor.WHITE),
+        ("Image ID", PuzzleTagColor.WHITE),
+        ("Music ID", PuzzleTagColor.WHITE),
+        ("Other ID tasks", PuzzleTagColor.WHITE),
+        # Specific puzzle types
+        ("Black box", PuzzleTagColor.BLUE),
+        ("Interactive", PuzzleTagColor.BLUE),
+        ("Minipuzzles", PuzzleTagColor.BLUE),
+        ("Meta Matching", PuzzleTagColor.BLUE),
+        # Stuff my mom calls IT
+        ("Code 🐒", PuzzleTagColor.WHITE),
+        ("Digital forensics", PuzzleTagColor.WHITE),
         ("Media manipulation", PuzzleTagColor.WHITE),
-        ("Programming", PuzzleTagColor.WHITE),
-        ("Art ID", PuzzleTagColor.BLUE),
+        # Academic topics
         ("Bio", PuzzleTagColor.BLUE),
         ("Chem", PuzzleTagColor.BLUE),
         ("Foreign languages", PuzzleTagColor.BLUE),
-        ("Geography", PuzzleTagColor.BLUE),
+        ("History/Politics/Law", PuzzleTagColor.BLUE),
         ("Literature", PuzzleTagColor.BLUE),
+        ("Maps/Geography", PuzzleTagColor.BLUE),
         ("Math", PuzzleTagColor.BLUE),
         ("Physics", PuzzleTagColor.BLUE),
+        # Interests/hobbies
         ("Anime", PuzzleTagColor.WHITE),
         ("Board games", PuzzleTagColor.WHITE),
-        ("Boomer", PuzzleTagColor.WHITE),
-        ("Knitting", PuzzleTagColor.WHITE),
         ("Movies", PuzzleTagColor.WHITE),
-        ("Music ID", PuzzleTagColor.WHITE),
+        ("Music Theory", PuzzleTagColor.WHITE),
+        ("Musical/Theatre", PuzzleTagColor.WHITE),
         ("Sports", PuzzleTagColor.WHITE),
         ("TV", PuzzleTagColor.WHITE),
         ("Video games", PuzzleTagColor.WHITE),
-        ("Zoomer", PuzzleTagColor.WHITE),
-        ("MIT", PuzzleTagColor.BLUE),
+        # In-person
+        ("MIT knowledge", PuzzleTagColor.BLUE),
+        ("Scavenger hunt/submission", PuzzleTagColor.BLUE),
+        ("Physical puzzle", PuzzleTagColor.BLUE),
+        ("Live interaction", PuzzleTagColor.BLUE),
+        ("Jigsaw", PuzzleTagColor.BLUE),
         ("Printing", PuzzleTagColor.BLUE),
-        ("Teamwork", PuzzleTagColor.BLUE),
-        ("Classroom 1", LOCATION_COLOR),
-        ("Classroom 2", LOCATION_COLOR),
+        # Locations
+        ("On campus", LOCATION_COLOR),
         ("Remote", LOCATION_COLOR),
     ]
 
@@ -115,7 +136,7 @@ class PuzzleTag(models.Model):
 
         tags_to_create = []
 
-        for (name, color) in PuzzleTag.DEFAULT_TAGS:
+        for name, color in PuzzleTag.DEFAULT_TAGS:
             if name in already_existing:
                 continue
 
