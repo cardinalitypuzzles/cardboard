@@ -673,6 +673,9 @@ def update_active_users(self, hunt_id):
             hunt.save()
     except IntegrityError:
         # attempt to avoid the error next time by clearing cache
+        logger.warning(
+            "IntegrityError while updating active users, clearing cache"
+        )
         cache.clear()
 
 
