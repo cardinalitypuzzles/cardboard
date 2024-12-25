@@ -81,7 +81,6 @@ class PuzzleTag(models.Model):
         ("Physical puzzle", PuzzleTagColor.BLUE),
         ("Live interaction", PuzzleTagColor.BLUE),
         ("Jigsaw", PuzzleTagColor.BLUE),
-        ("Printing", PuzzleTagColor.BLUE),
         # Locations
         ("On campus", LOCATION_COLOR),
         ("Remote", LOCATION_COLOR),
