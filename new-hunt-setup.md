@@ -107,7 +107,7 @@ For the Google Drive/Sheets integration, fill out the following fields. Many of 
 
 * **Google Drive folder id:** the id of your Google Drive folder, should be part of the URL (`https://drive.google.com/drive/folders/<folder_id>`). This folder is where puzzle spreadsheets will be stored, and access to this folder determines login access to Cardboard.
 * **Google Sheets template file id:** the id of your Google Sheets template file, should be part of the URL (`https://docs.google.com/spreadsheets/d/<sheet_id>`)
-* **Google Sheets template folder id:** the id of a Google Drive folder where extra Sheet templates can be found. If this folder is not empty, Cardboard will rename and move one of othese sheets when a new puzzle is created, instead of copying the template file. This maybe be useful because of #372, where scripts in Google sheets will stop working on new sheets if you create too many in one day. This way you can create sheets in advance to get around the daily limits.
+* **Google Sheets template folder id:** the id of a Google Drive folder where extra Sheet templates can be found. If this folder is not empty, Cardboard will rename and move one of these sheets when a new puzzle is created, instead of copying the template file. This maybe be useful because of #372, where scripts in Google sheets will stop working on new sheets if you create too many in one day. This way you can create sheets in advance to get around the daily limits.
 * **Google Drive human URL:** the URL of a Google Drive folder where human-generated files can be uploaded. This folder is linked at the top of Cardboard. If this value is not set, there will not be a link to the folder.
 
 ###### Recent editor tracking
