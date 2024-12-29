@@ -337,14 +337,17 @@ LOGGING = {
 }
 
 # Redis settings
-
+REDIS_URL = os.environ.get("REDIS_URL", "redis://")
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": os.environ.get("REDIS_URL", "redis://"),
-        "OPTIONS": {"ssl_cert_reqs": None},
+        "LOCATION": REDIS_URL,
+        "OPTIONS": {},
     }
 }
+
+if "rediss" in REDIS_URL:
+    CACHES["default"]["OPTIONS"]["ssl_cert_reqs"] = None
 
 # Use 64 bit primary keys
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
