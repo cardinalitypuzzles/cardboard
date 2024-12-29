@@ -532,6 +532,7 @@ def get_puzzle_pk_from_drive_item(drive_item_name) -> Optional[int]:
     try:
         puzzle = Puzzle.objects.get(sheet__contains=drive_item_id)
         cache.set(drive_item_name, puzzle.pk, timeout=None)
+        cache.set(puzzle.id, drive_item_name, timeout=None)
         return puzzle.pk
     except Puzzle.DoesNotExist:
         return None
