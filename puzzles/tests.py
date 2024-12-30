@@ -95,6 +95,13 @@ class TestPuzzle(APITestCase):
         tag = meta.tags.get(name=meta.name)
         self.assertTrue(tag.is_meta)
 
+    def test_meta_deletion_cleans_up_tags(self):
+        meta = self.create_puzzle("oldname", True)
+        self.client.delete(f"/api/v1/hunts/{self._test_hunt.pk}/puzzles/{meta.pk}")
+        self.assertFalse(
+            PuzzleTag.objects.filter(name=meta.name, hunt=meta.hunt).exists()
+        )
+
     def test_meta_affects_tags(self):
         meta = self.create_puzzle("meta", True)
         feeder = self.create_puzzle("feeder", False)
@@ -204,3 +211,30 @@ class TestPuzzle(APITestCase):
         )
         # Now it should be backsolved again
         self.assertTrue(feeder.is_backsolved())
+
+    def test_soft_delete_and_restore(self):
+        meta = self.create_puzzle("meta", True)
+        guess = Answer.objects.create(text="guess", puzzle=meta)
+        guess.set_status(Answer.INCORRECT)
+
+        self.client.delete(f"/api/v1/hunts/{self._test_hunt.pk}/puzzles/{meta.pk}", {})
+        response = self.client.get(
+            f"/api/v1/hunts/{self._test_hunt.pk}/puzzles/{meta.pk}"
+        )
+        self.assertEqual(response.status_code, 404)
+        meta.refresh_from_db()
+        self.assertTrue(meta.is_deleted)
+        guess.refresh_from_db()
+        self.assertTrue(guess.is_deleted)
+
+        meta.restore(strict=False)
+        self.assertFalse(meta.is_deleted)
+        guess.refresh_from_db()
+        self.assertFalse(guess.is_deleted)
+        response = self.client.get(
+            f"/api/v1/hunts/{self._test_hunt.pk}/puzzles/{meta.pk}"
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(
+            PuzzleTag.objects.filter(name=meta.name, hunt=meta.hunt).exists()
+        )

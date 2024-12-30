@@ -8,8 +8,8 @@ from rest_framework.test import APITestCase
 
 import google_api_lib
 import google_api_lib.tests
-from puzzles.models import Puzzle, PuzzleTag, PuzzleTagColor
-from puzzles.puzzle_tag import LOCATION_COLOR, META_COLOR
+from puzzles.models import Puzzle
+from puzzles.puzzle_tag import LOCATION_COLOR, META_COLOR, PuzzleTag, PuzzleTagColor
 
 from .test_helpers import CardboardTestCase
 

@@ -16,10 +16,13 @@ from ..models import Puzzle
 
 @receiver(pre_save, sender=Puzzle)
 def update_tags_pre_save(sender, instance, **kwargs):
+    if instance.is_deleted:
+        return
+
     if instance.is_meta:
         puzzles_needing_new_tag = []
         if instance.pk is not None:
-            old_instance = Puzzle.objects.get(pk=instance.pk)
+            old_instance = Puzzle.global_objects.get(pk=instance.pk)
             if not old_instance.is_meta:
                 puzzles_needing_new_tag = [instance]
             elif old_instance.name != instance.name:
