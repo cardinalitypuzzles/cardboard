@@ -16,14 +16,8 @@ import google_api_lib.tasks
 from answers.models import Answer
 from chat.models import ChatRoom
 from hunts.models import Hunt
-from puzzles.models import (
-    Puzzle,
-    PuzzleModelError,
-    PuzzleTag,
-    PuzzleTagColor,
-    is_ancestor,
-)
-from puzzles.puzzle_tag import LOCATION_COLOR
+from puzzles.models import Puzzle, PuzzleModelError, is_ancestor
+from puzzles.puzzle_tag import LOCATION_COLOR, PuzzleTag, PuzzleTagColor
 
 from .permissions import (
     AnswerAccessPermission,

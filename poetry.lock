@@ -730,6 +730,17 @@ requests = "*"
 sqlparse = "*"
 
 [[package]]
+name = "django-soft-delete"
+version = "1.0.16"
+description = "Soft delete models, managers, queryset for Django"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "django-soft-delete-1.0.16.tar.gz", hash = "sha256:cc40398ccd869c75a6d6ba7f526e16c4afe2b0c0811c213a318d96bb4c58a787"},
+    {file = "django_soft_delete-1.0.16-py3-none-any.whl", hash = "sha256:fdaf2788d404930557f1300ce40bbd764f6938775a35a3175c66fe7778666093"},
+]
+
+[[package]]
 name = "django-taggit"
 version = "2.1.0"
 description = "django-taggit is a reusable Django application for simple tagging."
@@ -1962,4 +1973,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "f951048538a7a5015b73cd792067e16e8995f19640bef987b4b4a3d65f536044"
+content-hash = "9a09b3c7e5b23ffbcc56b07695336690a9bc8de7840b37eff2393dae120d2ba2"

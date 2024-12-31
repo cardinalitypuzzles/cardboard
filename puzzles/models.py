@@ -1,11 +1,11 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models import Q
-from django.dispatch import receiver
+from django_softdelete.models import SoftDeleteModel
 
 from answers.models import Answer
 
-from .puzzle_tag import PuzzleTag, PuzzleTagColor
+from .puzzle_tag import PuzzleTag
 
 
 class PuzzleModelError(Exception):
@@ -25,7 +25,7 @@ class InvalidMetaPuzzleError(PuzzleModelError):
     metas)."""
 
 
-class Puzzle(models.Model):
+class Puzzle(SoftDeleteModel):
     name = models.CharField(max_length=80)
     hunt = models.ForeignKey(
         "hunts.Hunt", on_delete=models.CASCADE, related_name="puzzles"
@@ -210,10 +210,10 @@ class Puzzle(models.Model):
         return name[:max_allowed_length]
 
 
-@receiver(models.signals.post_delete, sender=Puzzle)
-def delete_chat_room(sender, instance, using, **kwargs):
-    if instance.chat_room:
-        instance.chat_room.delete()
+# used for deleted puzzles admin
+class DeletedPuzzle(Puzzle):
+    class Meta:
+        proxy = True
 
 
 # Used for cycle detection before adding an edge from potential ancestor to child.
@@ -229,7 +229,7 @@ def is_ancestor(potential_ancestor, child):
     return False
 
 
-class PuzzleActivity(models.Model):
+class PuzzleActivity(SoftDeleteModel):
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     puzzle = models.ForeignKey(Puzzle, on_delete=models.CASCADE)
     last_edit_time = models.DateTimeField()

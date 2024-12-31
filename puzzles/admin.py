@@ -1,8 +1,9 @@
 from django.contrib import admin
+from django_softdelete.admin import hard_delete_selected_items
 
 from answers.models import Answer
 
-from .models import Puzzle, PuzzleActivity, PuzzleTag
+from .models import DeletedPuzzle, Puzzle, PuzzleActivity, PuzzleTag
 
 
 class AnswerInline(admin.TabularInline):
@@ -29,6 +30,29 @@ class PuzzleActivityAdmin(admin.ModelAdmin):
     ordering = ("-last_edit_time", "-num_edits")
 
 
+@admin.action(description="Restore selected items")
+def nonstrict_restore_selected_items(modeladmin, request, queryset):
+    queryset.restore(strict=False)
+
+
+class DeletedPuzzlesAdmin(admin.ModelAdmin):
+    # this is a duplicate of SoftDeletedModelAdmin but with strict = False for restores
+    def get_queryset(self, request):
+        super().get_queryset(request)
+        qs = self.model.deleted_objects.get_queryset()
+        ordering = self.get_ordering(request)
+        if ordering:
+            qs = qs.order_by(*ordering)
+        return qs
+
+    actions = [
+        *admin.ModelAdmin.actions,
+        hard_delete_selected_items,
+        nonstrict_restore_selected_items,
+    ]
+
+
 admin.site.register(Puzzle, PuzzleAdmin)
+admin.site.register(DeletedPuzzle, DeletedPuzzlesAdmin)
 admin.site.register(PuzzleTag, PuzzleTagAdmin)
 admin.site.register(PuzzleActivity, PuzzleActivityAdmin)

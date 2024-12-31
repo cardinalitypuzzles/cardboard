@@ -8,7 +8,8 @@ from django.db.models import Prefetch
 from answers.models import Answer
 from cardboard.settings import TaskPriority
 from hunts.models import Hunt
-from puzzles.models import Puzzle, PuzzleTag, PuzzleTagColor
+from puzzles.models import Puzzle
+from puzzles.puzzle_tag import PuzzleTag, PuzzleTagColor
 
 logger = logging.getLogger(__name__)
 

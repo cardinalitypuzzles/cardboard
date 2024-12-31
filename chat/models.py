@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.db import models
 from django.dispatch import receiver
+from django_softdelete.models import SoftDeleteModel
 
 from puzzles.puzzle_tag import PuzzleTag
 
@@ -12,7 +13,7 @@ def _get_default_service():
 SERVICE_CHOICES = ["DISCORD"]
 
 
-class ChatRoom(models.Model):
+class ChatRoom(SoftDeleteModel):
     """Represents a space for users to communicate about a topic (i.e. puzzle).
 
     A single ChatRoom object can include multiple channels for different media

@@ -1,7 +1,8 @@
 from django.db import models
+from django_softdelete.models import SoftDeleteModel
 
 
-class Answer(models.Model):
+class Answer(SoftDeleteModel):
     text = models.CharField(max_length=128)
     puzzle = models.ForeignKey(
         "puzzles.Puzzle", on_delete=models.CASCADE, related_name="guesses"
