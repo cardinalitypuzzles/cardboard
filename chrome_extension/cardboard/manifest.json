@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Cardboard Chrome Extension:BETA",
+  "name": "Cardboard Chrome Extension:BETA_LOCAL",
   "description": "THIS EXTENSION IS FOR BETA TESTING",
   "version": "1.0.3",
   "icons": {
@@ -10,7 +10,13 @@
     "128": "images/cardboard_bird.png"
   },
   "action": {
-    "default_popup": "popup.html"
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "images/cardboard_bird.png",
+      "32": "images/cardboard_bird.png",
+      "48": "images/cardboard_bird.png",
+      "128": "images/cardboard_bird.png"
+    }
   },
   "permissions": [
     "activeTab",
