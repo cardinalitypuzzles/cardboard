@@ -11,15 +11,12 @@ const base_url = hunt_data["origin"];
 
 // Exit script if hunt information isn't found.
 if (hunt_id === undefined) {
-  console.log('No hunt_id found');
   throw new Error('No hunt_id found');
 }
 if (hunt_url === undefined) {
-  console.log('No hunt_url found');
   throw new Error('No hunt_url found');
 }
 if (base_url === undefined) {
-  console.log('No base_url found');
   throw new Error('No base_url found');
 }
 
