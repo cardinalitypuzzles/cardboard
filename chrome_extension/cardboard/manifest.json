@@ -20,7 +20,8 @@
   },
   "permissions": [
     "activeTab",
-	  "cookies"
+	  "cookies",
+    "storage"
   ],
   "background": {
     "service_worker": "background.js"
@@ -31,5 +32,13 @@
     "https://cardboard.rocks/*",
     "https://www.cardboard.rocks/*"
   ],
+  "externally_connectable": {
+    "matches": [
+      "http://127.0.0.1/*",
+      "http://localhost/*",
+      "https://cardboard.rocks/*",
+      "https://www.cardboard.rocks/*"
+    ]
+  },
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAi92f5KRrHgQpQP6YtUCfaA4AV1yoU8/fno7D/+ygBFcG4UXH9xpielrxhfmB2zLOyNMx9FbZJFk+vu224Qi8Itz2nPouJgIs/2yZScDgWHHfJORKs8MAIYhOsdcIfOKw1hQOKY+kTCcqUHVSN6qtJvMaQBvzERFoAhLX5SDtRs90EEBbeicW/qznk3UW/3eNZT+xpbyObnTCFLpX0TYiiDark89H0zHYl09kUcdYOJOLNwZ31SA+FbkJ7Y7TfjpNDnRgo4QmHfTPfBrmUKsTg0S4amPGeWaan0DkBAFzkkaojDh2Q5pqf1ZKyT8yH/pWJkMGeU+QfoIKfoMMO09EowIDAQAB"
 }

@@ -1,12 +1,13 @@
-import React from "react";
+/*global chrome*/
+
+import React, {useEffect} from "react";
 import { render } from "react-dom";
 import { Provider } from "react-redux";
 import store from "./store";
 import { HuntViewMain } from "./HuntViewMain";
-import {useEffect} from "react";
 
-const sendTokenToChromeExtension = ({ extensionId, jwt}) => {
-  chrome.runtime.sendMessage(extensionId, { jwt }, response => {
+const sendTokenToChromeExtension = ({ extensionId, huntId }) => {
+  chrome.runtime.sendMessage(extensionId, { huntId }, response => {
     if (!response.success) {
       console.log('error sending message', response);
       return response;
@@ -17,9 +18,8 @@ const sendTokenToChromeExtension = ({ extensionId, jwt}) => {
 
 const App = () => {
   useEffect(() => {
-    sendTokenToChromeExtension({ extensionId: 'kkfnehbkmjbnilgiapifghldidjidjne', jwt: 'xxxxx.yyyyy.zzzzz'})
+    sendTokenToChromeExtension({ extensionId: 'fhldkjfidcbfienegpehemncionolmfa', huntId: window.CURRENT_HUNT_ID })
   }, [])
-  
   
   return <HuntViewMain huntId={window.CURRENT_HUNT_ID} />;
 };
