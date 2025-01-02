@@ -6,7 +6,7 @@ authors = ["Cardinality Puzzlers <cardinalitypuzzles@gmail.com>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.10" # keep .github/workflows/pre-submit.yaml synced
 Django = "^4.1"
 python-dotenv = "^0.19.2"
 django-heroku = "^0.3.1"
@@ -22,6 +22,7 @@ redis = "^4.1.0"
 django-celery-beat = "^2.4.0"
 python-dateutil = "^2.8.2"
 django-cors-headers = "^4.3.1"
+django-guardian = "^2.4.0"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "*"

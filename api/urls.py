@@ -42,6 +42,12 @@ tag_list = views.PuzzleTagViewSet.as_view(
     }
 )
 
+notes_detail = views.PuzzleNotesView.as_view(
+    {
+        "post": "update",
+    }
+)
+
 tag_detail = views.PuzzleTagViewSet.as_view(
     {
         "get": "retrieve",
@@ -65,6 +71,7 @@ urlpatterns = [
         answer_detail,
         name="answer_detail",
     ),
+    path("v1/puzzles/<int:puzzle_id>/notes", notes_detail, name="notes_detail"),
     path("v1/puzzles/<int:puzzle_id>/tags", tag_list, name="tag_list"),
     path(
         "v1/puzzles/<int:puzzle_id>/tags/<int:pk>",

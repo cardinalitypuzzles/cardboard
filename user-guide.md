@@ -2,7 +2,7 @@
 
 ### Overview
 
-![overview](https://user-images.githubusercontent.com/1312469/209477999-b9996cd5-e8c8-4020-8d74-007ebe5558cb.png)
+![overview](https://github.com/user-attachments/assets/abf92304-f3af-43f9-b914-ce7beff09a04)
 
 The default page you see is a list of all puzzles in a table. The puzzle name is a link to the puzzle page on the hunt website. The puzzles are grouped by meta, and each puzzle has a Google spreadsheet associated with it.
 
@@ -66,4 +66,4 @@ When a puzzle is added, a Google Sheet is automatically created for it, linked f
 
 ![tools](https://user-images.githubusercontent.com/1312469/209479516-9d2195d3-40b0-40d2-be35-11fccce7ef01.png)
 
-A static list of tools and references is collected on the "Tools and References" page. You can add more by editing the [tools.html](hunts/templates/tools.html) page.
+A static list of tools and references is collected on the "Tools and References" page. You can add more by editing the [tools.html](cardboard/templates/tools.html) page.

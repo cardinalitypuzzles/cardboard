@@ -41,6 +41,10 @@ class ApiTests(CardboardTestCase, APITestCase):
             },
         )
 
+    def test_get_hunt_permissions(self):
+        self.set_permissions_level(can_access=False)
+        self.check_response_status(self.get_hunt(), status.HTTP_403_FORBIDDEN)
+
     def test_create_invalid_puzzle(self):
         # Missing name
         self.check_response_status(
@@ -97,6 +101,14 @@ class ApiTests(CardboardTestCase, APITestCase):
             },
         )
 
+    def test_create_puzzle_permissions(self):
+        self.set_permissions_level(can_access=False)
+        self.check_response_status(
+            self.create_puzzle({"name": TEST_NAME, "url": TEST_URL}),
+            status.HTTP_403_FORBIDDEN,
+        )
+        self.assertEqual(Puzzle.objects.count(), 0)
+
     def test_create_puzzle_with_meta_assigned(self):
         # Add meta
         meta_response = self.create_puzzle(
@@ -121,6 +133,20 @@ class ApiTests(CardboardTestCase, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, {})
         self.assertEqual(Puzzle.objects.count(), 0)
+
+    def test_delete_puzzle_permissions(self):
+        self.check_response_status(
+            self.create_puzzle({"name": TEST_NAME, "url": TEST_URL})
+        )
+        puzzle = Puzzle.objects.get()
+
+        self.set_permissions_level(can_access=False)
+
+        response = self.delete_puzzle(puzzle.pk)
+        self.check_response_status(
+            self.delete_puzzle(puzzle.pk), status.HTTP_403_FORBIDDEN
+        )
+        self.assertEqual(Puzzle.objects.count(), 1)
 
     def test_edit_puzzle(self):
         self.check_response_status(
@@ -147,6 +173,21 @@ class ApiTests(CardboardTestCase, APITestCase):
         puzzle.refresh_from_db()
         self.assertEqual(puzzle.is_meta, True)
 
+    def test_edit_puzzle_permissions(self):
+        self.check_response_status(
+            self.create_puzzle({"name": TEST_NAME, "url": TEST_URL})
+        )
+        puzzle = Puzzle.objects.get()
+
+        self.set_permissions_level(can_access=False)
+
+        self.check_response_status(
+            self.edit_puzzle(puzzle.pk, {"name": TEST_NAME + "2"}),
+            status.HTTP_403_FORBIDDEN,
+        )
+        puzzle.refresh_from_db()
+        self.assertEqual(puzzle.name, TEST_NAME)
+
     def test_list_puzzles(self):
         self.check_response_status(
             self.create_puzzle({"name": TEST_NAME, "url": TEST_URL})
@@ -161,6 +202,18 @@ class ApiTests(CardboardTestCase, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 2)
         self.assertEqual({p["name"] for p in response.data}, {TEST_NAME, "second test"})
+
+    def test_list_puzzles_permissions(self):
+        self.check_response_status(
+            self.create_puzzle({"name": TEST_NAME, "url": TEST_URL})
+        )
+
+        self.set_permissions_level(can_access=False)
+
+        self.check_response_status(
+            self.list_puzzles(),
+            status.HTTP_403_FORBIDDEN,
+        )
 
     def test_add_answer(self):
         self.check_response_status(
@@ -186,6 +239,21 @@ class ApiTests(CardboardTestCase, APITestCase):
 
         puzzle.refresh_from_db()
         self.assertEqual(puzzle.correct_answers(), ["ANS", "ANSWERTWO"])
+
+    def test_add_answer_permissions(self):
+        self.check_response_status(
+            self.create_puzzle({"name": TEST_NAME, "url": TEST_URL})
+        )
+        puzzle = Puzzle.objects.get()
+
+        self.set_permissions_level(can_access=False)
+        self.check_response_status(
+            self.create_answer(puzzle.pk, {"text": "ans"}),
+            status.HTTP_403_FORBIDDEN,
+        )
+        puzzle.refresh_from_db()
+        self.assertEqual(puzzle.correct_answers(), [])
+        self.assertEqual(puzzle.status, Puzzle.SOLVING)
 
     def test_delete_answer(self):
         self.check_response_status(
@@ -213,6 +281,27 @@ class ApiTests(CardboardTestCase, APITestCase):
         self.assertEqual(puzzle.status, Puzzle.SOLVING)
         self.assertEqual(len(puzzle.correct_answers()), 0)
 
+    def test_delete_answer_permissions(self):
+        self.check_response_status(
+            self.create_puzzle({"name": TEST_NAME, "url": TEST_URL})
+        )
+        puzzle = Puzzle.objects.get()
+        self.check_response_status(
+            self.create_answer(puzzle.pk, {"text": "ans"}),
+        )
+        puzzle.refresh_from_db()
+        self.assertEqual(puzzle.status, Puzzle.SOLVED)
+        self.assertEqual(len(puzzle.correct_answers()), 1)
+        guesses = list(puzzle.guesses.all())
+
+        self.set_permissions_level(can_access=False)
+        self.check_response_status(
+            self.delete_answer(puzzle.pk, guesses[0].pk), status.HTTP_403_FORBIDDEN
+        )
+        puzzle.refresh_from_db()
+        self.assertEqual(puzzle.status, Puzzle.SOLVED)
+        self.assertEqual(len(puzzle.correct_answers()), 1)
+
     def test_edit_answer(self):
         self.check_response_status(
             self.create_puzzle({"name": TEST_NAME, "url": TEST_URL})
@@ -228,6 +317,23 @@ class ApiTests(CardboardTestCase, APITestCase):
         answer.refresh_from_db()
         self.assertEqual(answer.text, "OOPSREALANSWER")
 
+    def test_edit_answer_permissions(self):
+        self.check_response_status(
+            self.create_puzzle({"name": TEST_NAME, "url": TEST_URL})
+        )
+        puzzle = Puzzle.objects.get()
+
+        self.check_response_status(self.create_answer(puzzle.pk, {"text": "ANSWER"}))
+        answer = puzzle.guesses.get()
+
+        self.set_permissions_level(can_access=False)
+        self.check_response_status(
+            self.edit_answer(puzzle.pk, answer.pk, {"text": "oops real answer"}),
+            status.HTTP_403_FORBIDDEN,
+        )
+        answer.refresh_from_db()
+        self.assertEqual(answer.text, "ANSWER")
+
     def test_create_tag(self):
         self.check_response_status(
             self.create_puzzle({"name": TEST_NAME, "url": TEST_URL})
@@ -241,6 +347,19 @@ class ApiTests(CardboardTestCase, APITestCase):
         self.assertEqual(puzzle.tags.count(), 1)
         # Should return a puzzle
         self.assertEqual(response.data[0]["name"], puzzle.name)
+
+    def test_create_tag_permissions(self):
+        self.check_response_status(
+            self.create_puzzle({"name": TEST_NAME, "url": TEST_URL})
+        )
+        puzzle = Puzzle.objects.get()
+
+        self.set_permissions_level(can_access=False)
+        self.check_response_status(
+            self.create_tag(puzzle.pk, {"name": "taggy", "color": PuzzleTagColor.BLUE}),
+            status.HTTP_403_FORBIDDEN,
+        )
+        self.assertEqual(puzzle.tags.count(), 0)
 
     def test_create_location_tag(self):
         self.check_response_status(
@@ -267,6 +386,23 @@ class ApiTests(CardboardTestCase, APITestCase):
 
         self.check_response_status(self.delete_tag(puzzle.pk, tag.pk))
         self.assertEqual(puzzle.tags.count(), 0)
+
+    def test_delete_tag_permissions(self):
+        self.check_response_status(
+            self.create_puzzle({"name": TEST_NAME, "url": TEST_URL})
+        )
+        puzzle = Puzzle.objects.get()
+        self.check_response_status(
+            self.create_tag(puzzle.pk, {"name": "taggy", "color": PuzzleTagColor.BLUE})
+        )
+        self.assertEqual(puzzle.tags.count(), 1)
+        tag = puzzle.tags.get()
+
+        self.set_permissions_level(can_access=False)
+        self.check_response_status(
+            self.delete_tag(puzzle.pk, tag.pk), status.HTTP_403_FORBIDDEN
+        )
+        self.assertEqual(puzzle.tags.count(), 1)
 
     def test_can_delete_same_name_tag(self):
         self.check_response_status(

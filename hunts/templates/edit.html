@@ -4,7 +4,7 @@
 <div class="m-2 col">
     <h1>Hunt Settings</h1>
 
-    <form action="" method="post">
+    <form id="hunt_settings" action="" method="post">
         {% csrf_token %}
         <div class="row">
             <div class="col-md-6">
@@ -15,15 +15,19 @@
                 {{settings_form.as_p}}
             </div>
         </div>
-        <div class="row justify-content-center">
-            <a class="btn btn-primary mx-2" href="/">Go to Puzzles</a>
-            <button type="submit" class="btn btn-primary mx-2">Submit</button>
-        </div>
     </form>
 
-    <form action="sync_discord_roles" method="post">
-      {% csrf_token %}
-      <button type="submit" class="btn btn-primary mx-2">Sync Discord & Cardboard roles</button>
-    </form>
+    <div class="d-flex">
+        <form action="sync_discord_roles" method="post">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-secondary mx-2">Sync Discord & Cardboard roles</button>
+        </form>
+        <form action="sync_drive_permissions" method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-secondary mx-2">Add users from Google Drive</button>
+        </form>
+        <a class="btn btn-light ml-auto mx-2" href="/">Go to Puzzles</a>
+        <button type="submit" class="btn btn-primary mx-2" form="hunt_settings" >Submit</button>
+    </div>
 </div>
 {% endblock %}

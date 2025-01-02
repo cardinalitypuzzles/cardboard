@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         <title>{{ APP_TITLE }}</title>
-        <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}"/>
+        <link rel="shortcut icon" type="image/png" href="{% static FAVICON %}"/>
 
         <!-- https://github.com/ForEvolve/bootstrap-dark -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@forevolve/bootstrap-dark@1.0.0/dist/css/toggle-bootstrap.min.css" />
@@ -45,15 +45,18 @@
         {% endif %}
         {% endfor %}
 
-        {% block page_content %}{% endblock %}
+        <div class="pb-2">
+            {% block page_content %}{% endblock %}
+        </div>
 
-        <div class="navbar fixed-bottom navbar-themed">
+        <div class="navbar navbar-themed">
             <p class="small text-muted mb-0">By using our site, you acknowledge that you have read and understand our <a href="{% url 'privacy'%}">Privacy Policy</a></p>
             <p class="small text-muted mb-0">Find us on <a href="https://github.com/cardinalitypuzzles/cardboard">GitHub</a></p>
         </div>
         <script>
            LOGGED_IN_USER = `{% if user.first_name %}{{user.first_name}} {{user.last_name}}{% else %}{{ user.username }}{% endif %}{% if user.email %} ({{user.email}}){% endif %}`
            APP_SHORT_TITLE = `{{ APP_SHORT_TITLE }}`
+           FAVICON = `{{ FAVICON }}`
         </script>
     </body>
 

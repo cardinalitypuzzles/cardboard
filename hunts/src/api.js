@@ -93,6 +93,18 @@ function editAnswer(puzzleId, answerId, data) {
   }).then(handleErrors);
 }
 
+function editNotes(puzzleId, data) {
+  const notesApiUrl = `${API_PREFIX}/puzzles/${puzzleId}/notes`;
+  return fetch(notesApiUrl, {
+    method: "POST",
+    headers: {
+      "X-CSRFToken": Cookies.get("csrftoken"),
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  }).then(handleErrors);
+}
+
 function getHunt(huntId) {
   const huntApiUrl = `${API_PREFIX}/hunts/${huntId}`;
   return fetch(huntApiUrl).then(handleErrors);
@@ -127,6 +139,7 @@ export default {
   addAnswer,
   deleteAnswer,
   editAnswer,
+  editNotes,
   deletePuzzleTag,
   addPuzzleTag,
 };
