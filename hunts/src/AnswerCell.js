@@ -12,6 +12,7 @@ export default function AnswerCell({ row }) {
   if (row.original.guesses === undefined || row.original.guesses.length == 0) {
     return (
       <Button
+        className="cb-btn-compact"
         variant="outline-primary"
         onClick={() =>
           dispatch(

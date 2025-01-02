@@ -55,13 +55,6 @@ class ChatRoom(models.Model):
     audio_channel_url = models.URLField(null=True, blank=True)
     audio_channel_id = models.CharField(max_length=255, null=True, blank=True)
 
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                name="unique_room_name_per_service", fields=["service", "name"]
-            ),
-        ]
-
     def __str__(self):
         return self.name
 

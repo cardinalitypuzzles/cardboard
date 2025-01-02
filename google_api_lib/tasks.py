@@ -4,7 +4,7 @@ import logging
 import random
 import re
 import time
-from typing import Optional
+from typing import List, Optional
 
 import dateutil.parser
 from celery import shared_task
@@ -16,6 +16,7 @@ from django.db import transaction
 from django.db.models import CharField, F, Value
 from django.db.models.functions import Concat
 from googleapiclient import _auth
+from guardian.shortcuts import assign_perm
 
 from cardboard.settings import TaskPriority
 from chat.tasks import handle_sheet_created
@@ -664,3 +665,42 @@ def update_active_users(self, hunt_id):
 
         hunt.last_active_users_update_time = end
         hunt.save()
+
+
+@shared_task(base=GoogleApiClientTask, bind=True)
+def get_file_user_emails(self, file_id) -> List[str]:
+    """
+    Returns a sorted list of emails that have access to `file_id` or None if the file is
+    world readable.
+    """
+    response = (
+        self.drive_service().files().get(fileId=file_id, fields="permissions").execute()
+    )
+
+    permissions = response["permissions"]
+
+    emails = set()
+    for perm in permissions:
+        if perm["id"] == "anyoneWithLink":
+            return None
+        email = perm["emailAddress"]
+        emails.add(email)
+        emails.add(email.lower())
+
+    return sorted(list(emails))
+
+
+@shared_task(base=GoogleApiClientTask, bind=True)
+def sync_drive_permissions_for_hunt(self, hunt_id):
+    if not enabled():
+        return
+
+    hunt = Hunt.objects.select_related("settings").get(pk=hunt_id)
+
+    if not hunt.settings.google_drive_folder_id:
+        return
+
+    UserModel = get_user_model()
+    emails = get_file_user_emails.run(hunt.settings.google_drive_folder_id)
+    users = UserModel.objects.filter(email__in=emails)
+    assign_perm("hunt_access", users, hunt)

@@ -2,7 +2,7 @@
 
 [![codecov](https://codecov.io/gh/cardinalitypuzzles/cardboard/branch/master/graph/badge.svg)](https://codecov.io/gh/cardinalitypuzzles/cardboard)
 
-![overview](https://user-images.githubusercontent.com/1312469/209477999-b9996cd5-e8c8-4020-8d74-007ebe5558cb.png)
+![overview](https://github.com/user-attachments/assets/abf92304-f3af-43f9-b914-ce7beff09a04)
 
 Cardboard helps teams coordinate solving [puzzle hunts](https://en.wikipedia.org/wiki/Puzzle_hunt). It manages and organizes puzzles, keeps track of team members, integrates with other solving tools, and more.
 

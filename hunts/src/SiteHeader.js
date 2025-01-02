@@ -19,7 +19,7 @@ export const SiteHeader = () => {
         style={{ marginBottom: "5px" }}
       >
         <a className="navbar-brand" href="/">
-          <img height="40" src="/static/favicon.ico" alt="" />{" "}
+          <img width="48" src={`/static/${window.FAVICON}`} alt="" />{" "}
           {window.APP_SHORT_TITLE}
         </a>
         {hunt.name}

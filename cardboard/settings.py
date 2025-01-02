@@ -77,6 +77,7 @@ INSTALLED_APPS = [
     "taggit",
     "rest_framework",
     "corsheaders",
+    "guardian",
 ]
 
 MIDDLEWARE = [
@@ -191,6 +192,11 @@ DATABASES["default"]["TEST"] = {"NAME": "test_cardboard"}
 # App title
 APP_TITLE = os.environ.get("APP_TITLE", "Cardinality Cardboard")
 APP_SHORT_TITLE = os.environ.get("APP_SHORT_TITLE", "Cardboard")
+FAVICON = "favicon.ico"
+if DEBUG:
+    APP_TITLE = f"[Dev] {APP_TITLE}"
+    APP_SHORT_TITLE = f"[Dev] {APP_SHORT_TITLE}"
+    FAVICON = "favicon_dev.ico"
 
 # Contact info
 CONTACT_AUTHOR_NAME = os.environ.get("CONTACT_AUTHOR_NAME", "Cardinality")
@@ -237,6 +243,7 @@ except KeyError as e:
 AUTHENTICATION_BACKENDS = [
     "social_core.backends.google.GoogleOAuth2",
     "django.contrib.auth.backends.ModelBackend",
+    "guardian.backends.ObjectPermissionBackend",
 ]
 
 SOCIAL_AUTH_URL_NAMESPACE = "social"
@@ -257,8 +264,7 @@ except KeyError as e:
 SOCIAL_AUTH_PIPELINE = (
     "social_core.pipeline.social_auth.social_details",
     "social_core.pipeline.social_auth.social_uid",
-    # custom auth_allowed check in lieu of default one
-    "google_api_lib.sync_tasks.auth_allowed",
+    "social_core.pipeline.social_auth.auth_allowed",
     "social_core.pipeline.social_auth.social_user",
     "social_core.pipeline.user.get_username",
     "social_core.pipeline.user.create_user",
@@ -331,13 +337,17 @@ LOGGING = {
 }
 
 # Redis settings
-
+REDIS_URL = os.environ.get("REDIS_URL", "redis://")
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": os.environ.get("REDIS_URL", "redis://"),
+        "LOCATION": REDIS_URL,
+        "OPTIONS": {},
     }
 }
+
+if "rediss" in REDIS_URL:
+    CACHES["default"]["OPTIONS"]["ssl_cert_reqs"] = None
 
 # Use 64 bit primary keys
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
