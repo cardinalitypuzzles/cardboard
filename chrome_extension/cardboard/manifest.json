@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Cardboard Chrome Extension:BETA_LOCAL",
   "description": "THIS EXTENSION IS FOR BETA TESTING",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "icons": {
     "16": "images/cardboard_bird.png",
     "32": "images/cardboard_bird.png",
@@ -20,7 +20,7 @@
   },
   "permissions": [
     "activeTab",
-	  "cookies",
+    "cookies",
     "storage"
   ],
   "background": {
@@ -39,6 +39,5 @@
       "https://cardboard.rocks/*",
       "https://www.cardboard.rocks/*"
     ]
-  },
-  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAi92f5KRrHgQpQP6YtUCfaA4AV1yoU8/fno7D/+ygBFcG4UXH9xpielrxhfmB2zLOyNMx9FbZJFk+vu224Qi8Itz2nPouJgIs/2yZScDgWHHfJORKs8MAIYhOsdcIfOKw1hQOKY+kTCcqUHVSN6qtJvMaQBvzERFoAhLX5SDtRs90EEBbeicW/qznk3UW/3eNZT+xpbyObnTCFLpX0TYiiDark89H0zHYl09kUcdYOJOLNwZ31SA+FbkJ7Y7TfjpNDnRgo4QmHfTPfBrmUKsTg0S4amPGeWaan0DkBAFzkkaojDh2Q5pqf1ZKyT8yH/pWJkMGeU+QfoIKfoMMO09EowIDAQAB"
+  }
 }
