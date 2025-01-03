@@ -54,12 +54,7 @@ for (const puzzle of response) {
     metas.push(puzzle.name);
   }
 
-  // Populate URL to Id map for all puzzles with sheets.
-  if (puzzle.has_sheet) {
-    puzzles_by_url.set(puzzle.url, puzzle.id);
-  } else {
-    puzzles_by_url.set(puzzle.url, NO_SHEET_SENTINEL);
-  }
+  puzzles_by_url.set(puzzle.url, puzzle);
 }
 
 const setTextInputValue = (el, str) => {
@@ -73,43 +68,196 @@ const tabs = await chrome.tabs.query({
   active: true,
   currentWindow: true,
 });
-const template = document.getElementById("li_template");
 const elements = new Set();
 for (const tab of tabs) {
-  const element = template.content.firstElementChild.cloneNode(true);
-
-  if (tab.title != undefined) {
-    setTextInputValue(element.querySelector(".puzzle_name"), tab.title);
-  }
   if (tab.url != undefined) {
-    element.querySelector(".puzzle_url").value = tab.url;
     // If a puzzle has already been made using this URL
     if (puzzles_by_url.get(tab.url) != undefined) {
+      const puzzle = puzzles_by_url.get(tab.url);
+      const template = document.getElementById("existing_puzzle_template");
+      const element = template.content.firstElementChild.cloneNode(true);
+      
       // If the sheet has already been made, display a link to the sheet.
-      if (puzzles_by_url.get(tab.url) != NO_SHEET_SENTINEL) {
+      if (puzzle.has_sheet) {
         document.getElementById("puzzle_message").textContent =
           "Puzzle already exists:";
         document.getElementById("google_sheets_link").hidden = false;
         document.getElementById(
           "google_sheets_link"
-        ).href = `${base_url}/puzzles/s/${puzzles_by_url.get(tab.url)}`;
+        ).href = `${base_url}/puzzles/s/${puzzle.id}`;
       } else {
         document.getElementById("puzzle_message").textContent =
           "Puzzle already exists but the sheet is still being created.\nPlease wait 10 seconds then open the extension again.";
       }
+      
+      let puzzle_status_dropdown = element.querySelector(".puzzle_status");
+      // Only show the SOLVED status if the puzzle is currently SOLVED.
+      if (puzzle.status === "SOLVED") {
+        let option = document.createElement("option");
+        option.text = "SOLVED";
+        option.value = "SOLVED";
+        option.key = "SOLVED";
+        puzzle_status_dropdown.add(option);
+      }
+      puzzle_status_dropdown.value = puzzle.status;
+      
+      // Add metas to dropdown
+      let meta_dropdown = element.querySelector(".puzzle_meta");
+      for (const meta of metas) {
+        let option = document.createElement("option");
+        option.text = meta;
+        option.value = meta;
+        option.key = meta;
+        meta_dropdown.add(option);
+      }
+      
+      // If a puzzle belongs to multiple metas, just show one of them.
+      let backsolved_tag_id = undefined;
+      for (const tag of puzzle.tags) {
+        if (tag.is_meta) {
+          meta_dropdown.value = tag.name;
+        }
+        if (tag.name === "Backsolved") {
+          element.querySelector("#is_backsolved").checked = true;
+          backsolved_tag_id = tag.id;
+        }
+      }
+      
+      const existing_answers = new Set();
+      for (const guess of puzzle.guesses) {
+        if (guess.text != undefined) {
+          element.querySelector(".puzzle_answer").value = guess.text;
+          existing_answers.add(guess.text);
+        }
+      }
+      elements.add(element);
+      
+      const button = document.getElementById("puzzle_button");
+      button.textContent = "Edit Puzzle";
+      button.addEventListener("click", async (e) => {
+        e.preventDefault();
+        // Get Cardboard cookie
+        const cardboard_cookie = await chrome.cookies.get({
+          url: base_url,
+          name: "csrftoken",
+        });
+
+        if (cardboard_cookie) {
+          // Change status
+          fetch(`${base_url}/api/v1/hunts/${hunt_id}/puzzles/${puzzle.id}`, {
+            method: "PATCH",
+            mode: "cors",
+            body: JSON.stringify({
+              status: document.getElementById("puzzle_status").value,
+            }),
+            headers: {
+              "X-CSRFToken": cardboard_cookie.value,
+              "Content-Type": "application/json",
+            },
+          });
+          
+          const answer = document.getElementById("puzzle_answer").value;
+          // Submit answer
+          if (answer != "" && !existing_answers.has(answer)) {
+            fetch(`${base_url}/api/v1/puzzles/${puzzle.id}/answers`, {
+              method: "POST",
+              mode: "cors",
+              body: JSON.stringify({
+                text: answer,
+              }),
+              headers: {
+                "X-CSRFToken": cardboard_cookie.value,
+                "Content-Type": "application/json",
+              },
+            });
+          }
+          if (document.getElementById("is_backsolved").checked && backsolved_tag_id === undefined) {
+            fetch(`${base_url}/api/v1/puzzles/${puzzle.id}/tags`, {
+              method: "POST",
+              mode: "cors",
+              body: JSON.stringify({
+                name: "Backsolved",
+                color: "success",
+              }),
+              headers: {
+                "X-CSRFToken": cardboard_cookie.value,
+                "Content-Type": "application/json",
+              },
+            });
+          } else if (!document.getElementById("is_backsolved").checked && backsolved_tag_id !== undefined) {
+            fetch(`${base_url}/api/v1/puzzles/${puzzle.id}/tags/${backsolved_tag_id}`, {
+              method: "DELETE",
+              mode: "cors",
+              headers: {
+                "X-CSRFToken": cardboard_cookie.value,
+                "Content-Type": "application/json",
+              },
+            });
+          }
+        } else {
+          console.log("No cookie found");
+        }
+      });      
+    } else {
+      const template = document.getElementById("new_puzzle_template");
+      const element = template.content.firstElementChild.cloneNode(true);
+      element.querySelector(".puzzle_url").value = tab.url;
+      if (tab.title != undefined) {
+        setTextInputValue(element.querySelector(".puzzle_name"), tab.title);
+      }
+      // Add metas to dropdown
+      let meta_dropdown = element.querySelector(".puzzle_meta");
+      for (const meta of metas) {
+        let option = document.createElement("option");
+        option.text = meta;
+        option.value = meta;
+        option.key = meta;
+        meta_dropdown.add(option);
+      }
+      elements.add(element);
+
+      const button = document.getElementById("puzzle_button");
+      button.textContent = "Add Puzzle";
+      button.addEventListener("click", async (e) => {
+        e.preventDefault();
+        // Get Cardboard cookie
+        const cardboard_cookie = await chrome.cookies.get({
+          url: base_url,
+          name: "csrftoken",
+        });
+
+        if (cardboard_cookie) {
+          // Create puzzle.
+          fetch(`${base_url}/api/v1/hunts/${hunt_id}/puzzles`, {
+            method: "POST",
+            mode: "cors",
+            body: JSON.stringify({
+              create_channels: document.getElementById("create_channels").checked,
+              is_meta: document.getElementById("is_meta").checked,
+              name: document.getElementById("puzzle_name").value,
+              url: document.getElementById("puzzle_url").value,
+              assigned_meta: document.getElementById("puzzle_meta").value,
+            }),
+            headers: {
+              "X-CSRFToken": cardboard_cookie.value,
+              "Content-Type": "application/json",
+            },
+          });
+          document.getElementById("puzzle_message").textContent =
+            "Puzzle created, waiting for Google Sheet to be created...";
+
+          // Poll website every 2 seconds for 30 seconds waiting for the sheet to be created.
+          pollForCreatedPuzzlePeriodically(
+            document.getElementById("puzzle_url").value,
+            2000,
+            15
+          );
+        } else {
+          console.log("No cookie found");
+        }
+      });
     }
   }
-
-  // Add metas to dropdown
-  let meta_dropdown = element.querySelector(".puzzle_meta");
-  for (const meta of metas) {
-    let option = document.createElement("option");
-    option.text = meta;
-    option.value = meta;
-    option.key = meta;
-    meta_dropdown.add(option);
-  }
-  elements.add(element);
 }
 document.querySelector("ul").append(...elements);
 
@@ -148,43 +296,3 @@ function pollForCreatedPuzzlePeriodically(puzzle_url, interval, max_calls) {
   pollAndCheck();
   interval_id = setInterval(pollAndCheck, interval);
 }
-
-const button = document.querySelector("button");
-button.addEventListener("click", async (e) => {
-  e.preventDefault();
-  // Get Cardboard cookie
-  const cardboard_cookie = await chrome.cookies.get({
-    url: base_url,
-    name: "csrftoken",
-  });
-
-  if (cardboard_cookie) {
-    // Create puzzle.
-    fetch(`${base_url}/api/v1/hunts/${hunt_id}/puzzles`, {
-      method: "POST",
-      mode: "cors",
-      body: JSON.stringify({
-        create_channels: document.getElementById("create_channels").checked,
-        is_meta: document.getElementById("is_meta").checked,
-        name: document.getElementById("puzzle_name").value,
-        url: document.getElementById("puzzle_url").value,
-        assigned_meta: document.getElementById("puzzle_meta").value,
-      }),
-      headers: {
-        "X-CSRFToken": cardboard_cookie.value,
-        "Content-Type": "application/json",
-      },
-    });
-    document.getElementById("puzzle_message").textContent =
-      "Puzzle created, waiting for Google Sheet to be created...";
-
-    // Poll website every 2 seconds for 30 seconds waiting for the sheet to be created.
-    pollForCreatedPuzzlePeriodically(
-      document.getElementById("puzzle_url").value,
-      2000,
-      15
-    );
-  } else {
-    console.log("No cookie found");
-  }
-});
