@@ -1,7 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Cardboard Chrome Extension",
-  "version": "1.0.2",
+  "name": "Cardboard Chrome Extension:BETA_LOCAL",
+  "description": "THIS EXTENSION IS FOR BETA TESTING",
+  "version": "1.0.4",
   "icons": {
     "16": "images/cardboard_bird.png",
     "32": "images/cardboard_bird.png",
@@ -9,16 +10,34 @@
     "128": "images/cardboard_bird.png"
   },
   "action": {
-    "default_popup": "popup.html"
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "images/cardboard_bird.png",
+      "32": "images/cardboard_bird.png",
+      "48": "images/cardboard_bird.png",
+      "128": "images/cardboard_bird.png"
+    }
   },
   "permissions": [
     "activeTab",
-	"cookies"
+    "cookies",
+    "storage"
   ],
+  "background": {
+    "service_worker": "background.js"
+  },
   "host_permissions": [
-	"http://127.0.0.1/*",
-	"http://localhost/*",
-	"https://cardboard.rocks/*",
-	"https://www.cardboard.rocks/*"
-  ]
+    "http://127.0.0.1/*",
+    "http://localhost/*",
+    "https://cardboard.rocks/*",
+    "https://www.cardboard.rocks/*"
+  ],
+  "externally_connectable": {
+    "matches": [
+      "http://127.0.0.1/*",
+      "http://localhost/*",
+      "https://cardboard.rocks/*",
+      "https://www.cardboard.rocks/*"
+    ]
+  }
 }

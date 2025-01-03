@@ -47,7 +47,6 @@ ALLOWED_HOSTS = [
 # The second is a local version being used for development.
 CSRF_TRUSTED_ORIGINS = [
     "chrome-extension://fhldkjfidcbfienegpehemncionolmfa",
-    "chrome-extension://cahmppnjflkbimomgndbcmbdoafdegbi",
 ]
 
 # This should be turned on in production to redirect HTTP to HTTPS
