@@ -281,6 +281,9 @@ class ApiTests(CardboardTestCase, APITestCase):
         self.assertEqual(puzzle.status, Puzzle.SOLVING)
         self.assertEqual(len(puzzle.correct_answers()), 0)
 
+        # check that you can still resubmit deleted answers
+        self.check_response_status(self.create_answer(puzzle.pk, {"text": "ANSWER"}))
+
     def test_delete_answer_permissions(self):
         self.check_response_status(
             self.create_puzzle({"name": TEST_NAME, "url": TEST_URL})

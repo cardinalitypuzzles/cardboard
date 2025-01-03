@@ -123,7 +123,7 @@ class AnswerViewSet(viewsets.ModelViewSet):
             answer = self.get_object()
             puzzle = get_object_or_404(Puzzle, pk=self.kwargs["puzzle_id"])
             was_backsolved = puzzle.is_backsolved()
-            answer.delete()
+            answer.hard_delete()
             # If a SOLVED puzzle has no more correct answers, revert status to SOLVING.
             if (
                 not puzzle.guesses.filter(status=Answer.CORRECT)
