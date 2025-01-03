@@ -1,21 +1,28 @@
+from django.core.cache import cache
 from django.db import transaction
 from django.db.models.signals import m2m_changed, post_save, pre_delete, pre_save
 from django.dispatch import receiver
+from django_softdelete.signals import post_restore, post_soft_delete
 
 import chat.tasks
 import google_api_lib.tasks
-from puzzles.models import Puzzle
+from puzzles.models import DeletedPuzzle, Puzzle
 from puzzles.puzzle_tag import META_COLOR, PuzzleTag
+
+from ..models import Puzzle
 
 # Hooks for syncing metas and tags
 
 
 @receiver(pre_save, sender=Puzzle)
 def update_tags_pre_save(sender, instance, **kwargs):
+    if instance.is_deleted:
+        return
+
     if instance.is_meta:
         puzzles_needing_new_tag = []
         if instance.pk is not None:
-            old_instance = Puzzle.objects.get(pk=instance.pk)
+            old_instance = Puzzle.global_objects.get(pk=instance.pk)
             if not old_instance.is_meta:
                 puzzles_needing_new_tag = [instance]
             elif old_instance.name != instance.name:
@@ -55,10 +62,21 @@ def update_tags_post_save(sender, instance, created, **kwargs):
             )
 
 
-@receiver(pre_delete, sender=Puzzle)
-def update_tags_pre_delete(sender, instance, **kwargs):
+@receiver(post_soft_delete, sender=Puzzle)
+def update_tags_post_delete(sender, instance, **kwargs):
     if instance.is_meta:
         PuzzleTag.objects.filter(name=instance.name, hunt=instance.hunt).delete()
+
+
+@receiver(post_restore, sender=DeletedPuzzle)
+def update_tags_post_restore(sender, instance, **kwargs):
+    if instance.is_meta:
+        # restore meta tag
+        PuzzleTag.objects.update_or_create(
+            name=instance.name,
+            defaults={"color": META_COLOR, "is_meta": True},
+            hunt=instance.hunt,
+        )
 
 
 @receiver(m2m_changed, sender=Puzzle.metas.through)
@@ -77,8 +95,9 @@ def update_tags_m2m(sender, instance, action, reverse, model, pk_set, **kwargs):
         instance.tags.filter(is_meta=True).exclude(name=instance.name).remove()
 
 
-@receiver(pre_delete, sender=Puzzle)
-def update_sheets_pre_delete(sender, instance, **kwargs):
+@receiver(post_soft_delete, sender=Puzzle)
+@receiver(post_restore, sender=DeletedPuzzle)
+def update_sheets_post_delete(sender, instance, **kwargs):
     # Need to be careful with the closure here:
     # instance.metas.all() will be empty after the transaction commits,
     # so we need to copy the metas out in advance
@@ -92,11 +111,31 @@ def update_sheets_pre_delete(sender, instance, **kwargs):
         transaction.on_commit(update_metas)
 
         if instance.sheet:
+            name = (
+                f"[DELETED] {instance.name}" if instance.is_deleted else instance.name
+            )
             transaction.on_commit(
                 lambda: google_api_lib.tasks.rename_sheet.delay(
-                    sheet_url=instance.sheet, name=f"[DELETED] {instance.name}"
+                    sheet_url=instance.sheet, name=name
                 )
             )
+
+
+@receiver(pre_delete, sender=Puzzle)
+def delete_chat_room(sender, instance, using, **kwargs):
+    # has to be pre_delete or else instance.chat_room is None
+    if instance.chat_room:
+        chat.tasks.cleanup_puzzle_channels.apply_async(
+            args=(instance.id,), countdown=1800  # clean up in 30 minutes
+        )
+
+
+@receiver(post_soft_delete, sender=Puzzle)
+def clear_cache(sender, instance, using, **kwargs):
+    drive_item_name = cache.get(instance.id)
+    if drive_item_name:
+        cache.delete(drive_item_name)
+        cache.delete(instance.id)
 
 
 @receiver(m2m_changed, sender=Puzzle.metas.through)

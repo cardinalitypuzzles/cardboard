@@ -8,8 +8,8 @@ from rest_framework.test import APITestCase
 
 import google_api_lib
 import google_api_lib.tests
-from puzzles.models import Puzzle, PuzzleTag, PuzzleTagColor
-from puzzles.puzzle_tag import LOCATION_COLOR, META_COLOR
+from puzzles.models import Puzzle
+from puzzles.puzzle_tag import LOCATION_COLOR, META_COLOR, PuzzleTag, PuzzleTagColor
 
 from .test_helpers import CardboardTestCase
 
@@ -280,6 +280,9 @@ class ApiTests(CardboardTestCase, APITestCase):
         puzzle.refresh_from_db()
         self.assertEqual(puzzle.status, Puzzle.SOLVING)
         self.assertEqual(len(puzzle.correct_answers()), 0)
+
+        # check that you can still resubmit deleted answers
+        self.check_response_status(self.create_answer(puzzle.pk, {"text": "ANSWER"}))
 
     def test_delete_answer_permissions(self):
         self.check_response_status(

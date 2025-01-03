@@ -8,13 +8,19 @@ from django.db.models import Prefetch
 from answers.models import Answer
 from cardboard.settings import TaskPriority
 from hunts.models import Hunt
-from puzzles.models import Puzzle, PuzzleTag, PuzzleTagColor
+from puzzles.models import Puzzle
+from puzzles.puzzle_tag import PuzzleTag, PuzzleTagColor
 
 logger = logging.getLogger(__name__)
 
 
-def _get_puzzles_queryset():
-    return Puzzle.objects.select_related("chat_room").select_related("hunt__settings")
+def _get_puzzles_queryset(include_deleted=False):
+    if include_deleted:
+        manager = Puzzle.global_objects
+    else:
+        manager = Puzzle.objects
+
+    return manager.select_related("chat_room").select_related("hunt__settings")
 
 
 @shared_task(rate_limit="6/m", acks_late=True, priority=TaskPriority.HIGH.value)
@@ -45,7 +51,7 @@ def create_channels_for_puzzle(puzzle_id):
 @shared_task(rate_limit="6/m", acks_late=True)
 def cleanup_puzzle_channels(puzzle_id):
     puzzle = (
-        _get_puzzles_queryset()
+        _get_puzzles_queryset(include_deleted=True)
         .prefetch_related(
             Prefetch(
                 "guesses",
@@ -57,7 +63,7 @@ def cleanup_puzzle_channels(puzzle_id):
     # check that puzzle wasn't unsolved between when task was queued and now
     with transaction.atomic():
         solved_time = puzzle.solved_time()
-        if solved_time is None:
+        if solved_time is None and not puzzle.is_deleted:
             return
 
         puzzle.chat_room.delete_channels(check_if_used=True)

@@ -16,14 +16,8 @@ import google_api_lib.tasks
 from answers.models import Answer
 from chat.models import ChatRoom
 from hunts.models import Hunt
-from puzzles.models import (
-    Puzzle,
-    PuzzleModelError,
-    PuzzleTag,
-    PuzzleTagColor,
-    is_ancestor,
-)
-from puzzles.puzzle_tag import LOCATION_COLOR
+from puzzles.models import Puzzle, PuzzleModelError, is_ancestor
+from puzzles.puzzle_tag import LOCATION_COLOR, PuzzleTag, PuzzleTagColor
 
 from .permissions import (
     AnswerAccessPermission,
@@ -129,7 +123,7 @@ class AnswerViewSet(viewsets.ModelViewSet):
             answer = self.get_object()
             puzzle = get_object_or_404(Puzzle, pk=self.kwargs["puzzle_id"])
             was_backsolved = puzzle.is_backsolved()
-            answer.delete()
+            answer.hard_delete()
             # If a SOLVED puzzle has no more correct answers, revert status to SOLVING.
             if (
                 not puzzle.guesses.filter(status=Answer.CORRECT)

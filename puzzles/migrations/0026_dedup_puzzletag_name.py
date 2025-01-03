@@ -3,11 +3,11 @@ from django.contrib.postgres.operations import CITextExtension
 from django.db import migrations
 
 from puzzles.models import Puzzle
-from puzzles.puzzle_tag import PuzzleTag
 
 
 def migrate_to_ci_tag_name(apps, schema_editor):
     ci_name_to_tag = dict()
+    PuzzleTag = apps.get_model("puzzles", "PuzzleTag")
 
     for tag in PuzzleTag.objects.values("name", "puzzles").all():
         ci_tag_name = tag.name.lower()
