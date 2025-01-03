@@ -21,12 +21,13 @@ if (base_url === undefined) {
 }
 
 // Get hunt name from site.
-const hunt_metadata = await fetch(base_url + "/api/v1/hunts/" + hunt_id, {
+const hunt_metadata = await fetch(`${base_url}/api/v1/hunts/${hunt_id}`, {
   method: "GET",
 });
 const hunt_metadata_json = await hunt_metadata.json();
-document.getElementById("hunt_name_tooltip").title =
-  "To change hunts, go to " + base_url + "/hunts/ and select a different hunt.";
+document.getElementById(
+  "hunt_name_tooltip"
+).title = `To change hunts, go to ${base_url}/hunts/ and select a different hunt.`;
 
 if (hunt_metadata_json.name != undefined) {
   document.getElementById("hunt_name").textContent = hunt_metadata_json.name;
@@ -37,7 +38,7 @@ if (hunt_metadata_json.name != undefined) {
 
 // Read all puzzles.
 const hunt_puzzles = await fetch(
-  base_url + "/api/v1/hunts/" + hunt_id + "/puzzles",
+  `${base_url}/api/v1/hunts/${hunt_id}/puzzles`,
   {
     method: "GET",
   }
@@ -57,10 +58,14 @@ for (const puzzle of response) {
   if (puzzle.has_sheet) {
     puzzles_by_url.set(puzzle.url, puzzle.id);
   } else {
-    // Assign
     puzzles_by_url.set(puzzle.url, NO_SHEET_SENTINEL);
   }
 }
+
+const setTextInputValue = (el, str) => {
+  const maxlength = +el.getAttribute("maxlength");
+  el.value = str.substring(0, maxlength);
+};
 
 // There should only be one tab because there is only one currentWindow
 // and active tab.
@@ -74,7 +79,7 @@ for (const tab of tabs) {
   const element = template.content.firstElementChild.cloneNode(true);
 
   if (tab.title != undefined) {
-    element.querySelector(".puzzle_name").value = tab.title;
+    setTextInputValue(element.querySelector(".puzzle_name"), tab.title);
   }
   if (tab.url != undefined) {
     element.querySelector(".puzzle_url").value = tab.url;
@@ -85,8 +90,9 @@ for (const tab of tabs) {
         document.getElementById("puzzle_message").textContent =
           "Puzzle already exists:";
         document.getElementById("google_sheets_link").hidden = false;
-        document.getElementById("google_sheets_link").href =
-          base_url + "/puzzles/s/" + puzzles_by_url.get(tab.url);
+        document.getElementById(
+          "google_sheets_link"
+        ).href = `${base_url}/puzzles/s/${puzzles_by_url.get(tab.url)}`;
       } else {
         document.getElementById("puzzle_message").textContent =
           "Puzzle already exists but the sheet is still being created.\nPlease wait 10 seconds then open the extension again.";
@@ -114,7 +120,7 @@ function pollForCreatedPuzzlePeriodically(puzzle_url, interval, max_calls) {
   async function pollAndCheck() {
     call_count++;
     const hunt_puzzles = await fetch(
-      base_url + "/api/v1/hunts/" + hunt_id + "/puzzles",
+      `${base_url}/api/v1/hunts/${hunt_id}/puzzles`,
       {
         method: "GET",
       }
@@ -123,13 +129,14 @@ function pollForCreatedPuzzlePeriodically(puzzle_url, interval, max_calls) {
     for (const puzzle of response) {
       // If the puzzle has been created and has a sheet, change the extension text to include a
       // link to the sheet and stop polling the website.
-      if ((puzzle.url === puzzle_url) & puzzle.has_sheet) {
+      if (puzzle.url === puzzle_url && puzzle.has_sheet) {
         clearInterval(interval_id);
         document.getElementById("google_sheets_link").hidden = false;
         document.getElementById("puzzle_message").textContent =
           "Puzzle created:";
-        document.getElementById("google_sheets_link").href =
-          base_url + "/puzzles/s/" + puzzle.id;
+        document.getElementById(
+          "google_sheets_link"
+        ).href = `${base_url}/puzzles/s/${puzzle.id}`;
       }
     }
     if (call_count >= max_calls) {
@@ -152,14 +159,14 @@ button.addEventListener("click", async (e) => {
   });
 
   if (cardboard_cookie) {
-    // Create puzzle. Puzzle name is limited to 80 characters
-    fetch(base_url + "/api/v1/hunts/" + hunt_id + "/puzzles", {
+    // Create puzzle.
+    fetch(`${base_url}/api/v1/hunts/${hunt_id}/puzzles`, {
       method: "POST",
       mode: "cors",
       body: JSON.stringify({
         create_channels: document.getElementById("create_channels").checked,
         is_meta: document.getElementById("is_meta").checked,
-        name: document.getElementById("puzzle_name").value.slice(0, 80),
+        name: document.getElementById("puzzle_name").value,
         url: document.getElementById("puzzle_url").value,
         assigned_meta: document.getElementById("puzzle_meta").value,
       }),
