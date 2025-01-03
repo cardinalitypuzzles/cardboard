@@ -5,7 +5,7 @@ import store from "./store";
 import { HuntViewMain } from "./HuntViewMain";
 
 const sendTokenToChromeExtension = ({ extensionId, huntId }) => {
-  if (chrome && chrome.runtime) {
+  if (typeof chrome !== 'undefined' && chrome && chrome.runtime) {
     chrome.runtime.sendMessage(extensionId, { huntId }, (response) => {
       if (!response.success) {
         console.log("Error sending message: ", response);
