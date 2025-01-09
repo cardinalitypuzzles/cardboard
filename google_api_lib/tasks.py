@@ -16,7 +16,7 @@ from django.db import transaction
 from django.db.models import CharField, F, Value
 from django.db.models.functions import Concat
 from googleapiclient import _auth
-from guardian.shortcuts import assign_perm, get_user_perms
+from guardian.shortcuts import assign_perm
 
 from cardboard.settings import TaskPriority
 from chat.tasks import handle_sheet_created
@@ -700,12 +700,11 @@ def sync_drive_permissions_for_hunt(self, hunt_id):
     if not hunt.settings.google_drive_folder_id:
         return
 
+    users_with_access = hunt.get_users_with_perm("hunt_access")
+
     UserModel = get_user_model()
     emails = get_file_user_emails.run(hunt.settings.google_drive_folder_id)
-    users = UserModel.objects.filter(email__in=emails)
-    
-    for user in users:
-        user_hunt_perms = get_user_perms(user, hunt)
-
-        if "hunt_access" not in user_hunt_perms:
-            assign_perm("hunt_access", user, hunt)
+    users = UserModel.objects.filter(email__in=emails).exclude(
+        id__in=[user.pk for user in users_with_access]
+    )
+    assign_perm("hunt_access", users, hunt)
