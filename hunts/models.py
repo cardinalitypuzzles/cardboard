@@ -6,6 +6,7 @@ from django.db.models import Case, Max, Q, When
 from django.shortcuts import get_object_or_404
 from django.template.defaultfilters import slugify
 from django.utils import timezone
+from guardian.shortcuts import get_users_with_perms
 
 from puzzles.models import Puzzle, PuzzleTag
 
@@ -157,6 +158,15 @@ class Hunt(models.Model):
 
         minutes_elapsed = (interval_end - interval_start).total_seconds() / 60
         return "{:.2f}".format(round(minutes_elapsed / solved, 2))
+
+    def get_users_with_perm(self, perm):
+        users_perms = get_users_with_perms(self, attach_perms=True)
+        result = []
+        for user, perms in users_perms.items():
+            if perm in perms:
+                result.append(user)
+
+        return result
 
 
 class HuntSettings(models.Model):
