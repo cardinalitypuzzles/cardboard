@@ -1,4 +1,11 @@
+const path = require('path');
+
 module.exports = {
+  entry: './hunts/src/index.tsx',
+  output: {
+    path: path.resolve(__dirname, 'hunts/static'),
+    filename: 'main.js'
+  },
   resolve: {
     extensions: ['.js', '.jsx', '.ts', '.tsx']
   },

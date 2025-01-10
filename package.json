@@ -6,13 +6,14 @@
   "author": "Cardinality <cardinalitypuzzles@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "dev": "webpack --config webpack.dev.js ./hunts/src/index.js --output-path ./hunts/static",
-    "build": "webpack --config webpack.prod.js ./hunts/src/index.js --output-path ./hunts/static",
+    "dev": "webpack --config webpack.dev.js",
+    "build": "webpack --config webpack.prod.js",
     "postinstall": "patch-package",
     "lint": "eslint ./hunts/src/**"
   },
   "devDependencies": {
     "@babel/preset-typescript": "^7.26.0",
+    "@types/js-cookie": "^3.0.6",
     "@types/react": "^19.0.4",
     "@types/react-dom": "^19.0.2",
     "eslint-config-airbnb": "^19.0.4",
@@ -37,6 +38,7 @@
     "@fortawesome/react-fontawesome": "^0.1.13",
     "@reduxjs/toolkit": "^2.4.0",
     "@tabler/icons": "^1.118.0",
+    "@types/react-table": "^7.7.20",
     "@use-it/interval": "^1.0.0",
     "babel-loader": "^8.2.2",
     "css-loader": "^6.7.3",
