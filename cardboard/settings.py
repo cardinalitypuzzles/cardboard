@@ -35,13 +35,8 @@ DEBUG = bool(strtobool(os.environ.get("DEBUG", "false")))
 
 # Hosts/domain names that are valid for this site.
 # "*" matches anything, ".example.com" matches example.com and all subdomains
-ALLOWED_HOSTS = [
-    "127.0.0.1",
-    "localhost",
-    "smallboard.herokuapp.com",
-    ".smallboard.app",
-    "cardinality-cardboard.herokuapp.com",
-]
+# Heroku does their own Hosts validation
+ALLOWED_HOSTS = ["*"]
 
 # The first is the published Cardboard Chrome Extension.
 # The second is a local version being used for development.
@@ -156,12 +151,14 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 STATIC_URL = "/static/"
+os.makedirs(STATIC_ROOT, exist_ok=True)
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "cardboard/static"),
     os.path.join(BASE_DIR, "hunts/static"),
 ]
-STATICFILES_STORAGE = "whitenoise.django.CompressedManifestStaticFilesStorage"
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # User login
 AUTH_USER_MODEL = "accounts.Puzzler"
@@ -176,11 +173,6 @@ REST_FRAMEWORK = {
     ],
     "TEST_REQUEST_DEFAULT_FORMAT": "json",
 }
-
-# Configure Django App for Heroku.
-import django_heroku
-
-django_heroku.settings(locals(), test_runner=False)
 
 import dj_database_url
 
