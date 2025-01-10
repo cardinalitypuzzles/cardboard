@@ -1,13 +1,16 @@
 module.exports = {
+  resolve: {
+    extensions: ['.js', '.jsx', '.ts', '.tsx']
+  },
   module: {
     rules: [
       {
-        test: /\.(m?)js$/,
+        test: /\.(m?)(js|jsx|ts|tsx)$/,
         enforce: "pre",
         use: ["source-map-loader"],
       },
       {
-        test: /\.js$/,
+        test: /\.(js|jsx|ts|tsx)$/,
         exclude: /node_modules/,
         use: {
           loader: "babel-loader",
