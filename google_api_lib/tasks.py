@@ -683,7 +683,7 @@ def get_file_user_emails(self, file_id) -> List[str]:
     emails = set()
     for perm in permissions:
         if perm["id"] == "anyoneWithLink":
-            return None
+            continue
         email = perm["emailAddress"]
         emails.add(email)
         emails.add(email.lower())
