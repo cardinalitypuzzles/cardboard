@@ -64,7 +64,7 @@ const PulsingBlurpleDiscordSvg = () => {
   );
 };
 
-const DiscordSvg = ({ fillColor = '#000' } : { fillColor?: string }) => {
+const DiscordSvg = ({ fillColor = "#000" }: { fillColor?: string }) => {
   return (
     <svg
       width="26px"
@@ -132,7 +132,15 @@ const GreenSheetsSvg = () => {
   );
 };
 
-const SvgLink = ({ children, url, style } : { children: React.ReactNode, url: string, style: React.CSSProperties }) => {
+const SvgLink = ({
+  children,
+  url,
+  style,
+}: {
+  children: React.ReactNode;
+  url: string;
+  style: React.CSSProperties;
+}) => {
   return (
     <a
       href={url}
@@ -146,7 +154,7 @@ const SvgLink = ({ children, url, style } : { children: React.ReactNode, url: st
   );
 };
 
-export const LinkCell = ({ row } : { row: Row<Puzzle> }) => {
+export const LinkCell = ({ row }: { row: Row<Puzzle> }) => {
   const puzzle = row.original;
   const puzzleLink = puzzle.url;
 

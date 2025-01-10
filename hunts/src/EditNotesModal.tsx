@@ -9,7 +9,13 @@ import { SafeButton, SafeForm, SafeModal } from "./types";
 
 type ChangeEvent = React.ChangeEvent<HTMLInputElement>;
 
-function EditNotesModal({ puzzleId, text } : { puzzleId: PuzzleId, text: string }) {
+function EditNotesModal({
+  puzzleId,
+  text,
+}: {
+  puzzleId: PuzzleId;
+  text: string;
+}) {
   const [newNotes, setNewNotes] = React.useState(text);
   const dispatch = useDispatch<Dispatch>();
   const onSubmit = (e: ChangeEvent) => {

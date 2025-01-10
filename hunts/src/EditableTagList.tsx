@@ -11,7 +11,13 @@ import TagPill from "./TagPill";
 import type { Dispatch, RootState } from "./store";
 import type { PuzzleId, PuzzleTag } from "./types";
 
-function EditableTagList({ puzzleId, tags } : { puzzleId: PuzzleId, tags: PuzzleTag[] }) {
+function EditableTagList({
+  puzzleId,
+  tags,
+}: {
+  puzzleId: PuzzleId;
+  tags: PuzzleTag[];
+}) {
   const selectPuzzleTags = React.useMemo(
     () => (state: RootState) => selectPuzzleById(state, puzzleId).tags,
     [puzzleId]

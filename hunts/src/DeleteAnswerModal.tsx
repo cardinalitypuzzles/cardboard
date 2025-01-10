@@ -5,25 +5,32 @@ import Button from "react-bootstrap/Button";
 import { deleteAnswer } from "./puzzlesSlice";
 import { hideModal } from "./modalSlice";
 
-import type { Dispatch } from './store';
+import type { Dispatch } from "./store";
 import type { AnswerId, PuzzleId } from "./types";
 import { SafeButton, SafeModal } from "./types";
 
-
-function DeleteAnswerModal({ puzzleId, answerId } : { puzzleId: PuzzleId, answerId: AnswerId }) {
+function DeleteAnswerModal({
+  puzzleId,
+  answerId,
+}: {
+  puzzleId: PuzzleId;
+  answerId: AnswerId;
+}) {
   const dispatch = useDispatch<Dispatch>();
   const onDelete = () => {
     dispatch(deleteAnswer({ puzzleId, answerId })).finally(() => {
       dispatch(hideModal());
     });
   };
-  
+
   return (
     <>
       <SafeModal.Header closeButton>
         <SafeModal.Title>Delete Answer</SafeModal.Title>
       </SafeModal.Header>
-      <SafeModal.Body>Are you sure you want to delete this answer?</SafeModal.Body>
+      <SafeModal.Body>
+        Are you sure you want to delete this answer?
+      </SafeModal.Body>
       <SafeModal.Footer>
         <SafeButton variant="secondary" onClick={() => dispatch(hideModal())}>
           Cancel

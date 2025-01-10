@@ -6,7 +6,7 @@ import TagPill from "./TagPill";
 
 import type { Puzzle, Row } from "./types";
 
-function TagCell({ row } : { row : Row<Puzzle> }) {
+function TagCell({ row }: { row: Row<Puzzle> }) {
   const dispatch = useDispatch();
   const puzzleId = row.original.id;
 

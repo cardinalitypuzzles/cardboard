@@ -6,12 +6,26 @@ import {
 } from "@reduxjs/toolkit";
 import api from "./api";
 
-import { RootState } from './store';
-import { AnswerId, HuntId, Puzzle, PuzzleId, TagId } from './types';
+import { RootState } from "./store";
+import { AnswerId, HuntId, Puzzle, PuzzleId, TagId } from "./types";
 
 export const addPuzzle = createAsyncThunk(
   "puzzles/addPuzzle",
-  async ({ huntId, name, url, is_meta, create_channels, assigned_meta }: { huntId: HuntId, name: string, url: string, is_meta: boolean, create_channels: boolean, assigned_meta: string }) => {
+  async ({
+    huntId,
+    name,
+    url,
+    is_meta,
+    create_channels,
+    assigned_meta,
+  }: {
+    huntId: HuntId;
+    name: string;
+    url: string;
+    is_meta: boolean;
+    create_channels: boolean;
+    assigned_meta: string;
+  }) => {
     const response = await api.addPuzzle(huntId, {
       name,
       url,
@@ -25,19 +39,19 @@ export const addPuzzle = createAsyncThunk(
 
 export const deletePuzzle = createAsyncThunk(
   "puzzles/deletePuzzle",
-  async ({ huntId, id }: { huntId: HuntId, id: PuzzleId }) => {
+  async ({ huntId, id }: { huntId: HuntId; id: PuzzleId }) => {
     await api.deletePuzzle(huntId, id);
     return id;
   }
 );
 
 export const fetchPuzzles = createAsyncThunk<
-  { timestamp: number, result: Puzzle[] },
+  { timestamp: number; result: Puzzle[] },
   HuntId,
-  { state : RootState }
+  { state: RootState }
 >(
   "puzzles/fetchPuzzles",
-  async (huntId: HuntId, { getState } : { getState: () => RootState }) => {
+  async (huntId: HuntId, { getState }: { getState: () => RootState }) => {
     const { timestamp } = getState().puzzles;
     const response = await api.getPuzzles(huntId);
     return { timestamp, result: response };
@@ -46,7 +60,21 @@ export const fetchPuzzles = createAsyncThunk<
 
 export const updatePuzzle = createAsyncThunk(
   "puzzles/updatePuzzle",
-  async ({ huntId, id, body }: { huntId: HuntId, id: PuzzleId, body: { name?: string, url?: string, is_meta?: boolean, create_channels?: boolean, status?: string } }) => {
+  async ({
+    huntId,
+    id,
+    body,
+  }: {
+    huntId: HuntId;
+    id: PuzzleId;
+    body: {
+      name?: string;
+      url?: string;
+      is_meta?: boolean;
+      create_channels?: boolean;
+      status?: string;
+    };
+  }) => {
     const response = await api.updatePuzzle(huntId, id, body);
     return response;
   }
@@ -54,7 +82,13 @@ export const updatePuzzle = createAsyncThunk(
 
 export const addAnswer = createAsyncThunk(
   "puzzles/addAnswer",
-  async ({ puzzleId, body } : { puzzleId: PuzzleId, body: { text: string }} ) => {
+  async ({
+    puzzleId,
+    body,
+  }: {
+    puzzleId: PuzzleId;
+    body: { text: string };
+  }) => {
     const response = await api.addAnswer(puzzleId, body);
     return response;
   }
@@ -62,11 +96,17 @@ export const addAnswer = createAsyncThunk(
 
 export const deleteAnswer = createAsyncThunk<
   Puzzle,
-  { puzzleId: PuzzleId, answerId: AnswerId },
+  { puzzleId: PuzzleId; answerId: AnswerId },
   { state: RootState }
 >(
   "puzzles/deleteAnswer",
-  async ({ puzzleId, answerId }: { puzzleId: PuzzleId, answerId: AnswerId }) => {
+  async ({
+    puzzleId,
+    answerId,
+  }: {
+    puzzleId: PuzzleId;
+    answerId: AnswerId;
+  }) => {
     const response = await api.deleteAnswer(puzzleId, answerId);
     return response;
   }
@@ -74,7 +114,15 @@ export const deleteAnswer = createAsyncThunk<
 
 export const editAnswer = createAsyncThunk(
   "puzzles/editAnswer",
-  async ({ puzzleId, answerId, body }: { puzzleId: PuzzleId, answerId: AnswerId, body: { text: string } }) => {
+  async ({
+    puzzleId,
+    answerId,
+    body,
+  }: {
+    puzzleId: PuzzleId;
+    answerId: AnswerId;
+    body: { text: string };
+  }) => {
     const response = await api.editAnswer(puzzleId, answerId, body);
     return response;
   }
@@ -82,7 +130,13 @@ export const editAnswer = createAsyncThunk(
 
 export const editNotes = createAsyncThunk(
   "puzzles/editNotes",
-  async ({ puzzleId, body }: { puzzleId: PuzzleId, body: { text: string } }) => {
+  async ({
+    puzzleId,
+    body,
+  }: {
+    puzzleId: PuzzleId;
+    body: { text: string };
+  }) => {
     const response = await api.editNotes(puzzleId, body);
     return response;
   }
@@ -90,14 +144,22 @@ export const editNotes = createAsyncThunk(
 
 export const deletePuzzleTag = createAsyncThunk(
   "puzzles/deletePuzzleTag",
-  async ({ puzzleId, tagId }: { puzzleId: PuzzleId, tagId: TagId }) => {
+  async ({ puzzleId, tagId }: { puzzleId: PuzzleId; tagId: TagId }) => {
     return api.deletePuzzleTag(puzzleId, tagId);
   }
 );
 
 export const addPuzzleTag = createAsyncThunk(
   "puzzles/addPuzzleTag",
-  async ({ puzzleId, name, color }: { puzzleId: PuzzleId, name: string, color: string }) => {
+  async ({
+    puzzleId,
+    name,
+    color,
+  }: {
+    puzzleId: PuzzleId;
+    name: string;
+    color: string;
+  }) => {
     return api.addPuzzleTag(puzzleId, {
       name,
       color,
@@ -215,8 +277,9 @@ export const puzzlesSlice = createSlice({
   },
 });
 
-const puzzlesSelectors = puzzlesAdapter.getSelectors((state: RootState) => state.puzzles);
-
+const puzzlesSelectors = puzzlesAdapter.getSelectors(
+  (state: RootState) => state.puzzles
+);
 
 export interface PuzzleTable extends Puzzle {
   subRows: Puzzle[];
@@ -231,7 +294,10 @@ export const selectPuzzleTableData = createSelector(
     // to the table library.
 
     // Make a deep copy of everything first
-    const rowsCopy: PuzzleTable[] = ids.map((id) => ({ ...entities[id], subRows: [] }));
+    const rowsCopy: PuzzleTable[] = ids.map((id) => ({
+      ...entities[id],
+      subRows: [],
+    }));
     const rowMap: { [id: PuzzleId]: Puzzle } = {};
     rowsCopy.forEach((row) => {
       rowMap[row.id] = row;

@@ -13,7 +13,13 @@ import { SafeButton, SafeForm, SafeModal } from "./types";
 
 type ChangeEvent = React.ChangeEvent<HTMLInputElement>;
 
-function EditPuzzleTagsModal({ puzzleId, puzzleName } : { puzzleId: PuzzleId, puzzleName: string }) {
+function EditPuzzleTagsModal({
+  puzzleId,
+  puzzleName,
+}: {
+  puzzleId: PuzzleId;
+  puzzleName: string;
+}) {
   const huntTags = useSelector(selectHuntTags);
   const puzzleTags = useSelector(selectPuzzleTags);
   // Use a map to concat huntTags and puzzleTags and then dedupe by id.

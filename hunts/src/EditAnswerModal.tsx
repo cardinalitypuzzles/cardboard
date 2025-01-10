@@ -12,7 +12,15 @@ import type { Dispatch } from "./store";
 import type { AnswerId, PuzzleId } from "./types";
 import { SafeButton, SafeForm, SafeModal } from "./types";
 
-function EditAnswerModal({ puzzleId, answerId, text } : { puzzleId: PuzzleId, answerId: AnswerId, text: string }) {
+function EditAnswerModal({
+  puzzleId,
+  answerId,
+  text,
+}: {
+  puzzleId: PuzzleId;
+  answerId: AnswerId;
+  text: string;
+}) {
   const [newAnswer, setNewAnswer] = React.useState(text);
   const dispatch = useDispatch<Dispatch>();
   const onSubmit = (e: ChangeEvent) => {

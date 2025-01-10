@@ -28,18 +28,20 @@ const store = configureStore({
     chat: chatReducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(save({
-      states: [
-        "filter.solveStateFilter",
-        "filter.tags",
-        "chat.version",
-        "collapsedPuzzles",
-      ],
-    })),
+    getDefaultMiddleware().concat(
+      save({
+        states: [
+          "filter.solveStateFilter",
+          "filter.tags",
+          "chat.version",
+          "collapsedPuzzles",
+        ],
+      })
+    ),
   preloadedState,
 });
 
-export type RootState = ReturnType<typeof store.getState>
-export type Dispatch = typeof store.dispatch
+export type RootState = ReturnType<typeof store.getState>;
+export type Dispatch = typeof store.dispatch;
 
-export default store
+export default store;

@@ -1,4 +1,19 @@
-import { Alert, Badge, Button, Col, Container, Dropdown, DropdownButton, Form, Modal, OverlayTrigger, Popover, Row as BootstrapRow, Table, Tooltip } from "react-bootstrap";
+import {
+  Alert,
+  Badge,
+  Button,
+  Col,
+  Container,
+  Dropdown,
+  DropdownButton,
+  Form,
+  Modal,
+  OverlayTrigger,
+  Popover,
+  Row as BootstrapRow,
+  Table,
+  Tooltip,
+} from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import ReactTimeAgo from "react-time-ago";
 
@@ -9,7 +24,6 @@ export type HuntId = number & { readonly __brand: unique symbol };
 export type AnswerId = number & { readonly __brand: unique symbol };
 export type TagId = number & { readonly __brand: unique symbol };
 
-
 declare global {
   const CURRENT_HUNT_ID: HuntId;
 
@@ -19,7 +33,6 @@ declare global {
     APP_SHORT_TITLE: string;
   }
 }
-
 
 export type Hunt = {
   id: HuntId | null;
@@ -38,7 +51,7 @@ export interface Puzzle {
   notes: string;
   has_sheet: boolean;
   chat_room: ChatRoom | null;
-  status: 'SOLVING' | 'SOLVED' | 'PENDING' | 'STUCK';
+  status: "SOLVING" | "SOLVED" | "PENDING" | "STUCK";
   tags: PuzzleTag[];
   guesses: PuzzleGuess[];
   metas: PuzzleId[];
@@ -72,7 +85,7 @@ export interface PuzzleTag {
 export interface ChatRoom {
   service: string;
   name: string;
-  
+
   text_channel_id?: string;
   text_channel_url?: string;
   audio_channel_id?: string;

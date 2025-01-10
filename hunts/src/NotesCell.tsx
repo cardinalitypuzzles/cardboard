@@ -4,12 +4,12 @@ import { useSelector, useDispatch } from "react-redux";
 import { faWrench, faTag } from "@fortawesome/free-solid-svg-icons";
 import ClickableIcon from "./ClickableIcon";
 
-import huntReducer from './huntSlice';
+import huntReducer from "./huntSlice";
 
 import type { RootState } from "./store";
 import type { Hunt, Row } from "./types";
 
-export default function NotesCell({ row, value } : { row : Row, value: string }) {
+export default function NotesCell({ row, value }: { row: Row; value: string }) {
   const { id: huntId } = useSelector<RootState, Hunt>((state) => state.hunt);
   const [uiHovered, setUiHovered] = React.useState(false);
   const dispatch = useDispatch();

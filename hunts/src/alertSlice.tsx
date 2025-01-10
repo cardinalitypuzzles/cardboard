@@ -31,12 +31,15 @@ export const alertSlice = createSlice({
   },
 
   extraReducers: (builder) => {
-    builder.addMatcher(isRejectedAction, (state, action: { error: { message?: string } }) => {
-      state.show = true;
-      state.variant = "danger";
-      state.text = action.error.message!;
-      state.id = nextId++;
-    });
+    builder.addMatcher(
+      isRejectedAction,
+      (state, action: { error: { message?: string } }) => {
+        state.show = true;
+        state.variant = "danger";
+        state.text = action.error.message!;
+        state.id = nextId++;
+      }
+    );
   },
 });
 

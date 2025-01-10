@@ -14,9 +14,15 @@ import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
 
 import type { Hunt } from "./types";
-import { SafeCol, SafeContainer, SafeOverlayTrigger, SafeRow, SafeTooltip } from "./types";
+import {
+  SafeCol,
+  SafeContainer,
+  SafeOverlayTrigger,
+  SafeRow,
+  SafeTooltip,
+} from "./types";
 
-function HuntViewHeader({ hunt } : {hunt: Hunt}) {
+function HuntViewHeader({ hunt }: { hunt: Hunt }) {
   const numUnlocked = useSelector(selectNumUnlocked);
   const numSolved = useSelector(selectNumSolved);
   const numMetasSolved = useSelector(selectNumMetasSolved);
@@ -73,7 +79,9 @@ function HuntViewHeader({ hunt } : {hunt: Hunt}) {
                 {numSolved}
               </span>{" "}
               /{" "}
-              <span className="text-secondary font-weight-bold">{numUnlocked}</span>
+              <span className="text-secondary font-weight-bold">
+                {numUnlocked}
+              </span>
             </SafeCol>
             <SafeCol xs={1} className="text-nowrap">
               <a href="stats">Stats 📈</a>

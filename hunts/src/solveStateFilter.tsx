@@ -8,7 +8,7 @@ import {
 
 import type { Puzzle, Row } from "./types";
 
-function isUnsolved(tableRow : Row<Puzzle>) {
+function isUnsolved(tableRow: Row<Puzzle>) {
   return tableRow.values.status !== "SOLVED";
 }
 
@@ -29,7 +29,11 @@ function hasUnsolvedDescendants(tableRow: Row<Puzzle>) {
   return getDescendants(tableRow).filter(isUnsolved).length !== 0;
 }
 
-export function filterSolvedPuzzlesFn(rows: Row<Puzzle>[], id: string, filterValue: number) {
+export function filterSolvedPuzzlesFn(
+  rows: Row<Puzzle>[],
+  id: string,
+  filterValue: number
+) {
   if (filterValue === SOLVE_STATE_FILTER_OPTIONS.ALL) {
     return rows;
   }

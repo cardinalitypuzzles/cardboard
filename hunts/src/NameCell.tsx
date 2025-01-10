@@ -9,7 +9,16 @@ import { toggleCollapsed } from "./collapsedPuzzlesSlice";
 import { IconChevronDown, IconChevronRight } from "@tabler/icons";
 import { faCircle } from "@fortawesome/free-solid-svg-icons";
 
-import { Hunt, Puzzle, Row, SafeBadge, SafeFontAwesomeIcon, SafeOverlayTrigger, SafePopover, SafeReactTimeAgo } from "./types";
+import {
+  Hunt,
+  Puzzle,
+  Row,
+  SafeBadge,
+  SafeFontAwesomeIcon,
+  SafeOverlayTrigger,
+  SafePopover,
+  SafeReactTimeAgo,
+} from "./types";
 import { RootState } from "./store";
 
 const getColor = (min_since_edit: number) => {
@@ -22,9 +31,10 @@ const getColor = (min_since_edit: number) => {
   }
 };
 
-const LastActive = ({ last_edited_on } : { last_edited_on: string }) => {
+const LastActive = ({ last_edited_on }: { last_edited_on: string }) => {
   const last_edited_date = new Date(Date.parse(last_edited_on));
-  const min_since_edit = (Date.now() - last_edited_date.getTime()) / (1000 * 60);
+  const min_since_edit =
+    (Date.now() - last_edited_date.getTime()) / (1000 * 60);
   const editedOnPopOver = (
     <SafePopover className="bootstrap">
       <SafePopover.Content>
@@ -49,7 +59,15 @@ const LastActive = ({ last_edited_on } : { last_edited_on: string }) => {
   );
 };
 
-const PuzzleTitle = ({ name, last_edited_on, is_solved } : { name: string, last_edited_on: string, is_solved: boolean }) => {
+const PuzzleTitle = ({
+  name,
+  last_edited_on,
+  is_solved,
+}: {
+  name: string;
+  last_edited_on: string;
+  is_solved: boolean;
+}) => {
   return (
     <>
       {last_edited_on && !is_solved && (
@@ -75,7 +93,13 @@ const useToggleRowExpandedProps = (row: Row<Puzzle>) => {
   };
 };
 
-export default function NameCell({ row, value } : { row: Row<Puzzle>, value: string }) {
+export default function NameCell({
+  row,
+  value,
+}: {
+  row: Row<Puzzle>;
+  value: string;
+}) {
   const { id: huntId } = useSelector<RootState, Hunt>((state) => state.hunt);
   const [uiHovered, setUiHovered] = React.useState(false);
   const toggleRowExpandedProps = useToggleRowExpandedProps(row);

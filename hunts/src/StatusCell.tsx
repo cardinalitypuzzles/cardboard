@@ -6,7 +6,13 @@ import type { Hunt, Puzzle, Row } from "./types";
 import { Dispatch, RootState } from "./store";
 import { SafeDropdown, SafeDropdownButton } from "./types";
 
-export default function StatusCell({ row, value } : { row: Row<Puzzle>, value: string }) {
+export default function StatusCell({
+  row,
+  value,
+}: {
+  row: Row<Puzzle>;
+  value: string;
+}) {
   const { id: huntId } = useSelector<RootState, Hunt>((state) => state.hunt);
   const dispatch = useDispatch<Dispatch>();
   const statuses_to_display = ["SOLVING", "STUCK", "EXTRACTION"];
@@ -31,7 +37,10 @@ export default function StatusCell({ row, value } : { row: Row<Puzzle>, value: s
         }}
       >
         {statuses_to_display.map((status_to_display) => (
-          <SafeDropdown.Item eventKey={status_to_display} key={status_to_display}>
+          <SafeDropdown.Item
+            eventKey={status_to_display}
+            key={status_to_display}
+          >
             {status_to_display}
           </SafeDropdown.Item>
         ))}

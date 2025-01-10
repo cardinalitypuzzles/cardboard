@@ -133,7 +133,11 @@ function textFilterFn(rows: Row<Puzzle>[], _: string, filterValue: string) {
 
 textFilterFn.autoRemove = (val: any) => !val;
 
-function filterPuzzlesByTagFn(rows: Row<Puzzle>[], _: string, tagList: PuzzleTag[]) {
+function filterPuzzlesByTagFn(
+  rows: Row<Puzzle>[],
+  _: string,
+  tagList: PuzzleTag[]
+) {
   return rows.filter((row) => {
     return tagList.every((tag) =>
       row.original.tags.map((x) => x.id).includes(tag.id)
@@ -156,149 +160,171 @@ function rowClassName(row: Row<Puzzle>) {
   }
 }
 
-export const PuzzleTable = React.memo(({ data, filterSolved, filterTags } : { data: any, filterSolved: number, filterTags: PuzzleTag[] }) => {
-  const filter = useSelector(getTextFilter);
+export const PuzzleTable = React.memo(
+  ({
+    data,
+    filterSolved,
+    filterTags,
+  }: {
+    data: any;
+    filterSolved: number;
+    filterTags: PuzzleTag[];
+  }) => {
+    const filter = useSelector(getTextFilter);
 
-  const filterTypes = React.useMemo(
-    () => ({
-      globalFilter: textFilterFn,
-      solvedFilter: filterSolvedPuzzlesFn,
-      tagsFilter: filterPuzzlesByTagFn,
-    }),
-    []
-  );
+    const filterTypes = React.useMemo(
+      () => ({
+        globalFilter: textFilterFn,
+        solvedFilter: filterSolvedPuzzlesFn,
+        tagsFilter: filterPuzzlesByTagFn,
+      }),
+      []
+    );
 
-  const getRowId = React.useCallback((row: Puzzle, _: any, parent: BaseRow<Puzzle> | undefined) => {
-    if (parent) {
-      return `${parent.id}.${row.id}`;
-    } else {
-      return row.id.toString();
-    }
-  }, []);
-
-  const collapsedPuzzles = useSelector(getCollapsedPuzzles(CURRENT_HUNT_ID.toString()));
-
-  const {
-    getTableProps,
-    getTableBodyProps,
-    allColumns,
-    rows,
-    prepareRow,
-    setGlobalFilter,
-    setFilter,
-  } : any = useTable<Puzzle>(
-    {
-      columns: TABLE_COLUMNS as any,
-      data,
-      filterTypes,
-      getRowId,
-      autoResetExpanded: false,
-      autoResetGlobalFilter: false,
-      globalFilter: "globalFilter",
-      autoResetFilters: false,
-      initialState: {
-        hiddenColumns: ["is_meta", "id", "url", "topEditors", "last_edited_on"],
-        // @ts-ignore
-        filters: [],
-        // Apparently our patch of react-table introduces the 'collapsed'
-        // object that has the opposite semantics of the 'expanded' API.
-        collapsed: collapsedPuzzles,
+    const getRowId = React.useCallback(
+      (row: Puzzle, _: any, parent: BaseRow<Puzzle> | undefined) => {
+        if (parent) {
+          return `${parent.id}.${row.id}`;
+        } else {
+          return row.id.toString();
+        }
       },
-    },
-    useGlobalFilter,
-    useExpanded,
-    useFilters
-  );
+      []
+    );
 
-  React.useEffect(() => setGlobalFilter(filter), [filter]);
+    const collapsedPuzzles = useSelector(
+      getCollapsedPuzzles(CURRENT_HUNT_ID.toString())
+    );
 
-  // This pattern does not spark joy, but react-table only provides an imperative filter api.
-  React.useEffect(() => {
-    setFilter("status", filterSolved);
-  }, [filterSolved]);
+    const {
+      getTableProps,
+      getTableBodyProps,
+      allColumns,
+      rows,
+      prepareRow,
+      setGlobalFilter,
+      setFilter,
+    }: any = useTable<Puzzle>(
+      {
+        columns: TABLE_COLUMNS as any,
+        data,
+        filterTypes,
+        getRowId,
+        autoResetExpanded: false,
+        autoResetGlobalFilter: false,
+        globalFilter: "globalFilter",
+        autoResetFilters: false,
+        initialState: {
+          hiddenColumns: [
+            "is_meta",
+            "id",
+            "url",
+            "topEditors",
+            "last_edited_on",
+          ],
+          // @ts-ignore
+          filters: [],
+          // Apparently our patch of react-table introduces the 'collapsed'
+          // object that has the opposite semantics of the 'expanded' API.
+          collapsed: collapsedPuzzles,
+        },
+      },
+      useGlobalFilter,
+      useExpanded,
+      useFilters
+    );
 
-  React.useEffect(() => {
-    setFilter("tags", filterTags);
-  }, [filterTags]);
+    React.useEffect(() => setGlobalFilter(filter), [filter]);
 
-  let rowsList: React.ReactNode[] = [];
-  const roundColors = [
-    "crimson",
-    "dodgerblue",
-    "forestgreen",
-    "darkorchid",
-    "darkorange",
-    "goldenrod",
-    "coral",
-    "darkslategray",
-    "powderblue",
-    "aquamarine",
-    "palevioletred",
-    "indigo",
-    "olive",
-    "violet",
-  ];
+    // This pattern does not spark joy, but react-table only provides an imperative filter api.
+    React.useEffect(() => {
+      setFilter("status", filterSolved);
+    }, [filterSolved]);
 
-  const topLevelId = (row: Row<Puzzle>) => parseInt(row.id.split(".")[0]);
+    React.useEffect(() => {
+      setFilter("tags", filterTags);
+    }, [filterTags]);
 
-  rows.forEach((row: Row<Puzzle>, i: number) => {
-    prepareRow(row);
+    let rowsList: React.ReactNode[] = [];
+    const roundColors = [
+      "crimson",
+      "dodgerblue",
+      "forestgreen",
+      "darkorchid",
+      "darkorange",
+      "goldenrod",
+      "coral",
+      "darkslategray",
+      "powderblue",
+      "aquamarine",
+      "palevioletred",
+      "indigo",
+      "olive",
+      "violet",
+    ];
 
-    // Add coloring and space between top-level metas
-    if (i == 0 || topLevelId(row) != topLevelId(rows[i - 1] as Row<Puzzle>)) {
-      if (i > 0) {
+    const topLevelId = (row: Row<Puzzle>) => parseInt(row.id.split(".")[0]);
+
+    rows.forEach((row: Row<Puzzle>, i: number) => {
+      prepareRow(row);
+
+      // Add coloring and space between top-level metas
+      if (i == 0 || topLevelId(row) != topLevelId(rows[i - 1] as Row<Puzzle>)) {
+        if (i > 0) {
+          rowsList.push(
+            <tr key={`spacer-${row.id}`} style={{ height: "20px" }}></tr>
+          );
+        }
+
         rowsList.push(
-          <tr key={`spacer-${row.id}`} style={{ height: "20px" }}></tr>
+          <tr key={`header-${row.id}`}>
+            <td
+              className="table-top-colorbar"
+              colSpan={row.cells.length + 1}
+              style={{
+                background: `linear-gradient(90deg, ${
+                  roundColors[topLevelId(row) % roundColors.length]
+                }, transparent)`,
+              }}
+            ></td>
+          </tr>
         );
       }
 
       rowsList.push(
-        <tr key={`header-${row.id}`}>
+        <tr className={rowClassName(row)} {...row.getRowProps()}>
           <td
-            className="table-top-colorbar"
-            colSpan={row.cells.length + 1}
+            className="table-side-colorbar"
             style={{
-              background: `linear-gradient(90deg, ${
-                roundColors[topLevelId(row) % roundColors.length]
-              }, transparent)`,
+              backgroundColor:
+                roundColors[topLevelId(row) % roundColors.length],
             }}
           ></td>
+          {row.cells.map((cell: any) => {
+            return <td {...cell.getCellProps()}>{cell.render("Cell")}</td>;
+          })}
         </tr>
       );
-    }
+    });
 
-    rowsList.push(
-      <tr className={rowClassName(row)} {...row.getRowProps()}>
-        <td
-          className="table-side-colorbar"
-          style={{
-            backgroundColor: roundColors[topLevelId(row) % roundColors.length],
-          }}
-        ></td>
-        {row.cells.map((cell: any) => {
-          return <td {...cell.getCellProps()}>{cell.render("Cell")}</td>;
-        })}
-      </tr>
+    return (
+      <>
+        <SafeTable size="sm" {...getTableProps()}>
+          <thead>
+            <tr>
+              <th className="table-side-colorbar"></th>
+              {allColumns.map((column: any) =>
+                column.isVisible ? (
+                  <th {...column.getHeaderProps()} className={column.className}>
+                    {column.render("Header")}
+                  </th>
+                ) : null
+              )}
+            </tr>
+          </thead>
+          <tbody {...getTableBodyProps()}>{rowsList}</tbody>
+        </SafeTable>
+      </>
     );
-  });
-
-  return (
-    <>
-      <SafeTable size="sm" {...getTableProps()}>
-        <thead>
-          <tr>
-            <th className="table-side-colorbar"></th>
-            {allColumns.map((column: any) =>
-              column.isVisible ? (
-                <th {...column.getHeaderProps()} className={column.className}>
-                  {column.render("Header")}
-                </th>
-              ) : null
-            )}
-          </tr>
-        </thead>
-        <tbody {...getTableBodyProps()}>{rowsList}</tbody>
-      </SafeTable>
-    </>
-  );
-});
+  }
+);

@@ -8,10 +8,13 @@ import api from "./api";
 import { Hunt, HuntId } from "./types";
 import { RootState } from "./store";
 
-export const fetchHunt = createAsyncThunk("hunt/fetchHunt", async (huntId: HuntId) => {
-  const response = await api.getHunt(huntId);
-  return response;
-});
+export const fetchHunt = createAsyncThunk(
+  "hunt/fetchHunt",
+  async (huntId: HuntId) => {
+    const response = await api.getHunt(huntId);
+    return response;
+  }
+);
 
 export const huntSlice = createSlice({
   name: "hunt",

@@ -2,7 +2,13 @@ import React from "react";
 
 import { SafeFontAwesomeIcon } from "./types";
 
-export default function ClickableIcon({ icon, onClick } : { icon: any, onClick: () => void }) { 
+export default function ClickableIcon({
+  icon,
+  onClick,
+}: {
+  icon: any;
+  onClick: () => void;
+}) {
   return (
     <span
       style={{ cursor: "pointer" }}
@@ -14,7 +20,17 @@ export default function ClickableIcon({ icon, onClick } : { icon: any, onClick: 
   );
 }
 
-export const IconLink = ({ icon, url, size, style } : { icon: any, url: string, size?: string, style?: React.CSSProperties }) => {
+export const IconLink = ({
+  icon,
+  url,
+  size,
+  style,
+}: {
+  icon: any;
+  url: string;
+  size?: string;
+  style?: React.CSSProperties;
+}) => {
   return (
     <a
       href={url}

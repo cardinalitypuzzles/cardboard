@@ -9,7 +9,21 @@ import { SafeButton, SafeForm, SafeModal } from "./types";
 
 type ChangeEvent = React.ChangeEvent<HTMLInputElement>;
 
-function EditPuzzleModal({ huntId, puzzleId, name, url, isMeta, hasChannels } : { huntId: HuntId, puzzleId: PuzzleId, name: string, url: string, isMeta: boolean, hasChannels: boolean }) {
+function EditPuzzleModal({
+  huntId,
+  puzzleId,
+  name,
+  url,
+  isMeta,
+  hasChannels,
+}: {
+  huntId: HuntId;
+  puzzleId: PuzzleId;
+  name: string;
+  url: string;
+  isMeta: boolean;
+  hasChannels: boolean;
+}) {
   const [newName, setNewName] = React.useState(name);
   const [newUrl, setNewUrl] = React.useState(url);
   const [newIsMeta, setNewIsMeta] = React.useState(isMeta);

@@ -10,7 +10,7 @@ import type { Dispatch } from "./store";
 import type { Puzzle } from "./types";
 import { SafeButton } from "./types";
 
-export default function AnswerCell({ row } : { row: Row<Puzzle> }) {
+export default function AnswerCell({ row }: { row: Row<Puzzle> }) {
   const dispatch = useDispatch<Dispatch>();
   const [uiHovered, setUiHovered] = React.useState<number[]>([]);
   if (row.original.guesses === undefined || row.original.guesses.length == 0) {

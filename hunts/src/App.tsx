@@ -4,7 +4,13 @@ import { Provider } from "react-redux";
 import store from "./store";
 import { HuntViewMain } from "./HuntViewMain";
 
-const sendTokenToChromeExtension = ({ extensionId, huntId } : { extensionId: string, huntId: string }) => {
+const sendTokenToChromeExtension = ({
+  extensionId,
+  huntId,
+}: {
+  extensionId: string;
+  huntId: string;
+}) => {
   // @ts-expect-error
   if (typeof chrome !== "undefined" && chrome && chrome.runtime) {
     // @ts-expect-error

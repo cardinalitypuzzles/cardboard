@@ -9,7 +9,13 @@ import { SafeButton, SafeForm, SafeModal } from "./types";
 
 type ChangeEvent = React.ChangeEvent<HTMLInputElement>;
 
-function SubmitAnswerModal({ puzzleId, puzzleName } : { puzzleId: PuzzleId, puzzleName: string }) {
+function SubmitAnswerModal({
+  puzzleId,
+  puzzleName,
+}: {
+  puzzleId: PuzzleId;
+  puzzleName: string;
+}) {
   const [newAnswer, setNewAnswer] = React.useState("");
   const [backsolved, setBacksolved] = React.useState(false);
 

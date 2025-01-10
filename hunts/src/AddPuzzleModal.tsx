@@ -4,14 +4,13 @@ import { addPuzzle } from "./puzzlesSlice";
 import { hideModal } from "./modalSlice";
 import { selectHuntTags, selectHuntCreateChannelByDefault } from "./huntSlice";
 
-import type { Dispatch } from './store';
+import type { Dispatch } from "./store";
 import type { HuntId, PuzzleTag } from "./types";
 import { SafeButton, SafeForm, SafeModal } from "./types";
 
 type ChangeEvent = React.ChangeEvent<HTMLInputElement>;
 
-
-function AddPuzzleModal({ huntId } : { huntId: HuntId }) {
+function AddPuzzleModal({ huntId }: { huntId: HuntId }) {
   const allTags = useSelector(selectHuntTags);
   const [name, setName] = React.useState("");
   const [url, setUrl] = React.useState("");

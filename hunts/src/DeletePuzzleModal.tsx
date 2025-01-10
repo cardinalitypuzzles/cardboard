@@ -5,10 +5,18 @@ import Button from "react-bootstrap/Button";
 import { deletePuzzle } from "./puzzlesSlice";
 import { hideModal } from "./modalSlice";
 
-import type { Dispatch } from './store';
+import type { Dispatch } from "./store";
 import type { PuzzleId, HuntId } from "./types";
 
-function DeletePuzzleModal({ huntId, puzzleId, puzzleName }: { huntId: HuntId, puzzleId: PuzzleId, puzzleName: string }) {
+function DeletePuzzleModal({
+  huntId,
+  puzzleId,
+  puzzleName,
+}: {
+  huntId: HuntId;
+  puzzleId: PuzzleId;
+  puzzleName: string;
+}) {
   const dispatch = useDispatch<Dispatch>();
   const onDelete = () => {
     dispatch(deletePuzzle({ huntId, id: puzzleId })).finally(() => {

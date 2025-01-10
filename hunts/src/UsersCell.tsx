@@ -17,7 +17,7 @@ const getColor = (count: number) => {
   }
 };
 
-export default ({ row } : { row: Row<Puzzle> }) => {
+export default ({ row }: { row: Row<Puzzle> }) => {
   const recentEditors = row.values.recentEditors;
   const topEditors = row.values.topEditors;
   if (recentEditors.length + topEditors.length > 0) {

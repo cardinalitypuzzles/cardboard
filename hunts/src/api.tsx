@@ -29,7 +29,16 @@ function getPuzzles(huntId: HuntId) {
   return fetch(puzzlesApiUrl).then(handleErrors);
 }
 
-function addPuzzle(huntId: HuntId, data: { name: string, url: string, is_meta: boolean, create_channels: boolean, assigned_meta: string }) {
+function addPuzzle(
+  huntId: HuntId,
+  data: {
+    name: string;
+    url: string;
+    is_meta: boolean;
+    create_channels: boolean;
+    assigned_meta: string;
+  }
+) {
   const puzzlesApiUrl = `${API_PREFIX}/hunts/${huntId}/puzzles`;
   return fetch(puzzlesApiUrl, {
     method: "POST",
@@ -49,7 +58,17 @@ function deletePuzzle(huntId: HuntId, puzzleId: PuzzleId) {
   }).then(handleErrors);
 }
 
-function updatePuzzle(huntId: HuntId, puzzleId: PuzzleId, data: { name?: string, url?: string, is_meta?: boolean, create_channels?: boolean, status?: string }) {
+function updatePuzzle(
+  huntId: HuntId,
+  puzzleId: PuzzleId,
+  data: {
+    name?: string;
+    url?: string;
+    is_meta?: boolean;
+    create_channels?: boolean;
+    status?: string;
+  }
+) {
   const puzzleApiUrl = `${API_PREFIX}/hunts/${huntId}/puzzles/${puzzleId}`;
   return fetch(puzzleApiUrl, {
     method: "PATCH",
@@ -83,7 +102,11 @@ function deleteAnswer(puzzleId: PuzzleId, answerId: AnswerId) {
   }).then(handleErrors);
 }
 
-function editAnswer(puzzleId: PuzzleId, answerId: AnswerId, data: { text: string }) {
+function editAnswer(
+  puzzleId: PuzzleId,
+  answerId: AnswerId,
+  data: { text: string }
+) {
   const answerApiUrl = `${API_PREFIX}/puzzles/${puzzleId}/answers/${answerId}`;
   return fetch(answerApiUrl, {
     method: "PATCH",
@@ -120,7 +143,10 @@ function deletePuzzleTag(puzzleId: PuzzleId, tagId: TagId) {
   }).then(handleErrors);
 }
 
-function addPuzzleTag(puzzleId: PuzzleId, data: { name: string, color: string }) {
+function addPuzzleTag(
+  puzzleId: PuzzleId,
+  data: { name: string; color: string }
+) {
   const tagsApiUrl = `${API_PREFIX}/puzzles/${puzzleId}/tags`;
   return fetch(tagsApiUrl, {
     method: "POST",
