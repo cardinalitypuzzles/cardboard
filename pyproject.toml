@@ -4,12 +4,12 @@ version = "0.1.0"
 description = "A dashboard for managing puzzles and tracking status during a puzzle hunt."
 authors = ["Cardinality Puzzlers <cardinalitypuzzles@gmail.com>"]
 license = "MIT"
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.10" # keep .github/workflows/pre-submit.yaml synced
 Django = "^4.1"
 python-dotenv = "^0.19.2"
-django-heroku = "^0.3.1"
 google-api-python-client = "^2.33.0"
 social-auth-app-django = "^5.4.1"
 django-taggit = "^2.0.0"
@@ -24,6 +24,9 @@ python-dateutil = "^2.8.2"
 django-cors-headers = "^4.3.1"
 django-guardian = "^2.4.0"
 django-soft-delete = "^1.0.16"
+dj-database-url = "^2.3.0"
+whitenoise = "^6.8.2"
+psycopg2 = "^2.9.10"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "*"
