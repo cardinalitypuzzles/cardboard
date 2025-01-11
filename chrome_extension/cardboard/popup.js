@@ -387,7 +387,10 @@ for (const tab of tabs) {
           }
 
           // If the note is changed, send request to update note.
-          if (document.getElementById("puzzle_notes").value !== puzzle_from_sheet.notes) {
+          if (
+            document.getElementById("puzzle_notes").value !==
+            puzzle_from_sheet.notes
+          ) {
             fetch(`${base_url}/api/v1/puzzles/${puzzle_from_sheet.id}/notes`, {
               method: "POST",
               mode: "cors",
