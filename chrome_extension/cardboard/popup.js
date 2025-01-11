@@ -159,6 +159,32 @@ for (const tab of tabs) {
             });
           }
 
+          // If meta is selected, send request to assign meta.
+          let is_new_meta = true;
+          for (const tag of puzzle.tags) {
+            if (tag.name === document.getElementById("puzzle_meta").value) {
+              is_new_meta = false;
+              break;
+            }
+          }
+          if (
+            is_new_meta &&
+            document.getElementById("puzzle_meta").value !== "None"
+          ) {
+            fetch(`${base_url}/api/v1/puzzles/${puzzle.id}/tags`, {
+              method: "POST",
+              mode: "cors",
+              body: JSON.stringify({
+                name: document.getElementById("puzzle_meta").value,
+                color: "dark",
+              }),
+              headers: {
+                "X-CSRFToken": cardboard_cookie.value,
+                "Content-Type": "application/json",
+              },
+            });
+          }
+
           const answer = document.getElementById("puzzle_answer").value;
           // Submit answer
           if (answer != "" && !existing_answers.has(answer)) {
@@ -211,8 +237,8 @@ for (const tab of tabs) {
           console.log("No cookie found");
         }
       });
-      // If a puzzle doesn't yet exist for this URL.
     } else {
+      // If a puzzle doesn't yet exist for this URL.
       const template = document.getElementById("new_puzzle_template");
       const element = template.content.firstElementChild.cloneNode(true);
       element.querySelector(".puzzle_url").value = tab.url;
