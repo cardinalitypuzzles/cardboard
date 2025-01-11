@@ -76,7 +76,7 @@ for (const tab of tabs) {
       const puzzle = puzzles_by_url.get(tab.url);
       const template = document.getElementById("existing_puzzle_template");
       const element = template.content.firstElementChild.cloneNode(true);
-      
+
       // If the sheet has already been made, display a link to the sheet.
       if (puzzle.has_sheet) {
         document.getElementById("puzzle_message").textContent =
@@ -89,7 +89,7 @@ for (const tab of tabs) {
         document.getElementById("puzzle_message").textContent =
           "Puzzle already exists but the sheet is still being created.\nPlease wait 10 seconds then open the extension again.";
       }
-      
+
       let puzzle_status_dropdown = element.querySelector(".puzzle_status");
       // Only show the SOLVED status if the puzzle is currently SOLVED.
       if (puzzle.status === "SOLVED") {
@@ -100,7 +100,7 @@ for (const tab of tabs) {
         puzzle_status_dropdown.add(option);
       }
       puzzle_status_dropdown.value = puzzle.status;
-      
+
       // Add metas to dropdown
       let meta_dropdown = element.querySelector(".puzzle_meta");
       for (const meta of metas) {
@@ -110,7 +110,7 @@ for (const tab of tabs) {
         option.key = meta;
         meta_dropdown.add(option);
       }
-      
+
       // If a puzzle belongs to multiple metas, just show one of them.
       let backsolved_tag_id = undefined;
       for (const tag of puzzle.tags) {
@@ -122,7 +122,7 @@ for (const tab of tabs) {
           backsolved_tag_id = tag.id;
         }
       }
-      
+
       const existing_answers = new Set();
       for (const guess of puzzle.guesses) {
         if (guess.text != undefined) {
@@ -131,7 +131,7 @@ for (const tab of tabs) {
         }
       }
       elements.add(element);
-      
+
       const button = document.getElementById("puzzle_button");
       button.textContent = "Edit Puzzle";
       button.addEventListener("click", async (e) => {
@@ -155,7 +155,7 @@ for (const tab of tabs) {
               "Content-Type": "application/json",
             },
           });
-          
+
           const answer = document.getElementById("puzzle_answer").value;
           // Submit answer
           if (answer != "" && !existing_answers.has(answer)) {
@@ -171,7 +171,11 @@ for (const tab of tabs) {
               },
             });
           }
-          if (document.getElementById("is_backsolved").checked && backsolved_tag_id === undefined) {
+          // Toggle backsolved-ness
+          if (
+            document.getElementById("is_backsolved").checked &&
+            backsolved_tag_id === undefined
+          ) {
             fetch(`${base_url}/api/v1/puzzles/${puzzle.id}/tags`, {
               method: "POST",
               mode: "cors",
@@ -184,20 +188,27 @@ for (const tab of tabs) {
                 "Content-Type": "application/json",
               },
             });
-          } else if (!document.getElementById("is_backsolved").checked && backsolved_tag_id !== undefined) {
-            fetch(`${base_url}/api/v1/puzzles/${puzzle.id}/tags/${backsolved_tag_id}`, {
-              method: "DELETE",
-              mode: "cors",
-              headers: {
-                "X-CSRFToken": cardboard_cookie.value,
-                "Content-Type": "application/json",
-              },
-            });
+          } else if (
+            !document.getElementById("is_backsolved").checked &&
+            backsolved_tag_id !== undefined
+          ) {
+            fetch(
+              `${base_url}/api/v1/puzzles/${puzzle.id}/tags/${backsolved_tag_id}`,
+              {
+                method: "DELETE",
+                mode: "cors",
+                headers: {
+                  "X-CSRFToken": cardboard_cookie.value,
+                  "Content-Type": "application/json",
+                },
+              }
+            );
           }
         } else {
           console.log("No cookie found");
         }
-      });      
+      });
+      // If a puzzle doesn't yet exist for this URL.
     } else {
       const template = document.getElementById("new_puzzle_template");
       const element = template.content.firstElementChild.cloneNode(true);
@@ -232,7 +243,8 @@ for (const tab of tabs) {
             method: "POST",
             mode: "cors",
             body: JSON.stringify({
-              create_channels: document.getElementById("create_channels").checked,
+              create_channels:
+                document.getElementById("create_channels").checked,
               is_meta: document.getElementById("is_meta").checked,
               name: document.getElementById("puzzle_name").value,
               url: document.getElementById("puzzle_url").value,
