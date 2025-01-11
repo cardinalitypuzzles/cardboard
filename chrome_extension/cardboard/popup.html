@@ -7,22 +7,40 @@
     <link rel="stylesheet" href="./popup.css" />
   </head>
   <body>
-    <template id="li_template">
+    <template id="new_puzzle_template">
       <li>
-        <a>
-          <label for="puzzle_name">Puzzle Name: </label><br>
-          <input class="puzzle_name" type="text" id="puzzle_name" name="puzzle_name" maxlength="80" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"><br>
-          <label for="puzzle_url">Puzzle URL: </label><br>
-          <input class="puzzle_url" type="text" id="puzzle_url" name="puzzle_url"><br>
-          <label for="puzzle_meta">Assigned Meta: </label><br>
-          <select class="puzzle_meta" id="puzzle_meta" name="puzzle_meta">
-            <option key="none" value="">None</option>
-          </select><br>
-          <input type="checkbox" id="is_meta" name="is_meta">
-          <label for="is_meta"> Is meta</label><br>
-          <input type="checkbox" id="create_channels" name="create_channels">
-          <label for="create_channels"> Create Discord channels</label><br>
-        </a>
+        <label for="puzzle_name">Puzzle Name: </label><br>
+        <input class="puzzle_name" type="text" id="puzzle_name" name="puzzle_name" maxlength="80"><br>
+        <label for="puzzle_url">Puzzle URL: </label><br>
+        <input class="puzzle_url" type="text" id="puzzle_url" name="puzzle_url"><br>
+        <label for="puzzle_meta">Assigned Meta: </label><br>
+        <select class="puzzle_meta" id="puzzle_meta" name="puzzle_meta">
+          <option key="none" value="">None</option>
+        </select><br>
+        <input type="checkbox" id="is_meta" name="is_meta">
+        <label for="is_meta"> Is meta</label><br>
+        <input type="checkbox" id="create_channels" name="create_channels">
+        <label for="create_channels"> Create Discord channels</label><br>
+      </li>
+    </template>
+    <template id="existing_puzzle_template">
+      <li>
+        <label for="puzzle_answer">Answer: </label><br>
+        <input class="puzzle_answer" type="text" id="puzzle_answer" name="puzzle_answer" maxlength="80"><br>
+        <input type="checkbox" id="is_backsolved" name="is_backsolved">
+        <label for="is_backsolved"> Backsolved</label><br>
+        <label for="puzzle_status">Puzzle Status: </label><br>
+        <select class="puzzle_status" id="puzzle_status" name="puzzle_status">
+          <option key="SOLVING" value="SOLVING">SOLVING</option>
+          <option key="STUCK" value="STUCK">STUCK</option>
+          <option key="EXTRACTION" value="EXTRACTION">EXTRACTION</option>
+        </select><br>
+        <label for="puzzle_meta">Assigned Meta: </label><br>
+        <select class="puzzle_meta" id="puzzle_meta" name="puzzle_meta">
+          <option key="none" value="">None</option>
+        </select><br>
+        <label for="puzzle_notes">Puzzle Notes: </label><br>
+        <input class="puzzle_notes" type="text" id="puzzle_notes" name="puzzle_notes"><br>
       </li>
     </template>
 
@@ -32,12 +50,13 @@
     </div>
     <br/>
     <div>
-      <button>Add Puzzle</button>
+      <button id="puzzle_button">Add Puzzle</button>
     </div>
     <br/>
     <div id="cross_site_links">
       <b id="puzzle_message"></b>
       <a id="google_sheets_link" target="_blank" hidden>Google Sheet</a>
+      <a id="puzzle_link" target="_blank" hidden>Puzzle Link</a>
     </div>
     <ul></ul>
 
