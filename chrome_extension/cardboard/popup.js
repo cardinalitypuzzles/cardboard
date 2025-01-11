@@ -46,7 +46,6 @@ const hunt_puzzles = await fetch(
 const response = await hunt_puzzles.json();
 let metas = [];
 let puzzles_by_url = new Map();
-const NO_SHEET_SENTINEL = -1;
 
 for (const puzzle of response) {
   // Populate metas list for meta assignment dropdown.
@@ -143,18 +142,22 @@ for (const tab of tabs) {
         });
 
         if (cardboard_cookie) {
-          // Change status
-          fetch(`${base_url}/api/v1/hunts/${hunt_id}/puzzles/${puzzle.id}`, {
-            method: "PATCH",
-            mode: "cors",
-            body: JSON.stringify({
-              status: document.getElementById("puzzle_status").value,
-            }),
-            headers: {
-              "X-CSRFToken": cardboard_cookie.value,
-              "Content-Type": "application/json",
-            },
-          });
+          // Change status if different
+          if (
+            puzzle.status !== document.getElementById("puzzle_status").value
+          ) {
+            fetch(`${base_url}/api/v1/hunts/${hunt_id}/puzzles/${puzzle.id}`, {
+              method: "PATCH",
+              mode: "cors",
+              body: JSON.stringify({
+                status: document.getElementById("puzzle_status").value,
+              }),
+              headers: {
+                "X-CSRFToken": cardboard_cookie.value,
+                "Content-Type": "application/json",
+              },
+            });
+          }
 
           const answer = document.getElementById("puzzle_answer").value;
           // Submit answer
