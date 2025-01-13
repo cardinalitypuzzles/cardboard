@@ -1,6 +1,6 @@
 import React from "react";
 
-import { SafeFontAwesomeIcon } from "./types";
+import { TypeIgnoredFontAwesomeIcon } from "./types";
 
 export default function ClickableIcon({
   icon,
@@ -15,7 +15,7 @@ export default function ClickableIcon({
       className="text-muted"
       onClick={onClick}
     >
-      <SafeFontAwesomeIcon icon={icon} />
+      <TypeIgnoredFontAwesomeIcon icon={icon} />
     </span>
   );
 }
@@ -39,7 +39,7 @@ export const IconLink = ({
       className="text-muted"
       style={style}
     >
-      <SafeFontAwesomeIcon icon={icon} size={size} />
+      <TypeIgnoredFontAwesomeIcon icon={icon} size={size} />
     </a>
   );
 };

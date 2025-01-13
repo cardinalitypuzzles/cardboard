@@ -1,13 +1,11 @@
 import React from "react";
 import { useDispatch } from "react-redux";
-import Modal from "react-bootstrap/Modal";
-import Button from "react-bootstrap/Button";
+import { Button, Modal } from "react-bootstrap";
 import { deleteAnswer } from "./puzzlesSlice";
 import { hideModal } from "./modalSlice";
 
 import type { Dispatch } from "./store";
 import type { AnswerId, PuzzleId } from "./types";
-import { SafeButton, SafeModal } from "./types";
 
 function DeleteAnswerModal({
   puzzleId,
@@ -25,20 +23,20 @@ function DeleteAnswerModal({
 
   return (
     <>
-      <SafeModal.Header closeButton>
-        <SafeModal.Title>Delete Answer</SafeModal.Title>
-      </SafeModal.Header>
-      <SafeModal.Body>
+      <Modal.Header closeButton>
+        <Modal.Title>Delete Answer</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
         Are you sure you want to delete this answer?
-      </SafeModal.Body>
-      <SafeModal.Footer>
-        <SafeButton variant="secondary" onClick={() => dispatch(hideModal())}>
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={() => dispatch(hideModal())}>
           Cancel
-        </SafeButton>
-        <SafeButton variant="danger" onClick={onDelete}>
+        </Button>
+        <Button variant="danger" onClick={onDelete}>
           Delete
-        </SafeButton>
-      </SafeModal.Footer>
+        </Button>
+      </Modal.Footer>
     </>
   );
 }

@@ -1,4 +1,5 @@
 import React from "react";
+import { Button } from "react-bootstrap";
 import { useDispatch } from "react-redux";
 import { faEdit, faTrashAlt } from "@fortawesome/free-regular-svg-icons";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
@@ -8,14 +9,13 @@ import ClickableIcon from "./ClickableIcon";
 import type { Row } from "react-table";
 import type { Dispatch } from "./store";
 import type { Puzzle } from "./types";
-import { SafeButton } from "./types";
 
 export default function AnswerCell({ row }: { row: Row<Puzzle> }) {
   const dispatch = useDispatch<Dispatch>();
   const [uiHovered, setUiHovered] = React.useState<number[]>([]);
   if (row.original.guesses === undefined || row.original.guesses.length == 0) {
     return (
-      <SafeButton
+      <Button
         className="cb-btn-compact"
         variant="outline-primary"
         onClick={() =>
@@ -31,7 +31,7 @@ export default function AnswerCell({ row }: { row: Row<Puzzle> }) {
         }
       >
         Submit Answer
-      </SafeButton>
+      </Button>
     );
   }
   return (

@@ -1,12 +1,15 @@
-import React from "react";
+import React, { FormEvent } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import Modal from "react-bootstrap/Modal";
+import Button from "react-bootstrap/Button";
+import Form from "react-bootstrap/Form";
 import { addPuzzle } from "./puzzlesSlice";
 import { hideModal } from "./modalSlice";
 import { selectHuntTags, selectHuntCreateChannelByDefault } from "./huntSlice";
 
+
 import type { Dispatch } from "./store";
 import type { HuntId, PuzzleTag } from "./types";
-import { SafeButton, SafeForm, SafeModal } from "./types";
 
 type ChangeEvent = React.ChangeEvent<HTMLInputElement>;
 
@@ -20,7 +23,7 @@ function AddPuzzleModal({ huntId }: { huntId: HuntId }) {
     useSelector(selectHuntCreateChannelByDefault)
   );
   const dispatch = useDispatch<Dispatch>();
-  const onSubmit = (e: ChangeEvent) => {
+  const onSubmit = (e: FormEvent) => {
     e.preventDefault();
     dispatch(
       addPuzzle({
@@ -39,33 +42,33 @@ function AddPuzzleModal({ huntId }: { huntId: HuntId }) {
 
   return (
     <>
-      <SafeModal.Header closeButton>
-        <SafeModal.Title>Add Puzzle</SafeModal.Title>
-      </SafeModal.Header>
-      <SafeForm onSubmit={onSubmit}>
-        <SafeModal.Body>
-          <SafeForm.Group controlId="addPuzzle.name">
-            <SafeForm.Label>Puzzle name</SafeForm.Label>
-            <SafeForm.Control
+      <Modal.Header closeButton>
+        <Modal.Title>Add Puzzle</Modal.Title>
+      </Modal.Header>
+      <Form onSubmit={onSubmit}>
+        <Modal.Body>
+          <Form.Group controlId="addPuzzle.name">
+            <Form.Label>Puzzle name</Form.Label>
+            <Form.Control
               required
               placeholder="Name"
               value={name}
               autoFocus
               onChange={(e: ChangeEvent) => setName(e.target.value)}
             />
-          </SafeForm.Group>
-          <SafeForm.Group controlId="addPuzzle.url">
-            <SafeForm.Label>Puzzle url</SafeForm.Label>
-            <SafeForm.Control
+          </Form.Group>
+          <Form.Group controlId="addPuzzle.url">
+            <Form.Label>Puzzle url</Form.Label>
+            <Form.Control
               required
               placeholder="https://www.example.com/"
               value={url}
               onChange={(e: ChangeEvent) => setUrl(e.target.value)}
             />
-          </SafeForm.Group>
-          <SafeForm.Group controlId="addPuzzle.meta">
-            <SafeForm.Label>Assigned Meta</SafeForm.Label>
-            <SafeForm.Control
+          </Form.Group>
+          <Form.Group controlId="addPuzzle.meta">
+            <Form.Label>Assigned Meta</Form.Label>
+            <Form.Control
               as="select"
               value={assignedMeta}
               onChange={(e: ChangeEvent) => setAssignedMeta(e.target.value)}
@@ -80,32 +83,32 @@ function AddPuzzleModal({ huntId }: { huntId: HuntId }) {
                     {tag.name}
                   </option>
                 ))}
-            </SafeForm.Control>
-          </SafeForm.Group>
-          <SafeForm.Check
+            </Form.Control>
+          </Form.Group>
+          <Form.Check
             type="checkbox"
             label="Is meta"
             id="is-meta-checkbox"
             checked={isMeta}
             onChange={(e: ChangeEvent) => setIsMeta(e.target.checked)}
           />
-          <SafeForm.Check
+          <Form.Check
             type="checkbox"
             label="Create discord channels"
             id="create-channels-checkbox"
             checked={createChannels}
             onChange={(e: ChangeEvent) => setCreateChannels(e.target.checked)}
           />
-        </SafeModal.Body>
-        <SafeModal.Footer>
-          <SafeButton variant="secondary" onClick={() => dispatch(hideModal())}>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => dispatch(hideModal())}>
             Cancel
-          </SafeButton>
-          <SafeButton variant="primary" type="submit">
+          </Button>
+          <Button variant="primary" type="submit">
             Add
-          </SafeButton>
-        </SafeModal.Footer>
-      </SafeForm>
+          </Button>
+        </Modal.Footer>
+      </Form>
     </>
   );
 }

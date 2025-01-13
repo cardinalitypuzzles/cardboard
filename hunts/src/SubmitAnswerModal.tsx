@@ -1,11 +1,11 @@
-import React from "react";
+import React, { FormEvent } from "react";
+import { Button, Form, Modal } from "react-bootstrap";
 import { useDispatch } from "react-redux";
 import { addAnswer, addPuzzleTag } from "./puzzlesSlice";
 import { hideModal } from "./modalSlice";
 
 import type { Dispatch } from "./store";
 import type { PuzzleId } from "./types";
-import { SafeButton, SafeForm, SafeModal } from "./types";
 
 type ChangeEvent = React.ChangeEvent<HTMLInputElement>;
 
@@ -20,7 +20,7 @@ function SubmitAnswerModal({
   const [backsolved, setBacksolved] = React.useState(false);
 
   const dispatch = useDispatch<Dispatch>();
-  const onSubmit = (e: ChangeEvent) => {
+  const onSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (backsolved) {
       dispatch(
@@ -43,37 +43,37 @@ function SubmitAnswerModal({
   };
   return (
     <>
-      <SafeModal.Header closeSafeButton>
-        <SafeModal.Title>Submit Answer for {puzzleName} </SafeModal.Title>
-      </SafeModal.Header>
-      <SafeForm onSubmit={onSubmit}>
-        <SafeModal.Body>
-          <SafeForm.Control
+      <Modal.Header closeButton>
+        <Modal.Title>Submit Answer for {puzzleName} </Modal.Title>
+      </Modal.Header>
+      <Form onSubmit={onSubmit}>
+        <Modal.Body>
+          <Form.Control
             required
             placeholder="Enter Answer"
             value={newAnswer}
             autoFocus
             onChange={(e: ChangeEvent) => setNewAnswer(e.target.value)}
           />
-          <SafeForm.Check
+          <Form.Check
             type="checkbox"
             defaultChecked={false}
             label="backsolved"
-            value={backsolved}
+            value={backsolved.toString()}
             onChange={(e: ChangeEvent) => {
               e.target.checked ? setBacksolved(true) : setBacksolved(false);
             }}
           />
-        </SafeModal.Body>
-        <SafeModal.Footer>
-          <SafeButton variant="secondary" onClick={() => dispatch(hideModal())}>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => dispatch(hideModal())}>
             Cancel
-          </SafeButton>
-          <SafeButton variant="primary" type="submit">
+          </Button>
+          <Button variant="primary" type="submit">
             Submit
-          </SafeButton>
-        </SafeModal.Footer>
-      </SafeForm>
+          </Button>
+        </Modal.Footer>
+      </Form>
     </>
   );
 }

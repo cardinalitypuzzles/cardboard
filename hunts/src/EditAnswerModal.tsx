@@ -1,8 +1,6 @@
 import React from "react";
 import { useDispatch } from "react-redux";
-import Modal from "react-bootstrap/Modal";
-import Button from "react-bootstrap/Button";
-import Form from "react-bootstrap/Form";
+import { Button, Form, Modal } from "react-bootstrap";
 import { editAnswer } from "./puzzlesSlice";
 import { hideModal } from "./modalSlice";
 
@@ -10,7 +8,6 @@ type ChangeEvent = React.ChangeEvent<HTMLInputElement>;
 
 import type { Dispatch } from "./store";
 import type { AnswerId, PuzzleId } from "./types";
-import { SafeButton, SafeForm, SafeModal } from "./types";
 
 function EditAnswerModal({
   puzzleId,
@@ -23,7 +20,7 @@ function EditAnswerModal({
 }) {
   const [newAnswer, setNewAnswer] = React.useState(text);
   const dispatch = useDispatch<Dispatch>();
-  const onSubmit = (e: ChangeEvent) => {
+  const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     dispatch(
       editAnswer({
@@ -38,28 +35,28 @@ function EditAnswerModal({
   };
   return (
     <>
-      <SafeModal.Header closeButton>
-        <SafeModal.Title>Edit Answer</SafeModal.Title>
-      </SafeModal.Header>
-      <SafeForm onSubmit={onSubmit}>
-        <SafeModal.Body>
-          <SafeForm.Control
+      <Modal.Header closeButton>
+        <Modal.Title>Edit Answer</Modal.Title>
+      </Modal.Header>
+      <Form onSubmit={onSubmit}>
+        <Modal.Body>
+          <Form.Control
             required
             autoFocus
             placeholder="Answer"
             value={newAnswer}
             onChange={(e: ChangeEvent) => setNewAnswer(e.target.value)}
           />
-        </SafeModal.Body>
-        <SafeModal.Footer>
-          <SafeButton variant="secondary" onClick={() => dispatch(hideModal())}>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => dispatch(hideModal())}>
             Cancel
-          </SafeButton>
-          <SafeButton variant="primary" type="submit">
+          </Button>
+          <Button variant="primary" type="submit">
             Submit
-          </SafeButton>
-        </SafeModal.Footer>
-      </SafeForm>
+          </Button>
+        </Modal.Footer>
+      </Form>
     </>
   );
 }

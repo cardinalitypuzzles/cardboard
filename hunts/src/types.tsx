@@ -1,19 +1,3 @@
-import {
-  Alert,
-  Badge,
-  Button,
-  Col,
-  Container,
-  Dropdown,
-  DropdownButton,
-  Form,
-  Modal,
-  OverlayTrigger,
-  Popover,
-  Row as BootstrapRow,
-  Table,
-  Tooltip,
-} from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import ReactTimeAgo from "react-time-ago";
 
@@ -100,22 +84,11 @@ export interface Row<D extends object = {}> extends BaseTableRow<D> {
   getToggleRowExpandedProps: any;
 }
 
-// react-bootstrap component typing has a bug on old versions --
-// see https://github.com/react-bootstrap/react-bootstrap/issues/6819
-// and a few other components seem to have similar typing bugs
-export const SafeAlert = Alert as any;
-export const SafeBadge = Badge as any;
-export const SafeButton = Button as any;
-export const SafeCol = Col as any;
-export const SafeContainer = Container as any;
-export const SafeDropdown = Dropdown as any;
-export const SafeDropdownButton = DropdownButton as any;
-export const SafeFontAwesomeIcon = FontAwesomeIcon as any;
-export const SafeForm = Form as any;
-export const SafeModal = Modal as any;
-export const SafeOverlayTrigger = OverlayTrigger as any;
-export const SafePopover = Popover as any;
-export const SafeReactTimeAgo = ReactTimeAgo as any;
-export const SafeRow = BootstrapRow as any;
-export const SafeTable = Table as any;
-export const SafeTooltip = Tooltip as any;
+// FontAwesome typing requires the 'icon' field to be one from an
+// enumeration of predefined possible strings, which can create incompatibilities
+// between different versions -- in other words, if the `fa-solid` set of
+// icons exposes a string that a FontAwesome component doesn't know about, it'll
+// complain because the type can't be cast, even if you never use the icon.
+// Typing over a set of thousands of icons is ridiculous
+// so we just ignore it for this component
+export const TypeIgnoredFontAwesomeIcon = FontAwesomeIcon as any;

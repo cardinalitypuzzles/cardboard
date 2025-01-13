@@ -1,11 +1,11 @@
-import React from "react";
+import React, { FormEvent } from "react";
+import { Button, Form, Modal } from "react-bootstrap";
 import { useDispatch } from "react-redux";
 import { editNotes } from "./puzzlesSlice";
 import { hideModal } from "./modalSlice";
 
 import type { Dispatch } from "./store";
 import type { PuzzleId } from "./types";
-import { SafeButton, SafeForm, SafeModal } from "./types";
 
 type ChangeEvent = React.ChangeEvent<HTMLInputElement>;
 
@@ -18,7 +18,7 @@ function EditNotesModal({
 }) {
   const [newNotes, setNewNotes] = React.useState(text);
   const dispatch = useDispatch<Dispatch>();
-  const onSubmit = (e: ChangeEvent) => {
+  const onSubmit = (e: FormEvent) => {
     e.preventDefault();
     dispatch(
       editNotes({
@@ -32,28 +32,28 @@ function EditNotesModal({
   };
   return (
     <>
-      <SafeModal.Header closeButton>
-        <SafeModal.Title>Edit Notes</SafeModal.Title>
-      </SafeModal.Header>
-      <SafeForm onSubmit={onSubmit}>
-        <SafeModal.Body>
-          <SafeForm.Control
+      <Modal.Header closeButton>
+        <Modal.Title>Edit Notes</Modal.Title>
+      </Modal.Header>
+      <Form onSubmit={onSubmit}>
+        <Modal.Body>
+          <Form.Control
             required
             autoFocus
             placeholder="Notes"
             value={newNotes}
             onChange={(e: ChangeEvent) => setNewNotes(e.target.value)}
           />
-        </SafeModal.Body>
-        <SafeModal.Footer>
-          <SafeButton variant="secondary" onClick={() => dispatch(hideModal())}>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => dispatch(hideModal())}>
             Cancel
-          </SafeButton>
-          <SafeButton variant="primary" type="submit">
+          </Button>
+          <Button variant="primary" type="submit">
             Submit
-          </SafeButton>
-        </SafeModal.Footer>
-      </SafeForm>
+          </Button>
+        </Modal.Footer>
+      </Form>
     </>
   );
 }

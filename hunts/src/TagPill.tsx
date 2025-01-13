@@ -1,6 +1,5 @@
 import React from "react";
-
-import { SafeBadge } from "./types";
+import { Badge } from "react-bootstrap";
 
 interface TagPillProps {
   name: string;
@@ -33,15 +32,15 @@ function TagPill(props: TagPillProps) {
   }
 
   return (
-    <SafeBadge
+    <Badge
       pill
-      variant={color}
+      bg={color}
       key={name}
       onClick={onClick || undefined}
       style={style}
     >
       {name}
-    </SafeBadge>
+    </Badge>
   );
 }
 

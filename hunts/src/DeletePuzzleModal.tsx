@@ -1,7 +1,6 @@
 import React from "react";
 import { useDispatch } from "react-redux";
-import Modal from "react-bootstrap/Modal";
-import Button from "react-bootstrap/Button";
+import { Button, Modal } from "react-bootstrap";
 import { deletePuzzle } from "./puzzlesSlice";
 import { hideModal } from "./modalSlice";
 
@@ -24,26 +23,22 @@ function DeletePuzzleModal({
     });
   };
 
-  // react-bootstrap component typing has a bug on old versions --
-  // see https://github.com/react-bootstrap/react-bootstrap/issues/6819
-  const SafeModal = Modal as any;
-  const SafeButton = Button as any;
   return (
     <>
-      <SafeModal.Header closeButton>
-        <SafeModal.Title>Delete {puzzleName}</SafeModal.Title>
-      </SafeModal.Header>
-      <SafeModal.Body>
+      <Modal.Header closeButton>
+        <Modal.Title>Delete {puzzleName}</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
         Are you sure you want to delete <b>{puzzleName}</b>?
-      </SafeModal.Body>
-      <SafeModal.Footer>
-        <SafeButton variant="secondary" onClick={() => dispatch(hideModal())}>
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={() => dispatch(hideModal())}>
           Cancel
-        </SafeButton>
-        <SafeButton variant="danger" onClick={onDelete}>
+        </Button>
+        <Button variant="danger" onClick={onDelete}>
           Delete
-        </SafeButton>
-      </SafeModal.Footer>
+        </Button>
+      </Modal.Footer>
     </>
   );
 }

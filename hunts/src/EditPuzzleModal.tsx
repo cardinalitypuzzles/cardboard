@@ -1,11 +1,11 @@
-import React from "react";
+import React, { FormEvent } from "react";
+import { Button, Form, Modal } from "react-bootstrap";
 import { useDispatch } from "react-redux";
 import { updatePuzzle } from "./puzzlesSlice";
 import { hideModal } from "./modalSlice";
 
 import type { Dispatch } from "./store";
 import type { HuntId, PuzzleId } from "./types";
-import { SafeButton, SafeForm, SafeModal } from "./types";
 
 type ChangeEvent = React.ChangeEvent<HTMLInputElement>;
 
@@ -29,7 +29,7 @@ function EditPuzzleModal({
   const [newIsMeta, setNewIsMeta] = React.useState(isMeta);
   const [createChannels, setCreateChannels] = React.useState(hasChannels);
   const dispatch = useDispatch<Dispatch>();
-  const onSubmit = (e: ChangeEvent) => {
+  const onSubmit = (e: FormEvent) => {
     e.preventDefault();
     dispatch(
       updatePuzzle({
@@ -49,38 +49,38 @@ function EditPuzzleModal({
   };
   return (
     <>
-      <SafeModal.Header closeButton>
-        <SafeModal.Title>Edit Puzzle</SafeModal.Title>
-      </SafeModal.Header>
-      <SafeForm onSubmit={onSubmit}>
-        <SafeModal.Body>
-          <SafeForm.Group controlId="editPuzzle.name">
-            <SafeForm.Label>Puzzle name</SafeForm.Label>
-            <SafeForm.Control
+      <Modal.Header closeButton>
+        <Modal.Title>Edit Puzzle</Modal.Title>
+      </Modal.Header>
+      <Form onSubmit={onSubmit}>
+        <Modal.Body>
+          <Form.Group controlId="editPuzzle.name">
+            <Form.Label>Puzzle name</Form.Label>
+            <Form.Control
               required
               autoFocus
               placeholder="Name"
               value={newName}
               onChange={(e: ChangeEvent) => setNewName(e.target.value)}
             />
-          </SafeForm.Group>
-          <SafeForm.Group controlId="editPuzzle.url">
-            <SafeForm.Label>Puzzle url</SafeForm.Label>
-            <SafeForm.Control
+          </Form.Group>
+          <Form.Group controlId="editPuzzle.url">
+            <Form.Label>Puzzle url</Form.Label>
+            <Form.Control
               required
               placeholder="https://www.example.com/"
               value={newUrl}
               onChange={(e: ChangeEvent) => setNewUrl(e.target.value)}
             />
-          </SafeForm.Group>
-          <SafeForm.Check
+          </Form.Group>
+          <Form.Check
             type="checkbox"
             label="Is meta"
             id="is-meta-checkbox"
             checked={newIsMeta}
             onChange={(e: ChangeEvent) => setNewIsMeta(e.target.checked)}
           />
-          <SafeForm.Check
+          <Form.Check
             type="checkbox"
             label="Create discord channels"
             id="create-channels-checkbox"
@@ -89,16 +89,16 @@ function EditPuzzleModal({
             // If channel is already created, disable its deletion
             disabled={hasChannels}
           />
-        </SafeModal.Body>
-        <SafeModal.Footer>
-          <SafeButton variant="secondary" onClick={() => dispatch(hideModal())}>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => dispatch(hideModal())}>
             Cancel
-          </SafeButton>
-          <SafeButton variant="primary" type="submit">
+          </Button>
+          <Button variant="primary" type="submit">
             Submit
-          </SafeButton>
-        </SafeModal.Footer>
-      </SafeForm>
+          </Button>
+        </Modal.Footer>
+      </Form>
     </>
   );
 }

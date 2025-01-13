@@ -14,13 +14,6 @@ import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
 
 import type { Hunt } from "./types";
-import {
-  SafeCol,
-  SafeContainer,
-  SafeOverlayTrigger,
-  SafeRow,
-  SafeTooltip,
-} from "./types";
 
 function HuntViewHeader({ hunt }: { hunt: Hunt }) {
   const numUnlocked = useSelector(selectNumUnlocked);
@@ -28,16 +21,16 @@ function HuntViewHeader({ hunt }: { hunt: Hunt }) {
   const numMetasSolved = useSelector(selectNumMetasSolved);
   const numMetasUnsolved = useSelector(selectNumMetasUnsolved);
   const driveRedirect = hunt.has_drive ? (
-    <SafeOverlayTrigger
+    <OverlayTrigger
       placement="top"
       overlay={
-        <SafeTooltip id="tooltip-right">
+        <Tooltip id="tooltip-right">
           Create your drawings, jamboards, etc here.
-        </SafeTooltip>
+        </Tooltip>
       }
     >
       <a href="drive">Google Drive Folder 🎨🖌️📁</a>
-    </SafeOverlayTrigger>
+    </OverlayTrigger>
   ) : null;
 
   return (
@@ -49,17 +42,17 @@ function HuntViewHeader({ hunt }: { hunt: Hunt }) {
           alignItems: "center",
         }}
       >
-        <SafeContainer fluid>
-          <SafeRow className="text-center font-weight-bold small">
-            <SafeCol xs={1} className="text-nowrap px-0 mx-0">
+        <Container fluid>
+          <Row className="text-center font-weight-bold small">
+            <Col xs={1} className="text-nowrap px-0 mx-0">
               Metas
-            </SafeCol>
-            <SafeCol xs={1} className="text-nowrap px-0 mx-0">
+            </Col>
+            <Col xs={1} className="text-nowrap px-0 mx-0">
               Puzzles
-            </SafeCol>
-          </SafeRow>
-          <SafeRow className="text-center">
-            <SafeCol xs={1}>
+            </Col>
+          </Row>
+          <Row className="text-center">
+            <Col xs={1}>
               <span
                 className="text-primary font-weight-bold"
                 style={{ fontSize: "1.25rem" }}
@@ -70,8 +63,8 @@ function HuntViewHeader({ hunt }: { hunt: Hunt }) {
               <span className="text-secondary font-weight-bold">
                 {numMetasSolved + numMetasUnsolved}
               </span>
-            </SafeCol>
-            <SafeCol xs={1}>
+            </Col>
+            <Col xs={1}>
               <span
                 className="text-success font-weight-bold"
                 style={{ fontSize: "1.25rem" }}
@@ -82,15 +75,15 @@ function HuntViewHeader({ hunt }: { hunt: Hunt }) {
               <span className="text-secondary font-weight-bold">
                 {numUnlocked}
               </span>
-            </SafeCol>
-            <SafeCol xs={1} className="text-nowrap">
+            </Col>
+            <Col xs={1} className="text-nowrap">
               <a href="stats">Stats 📈</a>
-            </SafeCol>
-            <SafeCol xs={1} className="text-nowrap">
+            </Col>
+            <Col xs={1} className="text-nowrap">
               {driveRedirect}
-            </SafeCol>
-          </SafeRow>
-        </SafeContainer>
+            </Col>
+          </Row>
+        </Container>
       </div>
     </div>
   );

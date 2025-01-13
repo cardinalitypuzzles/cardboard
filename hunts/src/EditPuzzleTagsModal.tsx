@@ -1,5 +1,6 @@
-import React from "react";
+import React, { FormEvent } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { Button, Form, Modal } from "react-bootstrap";
 import { addPuzzleTag, selectPuzzleTags } from "./puzzlesSlice";
 import { selectHuntTags } from "./huntSlice";
 import { DEFAULT_TAG_COLOR, SELECTABLE_TAG_COLORS } from "./constants";
@@ -9,7 +10,6 @@ import EditableTagList from "./EditableTagList";
 
 import type { Dispatch } from "./store";
 import type { PuzzleId } from "./types";
-import { SafeButton, SafeForm, SafeModal } from "./types";
 
 type ChangeEvent = React.ChangeEvent<HTMLInputElement>;
 
@@ -34,10 +34,10 @@ function EditPuzzleTagsModal({
   const dispatch = useDispatch<Dispatch>();
   return (
     <>
-      <SafeModal.Header closeButton>
-        <SafeModal.Title>Edit Tags for {puzzleName}</SafeModal.Title>
-      </SafeModal.Header>
-      <SafeModal.Body>
+      <Modal.Header closeButton>
+        <Modal.Title>Edit Tags for {puzzleName}</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
         <h5 style={{ textAlign: "center" }}>Metas</h5>
         <EditableTagList
           puzzleId={puzzleId}
@@ -56,13 +56,13 @@ function EditPuzzleTagsModal({
           tags={allTags.filter((tag) => !tag.is_meta && !tag.is_location)}
         />
         <br />
-        <SafeForm
+        <Form
           style={{
             display: "flex",
             alignItems: "flex-start",
             flexDirection: "column",
           }}
-          onSubmit={(e: ChangeEvent) => {
+          onSubmit={(e: FormEvent) => {
             e.preventDefault();
             dispatch(
               addPuzzleTag({
@@ -81,13 +81,13 @@ function EditPuzzleTagsModal({
           <div style={{ alignSelf: "center", marginBottom: "3px" }}>
             <TagPill name={newTagName} color={newTagColor} editable={false} />
           </div>
-          <SafeForm.Control
+          <Form.Control
             placeholder="Logic Puzzle"
             value={newTagName}
             onChange={(e: ChangeEvent) => setNewTagName(e.target.value)}
             style={{ margin: "2px" }}
           />
-          <SafeForm.Control
+          <Form.Control
             as="select"
             value={newTagColor}
             onChange={(e: ChangeEvent) => setNewTagColor(e.target.value)}
@@ -98,21 +98,21 @@ function EditPuzzleTagsModal({
                 {display}
               </option>
             ))}
-          </SafeForm.Control>
-          <SafeButton variant="primary" type="submit">
+          </Form.Control>
+          <Button variant="primary" type="submit">
             Create
-          </SafeButton>
-        </SafeForm>
-      </SafeModal.Body>
-      <SafeModal.Footer>
-        <SafeButton
+          </Button>
+        </Form>
+      </Modal.Body>
+      <Modal.Footer>
+        <Button
           variant="primary"
           type="submit"
           onClick={() => dispatch(hideModal())}
         >
           Done
-        </SafeButton>
-      </SafeModal.Footer>
+        </Button>
+      </Modal.Footer>
     </>
   );
 }

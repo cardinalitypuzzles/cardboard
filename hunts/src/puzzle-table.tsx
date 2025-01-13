@@ -1,12 +1,11 @@
 import React from "react";
-import PropTypes from "prop-types";
 import {
   useTable,
   useExpanded,
   useGlobalFilter,
   useFilters,
-  Column,
 } from "react-table";
+import { Table } from "react-bootstrap";
 import { matchSorter } from "match-sorter";
 import { filterSolvedPuzzlesFn } from "./solveStateFilter";
 import { useSelector } from "react-redux";
@@ -24,7 +23,6 @@ import { getCollapsedPuzzles } from "./collapsedPuzzlesSlice";
 
 import type { Puzzle, PuzzleTag, Row } from "./types";
 import type { Row as BaseRow } from "react-table";
-import { SafeTable } from "./types";
 
 // The react-table typing is a mess for our current version
 // (it's probably fine if we upgrade) and seems to be underpowered for
@@ -309,7 +307,7 @@ export const PuzzleTable = React.memo(
 
     return (
       <>
-        <SafeTable size="sm" {...getTableProps()}>
+        <Table size="sm" {...getTableProps()}>
           <thead>
             <tr>
               <th className="table-side-colorbar"></th>
@@ -323,7 +321,7 @@ export const PuzzleTable = React.memo(
             </tr>
           </thead>
           <tbody {...getTableBodyProps()}>{rowsList}</tbody>
-        </SafeTable>
+        </Table>
       </>
     );
   }

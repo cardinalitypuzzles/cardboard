@@ -1,4 +1,5 @@
 import React from "react";
+import { Alert, Button, Modal } from "react-bootstrap";
 import PropTypes from "prop-types";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchPuzzles, selectPuzzleTableData } from "./puzzlesSlice";
@@ -28,7 +29,6 @@ import { SiteHeader } from "./SiteHeader";
 
 import type { Dispatch, RootState } from "./store";
 import type { HuntId, PuzzleTag } from "./types";
-import { SafeAlert, SafeButton, SafeModal } from "./types";
 
 const MODAL_COMPONENTS: Record<string, any> = {
   DELETE_PUZZLE: DeletePuzzleModal,
@@ -80,14 +80,14 @@ export const HuntViewMain = (props: { huntId: HuntId }) => {
           maxWidth: "1600px",
         }}
       >
-        <SafeAlert
+        <Alert
           dismissible
           variant={alert.variant}
           show={alert.show}
           onClose={() => dispatch(hideAlert())}
         >
           {alert.text}
-        </SafeAlert>
+        </Alert>
         <HuntViewHeader hunt={hunt} />
         <div
           style={{
@@ -116,7 +116,7 @@ export const HuntViewMain = (props: { huntId: HuntId }) => {
             })}
           </div>
 
-          <SafeButton
+          <Button
             variant="primary"
             size="lg"
             onClick={() =>
@@ -131,21 +131,21 @@ export const HuntViewMain = (props: { huntId: HuntId }) => {
             }
           >
             Add Puzzle
-          </SafeButton>
+          </Button>
         </div>
         <PuzzleTable
           data={tableData}
           filterSolved={filterSolved}
           filterTags={filterTags}
         />
-        <SafeModal
+        <Modal
           animation={false}
           show={modal.show}
           onHide={() => dispatch(hideModal())}
           scrollable={true}
         >
           {ModalComponent ? <ModalComponent {...modal.props} /> : null}
-        </SafeModal>
+        </Modal>
       </div>
     </>
   );

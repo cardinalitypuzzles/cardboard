@@ -5,7 +5,6 @@ import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import { Badge } from "react-bootstrap";
 
 import type { Puzzle, Row } from "./types";
-import { SafeBadge, SafeOverlayTrigger, SafePopover } from "./types";
 
 const getColor = (count: number) => {
   if (count <= 4) {
@@ -22,47 +21,47 @@ export default ({ row }: { row: Row<Puzzle> }) => {
   const topEditors = row.values.topEditors;
   if (recentEditors.length + topEditors.length > 0) {
     const editorsPopover = (
-      <SafePopover className="bootstrap">
+      <Popover className="bootstrap">
         {row.values.recentEditors.length > 0 && (
           <>
-            <SafePopover.Title>Recent Editors</SafePopover.Title>
-            <SafePopover.Content>
+            <Popover.Header>Recent Editors</Popover.Header>
+            <Popover.Body>
               {recentEditors.map((editor: string) => (
                 <div key={editor}>{editor}</div>
               ))}
-            </SafePopover.Content>
+            </Popover.Body>
           </>
         )}
         {row.values.topEditors.length > 0 && (
           <>
-            <SafePopover.Title>Top Editors</SafePopover.Title>
-            <SafePopover.Content>
+            <Popover.Header>Top Editors</Popover.Header>
+            <Popover.Body>
               {topEditors.map((editor: string) => (
                 <div key={editor}>{editor}</div>
               ))}
-            </SafePopover.Content>
+            </Popover.Body>
           </>
         )}
-      </SafePopover>
+      </Popover>
     );
     return (
-      <SafeOverlayTrigger
+      <OverlayTrigger
         trigger={["hover", "focus"]}
         placement="right"
         overlay={editorsPopover}
       >
-        <SafeBadge
+        <Badge
           className={getColor(recentEditors.length)}
           style={{
             whiteSpace: "nowrap",
             fontSize: "100%",
           }}
-          variant="light"
+          bg="light"
         >
           <IconUsers size={16} />
           {recentEditors.length}
-        </SafeBadge>
-      </SafeOverlayTrigger>
+        </Badge>
+      </OverlayTrigger>
     );
   } else {
     return null;

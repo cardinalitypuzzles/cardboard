@@ -1,23 +1,20 @@
 import React from "react";
+import { Badge, Popover, OverlayTrigger } from "react-bootstrap";
 import { useSelector, useDispatch } from "react-redux";
 import { faTrashAlt } from "@fortawesome/free-regular-svg-icons";
 import { faWrench, faTag } from "@fortawesome/free-solid-svg-icons";
 import { showModal } from "./modalSlice";
-import TagCell from "./TagCell";
 import ClickableIcon from "./ClickableIcon";
 import { toggleCollapsed } from "./collapsedPuzzlesSlice";
 import { IconChevronDown, IconChevronRight } from "@tabler/icons";
 import { faCircle } from "@fortawesome/free-solid-svg-icons";
+import ReactTimeAgo from "react-time-ago";
 
 import {
   Hunt,
   Puzzle,
   Row,
-  SafeBadge,
-  SafeFontAwesomeIcon,
-  SafeOverlayTrigger,
-  SafePopover,
-  SafeReactTimeAgo,
+  TypeIgnoredFontAwesomeIcon,
 } from "./types";
 import { RootState } from "./store";
 
@@ -36,25 +33,25 @@ const LastActive = ({ last_edited_on }: { last_edited_on: string }) => {
   const min_since_edit =
     (Date.now() - last_edited_date.getTime()) / (1000 * 60);
   const editedOnPopOver = (
-    <SafePopover className="bootstrap">
-      <SafePopover.Content>
-        Last active <SafeReactTimeAgo date={last_edited_date} locale="en-US" />
-      </SafePopover.Content>
-    </SafePopover>
+    <Popover className="bootstrap">
+      <Popover.Body>
+        Last active <ReactTimeAgo date={last_edited_date} locale="en-US" />
+      </Popover.Body>
+    </Popover>
   );
   return (
     <>
-      <SafeOverlayTrigger
+      <OverlayTrigger
         trigger={["hover", "focus"]}
         placement="right"
         overlay={editedOnPopOver}
       >
-        <SafeFontAwesomeIcon
+        <TypeIgnoredFontAwesomeIcon
           className={getColor(min_since_edit)}
           style={{ verticalAlign: "-0.125em" }}
           icon={faCircle}
         />
-      </SafeOverlayTrigger>
+      </OverlayTrigger>
     </>
   );
 };
@@ -148,7 +145,7 @@ export default function NameCell({
         )}{" "}
         {row.values.is_meta ? (
           <>
-            <SafeBadge variant="dark">META</SafeBadge>{" "}
+            <Badge bg="dark">META</Badge>{" "}
           </>
         ) : null}
         <div
