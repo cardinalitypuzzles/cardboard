@@ -26,4 +26,12 @@ repos:
     hooks:
       - id: prettier
         types: [javascript]
+  - repo: local
+    hooks:
+    -   id: typescript-check
+        name: typescript-check
+        entry: yarn tsc --noEmit
+        language: system
+        types_or: [ts, tsx]
+        pass_filenames: false
 exclude: "^patches/"
