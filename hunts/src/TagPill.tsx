@@ -34,6 +34,7 @@ function TagPill(props: TagPillProps) {
     <Badge
       pill
       bg={color}
+      text="white"
       key={name}
       onClick={onClick || undefined}
       style={style}
