@@ -79,7 +79,7 @@ function EditPuzzleTagsModal({
         >
           <h5 style={{ alignSelf: "center" }}>Create new tag</h5>
           <div style={{ alignSelf: "center", marginBottom: "3px" }}>
-            <TagPill name={newTagName} color={newTagColor} editable={false} />
+            <TagPill name={newTagName} color={newTagColor} />
           </div>
           <Form.Control
             placeholder="Logic Puzzle"

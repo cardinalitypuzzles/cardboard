@@ -56,7 +56,6 @@ function EditableTagList({
       {group.map((tag) => (
         <TagPill
           {...tag}
-          editable={false}
           selected={puzzleTagIds.has(tag.id)}
           faded={!puzzleTagIds.has(tag.id)}
           key={tag.name}

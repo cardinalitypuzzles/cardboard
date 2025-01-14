@@ -6,7 +6,6 @@ interface TagPillProps {
   color: string;
   selected?: boolean;
   faded?: boolean;
-  editable?: boolean;
   onClick?: (() => void) | null;
 }
 

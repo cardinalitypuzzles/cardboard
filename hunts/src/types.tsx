@@ -90,5 +90,6 @@ export interface Row<D extends object = {}> extends BaseTableRow<D> {
 // icons exposes a string that a FontAwesome component doesn't know about, it'll
 // complain because the type can't be cast, even if you never use the icon.
 // Typing over a set of thousands of icons is ridiculous
-// so we just ignore it for this component
+// so we just ignore it for this component.
+// TODO: re-enable typing for FontAwesomeIcon
 export const TypeIgnoredFontAwesomeIcon = FontAwesomeIcon as any;
