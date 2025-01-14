@@ -6,12 +6,16 @@
   "author": "Cardinality <cardinalitypuzzles@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "dev": "webpack --config webpack.dev.js ./hunts/src/index.js --output-path ./hunts/static",
-    "build": "webpack --config webpack.prod.js ./hunts/src/index.js --output-path ./hunts/static",
+    "dev": "webpack --config webpack.dev.js",
+    "build": "webpack --config webpack.prod.js",
     "postinstall": "patch-package",
     "lint": "eslint ./hunts/src/**"
   },
   "devDependencies": {
+    "@babel/preset-typescript": "^7.26.0",
+    "@types/js-cookie": "^3.0.6",
+    "@types/react": "^19.0.4",
+    "@types/react-dom": "^19.0.2",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-import": "^2.25.3",
@@ -21,6 +25,7 @@
     "eslint-plugin-react-hooks": "^4.3.0",
     "prettier": "^2.2.1",
     "source-map-loader": "^4.0.1",
+    "typescript": "^5.7.3",
     "webpack-merge": "^5.7.0"
   },
   "dependencies": {
@@ -33,6 +38,7 @@
     "@fortawesome/react-fontawesome": "^0.1.13",
     "@reduxjs/toolkit": "^2.4.0",
     "@tabler/icons": "^1.118.0",
+    "@types/react-table": "^7.7.20",
     "@use-it/interval": "^1.0.0",
     "babel-loader": "^8.2.2",
     "css-loader": "^6.7.3",
@@ -44,7 +50,7 @@
     "postinstall-postinstall": "^2.1.0",
     "prop-types": "^15.7.2",
     "react": "^18.0.0",
-    "react-bootstrap": "^1.4.0",
+    "react-bootstrap": "^2.10.7",
     "react-dom": "^18.0.0",
     "react-modern-drawer": "^1.1.2",
     "react-redux": "^9.1.2",
