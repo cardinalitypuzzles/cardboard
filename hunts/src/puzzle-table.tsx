@@ -46,6 +46,11 @@ const TABLE_COLUMNS: TableColumnFormat[] = [
     className: "col-2",
   },
   {
+    Header: "Links",
+    Cell: LinkCell,
+    className: "col-1",
+  },
+  {
     Header: "Tags",
     id: "tags",
     Cell: TagCell,
@@ -86,11 +91,6 @@ const TABLE_COLUMNS: TableColumnFormat[] = [
     accessor: "status",
     Cell: StatusCell,
     filter: "solvedFilter",
-    className: "col-1",
-  },
-  {
-    Header: "Links",
-    Cell: LinkCell,
     className: "col-1",
   },
   {
