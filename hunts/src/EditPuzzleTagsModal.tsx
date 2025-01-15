@@ -38,12 +38,6 @@ function EditPuzzleTagsModal({
         <Modal.Title>Edit Tags for {puzzleName}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <h5 style={{ textAlign: "center" }}>Metas</h5>
-        <EditableTagList
-          puzzleId={puzzleId}
-          tags={allTags.filter((tag) => tag.is_meta)}
-        />
-        <br />
         <h5 style={{ textAlign: "center" }}>Locations</h5>
         <EditableTagList
           puzzleId={puzzleId}
