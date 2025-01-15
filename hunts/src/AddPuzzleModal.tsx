@@ -7,7 +7,6 @@ import { addPuzzle } from "./puzzlesSlice";
 import { hideModal } from "./modalSlice";
 import { selectHuntTags, selectHuntCreateChannelByDefault } from "./huntSlice";
 
-
 import type { Dispatch } from "./store";
 import type { HuntId, PuzzleTag } from "./types";
 
@@ -45,7 +44,7 @@ function AddPuzzleModal({ huntId }: { huntId: HuntId }) {
       <Modal.Header closeButton>
         <Modal.Title>Add Puzzle</Modal.Title>
       </Modal.Header>
-      <Form onSubmit={onSubmit}>
+      <Form onSubmit={onSubmit} autoComplete="off">
         <Modal.Body>
           <Form.Group controlId="addPuzzle.name">
             <Form.Label>Puzzle name</Form.Label>
