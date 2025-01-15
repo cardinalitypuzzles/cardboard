@@ -1,7 +1,7 @@
 import React from "react";
 import { Badge, Popover, OverlayTrigger } from "react-bootstrap";
 import { useSelector, useDispatch } from "react-redux";
-import { faWrench, faTag } from "@fortawesome/free-solid-svg-icons";
+import { faWrench } from "@fortawesome/free-solid-svg-icons";
 import { showModal } from "./modalSlice";
 import ClickableIcon from "./ClickableIcon";
 import { toggleCollapsed } from "./collapsedPuzzlesSlice";
@@ -166,21 +166,6 @@ export default function NameCell({
                     url: row.values.url,
                     isMeta: row.values.is_meta,
                     hasChannels: !!row.original.chat_room?.text_channel_url,
-                  },
-                })
-              )
-            }
-          />{" "}
-          <ClickableIcon
-            icon={faTag}
-            onClick={() =>
-              dispatch(
-                showModal({
-                  type: "EDIT_TAGS",
-                  props: {
-                    huntId,
-                    puzzleId: row.values.id,
-                    puzzleName: row.values.name,
                   },
                 })
               )

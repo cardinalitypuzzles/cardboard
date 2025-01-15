@@ -1,8 +1,9 @@
 import React, { FormEvent } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
-import { useDispatch } from "react-redux";
-import { updatePuzzle } from "./puzzlesSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { selectPuzzleTags, updatePuzzle } from "./puzzlesSlice";
 import { showModal, hideModal } from "./modalSlice";
+import EditableTagList from "./EditableTagList";
 
 import type { Dispatch } from "./store";
 import type { HuntId, PuzzleId } from "./types";
@@ -29,6 +30,9 @@ function EditPuzzleModal({
   const [newIsMeta, setNewIsMeta] = React.useState(isMeta);
   const [createChannels, setCreateChannels] = React.useState(hasChannels);
   const dispatch = useDispatch<Dispatch>();
+
+  const tags = useSelector(selectPuzzleTags);
+
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
     dispatch(
@@ -79,6 +83,11 @@ function EditPuzzleModal({
             id="is-meta-checkbox"
             checked={newIsMeta}
             onChange={(e: ChangeEvent) => setNewIsMeta(e.target.checked)}
+          />
+          <h5 style={{ textAlign: "center" }}>Parent Metas</h5>
+          <EditableTagList
+            puzzleId={puzzleId}
+            tags={tags.filter((tag) => tag.is_meta && tag.name != name)}
           />
           <Form.Check
             type="checkbox"

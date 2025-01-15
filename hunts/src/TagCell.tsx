@@ -1,13 +1,17 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { showModal } from "./modalSlice";
+import { faTag } from "@fortawesome/free-solid-svg-icons";
 import { toggleFilterTag } from "./filterSlice";
 import TagPill from "./TagPill";
+import ClickableIcon from "./ClickableIcon";
 
-import type { Puzzle, Row } from "./types";
+import type { RootState } from "./store";
+import type { Hunt, Puzzle, Row } from "./types";
 
 function TagCell({ row }: { row: Row<Puzzle> }) {
   const dispatch = useDispatch();
+  const { id: huntId } = useSelector<RootState, Hunt>((state) => state.hunt);
   const puzzleId = row.original.id;
 
   const shouldShowMetaTags =
@@ -20,12 +24,28 @@ function TagCell({ row }: { row: Row<Puzzle> }) {
     <>
       {tagsToShow.map(({ name, color, id }) => (
         <TagPill
-          name={name}
-          color={color}
-          key={name}
-          onClick={() => dispatch(toggleFilterTag({ name, color, id }))}
+        name={name}
+        color={color}
+        key={name}
+        onClick={() => dispatch(toggleFilterTag({ name, color, id }))}
         />
       ))}{" "}
+
+      <ClickableIcon
+      icon={faTag}
+      onClick={() =>
+        dispatch(
+          showModal({
+            type: "EDIT_TAGS",
+            props: {
+              huntId,
+              puzzleId: row.values.id,
+              puzzleName: row.values.name,
+            },
+          })
+        )
+      }
+      />{" "}
     </>
   );
 }
