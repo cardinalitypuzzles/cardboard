@@ -1,9 +1,7 @@
 import React from "react";
 import { Badge, Popover, OverlayTrigger } from "react-bootstrap";
 import { useSelector, useDispatch } from "react-redux";
-import { faWrench } from "@fortawesome/free-solid-svg-icons";
 import { showModal } from "./modalSlice";
-import ClickableIcon from "./ClickableIcon";
 import { toggleCollapsed } from "./collapsedPuzzlesSlice";
 import { IconChevronDown, IconChevronRight } from "@tabler/icons";
 import { faCircle } from "@fortawesome/free-solid-svg-icons";
@@ -84,6 +82,7 @@ const useToggleRowExpandedProps = (row: Row<Puzzle>) => {
     ...originalProps,
     onClick: (e: MouseEvent) => {
       dispatch(toggleCollapsed({ rowId: row.id, huntId: CURRENT_HUNT_ID }));
+      e.stopPropagation();
       return originalProps.onClick(e);
     },
   };
@@ -109,8 +108,32 @@ export default function NameCell({
 
   return (
     <div
+      onMouseEnter={() => {
+        setUiHovered(true);
+      }}
+      onMouseLeave={() => {
+        setUiHovered(false);
+      }}
+      onClick={() => {
+        dispatch(
+          showModal({
+            type: "EDIT_PUZZLE",
+            props: {
+              huntId,
+              puzzleId: row.values.id,
+              name: row.values.name,
+              url: row.values.url,
+              isMeta: row.values.is_meta,
+              hasChannels: !!row.original.chat_room?.text_channel_url,
+            },
+          })
+        );
+      }}
       style={{
+        // TODO: abstract these properties out into their own CSS class
         paddingLeft: `${row.depth * 2}rem`,
+        minHeight: '1.4rem', cursor: 'pointer',
+        backgroundColor: uiHovered ? '#ffe579' : undefined
       }}
     >
       <div
@@ -147,31 +170,6 @@ export default function NameCell({
             <Badge bg="dark" text="white">META</Badge>{" "}
           </>
         ) : null}
-        <div
-          style={{
-            display: "inline-block",
-            visibility: uiHovered ? "visible" : "hidden",
-          }}
-        >
-          <ClickableIcon
-            icon={faWrench}
-            onClick={() =>
-              dispatch(
-                showModal({
-                  type: "EDIT_PUZZLE",
-                  props: {
-                    huntId,
-                    puzzleId: row.values.id,
-                    name: row.values.name,
-                    url: row.values.url,
-                    isMeta: row.values.is_meta,
-                    hasChannels: !!row.original.chat_room?.text_channel_url,
-                  },
-                })
-              )
-            }
-          />
-        </div>
       </div>
     </div>
   );

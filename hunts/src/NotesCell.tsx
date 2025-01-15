@@ -1,57 +1,75 @@
-import React from "react";
-import { showModal } from "./modalSlice";
+import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { faWrench, faTag } from "@fortawesome/free-solid-svg-icons";
-import ClickableIcon from "./ClickableIcon";
+import { editNotes } from "./puzzlesSlice";
 
-import huntReducer from "./huntSlice";
-
-import type { RootState } from "./store";
+import type { Dispatch, RootState } from "./store";
 import type { Hunt, Row } from "./types";
 
 export default function NotesCell({ row, value }: { row: Row; value: string }) {
   const { id: huntId } = useSelector<RootState, Hunt>((state) => state.hunt);
-  const [uiHovered, setUiHovered] = React.useState(false);
-  const dispatch = useDispatch();
+  const [uiHovered, setUiHovered] = useState(false);
+  const [ editing, setEditing ] = useState(false);
+  const [ editedNotesValue, setEditedNotesValue ] = useState(value);
+  const dispatch = useDispatch<Dispatch>();
 
   return (
     <div
-      onMouseEnter={() => {
-        setUiHovered(true);
-      }}
-      onMouseLeave={() => {
-        setUiHovered(false);
-      }}
+    onMouseEnter={() => {
+      setUiHovered(true);
+    }}
+    onMouseLeave={() => {
+      setUiHovered(false);
+    }}
+    onClick={() => {
+      if (!editing) {
+        setEditing(true);
+        setEditedNotesValue(value);
+      }
+    }}
+    style={{width: "100%", minHeight: '1.4rem', cursor: !editing ? 'pointer' : undefined, backgroundColor: uiHovered && !editing ? '#ffe579' : undefined}}
     >
-      {value}
-      <div
-        style={{
-          display: "inline-block",
-          visibility: uiHovered ? "visible" : "hidden",
-        }}
-        onMouseEnter={() => {
-          setUiHovered(true);
-        }}
-        onMouseLeave={() => {
-          setUiHovered(false);
-        }}
-      >
-        <ClickableIcon
-          icon={faWrench}
-          onClick={() =>
-            dispatch(
-              showModal({
-                type: "EDIT_NOTES",
-                props: {
-                  huntId,
+      {editing ?
+      <div style={{ display: 'flex' }}>
+        <textarea
+          autoFocus
+          value={editedNotesValue}
+          style={{ minHeight: '70px' }}
+          onChange={(e) => {
+            setEditedNotesValue(e.target.value);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && (e.ctrlKey || e.shiftKey)) {
+              dispatch(
+                editNotes({
                   puzzleId: row.values.id,
-                  text: row.values.notes,
-                },
-              })
-            )
-          }
+                  body: { text: editedNotesValue },
+                })
+              ).finally(() => {
+                setEditing(false);
+              });
+            } else if (e.key == "Escape") {
+              setEditedNotesValue("");
+              setEditing(false);
+            }
+          }}
         />
+        <div
+          style={{ cursor: 'pointer' }}
+          onClick={() => {
+            dispatch(
+              editNotes({
+                puzzleId: row.values.id,
+                body: { text: editedNotesValue },
+              })
+            ).finally(() => {
+              setEditing(false);
+            });
+          }}
+        >
+        ✓
+        </div>
       </div>
-    </div>
+      : value }
+      </div>
   );
 }
