@@ -13,8 +13,8 @@ function TagCell({ row }: { row: Row<Puzzle> }) {
   const shouldShowMetaTags =
     row.original.tags.filter((t) => t.is_meta).length > 1;
   const tagsToShow = shouldShowMetaTags
-    ? row.original.tags
-    : row.original.tags.filter((t) => !t.is_meta);
+    ? row.original.tags.filter(t => t.name !== row.original.name)
+    : row.original.tags.filter((t) => !t.is_meta && t.name !== row.original.name);
 
   return (
     <>
