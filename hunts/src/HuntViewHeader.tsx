@@ -42,8 +42,8 @@ function HuntViewHeader({ hunt }: { hunt: Hunt }) {
           alignItems: "center",
         }}
       >
-        <Container fluid>
-          <Row className="text-center font-weight-bold small">
+        <Container fluid style={{ fontWeight: "bold" }}>
+          <Row className="text-center small">
             <Col xs={1} className="text-nowrap px-0 mx-0">
               Metas
             </Col>
@@ -54,25 +54,25 @@ function HuntViewHeader({ hunt }: { hunt: Hunt }) {
           <Row className="text-center">
             <Col xs={1}>
               <span
-                className="text-primary font-weight-bold"
+                className="text-primary"
                 style={{ fontSize: "1.25rem" }}
               >
                 {numMetasSolved}
               </span>{" "}
               /{" "}
-              <span className="text-secondary font-weight-bold">
+              <span className="text-secondary">
                 {numMetasSolved + numMetasUnsolved}
               </span>
             </Col>
             <Col xs={1}>
               <span
-                className="text-success font-weight-bold"
+                className="text-success"
                 style={{ fontSize: "1.25rem" }}
               >
                 {numSolved}
               </span>{" "}
               /{" "}
-              <span className="text-secondary font-weight-bold">
+              <span className="text-secondary">
                 {numUnlocked}
               </span>
             </Col>

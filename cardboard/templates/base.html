@@ -4,11 +4,7 @@
         <title>{{ APP_TITLE }}</title>
         <link rel="shortcut icon" type="image/png" href="{% static FAVICON %}"/>
 
-        <!-- https://github.com/ForEvolve/bootstrap-dark -->
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@forevolve/bootstrap-dark@1.0.0/dist/css/toggle-bootstrap.min.css" />
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@forevolve/bootstrap-dark@1.0.0/dist/css/toggle-bootstrap-dark.min.css" />
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@forevolve/bootstrap-dark@1.0.0/dist/css/toggle-bootstrap-print.min.css" />
-
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" />
 
         <!-- https://github.com/gitbrent/bootstrap-switch-button -->
         <link href="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap-switch-button@1.1.0/css/bootstrap-switch-button.min.css" rel="stylesheet" />
@@ -21,31 +17,24 @@
         <!--Light/Dark Mode-->
         <script>
             document.addEventListener('DOMContentLoaded', () => {
+                document.body.classList.add('bootstrap');
 
                 const themeToggle = document.getElementById('light-switch');
                 const storedTheme = localStorage.getItem('cardboard-theme');
                 if (storedTheme) {
-                    document.body.classList.add(storedTheme);
-                    if (storedTheme == "bootstrap-dark") {
+                    document.body.setAttribute('data-bs-theme', storedTheme);
+                    if (storedTheme == "dark") {
                         themeToggle.switchButton('off');
                     }
                 } else {
-                    document.body.classList.add('bootstrap');
-                    localStorage.setItem('cardboard-theme', 'bootstrap')
+                    document.body.setAttribute('data-bs-theme', 'light');
+                    localStorage.setItem('cardboard-theme', 'light')
                 }
 
                 themeToggle.addEventListener('change', () => {
-                    if (themeToggle.checked){
-                        // Light
-                        document.body.classList.remove('bootstrap-dark');
-                        document.body.classList.add('bootstrap');
-                        localStorage.setItem('cardboard-theme', "bootstrap")
-                    } else {
-                        // Dark
-                        document.body.classList.remove('bootstrap');
-                        document.body.classList.add('bootstrap-dark');
-                        localStorage.setItem('cardboard-theme', "bootstrap-dark")
-                    }
+                    let newTheme = themeToggle.checked ? 'light' : 'dark';
+                    document.body.setAttribute('data-bs-theme', newTheme);
+                    localStorage.setItem('cardboard-theme', newTheme);
                 })
             })
         </script>
@@ -100,7 +89,7 @@
                     {% endif %}
                 {% endif %}
                 </ul>
-                <div class="navbar-nav ml-auto">
+                <div class="navbar-nav ms-auto">
                     <input id="light-switch" type="checkbox" checked data-toggle="switchbutton" data-onstyle="outline-secondary" data-offstyle="secondary" data-onlabel="Light" data-offlabel="Dark">
                 </div>
 

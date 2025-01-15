@@ -4,10 +4,7 @@
         <title>{{ APP_TITLE }}</title>
         <link rel="shortcut icon" type="image/png" href="{% static FAVICON %}"/>
 
-        <!-- https://github.com/ForEvolve/bootstrap-dark -->
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@forevolve/bootstrap-dark@1.0.0/dist/css/toggle-bootstrap.min.css" />
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@forevolve/bootstrap-dark@1.0.0/dist/css/toggle-bootstrap-dark.min.css" />
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@forevolve/bootstrap-dark@1.0.0/dist/css/toggle-bootstrap-print.min.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" />
 
 
         <!-- https://github.com/gitbrent/bootstrap-switch-button -->
@@ -21,12 +18,13 @@
         <!--Light/Dark Mode-->
         <script>
             document.addEventListener('DOMContentLoaded', () => {
+                document.body.classList.add('bootstrap');
                 const storedTheme = localStorage.getItem('cardboard-theme');
                 if (storedTheme) {
-                    document.body.classList.add(storedTheme);
+                    document.body.setAttribute('data-bs-theme', storedTheme);
                 } else {
-                    document.body.classList.add('bootstrap');
-                    localStorage.setItem('cardboard-theme', 'bootstrap')
+                    document.body.setAttribute('data-bs-theme', 'light');
+                    localStorage.setItem('cardboard-theme', 'light')
                 }
             })
         </script>

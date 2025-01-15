@@ -26,7 +26,7 @@ export const SiteHeader = () => {
           {window.APP_SHORT_TITLE}
         </a>
         {hunt.name}
-        <button type="button" className="btn ml-auto" onClick={toggleDrawer}>
+        <button type="button" className="btn ms-auto" onClick={toggleDrawer}>
           <IconMenu2 aria-label="expand menu" />
         </button>
       </nav>
@@ -49,20 +49,20 @@ export const SiteHeader = () => {
         <a className="nav-link" href="/accounts/logout/">
           Logout
         </a>
-        <div className="nav-link">Logged in as {window.LOGGED_IN_USER}</div>
+        <div style={{ padding: ".5rem 1rem" }}>Logged in as {window.LOGGED_IN_USER}</div>
 
-        <div className="mt-auto" style={{ marginBottom: "36px" }}>
+        <div className="mt-auto" style={{ padding: ".5rem 1rem", marginBottom: "36px" }}>
           <span
             style={{
               borderTop: "1px solid black",
               width: "100%",
               display: "inline-block",
+              fontWeight: "bold",
             }}
-            className="font-weight-bold nav-link"
           >
             Chat Settings
           </span>
-          <div className="nav-link">
+          <div style={{ padding: ".5rem 1rem" }}>
             <ChatVersionSelector />
           </div>
           <span
@@ -70,12 +70,13 @@ export const SiteHeader = () => {
               borderTop: "1px solid black",
               width: "100%",
               display: "inline-block",
+              fontWeight: "bold",
+              padding: ".5rem 1rem",
             }}
-            className="font-weight-bold nav-link"
           >
             Appearance
           </span>
-          <div className="nav-link">
+          <div style={{ padding: ".5rem 1rem" }}>
             <DarkModeToggle />
           </div>
         </div>
