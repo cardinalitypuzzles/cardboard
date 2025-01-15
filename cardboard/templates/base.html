@@ -32,13 +32,9 @@
                 }
 
                 themeToggle.addEventListener('change', () => {
-                    if (themeToggle.checked){
-                        document.body.setAttribute('data-bs-theme', 'light');
-                        localStorage.setItem('cardboard-theme', "light")
-                    } else {
-                        document.body.setAttribute('data-bs-theme', 'dark');
-                        localStorage.setItem('cardboard-theme', "dark")
-                    }
+                    let newTheme = themeToggle.checked ? 'light' : 'dark';
+                    document.body.setAttribute('data-bs-theme', newTheme);
+                    localStorage.setItem('cardboard-theme', newTheme);
                 })
             })
         </script>

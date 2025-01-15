@@ -15,13 +15,9 @@ export const DarkModeToggle = () => {
           className="form-check-input"
           checked={isDark}
           onChange={(e) => {
-            if (isDark) {
-              localStorage.setItem("cardboard-theme", "light");
-              document.body.setAttribute('data-bs-theme', 'light');
-            } else {
-              localStorage.setItem("cardboard-theme", "dark");
-              document.body.setAttribute('data-bs-theme', 'dark');
-            }
+            let newTheme = isDark ? 'light' : 'dark';
+            document.body.setAttribute('data-bs-theme', newTheme);
+            localStorage.setItem('cardboard-theme', newTheme);
             setIsDark(e.target.checked);
           }}
         />
