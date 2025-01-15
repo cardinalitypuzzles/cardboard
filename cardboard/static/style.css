@@ -24,10 +24,6 @@ body {
   background-color: #f5f5f5;
 }
 
-.table td {
-  vertical-align: middle;
-}
-
 /* Dark/Light Mode Toggle Overrides */
 .btn label.switch-on,
 .btn label.switch-off {
@@ -46,7 +42,7 @@ body {
   --table-row-danger-text: #212529;
 }
 
-.bootstrap-dark {
+.bootstrap[data-bs-theme="dark"] {
   --table-row-success: #142c15;
   --table-row-danger: #492121;
   --table-row-success-border: #244f2d;
@@ -91,12 +87,17 @@ body {
   border: none;
 }
 
-.bootstrap-dark a {
+.bootstrap[data-bs-theme="dark"] a {
   color: #007bff;
 }
 
-.bootstrap-dark .popover-header {
+.bootstrap[data-bs-theme="dark"] .popover-header {
   color: #212529;
+}
+
+.bootstrap .badge {
+  --bs-badge-padding-x: 0.4em;
+  --bs-badge-padding-y: 0.25em;
 }
 
 .puzzle-answer {
@@ -104,10 +105,26 @@ body {
   overflow-wrap: anywhere;
 }
 
+.bootstrap .navbar-themed {
+  --bs-navbar-padding-x: 1rem !important;
+  background-color: #f8f9fa !important;
+}
+
+.bootstrap[data-bs-theme="dark"] .navbar-themed {
+  background-color: #343a40 !important;
+}
+
 .bootstrap button.cb-btn-compact,
 .bootstrap div.cb-btn-compact button,
-.bootstrap-dark button.cb-btn-compact,
-.bootstrap-dark div.cb-btn-compact button {
+.bootstrap[data-bs-theme="dark"] button.cb-btn-compact,
+.bootstrap[data-bs-theme="dark"] div.cb-btn-compact button {
   padding: .15rem .7rem;
   line-height: normal;
+}
+
+:root {
+  --bs-navbar-padding-y: .5rem;
+  --bs-nav-link-padding-x: 1rem;
+  --bs-nav-link-padding-y: .5rem;
+  --bs-nav-link-color: var(--bs-link-color);
 }

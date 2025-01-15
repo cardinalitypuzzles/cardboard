@@ -1,7 +1,7 @@
 import React from "react";
 
 const isCurrentlyDark = () => {
-  return localStorage.getItem("cardboard-theme") === "bootstrap-dark";
+  return localStorage.getItem("cardboard-theme") === "dark";
 };
 
 export const DarkModeToggle = () => {
@@ -16,15 +16,11 @@ export const DarkModeToggle = () => {
           checked={isDark}
           onChange={(e) => {
             if (isDark) {
-              // Light
-              document.body.classList.remove("bootstrap-dark");
-              document.body.classList.add("bootstrap");
-              localStorage.setItem("cardboard-theme", "bootstrap");
+              localStorage.setItem("cardboard-theme", "light");
+              document.body.setAttribute('data-bs-theme', 'light');
             } else {
-              // Dark
-              document.body.classList.remove("bootstrap");
-              document.body.classList.add("bootstrap-dark");
-              localStorage.setItem("cardboard-theme", "bootstrap-dark");
+              localStorage.setItem("cardboard-theme", "dark");
+              document.body.setAttribute('data-bs-theme', 'dark');
             }
             setIsDark(e.target.checked);
           }}
