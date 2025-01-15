@@ -1,7 +1,6 @@
 import React from "react";
 import { Badge, Popover, OverlayTrigger } from "react-bootstrap";
 import { useSelector, useDispatch } from "react-redux";
-import { faTrashAlt } from "@fortawesome/free-regular-svg-icons";
 import { faWrench, faTag } from "@fortawesome/free-solid-svg-icons";
 import { showModal } from "./modalSlice";
 import ClickableIcon from "./ClickableIcon";
@@ -182,21 +181,6 @@ export default function NameCell({
                     huntId,
                     puzzleId: row.values.id,
                     puzzleName: row.values.name,
-                  },
-                })
-              )
-            }
-          />{" "}
-          <ClickableIcon
-            icon={faTrashAlt}
-            onClick={() =>
-              dispatch(
-                showModal({
-                  type: "DELETE_PUZZLE",
-                  props: {
-                    huntId,
-                    puzzleId: row.values.id,
-                    puzzleName: value,
                   },
                 })
               )

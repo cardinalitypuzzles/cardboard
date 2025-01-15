@@ -2,7 +2,7 @@ import React, { FormEvent } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
 import { useDispatch } from "react-redux";
 import { updatePuzzle } from "./puzzlesSlice";
-import { hideModal } from "./modalSlice";
+import { showModal, hideModal } from "./modalSlice";
 
 import type { Dispatch } from "./store";
 import type { HuntId, PuzzleId } from "./types";
@@ -91,6 +91,23 @@ function EditPuzzleModal({
           />
         </Modal.Body>
         <Modal.Footer>
+          <Button
+            variant="danger"
+            onClick={() => {
+              hideModal();
+              dispatch(
+                showModal({
+                  type: "DELETE_PUZZLE",
+                  props: {
+                    huntId,
+                    puzzleId: puzzleId,
+                    puzzleName: name,
+                  },
+                })
+              )}}
+            className="me-auto">
+            Delete Puzzle
+          </Button>
           <Button variant="secondary" onClick={() => dispatch(hideModal())}>
             Cancel
           </Button>
