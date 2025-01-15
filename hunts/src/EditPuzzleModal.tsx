@@ -56,7 +56,7 @@ function EditPuzzleModal({
       <Modal.Header closeButton>
         <Modal.Title>Edit Puzzle</Modal.Title>
       </Modal.Header>
-      <Form onSubmit={onSubmit}>
+      <Form onSubmit={onSubmit} autoComplete="off">
         <Modal.Body>
           <Form.Group controlId="editPuzzle.name">
             <Form.Label>Puzzle name</Form.Label>
@@ -113,8 +113,10 @@ function EditPuzzleModal({
                     puzzleName: name,
                   },
                 })
-              )}}
-            className="me-auto">
+              );
+            }}
+            className="me-auto"
+          >
             Delete Puzzle
           </Button>
           <Button variant="secondary" onClick={() => dispatch(hideModal())}>

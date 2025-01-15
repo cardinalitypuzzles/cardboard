@@ -38,7 +38,7 @@ function EditAnswerModal({
       <Modal.Header closeButton>
         <Modal.Title>Edit Answer</Modal.Title>
       </Modal.Header>
-      <Form onSubmit={onSubmit}>
+      <Form onSubmit={onSubmit} autoComplete="off">
         <Modal.Body>
           <Form.Control
             required
