@@ -108,6 +108,7 @@ export default function NameCell({
 
   return (
     <div
+      className="clickable-puzzle-cell"
       onMouseEnter={() => {
         setUiHovered(true);
       }}
@@ -128,14 +129,7 @@ export default function NameCell({
             },
           })
         );
-      }}
-      style={{
-        // TODO: abstract these properties out into their own CSS class
-        paddingLeft: `${row.depth * 2}rem`,
-        minHeight: '1.4rem', cursor: 'pointer',
-        backgroundColor: uiHovered ? '#ffe579' : undefined
-      }}
-    >
+      }}>
       <div
         onMouseEnter={() => {
           setUiHovered(true);

@@ -23,6 +23,7 @@ function TagCell({ row }: { row: Row<Puzzle> }) {
 
   return (
     <div
+     className="clickable-puzzle-cell"
      onMouseEnter={() => {
        setUiHovered(true);
      }}
@@ -40,12 +41,6 @@ function TagCell({ row }: { row: Row<Puzzle> }) {
           },
         })
        );
-     }}
-     style={{
-       // TODO: abstract these properties out into their own CSS class
-       cursor: 'pointer',
-       minHeight: '1.4rem',
-       backgroundColor: uiHovered ? '#ffe579' : undefined
      }}>
       {tagsToShow.map(({ name, color, id }) => (
         <TagPill

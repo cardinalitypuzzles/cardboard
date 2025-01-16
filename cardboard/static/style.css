@@ -122,6 +122,16 @@ body {
   line-height: normal;
 }
 
+.clickable-puzzle-cell {
+  cursor: pointer;
+  min-height: 1.4rem;
+  width: 100%;
+}
+
+.clickable-puzzle-cell:hover {
+  background-color: #ffe579;
+}
+
 :root {
   --bs-navbar-padding-y: .5rem;
   --bs-nav-link-padding-x: 1rem;
