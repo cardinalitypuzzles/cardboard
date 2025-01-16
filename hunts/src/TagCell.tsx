@@ -1,10 +1,8 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { showModal } from "./modalSlice";
-import { faTag } from "@fortawesome/free-solid-svg-icons";
 import { toggleFilterTag } from "./filterSlice";
 import TagPill from "./TagPill";
-import ClickableIcon from "./ClickableIcon";
 
 import type { RootState } from "./store";
 import type { Hunt, Puzzle, Row } from "./types";
@@ -47,7 +45,10 @@ function TagCell({ row }: { row: Row<Puzzle> }) {
         name={name}
         color={color}
         key={name}
-        onClick={() => dispatch(toggleFilterTag({ name, color, id }))}
+        onClick={(e: React.MouseEvent) => {
+          e.stopPropagation();
+          dispatch(toggleFilterTag({ name, color, id }));
+        }}
         />
       ))}
     </div>
