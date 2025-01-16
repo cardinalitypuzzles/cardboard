@@ -42,6 +42,7 @@ function TagCell({ row }: { row: Row<Puzzle> }) {
        );
      }}
      style={{
+       // TODO: abstract these properties out into their own CSS class
        cursor: 'pointer',
        minHeight: '1.4rem',
        backgroundColor: uiHovered ? '#ffe579' : undefined

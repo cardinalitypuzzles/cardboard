@@ -26,6 +26,7 @@ export default function NotesCell({ row, value }: { row: Row; value: string }) {
         setEditedNotesValue(value);
       }
     }}
+    // TODO: abstract these properties out into their own CSS class
     style={{width: "100%", minHeight: '1.4rem', cursor: !editing ? 'pointer' : undefined, backgroundColor: uiHovered && !editing ? '#ffe579' : undefined}}
     >
       {editing ?
@@ -38,7 +39,7 @@ export default function NotesCell({ row, value }: { row: Row; value: string }) {
             setEditedNotesValue(e.target.value);
           }}
           onKeyDown={(e) => {
-            if (e.key === "Enter" && (e.ctrlKey || e.shiftKey)) {
+            if (e.key === "Enter" && (e.ctrlKey || e.shiftKey || e.metaKey)) {
               dispatch(
                 editNotes({
                   puzzleId: row.values.id,
