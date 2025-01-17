@@ -64,7 +64,7 @@ const PulsingBlurpleDiscordSvg = () => {
   );
 };
 
-const DiscordSvg = ({ fillColor } : { fillColor?: string }) => {
+const DiscordSvg = ({ fillColor }: { fillColor?: string }) => {
   return (
     <svg
       width="26px"

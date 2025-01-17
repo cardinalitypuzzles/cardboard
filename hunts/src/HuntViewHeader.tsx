@@ -53,10 +53,7 @@ function HuntViewHeader({ hunt }: { hunt: Hunt }) {
           </Row>
           <Row className="text-center">
             <Col xs={1}>
-              <span
-                className="text-primary"
-                style={{ fontSize: "1.25rem" }}
-              >
+              <span className="text-primary" style={{ fontSize: "1.25rem" }}>
                 {numMetasSolved}
               </span>{" "}
               /{" "}
@@ -65,16 +62,10 @@ function HuntViewHeader({ hunt }: { hunt: Hunt }) {
               </span>
             </Col>
             <Col xs={1}>
-              <span
-                className="text-success"
-                style={{ fontSize: "1.25rem" }}
-              >
+              <span className="text-success" style={{ fontSize: "1.25rem" }}>
                 {numSolved}
               </span>{" "}
-              /{" "}
-              <span className="text-secondary">
-                {numUnlocked}
-              </span>
+              / <span className="text-secondary">{numUnlocked}</span>
             </Col>
             <Col xs={1} className="text-nowrap">
               <a href="stats">Stats 📈</a>

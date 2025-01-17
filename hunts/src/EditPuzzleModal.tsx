@@ -95,13 +95,11 @@ function EditPuzzleModal({
             disabled={hasChannels}
           />
           {meta_tags.length > 0 ? (
-              <>
-          <h5 style={{ textAlign: "center" }}>Parent Metas</h5>
-          <EditableTagList
-            puzzleId={puzzleId}
-            tags={meta_tags}
-          />
-          </>) : undefined}
+            <>
+              <h5 style={{ textAlign: "center" }}>Parent Metas</h5>
+              <EditableTagList puzzleId={puzzleId} tags={meta_tags} />
+            </>
+          ) : undefined}
         </Modal.Body>
         <Modal.Footer>
           <Button
