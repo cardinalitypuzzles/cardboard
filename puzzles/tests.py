@@ -241,7 +241,9 @@ class TestPuzzle(APITestCase):
 
     def test_recreating_deleted_puzzles(self):
         puzzle = self.create_puzzle("accidentally_deleted")
-        self.client.delete(f"/api/v1/hunts/{self._test_hunt.pk}/puzzles/{puzzle.pk}", {})
+        self.client.delete(
+            f"/api/v1/hunts/{self._test_hunt.pk}/puzzles/{puzzle.pk}", {}
+        )
         response = self.client.get(
             f"/api/v1/hunts/{self._test_hunt.pk}/puzzles/{puzzle.pk}"
         )
