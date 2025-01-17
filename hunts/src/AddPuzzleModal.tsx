@@ -3,9 +3,9 @@ import { useDispatch, useSelector } from "react-redux";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
-import { addPuzzle } from "./puzzlesSlice";
+import { addPuzzle, selectPuzzleTags } from "./puzzlesSlice";
 import { hideModal } from "./modalSlice";
-import { selectHuntTags, selectHuntCreateChannelByDefault } from "./huntSlice";
+import { selectHuntCreateChannelByDefault } from "./huntSlice";
 
 import type { Dispatch } from "./store";
 import type { HuntId, PuzzleTag } from "./types";
@@ -13,7 +13,7 @@ import type { HuntId, PuzzleTag } from "./types";
 type ChangeEvent = React.ChangeEvent<HTMLInputElement>;
 
 function AddPuzzleModal({ huntId }: { huntId: HuntId }) {
-  const allTags = useSelector(selectHuntTags);
+  const puzzleTags = useSelector(selectPuzzleTags);
   const [name, setName] = React.useState("");
   const [url, setUrl] = React.useState("");
   const [assignedMeta, setAssignedMeta] = React.useState("");
@@ -75,7 +75,7 @@ function AddPuzzleModal({ huntId }: { huntId: HuntId }) {
               <option key="none" value="">
                 None
               </option>
-              {allTags
+              {puzzleTags
                 .filter((tag: PuzzleTag) => tag.is_meta)
                 .map((tag: PuzzleTag, i: number) => (
                   <option key={tag.name} value={tag.name}>
