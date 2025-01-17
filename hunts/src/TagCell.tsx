@@ -16,39 +16,42 @@ function TagCell({ row }: { row: Row<Puzzle> }) {
   const shouldShowMetaTags =
     row.original.tags.filter((t) => t.is_meta).length > 1;
   const tagsToShow = shouldShowMetaTags
-    ? row.original.tags.filter(t => t.name !== row.original.name)
-    : row.original.tags.filter((t) => !t.is_meta && t.name !== row.original.name);
+    ? row.original.tags.filter((t) => t.name !== row.original.name)
+    : row.original.tags.filter(
+        (t) => !t.is_meta && t.name !== row.original.name
+      );
 
   return (
     <div
-     className="clickable-puzzle-cell"
-     onMouseEnter={() => {
-       setUiHovered(true);
-     }}
-     onMouseLeave={() => {
-       setUiHovered(false);
-     }}
-     onClick={() => {
-       dispatch(
-        showModal({
-          type: "EDIT_TAGS",
-          props: {
-            huntId,
-            puzzleId: row.values.id,
-            puzzleName: row.values.name,
-          },
-        })
-       );
-     }}>
+      className="clickable-puzzle-cell"
+      onMouseEnter={() => {
+        setUiHovered(true);
+      }}
+      onMouseLeave={() => {
+        setUiHovered(false);
+      }}
+      onClick={() => {
+        dispatch(
+          showModal({
+            type: "EDIT_TAGS",
+            props: {
+              huntId,
+              puzzleId: row.values.id,
+              puzzleName: row.values.name,
+            },
+          })
+        );
+      }}
+    >
       {tagsToShow.map(({ name, color, id }) => (
         <TagPill
-        name={name}
-        color={color}
-        key={name}
-        onClick={(e: React.MouseEvent) => {
-          e.stopPropagation();
-          dispatch(toggleFilterTag({ name, color, id }));
-        }}
+          name={name}
+          color={color}
+          key={name}
+          onClick={(e: React.MouseEvent) => {
+            e.stopPropagation();
+            dispatch(toggleFilterTag({ name, color, id }));
+          }}
         />
       ))}
     </div>

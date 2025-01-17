@@ -35,7 +35,7 @@ export default function AnswerCell({ row }: { row: Row<Puzzle> }) {
     );
   }
   return (
-    <div style={{ padding: '3px 0px' }}>
+    <div style={{ padding: "3px 0px" }}>
       {row.original.guesses.map(({ id, text }) => (
         <div
           key={text}

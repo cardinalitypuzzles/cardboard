@@ -9,12 +9,7 @@ import { IconChevronDown, IconChevronRight } from "@tabler/icons";
 import { faCircle } from "@fortawesome/free-solid-svg-icons";
 import ReactTimeAgo from "react-time-ago";
 
-import {
-  Hunt,
-  Puzzle,
-  Row,
-  TypeIgnoredFontAwesomeIcon,
-} from "./types";
+import { Hunt, Puzzle, Row, TypeIgnoredFontAwesomeIcon } from "./types";
 import { RootState } from "./store";
 
 const getColor = (min_since_edit: number) => {
@@ -106,8 +101,8 @@ export default function NameCell({
     <div
       style={{
         paddingLeft: `${row.depth * 2}rem`,
-        }}
-      >
+      }}
+    >
       <div
         onMouseEnter={() => {
           setUiHovered(true);
@@ -139,7 +134,9 @@ export default function NameCell({
         )}{" "}
         {row.values.is_meta ? (
           <>
-            <Badge bg="dark" text="white">META</Badge>{" "}
+            <Badge bg="dark" text="white">
+              META
+            </Badge>{" "}
           </>
         ) : null}
         <div

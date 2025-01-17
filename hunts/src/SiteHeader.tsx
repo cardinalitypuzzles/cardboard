@@ -49,9 +49,14 @@ export const SiteHeader = () => {
         <a className="nav-link" href="/accounts/logout/">
           Logout
         </a>
-        <div style={{ padding: ".5rem 1rem" }}>Logged in as {window.LOGGED_IN_USER}</div>
+        <div style={{ padding: ".5rem 1rem" }}>
+          Logged in as {window.LOGGED_IN_USER}
+        </div>
 
-        <div className="mt-auto" style={{ padding: ".5rem 1rem", marginBottom: "36px" }}>
+        <div
+          className="mt-auto"
+          style={{ padding: ".5rem 1rem", marginBottom: "36px" }}
+        >
           <span
             style={{
               borderTop: "1px solid black",

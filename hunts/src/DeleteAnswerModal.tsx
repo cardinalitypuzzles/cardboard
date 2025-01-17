@@ -26,9 +26,7 @@ function DeleteAnswerModal({
       <Modal.Header closeButton>
         <Modal.Title>Delete Answer</Modal.Title>
       </Modal.Header>
-      <Modal.Body>
-        Are you sure you want to delete this answer?
-      </Modal.Body>
+      <Modal.Body>Are you sure you want to delete this answer?</Modal.Body>
       <Modal.Footer>
         <Button variant="secondary" onClick={() => dispatch(hideModal())}>
           Cancel
