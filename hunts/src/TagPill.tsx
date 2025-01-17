@@ -6,7 +6,7 @@ interface TagPillProps {
   color: string;
   selected?: boolean;
   faded?: boolean;
-  onClick?: (() => void) | null;
+  onClick?: React.MouseEventHandler<HTMLElement>;
 }
 
 function TagPill(props: TagPillProps) {

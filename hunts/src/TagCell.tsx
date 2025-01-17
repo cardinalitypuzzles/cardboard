@@ -1,10 +1,8 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { showModal } from "./modalSlice";
-import { faTag } from "@fortawesome/free-solid-svg-icons";
 import { toggleFilterTag } from "./filterSlice";
 import TagPill from "./TagPill";
-import ClickableIcon from "./ClickableIcon";
 
 import type { RootState } from "./store";
 import type { Hunt, Puzzle, Row } from "./types";
@@ -23,6 +21,7 @@ function TagCell({ row }: { row: Row<Puzzle> }) {
 
   return (
     <div
+     className="clickable-puzzle-cell"
      onMouseEnter={() => {
        setUiHovered(true);
      }}
@@ -40,19 +39,16 @@ function TagCell({ row }: { row: Row<Puzzle> }) {
           },
         })
        );
-     }}
-     style={{
-       // TODO: abstract these properties out into their own CSS class
-       cursor: 'pointer',
-       minHeight: '1.4rem',
-       backgroundColor: uiHovered ? '#ffe579' : undefined
      }}>
       {tagsToShow.map(({ name, color, id }) => (
         <TagPill
         name={name}
         color={color}
         key={name}
-        onClick={() => dispatch(toggleFilterTag({ name, color, id }))}
+        onClick={(e: React.MouseEvent) => {
+          e.stopPropagation();
+          dispatch(toggleFilterTag({ name, color, id }));
+        }}
         />
       ))}
     </div>

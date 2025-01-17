@@ -14,6 +14,7 @@ export default function NotesCell({ row, value }: { row: Row; value: string }) {
 
   return (
     <div
+    className="clickable-puzzle-cell"
     onMouseEnter={() => {
       setUiHovered(true);
     }}
@@ -26,8 +27,6 @@ export default function NotesCell({ row, value }: { row: Row; value: string }) {
         setEditedNotesValue(value);
       }
     }}
-    // TODO: abstract these properties out into their own CSS class
-    style={{width: "100%", minHeight: '1.4rem', cursor: !editing ? 'pointer' : undefined, backgroundColor: uiHovered && !editing ? '#ffe579' : undefined}}
     >
       {editing ?
       <div style={{ display: 'flex' }}>
