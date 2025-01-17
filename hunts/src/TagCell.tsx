@@ -14,7 +14,7 @@ function TagCell({ row }: { row: Row<Puzzle> }) {
   const puzzleId = row.original.id;
 
   const shouldShowMetaTags =
-    row.original.tags.filter((t) => t.is_meta).length > 1;
+    row.original.tags.filter((t) => t.is_meta && t.name !== row.original.name).length > 1;
   const tagsToShow = shouldShowMetaTags
     ? row.original.tags.filter(t => t.name !== row.original.name)
     : row.original.tags.filter((t) => !t.is_meta && t.name !== row.original.name);
