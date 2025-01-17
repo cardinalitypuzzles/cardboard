@@ -1,26 +1,18 @@
 import React, { useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import { editNotes } from "./puzzlesSlice";
 
-import type { Dispatch, RootState } from "./store";
-import type { Hunt, Row } from "./types";
+import type { Dispatch } from "./store";
+import type { Row } from "./types";
 
 export default function NotesCell({ row, value }: { row: Row; value: string }) {
-  const { id: huntId } = useSelector<RootState, Hunt>((state) => state.hunt);
-  const [uiHovered, setUiHovered] = useState(false);
   const [ editing, setEditing ] = useState(false);
   const [ editedNotesValue, setEditedNotesValue ] = useState(value);
   const dispatch = useDispatch<Dispatch>();
 
   return (
     <div
-    className="clickable-puzzle-cell"
-    onMouseEnter={() => {
-      setUiHovered(true);
-    }}
-    onMouseLeave={() => {
-      setUiHovered(false);
-    }}
+    className={!editing ? "clickable-puzzle-cell" : ""}
     onClick={() => {
       if (!editing) {
         setEditing(true);
@@ -33,7 +25,7 @@ export default function NotesCell({ row, value }: { row: Row; value: string }) {
         <textarea
           autoFocus
           value={editedNotesValue}
-          style={{ minHeight: '70px' }}
+          style={{ minHeight: '70px', width: '100%' }}
           onChange={(e) => {
             setEditedNotesValue(e.target.value);
           }}
