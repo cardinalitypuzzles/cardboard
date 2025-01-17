@@ -38,8 +38,6 @@ DEBUG = bool(strtobool(os.environ.get("DEBUG", "false")))
 # Heroku does their own Hosts validation
 ALLOWED_HOSTS = ["*"]
 
-# The first is the published Cardboard Chrome Extension.
-# The second is a local version being used for development.
 CSRF_TRUSTED_ORIGINS = [
     "chrome-extension://fhldkjfidcbfienegpehemncionolmfa",
 ]
