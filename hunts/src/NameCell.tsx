@@ -129,7 +129,11 @@ export default function NameCell({
             },
           })
         );
-      }}>
+      }}
+      style={{
+        paddingLeft: `${row.depth * 2}rem`
+      }}
+      >
       <div
         onMouseEnter={() => {
           setUiHovered(true);
