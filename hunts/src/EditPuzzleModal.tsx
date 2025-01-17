@@ -99,7 +99,7 @@ function EditPuzzleModal({
           <h5 style={{ textAlign: "center" }}>Parent Metas</h5>
           <EditableTagList
             puzzleId={puzzleId}
-            tags={tags.filter((tag) => tag.is_meta && tag.name != name)}
+            tags={meta_tags}
           />
           </>) : undefined}
         </Modal.Body>
