@@ -1,7 +1,9 @@
 import React from "react";
 import { Badge, Popover, OverlayTrigger } from "react-bootstrap";
 import { useSelector, useDispatch } from "react-redux";
+import { faWrench } from "@fortawesome/free-solid-svg-icons";
 import { showModal } from "./modalSlice";
+import ClickableIcon from "./ClickableIcon";
 import { toggleCollapsed } from "./collapsedPuzzlesSlice";
 import { IconChevronDown, IconChevronRight } from "@tabler/icons";
 import { faCircle } from "@fortawesome/free-solid-svg-icons";
@@ -100,36 +102,12 @@ export default function NameCell({
   const toggleRowExpandedProps = useToggleRowExpandedProps(row);
   const dispatch = useDispatch();
 
-  const nameText = (
-    <span>
-      <b>{value}</b>
-    </span>
-  );
-
   return (
     <div
-      className="clickable-puzzle-cell"
-      onMouseEnter={() => {
-        setUiHovered(true);
-      }}
-      onMouseLeave={() => {
-        setUiHovered(false);
-      }}
-      onClick={() => {
-        dispatch(
-          showModal({
-            type: "EDIT_PUZZLE",
-            props: {
-              huntId,
-              puzzleId: row.values.id,
-              name: row.values.name,
-              url: row.values.url,
-              isMeta: row.values.is_meta,
-              hasChannels: !!row.original.chat_room?.text_channel_url,
-            },
-          })
-        );
-      }}>
+      style={{
+        paddingLeft: `${row.depth * 2}rem`,
+        }}
+      >
       <div
         onMouseEnter={() => {
           setUiHovered(true);
@@ -164,6 +142,31 @@ export default function NameCell({
             <Badge bg="dark" text="white">META</Badge>{" "}
           </>
         ) : null}
+        <div
+          style={{
+            display: "inline-block",
+            visibility: uiHovered ? "visible" : "hidden",
+          }}
+        >
+          <ClickableIcon
+            icon={faWrench}
+            onClick={() =>
+              dispatch(
+                showModal({
+                  type: "EDIT_PUZZLE",
+                  props: {
+                    huntId,
+                    puzzleId: row.values.id,
+                    name: row.values.name,
+                    url: row.values.url,
+                    isMeta: row.values.is_meta,
+                    hasChannels: !!row.original.chat_room?.text_channel_url,
+                  },
+                })
+              )
+            }
+          />
+        </div>
       </div>
     </div>
   );
