@@ -32,6 +32,7 @@ function EditPuzzleModal({
   const dispatch = useDispatch<Dispatch>();
 
   const tags = useSelector(selectPuzzleTags);
+  const meta_tags = tags.filter((tag) => tag.is_meta && tag.name != name);
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -79,15 +80,10 @@ function EditPuzzleModal({
           </Form.Group>
           <Form.Check
             type="checkbox"
-            label="Is meta"
+            label="This is a meta"
             id="is-meta-checkbox"
             checked={newIsMeta}
             onChange={(e: ChangeEvent) => setNewIsMeta(e.target.checked)}
-          />
-          <h5 style={{ textAlign: "center" }}>Parent Metas</h5>
-          <EditableTagList
-            puzzleId={puzzleId}
-            tags={tags.filter((tag) => tag.is_meta && tag.name != name)}
           />
           <Form.Check
             type="checkbox"
@@ -98,6 +94,14 @@ function EditPuzzleModal({
             // If channel is already created, disable its deletion
             disabled={hasChannels}
           />
+          {meta_tags.length > 0 ? (
+              <>
+          <h5 style={{ textAlign: "center" }}>Parent Metas</h5>
+          <EditableTagList
+            puzzleId={puzzleId}
+            tags={tags.filter((tag) => tag.is_meta && tag.name != name)}
+          />
+          </>) : undefined}
         </Modal.Body>
         <Modal.Footer>
           <Button

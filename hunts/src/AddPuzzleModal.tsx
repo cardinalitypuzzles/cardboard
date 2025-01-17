@@ -86,7 +86,7 @@ function AddPuzzleModal({ huntId }: { huntId: HuntId }) {
           </Form.Group>
           <Form.Check
             type="checkbox"
-            label="Is meta"
+            label="This is a meta"
             id="is-meta-checkbox"
             checked={isMeta}
             onChange={(e: ChangeEvent) => setIsMeta(e.target.checked)}
