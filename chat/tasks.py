@@ -43,7 +43,7 @@ def create_channels_for_puzzle(puzzle_id):
     try:
         puzzle.chat_room.create_channels()
         msg = f"**{puzzle.name}** has been created!"
-        puzzle.chat_room.send_message_with_embedded_urls(msg, puzzle)
+        puzzle.chat_room.send_and_pin_message_with_embedded_urls(msg, puzzle)
     except Exception as e:
         logger.exception(f"create_channels_for_puzzle failed with error: {e}")
 
@@ -170,7 +170,9 @@ def handle_sheet_created(puzzle_id):
         return
     try:
         msg = "Sheet has been created!"
-        puzzle.chat_room.send_message(msg, embedded_urls={"Sheet": puzzle.sheet})
+        puzzle.chat_room.send_message(
+            msg, embedded_urls={"Sheet": puzzle.sheet}, pin=True
+        )
     except Exception as e:
         logger.exception(f"handle_sheet_created failed with error: {e}")
 
