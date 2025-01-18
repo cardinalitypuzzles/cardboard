@@ -135,7 +135,7 @@ class PuzzleSerializer(serializers.ModelSerializer):
     guesses = serializers.SerializerMethodField()
     has_sheet = serializers.SerializerMethodField()
     # Have to specify this explicitly for validate_url to run
-    url = serializers.CharField()
+    url = serializers.URLField()
     hunt_id = serializers.PrimaryKeyRelatedField(
         read_only=True, default=CurrentHuntDefault()
     )
