@@ -8,8 +8,6 @@ import {
 import { Table } from "react-bootstrap";
 import { matchSorter } from "match-sorter";
 import { filterSolvedPuzzlesFn } from "./solveStateFilter";
-import { useSelector } from "react-redux";
-import { getTextFilter } from "./filterSlice";
 
 import AnswerCell from "./AnswerCell";
 import CreationCell from "./CreationCell";
@@ -19,8 +17,8 @@ import StatusCell from "./StatusCell";
 import TagCell from "./TagCell";
 import UsersCell from "./UsersCell";
 import { LinkCell } from "./LinkCell";
-import { getCollapsedPuzzles } from "./collapsedPuzzlesSlice";
 
+import { useStore } from "./store";
 import type { Puzzle, PuzzleTag, Row } from "./types";
 import type { Row as BaseRow } from "react-table";
 
@@ -168,7 +166,12 @@ export const PuzzleTable = React.memo(
     filterSolved: number;
     filterTags: PuzzleTag[];
   }) => {
-    const filter = useSelector(getTextFilter);
+    const filter = useStore((state) => state.filterSlice.filterValue);
+    const collapsedPuzzles = useStore((state) =>
+      state.collapsedPuzzlesSlice.getCollapsedPuzzles(
+        CURRENT_HUNT_ID.toString()
+      )
+    );
 
     const filterTypes = React.useMemo(
       () => ({
@@ -188,10 +191,6 @@ export const PuzzleTable = React.memo(
         }
       },
       []
-    );
-
-    const collapsedPuzzles = useSelector(
-      getCollapsedPuzzles(CURRENT_HUNT_ID.toString())
     );
 
     const {

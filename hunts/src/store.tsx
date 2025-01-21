@@ -1,47 +1,30 @@
-import { configureStore } from "@reduxjs/toolkit";
-import puzzlesReducer from "./puzzlesSlice";
-import huntReducer from "./huntSlice";
-import modalReducer from "./modalSlice";
-import alertReducer from "./alertSlice";
-import filterReducer from "./filterSlice";
-import chatReducer from "./chatSlice";
-import collapsedPuzzleReducer from "./collapsedPuzzlesSlice";
-import { save, load } from "redux-localstorage-simple";
+import { create } from "zustand";
 
-const preloadedState = load({
-  states: [
-    "filter.solveStateFilter",
-    "filter.tags",
-    "chat.version",
-    "collapsedPuzzles",
-  ],
-});
+import { alertSlice, AlertSlice } from "./alertSlice";
+import { chatSlice, ChatSlice } from "./chatSlice";
+import {
+  collapsedPuzzlesSlice,
+  CollapsedPuzzlesSlice,
+} from "./collapsedPuzzlesSlice";
+import { filterSlice, FilterSlice } from "./filterSlice";
+import { huntSlice, HuntSlice } from "./huntSlice";
+import { modalSlice, ModalSlice } from "./modalSlice";
+import { puzzlesSlice, PuzzlesSlice } from "./puzzlesSlice";
 
-const store = configureStore({
-  reducer: {
-    modal: modalReducer,
-    alert: alertReducer,
-    collapsedPuzzles: collapsedPuzzleReducer,
-    puzzles: puzzlesReducer,
-    hunt: huntReducer,
-    filter: filterReducer,
-    chat: chatReducer,
-  },
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(
-      save({
-        states: [
-          "filter.solveStateFilter",
-          "filter.tags",
-          "chat.version",
-          "collapsedPuzzles",
-        ],
-      })
-    ),
-  preloadedState,
-});
+export type RootState = AlertSlice &
+  ChatSlice &
+  CollapsedPuzzlesSlice &
+  FilterSlice &
+  HuntSlice &
+  ModalSlice &
+  PuzzlesSlice;
 
-export type RootState = ReturnType<typeof store.getState>;
-export type Dispatch = typeof store.dispatch;
-
-export default store;
+export const useStore = create<RootState>((...a) => ({
+  ...alertSlice(...a),
+  ...chatSlice(...a),
+  ...collapsedPuzzlesSlice(...a),
+  ...filterSlice(...a),
+  ...huntSlice(...a),
+  ...modalSlice(...a),
+  ...puzzlesSlice(...a),
+}));

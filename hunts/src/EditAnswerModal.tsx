@@ -1,12 +1,9 @@
 import React from "react";
-import { useDispatch } from "react-redux";
 import { Button, Form, Modal } from "react-bootstrap";
-import { editAnswer } from "./puzzlesSlice";
-import { hideModal } from "./modalSlice";
 
 type ChangeEvent = React.ChangeEvent<HTMLInputElement>;
 
-import type { Dispatch } from "./store";
+import { useStore } from "./store";
 import type { AnswerId, PuzzleId } from "./types";
 
 function EditAnswerModal({
@@ -19,17 +16,12 @@ function EditAnswerModal({
   text: string;
 }) {
   const [newAnswer, setNewAnswer] = React.useState(text);
-  const dispatch = useDispatch<Dispatch>();
+  const { editAnswer } = useStore((state) => state.puzzlesSlice);
+  const { hideModal } = useStore((state) => state.modalSlice);
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    dispatch(
-      editAnswer({
-        puzzleId,
-        answerId,
-        body: { text: newAnswer },
-      })
-    ).finally(() => {
-      dispatch(hideModal());
+    editAnswer(puzzleId, answerId, newAnswer).finally(() => {
+      hideModal();
     });
     return false;
   };
@@ -49,7 +41,7 @@ function EditAnswerModal({
           />
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => dispatch(hideModal())}>
+          <Button variant="secondary" onClick={() => hideModal()}>
             Cancel
           </Button>
           <Button variant="primary" type="submit">

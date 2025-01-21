@@ -1,12 +1,10 @@
 import React from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { CHAT_VERSION_OPTIONS, getChatVersion } from "./chatSlice";
+import { CHAT_VERSION_OPTIONS } from "./chatSlice";
 import { IconLink } from "./ClickableIcon";
 import { CHAT_PLATFORM, SHEET_REDIRECT_BASE } from "./constants";
-import { updatePuzzle } from "./puzzlesSlice";
 import { faPuzzlePiece } from "@fortawesome/free-solid-svg-icons";
 
-import type { Dispatch } from "./store";
+import { useStore } from "./store";
 import type { Puzzle, Row } from "./types";
 
 const createSheetLink = (puzzle: Puzzle) => {
@@ -161,24 +159,18 @@ export const LinkCell = ({ row }: { row: Row<Puzzle> }) => {
   const hasSheet = puzzle.has_sheet;
   const sheetLink = createSheetLink(puzzle);
 
-  const chatVersion = useSelector(getChatVersion);
+  const { version: chatVersion } = useStore((store) => store.chatSlice);
   const hasDiscord = hasDiscordLink(puzzle);
   const discordLink = createDiscordLink(puzzle, chatVersion);
 
-  const dispatch = useDispatch<Dispatch>();
   const [loadingDiscord, setLoadingDiscord] = React.useState(false);
+  const { updatePuzzle } = useStore((store) => store.puzzlesSlice);
 
   const createDiscordChannels = () => {
     setLoadingDiscord(true);
-    dispatch(
-      updatePuzzle({
-        huntId: puzzle.hunt_id,
-        id: puzzle.id,
-        body: {
-          create_channels: true,
-        },
-      })
-    );
+    updatePuzzle(puzzle.id, {
+      create_channels: true,
+    });
   };
 
   return (

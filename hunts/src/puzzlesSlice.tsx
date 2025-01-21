@@ -1,402 +1,201 @@
-import {
-  createSelector,
-  createSlice,
-  createAsyncThunk,
-  createEntityAdapter,
-} from "@reduxjs/toolkit";
+import { StateCreator } from "zustand";
+
 import api from "./api";
-
 import { RootState } from "./store";
-import { AnswerId, HuntId, Puzzle, PuzzleId, TagId } from "./types";
+import { AnswerId, Puzzle, PuzzleId, PuzzleTag, TagId } from "./types";
 
-export const addPuzzle = createAsyncThunk(
-  "puzzles/addPuzzle",
-  async ({
-    huntId,
-    name,
-    url,
-    is_meta,
-    create_channels,
-    assigned_meta,
-  }: {
-    huntId: HuntId;
-    name: string;
-    url: string;
-    is_meta: boolean;
-    create_channels: boolean;
-    assigned_meta: string;
-  }) => {
-    const response = await api.addPuzzle(huntId, {
-      name,
-      url,
-      is_meta,
-      create_channels,
-      assigned_meta,
-    });
-    return response;
-  }
-);
+export interface PuzzlesSlice {
+  puzzlesSlice: {
+    lastUpdate: number;
+    puzzles: { [id: PuzzleId]: Puzzle };
 
-export const deletePuzzle = createAsyncThunk(
-  "puzzles/deletePuzzle",
-  async ({ huntId, id }: { huntId: HuntId; id: PuzzleId }) => {
-    await api.deletePuzzle(huntId, id);
-    return id;
-  }
-);
+    getPuzzle: (id: PuzzleId) => Puzzle;
+    allPuzzles: (filterFn?: (p: Puzzle) => boolean) => Puzzle[];
+    fetchAllPuzzles: () => Promise<void>;
+    updatePuzzleFromDict: (response: Record<string, any>) => void;
+    bulkUpdatePuzzlesFromDict: (response: Record<string, any>[]) => void;
 
-export const fetchPuzzles = createAsyncThunk<
-  { timestamp: number; result: Puzzle[] },
-  HuntId,
-  { state: RootState }
->(
-  "puzzles/fetchPuzzles",
-  async (huntId: HuntId, { getState }: { getState: () => RootState }) => {
-    const { timestamp } = getState().puzzles;
-    const response = await api.getPuzzles(huntId);
-    return { timestamp, result: response };
-  }
-);
+    addPuzzle: (args: Record<string, any>) => Promise<void>;
+    deletePuzzle: (id: PuzzleId) => Promise<void>;
+    updatePuzzle: (
+      id: PuzzleId,
+      changes: Partial<Puzzle> | { create_channels: boolean }
+    ) => Promise<void>;
+    addAnswer: (id: PuzzleId, text: string) => Promise<void>;
+    deleteAnswer: (id: PuzzleId, answerId: AnswerId) => Promise<void>;
+    editAnswer: (
+      id: PuzzleId,
+      answerId: AnswerId,
+      text: string
+    ) => Promise<void>;
+    addPuzzleTag: (
+      puzzleId: PuzzleId,
+      tag: { name: string; color: string }
+    ) => Promise<void>;
+    deletePuzzleTag: (puzzleId: PuzzleId, tagId: TagId) => Promise<void>;
+    editNotes: (puzzleId: PuzzleId, data: { text: string }) => Promise<void>;
 
-export const updatePuzzle = createAsyncThunk(
-  "puzzles/updatePuzzle",
-  async ({
-    huntId,
-    id,
-    body,
-  }: {
-    huntId: HuntId;
-    id: PuzzleId;
-    body: {
-      name?: string;
-      url?: string;
-      is_meta?: boolean;
-      create_channels?: boolean;
-      status?: string;
-    };
-  }) => {
-    const response = await api.updatePuzzle(huntId, id, body);
-    return response;
-  }
-);
+    numPuzzlesUnlocked: () => number;
+    numPuzzlesSolved: () => number;
+    numMetasUnlocked: () => number;
+    numMetasSolved: () => number;
 
-export const addAnswer = createAsyncThunk(
-  "puzzles/addAnswer",
-  async ({
-    puzzleId,
-    body,
-  }: {
-    puzzleId: PuzzleId;
-    body: { text: string };
-  }) => {
-    const response = await api.addAnswer(puzzleId, body);
-    return response;
-  }
-);
-
-export const deleteAnswer = createAsyncThunk<
-  Puzzle,
-  { puzzleId: PuzzleId; answerId: AnswerId },
-  { state: RootState }
->(
-  "puzzles/deleteAnswer",
-  async ({
-    puzzleId,
-    answerId,
-  }: {
-    puzzleId: PuzzleId;
-    answerId: AnswerId;
-  }) => {
-    const response = await api.deleteAnswer(puzzleId, answerId);
-    return response;
-  }
-);
-
-export const editAnswer = createAsyncThunk(
-  "puzzles/editAnswer",
-  async ({
-    puzzleId,
-    answerId,
-    body,
-  }: {
-    puzzleId: PuzzleId;
-    answerId: AnswerId;
-    body: { text: string };
-  }) => {
-    const response = await api.editAnswer(puzzleId, answerId, body);
-    return response;
-  }
-);
-
-export const editNotes = createAsyncThunk(
-  "puzzles/editNotes",
-  async ({
-    puzzleId,
-    body,
-  }: {
-    puzzleId: PuzzleId;
-    body: { text: string };
-  }) => {
-    const response = await api.editNotes(puzzleId, body);
-    return response;
-  }
-);
-
-export const deletePuzzleTag = createAsyncThunk(
-  "puzzles/deletePuzzleTag",
-  async ({ puzzleId, tagId }: { puzzleId: PuzzleId; tagId: TagId }) => {
-    return api.deletePuzzleTag(puzzleId, tagId);
-  }
-);
-
-export const addPuzzleTag = createAsyncThunk(
-  "puzzles/addPuzzleTag",
-  async ({
-    puzzleId,
-    name,
-    color,
-  }: {
-    puzzleId: PuzzleId;
-    name: string;
-    color: string;
-  }) => {
-    return api.addPuzzleTag(puzzleId, {
-      name,
-      color,
-    });
-  }
-);
-
-function puzzleComparator(a: Puzzle, b: Puzzle) {
-  // Solved puzzles should appear below unsolved ones
-  if (a.status == "SOLVED" && b.status != "SOLVED") {
-    return 1;
-  } else if (b.status == "SOLVED" && a.status != "SOLVED") {
-    return -1;
-  }
-  // Feeders before metas
-  if (!a.is_meta && b.is_meta) {
-    return -1;
-  } else if (a.is_meta && !b.is_meta) {
-    return 1;
-  }
-  // High-priority before untagged before low-priority
-  function priority(puzzle: Puzzle) {
-    if (puzzle.tags.some((x) => x.is_high_pri)) {
-      return 1;
-    } else if (puzzle.tags.some((x) => x.is_low_pri)) {
-      return -1;
-    }
-    return 0;
-  }
-  if (priority(b) != priority(a)) {
-    return priority(b) - priority(a);
-  }
-  // Newer puzzles before old ones
-  return Date.parse(b.created_on) - Date.parse(a.created_on);
+    allPuzzleTags: () => PuzzleTag[];
+  };
 }
 
-const puzzlesAdapter = createEntityAdapter<Puzzle>();
+export const puzzlesSlice: StateCreator<
+  RootState,
+  [["zustand/immer", never]],
+  [],
+  PuzzlesSlice
+> = (set, get) => ({
+  puzzlesSlice: {
+    lastUpdate: 0, // A logical timestamp for detecting stale fetchPuzzle actions
+    puzzles: {} as { [id: PuzzleId]: Puzzle },
 
-export const puzzlesSlice = createSlice({
-  name: "puzzles",
-  initialState: puzzlesAdapter.getInitialState({
-    timestamp: 0, // A logical timestamp for detecting stale fetchPuzzle actions
-  }),
-  reducers: {},
-  extraReducers: (builder) => {
-    builder
-      .addCase(addPuzzle.fulfilled, (state, action) => {
-        puzzlesAdapter.addOne(state, action.payload);
-        ++state.timestamp;
-      })
-      .addCase(deletePuzzle.fulfilled, (state, action) => {
-        puzzlesAdapter.removeOne(state, action.payload);
-        ++state.timestamp;
-      })
-      .addCase(fetchPuzzles.fulfilled, (state, action) => {
-        const { timestamp, result } = action.payload;
-        if (timestamp == state.timestamp) {
-          // Only apply the update if no other action has completed
-          // in between dispatching the fetch and it completing
-          puzzlesAdapter.setAll(state, result);
+    getPuzzle(id: PuzzleId) {
+      return get().puzzlesSlice.puzzles[id];
+    },
+    allPuzzles(filterFn?: (p: Puzzle) => boolean) {
+      return Object.values<Puzzle>(get().puzzlesSlice.puzzles).filter(
+        filterFn ?? (() => true)
+      );
+    },
+    fetchAllPuzzles: async () => {
+      const updateStart = get().puzzlesSlice.lastUpdate;
+      api.getPuzzles(get().huntSlice.hunt.id!).then((response) => {
+        const { timestamp, puzzles } = response.payload;
+        if (timestamp != updateStart) {
+          return;
         }
-        ++state.timestamp;
-      })
-      .addCase(updatePuzzle.fulfilled, (state, action) => {
-        puzzlesAdapter.updateOne(state, {
-          id: action.payload.id,
-          changes: { ...action.payload },
+
+        set((state) => {
+          state.puzzlesSlice.lastUpdate = Date.now();
+          state.puzzlesSlice.bulkUpdatePuzzlesFromDict(puzzles);
         });
-        ++state.timestamp;
-      })
-      .addCase(addAnswer.fulfilled, (state, action) => {
-        puzzlesAdapter.updateOne(state, {
-          id: action.payload.id,
-          changes: { ...action.payload },
-        });
-        ++state.timestamp;
-      })
-      .addCase(deleteAnswer.fulfilled, (state, action) => {
-        puzzlesAdapter.updateOne(state, {
-          id: action.payload.id,
-          changes: { ...action.payload },
-        });
-        ++state.timestamp;
-      })
-      .addCase(editAnswer.fulfilled, (state, action) => {
-        puzzlesAdapter.updateOne(state, {
-          id: action.payload.id,
-          changes: { ...action.payload },
-        });
-        ++state.timestamp;
-      })
-      .addCase(editNotes.fulfilled, (state, action) => {
-        puzzlesAdapter.updateOne(state, {
-          id: action.payload.id,
-          changes: { ...action.payload },
-        });
-        ++state.timestamp;
-      })
-      .addCase(deletePuzzleTag.fulfilled, (state, action) => {
-        const updates = action.payload.map((updatedRecord: Puzzle) => ({
-          id: updatedRecord.id,
-          changes: updatedRecord,
-        }));
-        puzzlesAdapter.updateMany(state, updates);
-        ++state.timestamp;
-      })
-      .addCase(addPuzzleTag.fulfilled, (state, action) => {
-        const updates = action.payload.map((updatedRecord: Puzzle) => ({
-          id: updatedRecord.id,
-          changes: updatedRecord,
-        }));
-        puzzlesAdapter.updateMany(state, updates);
-        ++state.timestamp;
       });
+    },
+
+    updatePuzzleFromDict: (response: Record<string, any>) => {
+      set((state) => {
+        state.puzzlesSlice.lastUpdate = Date.now();
+        state.puzzlesSlice.puzzles[response.id] = {
+          ...state.puzzlesSlice.puzzles[response.id],
+          ...response.payload,
+        };
+      });
+    },
+    bulkUpdatePuzzlesFromDict: (response: Record<string, any>[]) => {
+      set((state) => {
+        state.puzzlesSlice.lastUpdate = Date.now();
+        for (const p of response) {
+          state.puzzlesSlice.puzzles[p.id] = {
+            ...state.puzzlesSlice.puzzles[p.id],
+            ...p.payload,
+          };
+        }
+      });
+    },
+
+    addPuzzle: async (args: Record<string, any>) => {
+      return api
+        .addPuzzle(get().huntSlice.hunt.id!, {
+          name: args.name,
+          url: args.url,
+          is_meta: args.is_meta,
+          create_channels: args.create_channels,
+          assigned_meta: args.assigned_meta,
+        })
+        .then((response) => {
+          set((state) => {
+            let p = response.payload;
+            state.puzzlesSlice.lastUpdate = Date.now();
+            state.puzzlesSlice.puzzles[p.id] = p;
+          });
+        });
+    },
+    deletePuzzle: async (id: PuzzleId) => {
+      return api.deletePuzzle(get().huntSlice.hunt.id!, id).then((response) => {
+        set((state) => {
+          state.puzzlesSlice.lastUpdate = Date.now();
+          delete state.puzzlesSlice.puzzles[response.id];
+        });
+      });
+    },
+    updatePuzzle: async (
+      id: PuzzleId,
+      changes: Partial<Puzzle> | { create_channels: boolean }
+    ) => {
+      return api
+        .updatePuzzle(get().huntSlice.hunt.id!, id, changes)
+        .then((response) => {
+          get().puzzlesSlice.updatePuzzleFromDict(response.payload);
+        });
+    },
+    addAnswer: async (id: PuzzleId, text: string) => {
+      return api.addAnswer(id, { text }).then((response) => {
+        get().puzzlesSlice.updatePuzzleFromDict(response.payload);
+      });
+    },
+    deleteAnswer: async (id: PuzzleId, answerId: AnswerId) => {
+      return api.deleteAnswer(id, answerId).then((response) => {
+        get().puzzlesSlice.updatePuzzleFromDict(response.payload);
+      });
+    },
+    editAnswer: async (id: PuzzleId, answerId: AnswerId, text: string) => {
+      return api.editAnswer(id, answerId, { text }).then((response) => {
+        get().puzzlesSlice.updatePuzzleFromDict(response.payload);
+      });
+    },
+    addPuzzleTag: async (
+      puzzleId: PuzzleId,
+      tag: { name: string; color: string }
+    ) => {
+      return api.addPuzzleTag(puzzleId, tag).then((response) => {
+        get().puzzlesSlice.updatePuzzleFromDict(response.payload);
+      });
+    },
+    deletePuzzleTag: async (puzzleId: PuzzleId, tagId: TagId) => {
+      return api.deletePuzzleTag(puzzleId, tagId).then((response) => {
+        get().puzzlesSlice.updatePuzzleFromDict(response.payload);
+      });
+    },
+    editNotes: async (puzzleId: PuzzleId, data: { text: string }) => {
+      return api.editNotes(puzzleId, data).then((response) => {
+        get().puzzlesSlice.bulkUpdatePuzzlesFromDict(response.payload);
+      });
+    },
+
+    numPuzzlesUnlocked: () => {
+      return Object.values<Puzzle>(get().puzzlesSlice.puzzles).length;
+    },
+    numPuzzlesSolved: () => {
+      return Object.values<Puzzle>(get().puzzlesSlice.puzzles).filter(
+        (p) => p.status == "SOLVED"
+      ).length;
+    },
+    numMetasUnlocked: () => {
+      return Object.values<Puzzle>(get().puzzlesSlice.puzzles).filter(
+        (p) => p.is_meta
+      ).length;
+    },
+    numMetasSolved: () => {
+      return Object.values<Puzzle>(get().puzzlesSlice.puzzles).filter(
+        (p) => p.status == "SOLVED" && p.is_meta
+      ).length;
+    },
+
+    allPuzzleTags: () => {
+      const tags = new Map();
+      for (const puzzle of Object.values<Puzzle>(get().puzzlesSlice.puzzles)) {
+        for (const tag of puzzle.tags) {
+          tags.set(tag.id, tag);
+        }
+      }
+      return Array.from(tags.values());
+    },
   },
 });
 
-const puzzlesSelectors = puzzlesAdapter.getSelectors(
-  (state: RootState) => state.puzzles
-);
-
-export interface PuzzleTable extends Puzzle {
-  subRows: Puzzle[];
-}
-
-export const selectPuzzleTableData = createSelector(
-  [puzzlesSelectors.selectIds, puzzlesSelectors.selectEntities],
-  (ids, entities) => {
-    // We need to construct the meta/subtree relationships.
-    // Each meta that contains a puzzle gets a reference to the same
-    // puzzle object. Then we can offload any actual graph traversal
-    // to the table library.
-
-    // Make a deep copy of everything first
-    const rowsCopy: PuzzleTable[] = ids.map((id) => ({
-      ...entities[id],
-      subRows: [],
-    }));
-    const rowMap: { [id: PuzzleId]: Puzzle } = {};
-    rowsCopy.forEach((row) => {
-      rowMap[row.id] = row;
-    });
-    // First give every meta references to all its children
-    rowsCopy.forEach((row) => {
-      if (row.feeders.length > 0) {
-        row.subRows = [];
-        row.feeders.forEach((subRowId) => {
-          // This check is needed to deal with inconsistent data:
-          // if we just deleted a puzzle, it may still appear as a feeder for
-          // another puzzle if we haven't done a full refresh of the data yet
-          if (subRowId in rowMap) {
-            row.subRows.push(rowMap[subRowId]);
-          }
-        });
-      }
-    });
-    // Once all the meta-child relationships are there, we can sort
-    // every list of puzzles: all the subRows lists, and the list of outer puzzles as well.
-    rowsCopy.forEach((row) => {
-      if (row.subRows) {
-        row.subRows.sort(puzzleComparator);
-      }
-    });
-    const outerRows = rowsCopy.filter((row) => row.metas.length == 0);
-    outerRows.sort(puzzleComparator);
-    return outerRows;
-  }
-);
-
-export const selectNumUnlocked = createSelector(
-  [puzzlesSelectors.selectAll],
-  (puzzles) => {
-    const count = puzzles.reduce((count) => count + 1, 0);
-    return count;
-  }
-);
-
-export const selectNumSolved = createSelector(
-  [puzzlesSelectors.selectAll],
-  (puzzles) => {
-    const count = puzzles.reduce(
-      (count, puzzle) => (puzzle.status == "SOLVED" ? count + 1 : count),
-      0
-    );
-    return count;
-  }
-);
-
-export const selectNumUnsolved = createSelector(
-  [puzzlesSelectors.selectAll],
-  (puzzles) => {
-    const count = puzzles.reduce(
-      (count, puzzle) => (puzzle.status != "SOLVED" ? count + 1 : count),
-      0
-    );
-    return count;
-  }
-);
-
-export const selectNumMetasSolved = createSelector(
-  [puzzlesSelectors.selectAll],
-  (puzzles) => {
-    const count = puzzles.reduce(
-      (count, puzzle) =>
-        puzzle.status == "SOLVED" && puzzle.is_meta ? count + 1 : count,
-      0
-    );
-    return count;
-  }
-);
-
-export const selectNumMetasUnsolved = createSelector(
-  [puzzlesSelectors.selectAll],
-  (puzzles) => {
-    const count = puzzles.reduce(
-      (count, puzzle) =>
-        puzzle.status != "SOLVED" && puzzle.is_meta ? count + 1 : count,
-      0
-    );
-    return count;
-  }
-);
-
-export const selectPuzzleTags = createSelector(
-  [puzzlesSelectors.selectAll],
-  (puzzles) => {
-    // Use a map to dedupe puzzle tags by id.
-    const tagMap = new Map();
-    for (const puzzle of puzzles) {
-      for (const tag of puzzle.tags) {
-        tagMap.set(tag.id, tag);
-      }
-    }
-    return Array.from(tagMap.values());
-  }
-);
-
-export const { selectById: selectPuzzleById } = puzzlesSelectors;
-
-export default puzzlesSlice.reducer;
+export default puzzlesSlice;

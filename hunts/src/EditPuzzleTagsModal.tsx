@@ -1,14 +1,11 @@
 import React, { FormEvent } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { Button, Form, Modal } from "react-bootstrap";
-import { addPuzzleTag, selectPuzzleTags } from "./puzzlesSlice";
-import { selectHuntTags } from "./huntSlice";
 import { DEFAULT_TAG_COLOR, SELECTABLE_TAG_COLORS } from "./constants";
-import { hideModal } from "./modalSlice";
+import api from "./api";
 import TagPill from "./TagPill";
 import EditableTagList from "./EditableTagList";
 
-import type { Dispatch } from "./store";
+import { useStore } from "./store";
 import type { PuzzleId } from "./types";
 
 type ChangeEvent = React.ChangeEvent<HTMLInputElement>;
@@ -20,8 +17,10 @@ function EditPuzzleTagsModal({
   puzzleId: PuzzleId;
   puzzleName: string;
 }) {
-  const huntTags = useSelector(selectHuntTags);
-  const puzzleTags = useSelector(selectPuzzleTags);
+  const huntTags = useStore((state) => state.huntSlice.hunt.puzzle_tags);
+  const puzzleTags = useStore((state) => state.puzzlesSlice.allPuzzleTags());
+  const hideModal = useStore((state) => state.modalSlice.hideModal);
+
   // Use a map to concat huntTags and puzzleTags and then dedupe by id.
   const tagMap = new Map();
   for (const tag of huntTags.concat(puzzleTags)) {
@@ -31,7 +30,6 @@ function EditPuzzleTagsModal({
 
   const [newTagName, setNewTagName] = React.useState("");
   const [newTagColor, setNewTagColor] = React.useState(DEFAULT_TAG_COLOR);
-  const dispatch = useDispatch<Dispatch>();
   return (
     <>
       <Modal.Header closeButton>
@@ -58,16 +56,15 @@ function EditPuzzleTagsModal({
           }}
           onSubmit={(e: FormEvent) => {
             e.preventDefault();
-            dispatch(
-              addPuzzleTag({
+            api
+              .addPuzzleTag(puzzleId, {
                 name: newTagName,
                 color: newTagColor,
-                puzzleId,
               })
-            ).then(() => {
-              setNewTagName("");
-              setNewTagColor(DEFAULT_TAG_COLOR);
-            });
+              .then(() => {
+                setNewTagName("");
+                setNewTagColor(DEFAULT_TAG_COLOR);
+              });
             return false;
           }}
         >
@@ -99,11 +96,7 @@ function EditPuzzleTagsModal({
         </Form>
       </Modal.Body>
       <Modal.Footer>
-        <Button
-          variant="primary"
-          type="submit"
-          onClick={() => dispatch(hideModal())}
-        >
+        <Button variant="primary" type="submit" onClick={() => hideModal()}>
           Done
         </Button>
       </Modal.Footer>

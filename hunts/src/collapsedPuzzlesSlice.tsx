@@ -1,26 +1,38 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { StateCreator } from "zustand";
+
 import { RootState } from "./store";
 
-// This slice is primarily used to sync changes to local storage.
-export const collapsedPuzzlesSlice = createSlice({
-  name: "collapsedPuzzles",
-  initialState: {} as Record<string, Record<string, boolean>>,
-  reducers: {
-    toggleCollapsed: (state, action) => {
-      if (!state.hasOwnProperty(action.payload.huntId)) {
-        state[action.payload.huntId] = {};
-      }
-      const currentHunt = state[action.payload.huntId];
-      currentHunt[action.payload.rowId] = !currentHunt[action.payload.rowId];
+export interface CollapsedPuzzlesSlice {
+  collapsedPuzzlesSlice: {
+    collapsed: Record<string, Record<string, boolean>>;
+
+    toggleCollapsed: (huntId: string, rowId: string) => void;
+    getCollapsedPuzzles: (huntId: string) => Record<string, boolean>;
+  };
+}
+
+export const collapsedPuzzlesSlice: StateCreator<
+  RootState,
+  [["zustand/immer", never]],
+  [],
+  CollapsedPuzzlesSlice
+> = (set, get) => ({
+  collapsedPuzzlesSlice: {
+    collapsed: {},
+
+    toggleCollapsed: (huntId: string, rowId: string) => {
+      set((state) => {
+        if (!state.collapsedPuzzlesSlice.collapsed.hasOwnProperty(huntId)) {
+          state.collapsedPuzzlesSlice.collapsed[huntId] = {};
+        }
+        const currentHunt = state.collapsedPuzzlesSlice.collapsed[huntId];
+        currentHunt[rowId] = !currentHunt[rowId];
+      });
+    },
+    getCollapsedPuzzles: (huntId: string) => {
+      return get().collapsedPuzzlesSlice.collapsed[huntId] ?? {};
     },
   },
 });
 
-export const { toggleCollapsed } = collapsedPuzzlesSlice.actions;
-export default collapsedPuzzlesSlice.reducer;
-export const getCollapsedPuzzles = (huntId: string) => (state: RootState) => {
-  if (!state.collapsedPuzzles.hasOwnProperty(huntId)) {
-    return {};
-  }
-  return state.collapsedPuzzles[huntId];
-};
+export default collapsedPuzzlesSlice;

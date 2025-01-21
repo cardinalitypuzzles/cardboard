@@ -1,14 +1,12 @@
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
-import { editNotes } from "./puzzlesSlice";
 
-import type { Dispatch } from "./store";
+import { useStore } from "./store";
 import type { Row } from "./types";
 
 export default function NotesCell({ row, value }: { row: Row; value: string }) {
   const [editing, setEditing] = useState(false);
   const [editedNotesValue, setEditedNotesValue] = useState(value);
-  const dispatch = useDispatch<Dispatch>();
+  const { updatePuzzle } = useStore((store) => store.puzzlesSlice);
 
   return (
     <div
@@ -31,12 +29,9 @@ export default function NotesCell({ row, value }: { row: Row; value: string }) {
             }}
             onKeyDown={(e) => {
               if (e.key === "Enter" && (e.ctrlKey || e.shiftKey || e.metaKey)) {
-                dispatch(
-                  editNotes({
-                    puzzleId: row.values.id,
-                    body: { text: editedNotesValue },
-                  })
-                ).finally(() => {
+                updatePuzzle(row.values.id, {
+                  notes: editedNotesValue,
+                }).finally(() => {
                   setEditing(false);
                 });
               } else if (e.key == "Escape") {
@@ -48,14 +43,11 @@ export default function NotesCell({ row, value }: { row: Row; value: string }) {
           <div
             style={{ cursor: "pointer" }}
             onClick={() => {
-              dispatch(
-                editNotes({
-                  puzzleId: row.values.id,
-                  body: { text: editedNotesValue },
-                })
-              ).finally(() => {
-                setEditing(false);
-              });
+              updatePuzzle(row.values.id, { notes: editedNotesValue }).finally(
+                () => {
+                  setEditing(false);
+                }
+              );
             }}
           >
             ✓

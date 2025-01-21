@@ -1,17 +1,17 @@
 import React from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { updateTextFilter, getTextFilter } from "./filterSlice";
+import { useStore } from "./store";
 
 function GlobalFilter() {
-  const value = useSelector(getTextFilter);
-  const dispatch = useDispatch();
+  const { filterValue, updateFilterValue } = useStore(
+    (state) => state.filterSlice
+  );
   return (
     <span>
       <input
         type="search"
-        value={value || ""}
+        value={filterValue || ""}
         onChange={(e) => {
-          dispatch(updateTextFilter(e.target.value));
+          updateFilterValue(e.target.value);
         }}
         placeholder="Search by name, answer, tag, etc."
         style={{

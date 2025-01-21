@@ -1,14 +1,8 @@
 import React from "react";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  addPuzzleTag,
-  deletePuzzleTag,
-  selectPuzzleById,
-} from "./puzzlesSlice";
 import { SELECTABLE_TAG_COLORS } from "./constants";
 import TagPill from "./TagPill";
 
-import type { Dispatch, RootState } from "./store";
+import { useStore } from "./store";
 import type { PuzzleId, PuzzleTag } from "./types";
 
 function EditableTagList({
@@ -18,13 +12,11 @@ function EditableTagList({
   puzzleId: PuzzleId;
   tags: PuzzleTag[];
 }) {
-  const selectPuzzleTags = React.useMemo(
-    () => (state: RootState) => selectPuzzleById(state, puzzleId).tags,
-    [puzzleId]
+  const { addPuzzleTag, deletePuzzleTag } = useStore(
+    (state) => state.puzzlesSlice
   );
-  const puzzleTags = useSelector(selectPuzzleTags);
+  const puzzleTags = useStore((state) => state.puzzlesSlice.allPuzzleTags());
   const puzzleTagIds = new Set(puzzleTags.map((tag) => tag.id));
-  const dispatch = useDispatch<Dispatch>();
 
   const selectable_colors = SELECTABLE_TAG_COLORS.map((tag) => tag.color);
 
@@ -61,14 +53,9 @@ function EditableTagList({
           key={tag.name}
           onClick={() => {
             if (puzzleTagIds.has(tag.id)) {
-              dispatch(deletePuzzleTag({ puzzleId, tagId: tag.id }));
+              deletePuzzleTag(puzzleId, tag.id);
             } else {
-              dispatch(
-                addPuzzleTag({
-                  ...tag,
-                  puzzleId,
-                })
-              );
+              addPuzzleTag(puzzleId, { name: tag.name, color: tag.color });
             }
           }}
         />

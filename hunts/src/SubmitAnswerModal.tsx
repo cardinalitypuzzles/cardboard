@@ -1,10 +1,7 @@
 import React, { FormEvent } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
-import { useDispatch } from "react-redux";
-import { addAnswer, addPuzzleTag } from "./puzzlesSlice";
-import { hideModal } from "./modalSlice";
 
-import type { Dispatch } from "./store";
+import { useStore } from "./store";
 import type { PuzzleId } from "./types";
 
 type ChangeEvent = React.ChangeEvent<HTMLInputElement>;
@@ -16,28 +13,22 @@ function SubmitAnswerModal({
   puzzleId: PuzzleId;
   puzzleName: string;
 }) {
+  const { addAnswer, addPuzzleTag } = useStore((state) => state.puzzlesSlice);
+  const { hideModal } = useStore((state) => state.modalSlice);
+
   const [newAnswer, setNewAnswer] = React.useState("");
   const [backsolved, setBacksolved] = React.useState(false);
 
-  const dispatch = useDispatch<Dispatch>();
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (backsolved) {
-      dispatch(
-        addPuzzleTag({
-          puzzleId,
-          name: "Backsolved",
-          color: "success",
-        })
-      );
+      addPuzzleTag(puzzleId, {
+        name: "Backsolved",
+        color: "success",
+      });
     }
-    dispatch(
-      addAnswer({
-        puzzleId,
-        body: { text: newAnswer },
-      })
-    ).finally(() => {
-      dispatch(hideModal());
+    addAnswer(puzzleId, newAnswer).finally(() => {
+      hideModal();
     });
     return false;
   };
@@ -66,7 +57,7 @@ function SubmitAnswerModal({
           />
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => dispatch(hideModal())}>
+          <Button variant="secondary" onClick={() => hideModal()}>
             Cancel
           </Button>
           <Button variant="primary" type="submit">
