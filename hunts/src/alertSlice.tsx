@@ -25,7 +25,7 @@ let nextId = 1;
 
 export const alertSlice: StateCreator<
   RootState,
-  [["zustand/immer", never]],
+  [["zustand/devtools", never], ["zustand/immer", never]],
   [],
   AlertSlice
 > = (set, get) => ({

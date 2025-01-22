@@ -30,7 +30,7 @@ function EditPuzzleModal({
 
   const { showModal, hideModal } = useStore((state) => state.modalSlice);
 
-  const tags = useStore((state) => state.puzzlesSlice.allPuzzleTags());
+  const tags = useStore((state) => state.puzzlesSlice.allPuzzleTags)();
   const meta_tags = tags.filter((tag) => tag.is_meta && tag.name != name);
 
   const onSubmit = (e: FormEvent) => {

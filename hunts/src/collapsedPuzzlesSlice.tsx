@@ -13,7 +13,7 @@ export interface CollapsedPuzzlesSlice {
 
 export const collapsedPuzzlesSlice: StateCreator<
   RootState,
-  [["zustand/immer", never]],
+  [["zustand/devtools", never], ["zustand/immer", never]],
   [],
   CollapsedPuzzlesSlice
 > = (set, get) => ({
@@ -30,7 +30,13 @@ export const collapsedPuzzlesSlice: StateCreator<
       });
     },
     getCollapsedPuzzles: (huntId: string) => {
-      return get().collapsedPuzzlesSlice.collapsed[huntId] ?? {};
+      if (!get().collapsedPuzzlesSlice.collapsed.hasOwnProperty(huntId)) {
+        set((state) => {
+          state.collapsedPuzzlesSlice.collapsed[huntId] = {};
+        });
+      }
+
+      return get().collapsedPuzzlesSlice.collapsed[huntId];
     },
   },
 });

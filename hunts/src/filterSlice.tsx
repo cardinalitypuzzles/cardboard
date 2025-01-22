@@ -26,7 +26,7 @@ export interface FilterSlice {
 
 export const filterSlice: StateCreator<
   RootState,
-  [["zustand/immer", never]],
+  [["zustand/devtools", never], ["zustand/immer", never]],
   [],
   FilterSlice
 > = (set, get) => ({

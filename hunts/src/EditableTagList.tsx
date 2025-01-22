@@ -15,8 +15,10 @@ function EditableTagList({
   const { addPuzzleTag, deletePuzzleTag } = useStore(
     (state) => state.puzzlesSlice
   );
-  const puzzleTags = useStore((state) => state.puzzlesSlice.allPuzzleTags());
-  const puzzleTagIds = new Set(puzzleTags.map((tag) => tag.id));
+  const puzzles = useStore((state) => state.puzzlesSlice);
+  const puzzleTagIds = new Set(
+    puzzles.getPuzzle(puzzleId).tags.map((tag) => tag.id)
+  );
 
   const selectable_colors = SELECTABLE_TAG_COLORS.map((tag) => tag.color);
 

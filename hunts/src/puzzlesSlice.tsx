@@ -46,7 +46,7 @@ export interface PuzzlesSlice {
 
 export const puzzlesSlice: StateCreator<
   RootState,
-  [["zustand/immer", never]],
+  [["zustand/devtools", never], ["zustand/immer", never]],
   [],
   PuzzlesSlice
 > = (set, get) => ({
@@ -63,17 +63,13 @@ export const puzzlesSlice: StateCreator<
       );
     },
     fetchAllPuzzles: async () => {
-      const updateStart = get().puzzlesSlice.lastUpdate;
-      api.getPuzzles(get().huntSlice.hunt.id!).then((response) => {
-        const { timestamp, puzzles } = response.payload;
-        if (timestamp != updateStart) {
-          return;
-        }
+      let huntId = get().huntSlice.hunt.id;
+      if (huntId === null) {
+        return;
+      }
 
-        set((state) => {
-          state.puzzlesSlice.lastUpdate = Date.now();
-          state.puzzlesSlice.bulkUpdatePuzzlesFromDict(puzzles);
-        });
+      return api.getPuzzles(huntId).then((response) => {
+        get().puzzlesSlice.bulkUpdatePuzzlesFromDict(response);
       });
     },
 
@@ -82,7 +78,7 @@ export const puzzlesSlice: StateCreator<
         state.puzzlesSlice.lastUpdate = Date.now();
         state.puzzlesSlice.puzzles[response.id] = {
           ...state.puzzlesSlice.puzzles[response.id],
-          ...response.payload,
+          ...response,
         };
       });
     },
@@ -92,7 +88,7 @@ export const puzzlesSlice: StateCreator<
         for (const p of response) {
           state.puzzlesSlice.puzzles[p.id] = {
             ...state.puzzlesSlice.puzzles[p.id],
-            ...p.payload,
+            ...p,
           };
         }
       });
@@ -109,7 +105,7 @@ export const puzzlesSlice: StateCreator<
         })
         .then((response) => {
           set((state) => {
-            let p = response.payload;
+            let p = response;
             state.puzzlesSlice.lastUpdate = Date.now();
             state.puzzlesSlice.puzzles[p.id] = p;
           });
@@ -130,22 +126,22 @@ export const puzzlesSlice: StateCreator<
       return api
         .updatePuzzle(get().huntSlice.hunt.id!, id, changes)
         .then((response) => {
-          get().puzzlesSlice.updatePuzzleFromDict(response.payload);
+          get().puzzlesSlice.updatePuzzleFromDict(response);
         });
     },
     addAnswer: async (id: PuzzleId, text: string) => {
       return api.addAnswer(id, { text }).then((response) => {
-        get().puzzlesSlice.updatePuzzleFromDict(response.payload);
+        get().puzzlesSlice.updatePuzzleFromDict(response);
       });
     },
     deleteAnswer: async (id: PuzzleId, answerId: AnswerId) => {
       return api.deleteAnswer(id, answerId).then((response) => {
-        get().puzzlesSlice.updatePuzzleFromDict(response.payload);
+        get().puzzlesSlice.updatePuzzleFromDict(response);
       });
     },
     editAnswer: async (id: PuzzleId, answerId: AnswerId, text: string) => {
       return api.editAnswer(id, answerId, { text }).then((response) => {
-        get().puzzlesSlice.updatePuzzleFromDict(response.payload);
+        get().puzzlesSlice.updatePuzzleFromDict(response);
       });
     },
     addPuzzleTag: async (
@@ -153,17 +149,17 @@ export const puzzlesSlice: StateCreator<
       tag: { name: string; color: string }
     ) => {
       return api.addPuzzleTag(puzzleId, tag).then((response) => {
-        get().puzzlesSlice.updatePuzzleFromDict(response.payload);
+        get().puzzlesSlice.bulkUpdatePuzzlesFromDict(response);
       });
     },
     deletePuzzleTag: async (puzzleId: PuzzleId, tagId: TagId) => {
       return api.deletePuzzleTag(puzzleId, tagId).then((response) => {
-        get().puzzlesSlice.updatePuzzleFromDict(response.payload);
+        get().puzzlesSlice.bulkUpdatePuzzlesFromDict(response);
       });
     },
     editNotes: async (puzzleId: PuzzleId, data: { text: string }) => {
       return api.editNotes(puzzleId, data).then((response) => {
-        get().puzzlesSlice.bulkUpdatePuzzlesFromDict(response.payload);
+        get().puzzlesSlice.bulkUpdatePuzzlesFromDict(response);
       });
     },
 

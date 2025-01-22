@@ -17,7 +17,7 @@ export interface ChatSlice {
 
 export const chatSlice: StateCreator<
   RootState,
-  [["zustand/immer", never]],
+  [["zustand/devtools", never], ["zustand/immer", never]],
   [],
   ChatSlice
 > = (set, get) => ({

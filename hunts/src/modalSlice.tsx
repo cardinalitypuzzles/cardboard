@@ -15,7 +15,7 @@ export interface ModalSlice {
 
 export const modalSlice: StateCreator<
   RootState,
-  [["zustand/immer", never]],
+  [["zustand/devtools", never], ["zustand/immer", never]],
   [],
   ModalSlice
 > = (set, get) => ({

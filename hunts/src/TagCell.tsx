@@ -6,11 +6,9 @@ import type { RootState } from "./store";
 import type { Hunt, Puzzle, Row } from "./types";
 
 function TagCell({ row }: { row: Row<Puzzle> }) {
-  const { modalSlice, hunt } = useStore((state) => ({
-    modalSlice: state.modalSlice,
-    hunt: state.huntSlice.hunt,
-  }));
-  const { toggleFilterTag } = useStore((state: RootState) => state.filterSlice);
+  const modalSlice = useStore((state) => state.modalSlice);
+  const hunt = useStore((state) => state.huntSlice.hunt);
+  const { toggleFilterTag } = useStore((state) => state.filterSlice);
 
   const shouldShowMetaTags =
     row.original.tags.filter((t) => t.is_meta).length > 1;

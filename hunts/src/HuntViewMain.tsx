@@ -43,8 +43,6 @@ export const makePuzzleTableData = (ids: Puzzle[]) => {
   // puzzle object. Then we can offload any actual graph traversal
   // to the table library.
 
-  const state = useStore((state) => state.puzzlesSlice);
-
   // Make a deep copy of everything first
   const rowsCopy: PuzzleTable[] = ids.map((id) => ({
     ...id,
@@ -91,16 +89,18 @@ export const HuntViewMain = (props: { huntId: HuntId }) => {
   const filterSolved = useStore((state) => state.filterSlice.solveStateFilter);
   const { hideAlert } = useStore((state) => state.alertSlice);
 
+  const l = useStore((state) => state.puzzlesSlice.lastUpdate);
+
   useInterval(() => {
     fetchAllPuzzles();
-  }, 10 * 1000);
+  }, 1 * 1000);
 
   const ModalComponent = MODAL_COMPONENTS[modal.type];
   React.useEffect(() => {
     api.getHunt(props.huntId).then((response) => {
       hunt.set(response);
+      fetchAllPuzzles();
     });
-    fetchAllPuzzles();
   }, [props.huntId]);
 
   React.useEffect(() => {

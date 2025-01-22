@@ -13,7 +13,7 @@ export interface HuntSlice {
 
 export const huntSlice: StateCreator<
   RootState,
-  [["zustand/immer", never]],
+  [["zustand/devtools", never], ["zustand/immer", never]],
   [],
   HuntSlice
 > = (set) => ({

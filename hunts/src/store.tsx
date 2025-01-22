@@ -1,4 +1,6 @@
 import { create } from "zustand";
+import { devtools } from "zustand/middleware";
+import { immer } from "zustand/middleware/immer";
 
 import { alertSlice, AlertSlice } from "./alertSlice";
 import { chatSlice, ChatSlice } from "./chatSlice";
@@ -19,12 +21,19 @@ export type RootState = AlertSlice &
   ModalSlice &
   PuzzlesSlice;
 
-export const useStore = create<RootState>((...a) => ({
-  ...alertSlice(...a),
-  ...chatSlice(...a),
-  ...collapsedPuzzlesSlice(...a),
-  ...filterSlice(...a),
-  ...huntSlice(...a),
-  ...modalSlice(...a),
-  ...puzzlesSlice(...a),
-}));
+export const useStore = create<
+  RootState,
+  [["zustand/devtools", never], ["zustand/immer", never]]
+>(
+  devtools(
+    immer((...a) => ({
+      ...alertSlice(...a),
+      ...chatSlice(...a),
+      ...collapsedPuzzlesSlice(...a),
+      ...filterSlice(...a),
+      ...huntSlice(...a),
+      ...modalSlice(...a),
+      ...puzzlesSlice(...a),
+    }))
+  )
+);
