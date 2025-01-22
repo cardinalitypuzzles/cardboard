@@ -19,7 +19,7 @@ function EditNotesModal({
   const [newNotes, setNewNotes] = React.useState(text);
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
-    editNotes(puzzleId, { text: newNotes }).finally(() => {
+    editNotes(puzzleId, newNotes).finally(() => {
       hideModal();
     });
     return false;

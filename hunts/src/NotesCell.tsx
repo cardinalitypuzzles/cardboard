@@ -6,7 +6,7 @@ import type { Row } from "./types";
 export default function NotesCell({ row, value }: { row: Row; value: string }) {
   const [editing, setEditing] = useState(false);
   const [editedNotesValue, setEditedNotesValue] = useState(value);
-  const { updatePuzzle } = useStore((store) => store.puzzlesSlice);
+  const { editNotes } = useStore((store) => store.puzzlesSlice);
 
   return (
     <div
@@ -29,9 +29,7 @@ export default function NotesCell({ row, value }: { row: Row; value: string }) {
             }}
             onKeyDown={(e) => {
               if (e.key === "Enter" && (e.ctrlKey || e.shiftKey || e.metaKey)) {
-                updatePuzzle(row.values.id, {
-                  notes: editedNotesValue,
-                }).finally(() => {
+                editNotes(row.values.id, editedNotesValue).finally(() => {
                   setEditing(false);
                 });
               } else if (e.key == "Escape") {
@@ -43,11 +41,9 @@ export default function NotesCell({ row, value }: { row: Row; value: string }) {
           <div
             style={{ cursor: "pointer" }}
             onClick={() => {
-              updatePuzzle(row.values.id, { notes: editedNotesValue }).finally(
-                () => {
-                  setEditing(false);
-                }
-              );
+              editNotes(row.values.id, editedNotesValue).finally(() => {
+                setEditing(false);
+              });
             }}
           >
             ✓

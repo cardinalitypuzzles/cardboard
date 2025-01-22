@@ -18,7 +18,7 @@ function EditPuzzleTagsModal({
   puzzleName: string;
 }) {
   const huntTags = useStore((state) => state.huntSlice.hunt.puzzle_tags);
-  const puzzleTags = useStore((state) => state.puzzlesSlice.allPuzzleTags());
+  const puzzleTags = useStore((state) => state.puzzlesSlice.allPuzzleTags)();
   const hideModal = useStore((state) => state.modalSlice.hideModal);
 
   // Use a map to concat huntTags and puzzleTags and then dedupe by id.

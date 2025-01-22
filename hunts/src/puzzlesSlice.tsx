@@ -33,7 +33,7 @@ export interface PuzzlesSlice {
       tag: { name: string; color: string }
     ) => Promise<void>;
     deletePuzzleTag: (puzzleId: PuzzleId, tagId: TagId) => Promise<void>;
-    editNotes: (puzzleId: PuzzleId, data: { text: string }) => Promise<void>;
+    editNotes: (puzzleId: PuzzleId, text: string) => Promise<void>;
 
     numPuzzlesUnlocked: () => number;
     numPuzzlesSolved: () => number;
@@ -157,8 +157,8 @@ export const puzzlesSlice: StateCreator<
         get().puzzlesSlice.bulkUpdatePuzzlesFromDict(response);
       });
     },
-    editNotes: async (puzzleId: PuzzleId, data: { text: string }) => {
-      return api.editNotes(puzzleId, data).then((response) => {
+    editNotes: async (puzzleId: PuzzleId, text: string) => {
+      return api.editNotes(puzzleId, { text }).then((response) => {
         get().puzzlesSlice.bulkUpdatePuzzlesFromDict(response);
       });
     },
