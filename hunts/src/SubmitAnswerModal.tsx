@@ -27,9 +27,7 @@ function SubmitAnswerModal({
         color: "success",
       });
     }
-    addAnswer(puzzleId, newAnswer).finally(() => {
-      hideModal();
-    });
+    addAnswer(puzzleId, newAnswer).finally(hideModal);
     return false;
   };
   return (
@@ -57,7 +55,7 @@ function SubmitAnswerModal({
           />
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => hideModal()}>
+          <Button variant="secondary" onClick={hideModal}>
             Cancel
           </Button>
           <Button variant="primary" type="submit">
