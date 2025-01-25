@@ -1,41 +1,36 @@
 import React, { FormEvent } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
-import { addPuzzle, selectPuzzleTags } from "./puzzlesSlice";
-import { hideModal } from "./modalSlice";
-import { selectHuntCreateChannelByDefault } from "./huntSlice";
 
-import type { Dispatch } from "./store";
+import { useStore } from "./store";
 import type { HuntId, PuzzleTag } from "./types";
 
 type ChangeEvent = React.ChangeEvent<HTMLInputElement>;
 
 function AddPuzzleModal({ huntId }: { huntId: HuntId }) {
-  const puzzleTags = useSelector(selectPuzzleTags);
   const [name, setName] = React.useState("");
   const [url, setUrl] = React.useState("");
   const [assignedMeta, setAssignedMeta] = React.useState("");
   const [isMeta, setIsMeta] = React.useState(false);
   const [createChannels, setCreateChannels] = React.useState(
-    useSelector(selectHuntCreateChannelByDefault)
+    useStore((state) => state.huntSlice.hunt.create_channel_by_default)
   );
-  const dispatch = useDispatch<Dispatch>();
+
+  const puzzleTags = useStore((state) => state.huntSlice.hunt.puzzle_tags);
+  const { hideModal } = useStore((state) => state.modalSlice);
+  const { addPuzzle } = useStore((state) => state.puzzlesSlice);
+
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
-    dispatch(
-      addPuzzle({
-        huntId,
-        name,
-        url,
-        is_meta: isMeta,
-        create_channels: createChannels,
-        assigned_meta: assignedMeta,
-      })
-    ).finally(() => {
-      dispatch(hideModal());
-    });
+    addPuzzle({
+      huntId,
+      name,
+      url,
+      is_meta: isMeta,
+      create_channels: createChannels,
+      assigned_meta: assignedMeta,
+    }).finally(hideModal);
     return false;
   };
 
@@ -100,7 +95,7 @@ function AddPuzzleModal({ huntId }: { huntId: HuntId }) {
           />
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => dispatch(hideModal())}>
+          <Button variant="secondary" onClick={hideModal}>
             Cancel
           </Button>
           <Button variant="primary" type="submit">

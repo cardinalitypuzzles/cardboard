@@ -1,16 +1,13 @@
 import React from "react";
 import { Badge, Popover, OverlayTrigger } from "react-bootstrap";
-import { useSelector, useDispatch } from "react-redux";
 import { faWrench } from "@fortawesome/free-solid-svg-icons";
-import { showModal } from "./modalSlice";
 import ClickableIcon from "./ClickableIcon";
-import { toggleCollapsed } from "./collapsedPuzzlesSlice";
 import { IconChevronDown, IconChevronRight } from "@tabler/icons";
 import { faCircle } from "@fortawesome/free-solid-svg-icons";
 import ReactTimeAgo from "react-time-ago";
 
 import { Hunt, Puzzle, Row, TypeIgnoredFontAwesomeIcon } from "./types";
-import { RootState } from "./store";
+import { useStore } from "./store";
 
 const getColor = (min_since_edit: number) => {
   if (min_since_edit <= 5) {
@@ -72,13 +69,13 @@ const PuzzleTitle = ({
 };
 
 const useToggleRowExpandedProps = (row: Row<Puzzle>) => {
-  const dispatch = useDispatch();
+  const { toggleCollapsed } = useStore((store) => store.collapsedPuzzlesSlice);
   const originalProps = row.getToggleRowExpandedProps({});
 
   return {
     ...originalProps,
     onClick: (e: MouseEvent) => {
-      dispatch(toggleCollapsed({ rowId: row.id, huntId: CURRENT_HUNT_ID }));
+      toggleCollapsed(CURRENT_HUNT_ID.toString(), row.id);
       e.stopPropagation();
       return originalProps.onClick(e);
     },
@@ -92,10 +89,10 @@ export default function NameCell({
   row: Row<Puzzle>;
   value: string;
 }) {
-  const { id: huntId } = useSelector<RootState, Hunt>((state) => state.hunt);
+  const huntId = useStore((store) => store.huntSlice.hunt.id);
+  const { showModal } = useStore((store) => store.modalSlice);
   const [uiHovered, setUiHovered] = React.useState(false);
   const toggleRowExpandedProps = useToggleRowExpandedProps(row);
-  const dispatch = useDispatch();
 
   return (
     <div
@@ -148,19 +145,17 @@ export default function NameCell({
           <ClickableIcon
             icon={faWrench}
             onClick={() =>
-              dispatch(
-                showModal({
-                  type: "EDIT_PUZZLE",
-                  props: {
-                    huntId,
-                    puzzleId: row.values.id,
-                    name: row.values.name,
-                    url: row.values.url,
-                    isMeta: row.values.is_meta,
-                    hasChannels: !!row.original.chat_room?.text_channel_url,
-                  },
-                })
-              )
+              showModal({
+                type: "EDIT_PUZZLE",
+                props: {
+                  huntId,
+                  puzzleId: row.values.id,
+                  name: row.values.name,
+                  url: row.values.url,
+                  isMeta: row.values.is_meta,
+                  hasChannels: !!row.original.chat_room?.text_channel_url,
+                },
+              })
             }
           />
         </div>

@@ -1,32 +1,40 @@
-import { createSlice } from "@reduxjs/toolkit";
-import { isRejectedAction } from "./utils";
+import { StateCreator } from "zustand";
 
-export const modalSlice = createSlice({
-  name: "modal",
-  initialState: {
+import { RootState } from "./store";
+
+export interface ModalSlice {
+  modalSlice: {
+    show: boolean;
+    type: string;
+    props: Record<string, any>;
+
+    showModal: (payload: { type: string; props: any }) => void;
+    hideModal: () => void;
+  };
+}
+
+export const modalSlice: StateCreator<
+  RootState,
+  [["zustand/devtools", never], ["zustand/immer", never]],
+  [],
+  ModalSlice
+> = (set, get) => ({
+  modalSlice: {
     show: false,
-    type: null,
+    type: "",
     props: {},
-  },
-  reducers: {
-    showModal: (state, action) => {
-      state.show = true;
-      state.type = action.payload.type;
-      state.props = action.payload.props;
+
+    showModal: (payload: { type: string; props: any }) => {
+      set((state) => {
+        state.modalSlice.show = true;
+        state.modalSlice.type = payload.type;
+        state.modalSlice.props = payload.props;
+      });
     },
-    hideModal: (state) => {
-      state.show = false;
+    hideModal: () => {
+      set((state) => {
+        state.modalSlice.show = false;
+      });
     },
-  },
-  extraReducers: (builder) => {
-    builder.addMatcher(isRejectedAction, (state) => {
-      // On any error, the modal should close, so that the alert is visible.
-      // Might need something more precise later but this is good enough for now.
-      state.show = false;
-    });
   },
 });
-
-export const { showModal, hideModal } = modalSlice.actions;
-
-export default modalSlice.reducer;
