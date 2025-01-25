@@ -64,7 +64,7 @@ export function filterSolvedPuzzlesFn(
 filterSolvedPuzzlesFn.autoRemove = (val: any) => !val;
 
 export const SolvedStateFilter = () => {
-  const { solveStateFilter, updateSolveStateFilter } = useStore(
+  const { solveStateFilter, setSolveStateFilter } = useStore(
     (store) => store.filterSlice
   );
   return (
@@ -77,7 +77,7 @@ export const SolvedStateFilter = () => {
           checked={solveStateFilter === SOLVE_STATE_FILTER_OPTIONS.ALL}
           onChange={(evt) => {
             if (evt.target.checked) {
-              updateSolveStateFilter(SOLVE_STATE_FILTER_OPTIONS.ALL);
+              setSolveStateFilter(SOLVE_STATE_FILTER_OPTIONS.ALL);
             }
           }}
         />
@@ -94,7 +94,7 @@ export const SolvedStateFilter = () => {
           }
           onChange={(evt) => {
             if (evt.target.checked) {
-              updateSolveStateFilter(SOLVE_STATE_FILTER_OPTIONS.UNSOLVED);
+              setSolveStateFilter(SOLVE_STATE_FILTER_OPTIONS.UNSOLVED);
             }
           }}
         />
@@ -113,11 +113,11 @@ export const SolvedStateFilter = () => {
             }
             onChange={(evt) => {
               if (evt.target.checked) {
-                updateSolveStateFilter(
+                setSolveStateFilter(
                   SOLVE_STATE_FILTER_OPTIONS.UNSOLVED_WITH_SOLVED_METAS
                 );
               } else {
-                updateSolveStateFilter(SOLVE_STATE_FILTER_OPTIONS.UNSOLVED);
+                setSolveStateFilter(SOLVE_STATE_FILTER_OPTIONS.UNSOLVED);
               }
             }}
           />

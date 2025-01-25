@@ -11,7 +11,7 @@ export interface ChatSlice {
   chatSlice: {
     version: CHAT_VERSION_OPTIONS;
 
-    updateChatVersion: (version: CHAT_VERSION_OPTIONS) => void;
+    setChatVersion: (version: CHAT_VERSION_OPTIONS) => void;
   };
 }
 
@@ -23,7 +23,7 @@ export const chatSlice: StateCreator<
 > = (set, get) => ({
   chatSlice: {
     version: CHAT_VERSION_OPTIONS.APP,
-    updateChatVersion: (version: CHAT_VERSION_OPTIONS) => {
+    setChatVersion: (version: CHAT_VERSION_OPTIONS) => {
       set((state) => {
         state.chatSlice.version = version;
       });

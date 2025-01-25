@@ -4,7 +4,7 @@ import { useStore } from "./store";
 import { CHAT_VERSION_OPTIONS } from "./chatSlice";
 
 export const ChatVersionSelector = () => {
-  const { version, updateChatVersion } = useStore((state) => state.chatSlice);
+  const { version, setChatVersion } = useStore((state) => state.chatSlice);
 
   return (
     <div className="">
@@ -17,7 +17,7 @@ export const ChatVersionSelector = () => {
           checked={version === CHAT_VERSION_OPTIONS.APP}
           onChange={(evt) => {
             if (evt.target.checked) {
-              updateChatVersion(CHAT_VERSION_OPTIONS.APP);
+              setChatVersion(CHAT_VERSION_OPTIONS.APP);
             }
           }}
         />
@@ -33,7 +33,7 @@ export const ChatVersionSelector = () => {
           checked={version === CHAT_VERSION_OPTIONS.WEB}
           onChange={(evt) => {
             if (evt.target.checked) {
-              updateChatVersion(CHAT_VERSION_OPTIONS.WEB);
+              setChatVersion(CHAT_VERSION_OPTIONS.WEB);
             }
           }}
         />

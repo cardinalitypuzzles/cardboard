@@ -2,7 +2,7 @@ import React from "react";
 import { useStore } from "./store";
 
 function GlobalFilter() {
-  const { filterValue, updateFilterValue } = useStore(
+  const { filterValue, setFilterValue } = useStore(
     (state) => state.filterSlice
   );
   return (
@@ -11,7 +11,7 @@ function GlobalFilter() {
         type="search"
         value={filterValue || ""}
         onChange={(e) => {
-          updateFilterValue(e.target.value);
+          setFilterValue(e.target.value);
         }}
         placeholder="Search by name, answer, tag, etc."
         style={{

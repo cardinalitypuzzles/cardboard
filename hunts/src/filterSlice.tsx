@@ -16,8 +16,8 @@ export interface FilterSlice {
     solveStateFilter: SOLVE_STATE_FILTER_OPTIONS;
     tags: PuzzleTag[];
 
-    updateFilterValue: (filterValue: string) => void;
-    updateSolveStateFilter: (
+    setFilterValue: (filterValue: string) => void;
+    setSolveStateFilter: (
       solveStateFilter: SOLVE_STATE_FILTER_OPTIONS
     ) => void;
     toggleFilterTag: (newTag: PuzzleTag) => void;
@@ -35,12 +35,12 @@ export const filterSlice: StateCreator<
     solveStateFilter: SOLVE_STATE_FILTER_OPTIONS.ALL,
     tags: [] as PuzzleTag[],
 
-    updateFilterValue: (filterValue: string) => {
+    setFilterValue: (filterValue: string) => {
       set((state) => {
         state.filterSlice.filterValue = filterValue;
       });
     },
-    updateSolveStateFilter: (solveStateFilter: SOLVE_STATE_FILTER_OPTIONS) => {
+    setSolveStateFilter: (solveStateFilter: SOLVE_STATE_FILTER_OPTIONS) => {
       set((state) => {
         state.filterSlice.solveStateFilter = solveStateFilter;
       });
