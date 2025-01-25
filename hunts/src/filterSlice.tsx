@@ -17,9 +17,7 @@ export interface FilterSlice {
     tags: PuzzleTag[];
 
     setFilterValue: (filterValue: string) => void;
-    setSolveStateFilter: (
-      solveStateFilter: SOLVE_STATE_FILTER_OPTIONS
-    ) => void;
+    setSolveStateFilter: (solveStateFilter: SOLVE_STATE_FILTER_OPTIONS) => void;
     toggleFilterTag: (newTag: PuzzleTag) => void;
   };
 }
