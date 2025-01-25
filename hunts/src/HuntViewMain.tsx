@@ -91,9 +91,7 @@ export const HuntViewMain = (props: { huntId: HuntId }) => {
 
   const l = useStore((state) => state.puzzlesSlice.lastUpdate);
 
-  useInterval(() => {
-    fetchAllPuzzles();
-  }, 10 * 1000);
+  useInterval(fetchAllPuzzles, 10 * 1000);
 
   const ModalComponent = MODAL_COMPONENTS[modal.type];
   React.useEffect(() => {
@@ -105,7 +103,7 @@ export const HuntViewMain = (props: { huntId: HuntId }) => {
 
   React.useEffect(() => {
     if (alert.show) {
-      const timer = setTimeout(() => hideAlert(), 8 * 1000);
+      const timer = setTimeout(hideAlert, 8 * 1000);
       return () => clearTimeout(timer);
     }
   }, [alert.id]);
@@ -178,7 +176,7 @@ export const HuntViewMain = (props: { huntId: HuntId }) => {
         <Modal
           animation={false}
           show={modal.show}
-          onHide={() => modal.hideModal()}
+          onHide={modal.hideModal}
           scrollable={true}
         >
           {ModalComponent ? <ModalComponent {...modal.props} /> : null}
