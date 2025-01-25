@@ -19,9 +19,7 @@ function EditNotesModal({
   const [newNotes, setNewNotes] = React.useState(text);
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
-    editNotes(puzzleId, newNotes).finally(() => {
-      hideModal();
-    });
+    editNotes(puzzleId, newNotes).finally(hideModal);
     return false;
   };
   return (
@@ -40,7 +38,7 @@ function EditNotesModal({
           />
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => hideModal()}>
+          <Button variant="secondary" onClick={hideModal}>
             Cancel
           </Button>
           <Button variant="primary" type="submit">

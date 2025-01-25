@@ -17,9 +17,7 @@ function DeletePuzzleModal({
   const { hideModal } = useStore((state) => state.modalSlice);
 
   const onDelete = () => {
-    deletePuzzle(puzzleId).finally(() => {
-      hideModal();
-    });
+    deletePuzzle(puzzleId).finally(hideModal);
   };
 
   return (
@@ -31,7 +29,7 @@ function DeletePuzzleModal({
         Are you sure you want to delete <b>{puzzleName}</b>?
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="secondary" onClick={() => hideModal()}>
+        <Button variant="secondary" onClick={hideModal}>
           Cancel
         </Button>
         <Button variant="danger" onClick={onDelete}>

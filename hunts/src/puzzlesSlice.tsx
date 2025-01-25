@@ -159,7 +159,9 @@ export const puzzlesSlice: StateCreator<
     },
     editNotes: async (puzzleId: PuzzleId, text: string) => {
       return api.editNotes(puzzleId, { text }).then((response) => {
-        get().puzzlesSlice.bulkUpdatePuzzlesFromDict(response);
+        set((state) => {
+          state.puzzlesSlice.puzzles[puzzleId].notes = response["notes"];
+        });
       });
     },
 

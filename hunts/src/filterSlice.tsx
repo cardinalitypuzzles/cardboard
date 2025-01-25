@@ -41,9 +41,9 @@ export const filterSlice: StateCreator<
       });
     },
     updateSolveStateFilter: (solveStateFilter: SOLVE_STATE_FILTER_OPTIONS) => {
-      set((state) => ({
-        filterSlice: { ...state.filterSlice, solveStateFilter },
-      }));
+      set((state) => {
+        state.filterSlice.solveStateFilter = solveStateFilter;
+      });
     },
     toggleFilterTag: (newTag: PuzzleTag) => {
       set((state) => {

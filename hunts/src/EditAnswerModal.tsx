@@ -20,9 +20,7 @@ function EditAnswerModal({
   const { hideModal } = useStore((state) => state.modalSlice);
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    editAnswer(puzzleId, answerId, newAnswer).finally(() => {
-      hideModal();
-    });
+    editAnswer(puzzleId, answerId, newAnswer).finally(hideModal);
     return false;
   };
   return (
@@ -41,7 +39,7 @@ function EditAnswerModal({
           />
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => hideModal()}>
+          <Button variant="secondary" onClick={hideModal}>
             Cancel
           </Button>
           <Button variant="primary" type="submit">

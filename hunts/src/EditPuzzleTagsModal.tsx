@@ -96,7 +96,7 @@ function EditPuzzleTagsModal({
         </Form>
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="primary" type="submit" onClick={() => hideModal()}>
+        <Button variant="primary" type="submit" onClick={hideModal}>
           Done
         </Button>
       </Modal.Footer>

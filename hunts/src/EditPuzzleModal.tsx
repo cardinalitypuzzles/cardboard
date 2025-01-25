@@ -42,9 +42,7 @@ function EditPuzzleModal({
         is_meta: newIsMeta,
         create_channels: createChannels,
       })
-      .finally(() => {
-        hideModal();
-      });
+      .finally(hideModal);
     return false;
   };
   return (
@@ -114,7 +112,7 @@ function EditPuzzleModal({
           >
             Delete Puzzle
           </Button>
-          <Button variant="secondary" onClick={() => hideModal()}>
+          <Button variant="secondary" onClick={hideModal}>
             Cancel
           </Button>
           <Button variant="primary" type="submit">

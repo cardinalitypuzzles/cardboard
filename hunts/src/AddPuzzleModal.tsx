@@ -30,9 +30,7 @@ function AddPuzzleModal({ huntId }: { huntId: HuntId }) {
       is_meta: isMeta,
       create_channels: createChannels,
       assigned_meta: assignedMeta,
-    }).finally(() => {
-      hideModal();
-    });
+    }).finally(hideModal);
     return false;
   };
 
@@ -97,7 +95,7 @@ function AddPuzzleModal({ huntId }: { huntId: HuntId }) {
           />
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => hideModal()}>
+          <Button variant="secondary" onClick={hideModal}>
             Cancel
           </Button>
           <Button variant="primary" type="submit">

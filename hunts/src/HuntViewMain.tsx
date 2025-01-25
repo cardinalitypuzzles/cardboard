@@ -37,7 +37,7 @@ export interface PuzzleTable extends Puzzle {
   subRows: Puzzle[];
 }
 
-export const makePuzzleTableData = (ids: Puzzle[]) => {
+const makePuzzleTableData = (ids: Puzzle[]) => {
   // We need to construct the meta/subtree relationships.
   // Each meta that contains a puzzle gets a reference to the same
   // puzzle object. Then we can offload any actual graph traversal
