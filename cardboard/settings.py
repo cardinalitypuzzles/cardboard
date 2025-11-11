@@ -282,6 +282,8 @@ else:
         "DISCORD": discord_lib.DiscordChatService,
     }
 
+CREATE_AUDIO_CHANNEL = False
+
 
 # Celery settings
 from enum import Enum

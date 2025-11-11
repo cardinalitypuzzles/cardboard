@@ -37,6 +37,12 @@ django-silk = "^5.0.2"
 [tool.isort]
 profile = "black"
 
+[tool.basedpyright]
+pythonVersion = "3.10"
+typeCheckingMode = "basic"
+useLibraryCodeForTypes = true
+autoImportCompletions = true
+
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"

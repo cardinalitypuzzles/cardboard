@@ -73,18 +73,12 @@
                         {% else %}
                             {{ user.username }}
                         {% endif %}
-                        {% if user.email %}
-                            ({{user.email}})
-                        {% endif %}
                             </div>
                         </li>
                     {% else %}
                     {% if not is_google_auth_enabled %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'login' %}">Login</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'signup' %}">Signup</a>
                     </li>
                     {% endif %}
                 {% endif %}
@@ -115,10 +109,10 @@
             {% block page_content %}{% endblock %}
         </div>
 
-        <div class="navbar navbar-themed">
+        <!--<div class="navbar navbar-themed">
             <p class="small text-muted mb-0">By using our site, you acknowledge that you have read and understand our <a href="{% url 'privacy'%}">Privacy Policy</a></p>
             <p class="small text-muted mb-0">Find us on <a href="https://github.com/cardinalitypuzzles/cardboard">GitHub</a></p>
-        </div>
+        </div>-->
     </body>
 
 

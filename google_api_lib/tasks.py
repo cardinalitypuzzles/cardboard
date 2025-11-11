@@ -88,7 +88,11 @@ def move_drive_file(self, file_id, destination_folder_id) -> None:
 @shared_task(base=GoogleApiClientTask, bind=True)
 def transfer_ownership(self, file, template_file_id) -> None:
     new_owner = self.sheets_owner(template_file_id)
-    permission = next(p for p in file["permissions"] if p["emailAddress"] == new_owner)
+    permission = next(
+        p
+        for p in file["permissions"]
+        if (email := p.get("emailAddress")) and email.lower() == new_owner.lower()
+    )
     self.drive_service().permissions().update(
         fileId=file["id"],
         permissionId=permission["id"],
@@ -308,7 +312,7 @@ def _update_meta_sheet_feeders(self, puzzle_id) -> None:
         return
 
     logger.info(
-        "Starting updating the meta sheet for '%s' " "with feeder puzzles" % meta_puzzle
+        "Starting updating the meta sheet for '%s' with feeder puzzles" % meta_puzzle
     )
     spreadsheet_id = extract_id_from_sheets_url(meta_puzzle.sheet)
     feeders = meta_puzzle.feeders.all()
@@ -439,7 +443,7 @@ def _update_meta_sheet_feeders(self, puzzle_id) -> None:
         spreadsheetId=spreadsheet_id, body={"requests": requests}
     ).execute(http=http)
     logger.info(
-        "Done updating the meta sheet for '%s' " "with feeder puzzles" % meta_puzzle
+        "Done updating the meta sheet for '%s' with feeder puzzles" % meta_puzzle
     )
 
 
@@ -588,6 +592,7 @@ def update_active_users(self, hunt_id):
         response = self.drive_activity_service().activity().query(body=body).execute()
         activities = response.get("activities", [])
 
+        print(activities)
         for activity in activities:
             users = [
                 a["user"]["knownUser"]

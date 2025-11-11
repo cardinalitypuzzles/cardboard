@@ -30,7 +30,7 @@ export default function AnswerCell({ row }: { row: Row<Puzzle> }) {
           )
         }
       >
-        Submit Answer
+        Add Answer
       </Button>
     );
   }

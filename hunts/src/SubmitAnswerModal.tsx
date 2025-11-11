@@ -44,7 +44,7 @@ function SubmitAnswerModal({
   return (
     <>
       <Modal.Header closeButton>
-        <Modal.Title>Submit Answer for {puzzleName} </Modal.Title>
+        <Modal.Title>Add Answer for {puzzleName} </Modal.Title>
       </Modal.Header>
       <Form onSubmit={onSubmit} autoComplete="off">
         <Modal.Body>

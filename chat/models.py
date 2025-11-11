@@ -102,7 +102,7 @@ class ChatRoom(SoftDeleteModel):
             )
             update_fields.extend(["text_channel_id", "text_channel_url"])
 
-        if self.audio_channel_id is None:
+        if self.audio_channel_id is None and settings.CREATE_AUDIO_CHANNEL:
             self.audio_channel_id = service.create_audio_channel(
                 self.get_guild_id(), self.name, self._get_audio_category_name()
             )

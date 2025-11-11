@@ -47,12 +47,8 @@
             {% block page_content %}{% endblock %}
         </div>
 
-        <div class="navbar navbar-themed">
-            <p class="small text-muted mb-0">By using our site, you acknowledge that you have read and understand our <a href="{% url 'privacy'%}">Privacy Policy</a></p>
-            <p class="small text-muted mb-0">Find us on <a href="https://github.com/cardinalitypuzzles/cardboard">GitHub</a></p>
-        </div>
         <script>
-           LOGGED_IN_USER = `{% if user.first_name %}{{user.first_name}} {{user.last_name}}{% else %}{{ user.username }}{% endif %}{% if user.email %} ({{user.email}}){% endif %}`
+           LOGGED_IN_USER = `{% if user.first_name %}{{user.first_name}} {{user.last_name}}{% else %}{{ user.username }}{% endif %}`
            APP_SHORT_TITLE = `{{ APP_SHORT_TITLE }}`
            FAVICON = `{{ FAVICON }}`
         </script>
