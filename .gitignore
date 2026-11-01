@@ -167,3 +167,7 @@ logfile
 
 # Redis
 *.rdb
+
+# cloud-run
+cloud-run/.env.yaml
+cloud-run/.service.yaml
