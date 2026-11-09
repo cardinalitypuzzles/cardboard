@@ -565,7 +565,7 @@ def update_active_users(self, hunt_id):
     if hunt.last_active_users_update_time:
         last_update_time = hunt.last_active_users_update_time
     else:
-        last_update_time = hunt.start_time
+        last_update_time = min(hunt.start_time, now)
 
     # avoid having to get and process too much data at once
     end = min(last_update_time + datetime.timedelta(minutes=10), now)
@@ -573,7 +573,7 @@ def update_active_users(self, hunt_id):
     if end > hunt.end_time:
         return
 
-    action_filter = "detail.action_detail_case: EDIT"
+    action_filter = "detail.action_detail_case:EDIT"
     time_filter = "time > {} AND time <= {}".format(
         round(last_update_time.timestamp() * 1000), round(end.timestamp() * 1000)
     )
