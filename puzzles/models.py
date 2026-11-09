@@ -84,7 +84,7 @@ class Puzzle(SoftDeleteModel):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=["name", "hunt"], name="unique_names_per_hunt"
+                fields=["name", "hunt", "deleted_at"], name="unique_names_per_hunt"
             ),
         ]
 
