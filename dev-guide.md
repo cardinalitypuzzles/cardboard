@@ -180,8 +180,9 @@ Then, in a separate terminal window from the one where you run the django
 yarn run dev
 ```
 
-This will start a compilation daemon that watches for local changes and
-hot-reloads them during development.
+This will start a Vite dev server that provides instant hot-module replacement (HMR)
+during development. When using Docker (`docker-compose up`), the frontend Vite
+service runs automatically on port 5173.
 
 #### Running Tests
 

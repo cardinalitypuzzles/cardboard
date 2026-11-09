@@ -23,6 +23,7 @@ services:
       - DATABASE_URL=postgres://cardboard_user:cardboard_password@db/cardboard
       - REDIS_URL=redis://redis:6379
       - DJANGO_SUPERUSER_PASSWORD=burrito
+      - DEBUG=${DEBUG:-true}
     env_file:
       - ./.env
     entrypoint:
@@ -43,6 +44,17 @@ services:
     depends_on:
       - db
       - redis
+  frontend:
+    build: .
+    entrypoint: []
+    command: yarn dev --host 0.0.0.0
+    volumes:
+      - .:/usr/src/cardboard/:Z
+      - /usr/src/cardboard/node_modules
+    ports:
+      - 5173:5173
+    environment:
+      - CHOKIDAR_USEPOLLING=true
 
 volumes:
   postgres_data:

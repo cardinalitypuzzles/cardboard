@@ -156,7 +156,12 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "cardboard/static"),
     os.path.join(BASE_DIR, "hunts/static"),
 ]
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+if not DEBUG:
+    STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+# Vite dev server configuration
+VITE_SERVER_URL = os.environ.get("VITE_SERVER_URL", "http://localhost:5173")
+VITE_DEV_MODE = bool(strtobool(os.environ.get("VITE_DEV_MODE", str(DEBUG))))
 
 # User login
 AUTH_USER_MODEL = "accounts.Puzzler"

@@ -1,5 +1,6 @@
 {% extends "reactbase.html" %}
 {% load static %}
+{% load vite_tags %}
 
 {% block page_content %}
 
@@ -10,5 +11,5 @@
 <script>
     var CURRENT_HUNT_ID = ({{ hunt_pk }}).toString();
 </script>
-<script src="{% static "main.js" %}"></script>
+{% vite_asset 'hunts/src/index.tsx' %}
 {% endblock %}
