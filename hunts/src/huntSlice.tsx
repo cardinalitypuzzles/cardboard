@@ -1,53 +1,42 @@
-import {
-  createSlice,
-  createAsyncThunk,
-  createSelector,
-} from "@reduxjs/toolkit";
-import api from "./api";
+import { StateCreator } from "zustand";
+import { immer } from "zustand/middleware/immer"; // eslint-disable-line
 
-import { Hunt, HuntId } from "./types";
-import { RootState } from "./store";
+import { Hunt } from "./types";
+import type { RootState } from "./store";
 
-export const fetchHunt = createAsyncThunk(
-  "hunt/fetchHunt",
-  async (huntId: HuntId) => {
-    const response = await api.getHunt(huntId);
-    return response;
-  }
-);
+export interface HuntSlice {
+  huntSlice: {
+    hunt: Hunt;
+    set: (hunt: Partial<Hunt>) => void;
+  };
+}
 
-export const huntSlice = createSlice({
-  name: "hunt",
-  initialState: {
-    id: null,
-    name: null,
-    has_drive: false,
-    puzzle_tags: [],
-    create_channel_by_default: true,
-  } as Hunt,
-  reducers: {},
-  extraReducers: (builder) => {
-    builder.addCase(fetchHunt.fulfilled, (state, action) => {
-      state.id = action.payload.id;
-      state.name = action.payload.name;
-      state.has_drive = action.payload.has_drive;
-      state.puzzle_tags = action.payload.puzzle_tags;
-      state.create_channel_by_default =
-        action.payload.create_channel_by_default;
-    });
+export const huntSlice: StateCreator<
+  RootState,
+  [["zustand/devtools", never], ["zustand/immer", never]],
+  [],
+  HuntSlice
+> = (set) => ({
+  huntSlice: {
+    hunt: {
+      id: null,
+      name: null,
+      has_drive: false,
+      // Caution: will be stale if you've added a tag but haven't refreshed the page.
+      // TODO: keep this up to date when adding tags
+      puzzle_tags: [],
+      create_channel_by_default: true,
+    } as Hunt,
+
+    set: (hunt: Partial<Hunt>) => {
+      set((state) => {
+        state.huntSlice.hunt = {
+          ...state.huntSlice.hunt,
+          ...hunt,
+        };
+      });
+    },
   },
 });
 
-export default huntSlice.reducer;
-
-const selectHunt = (state: RootState) => state.hunt;
-
-export const selectHuntId = createSelector([selectHunt], (hunt) => hunt.id);
-export const selectHuntTags = createSelector(
-  [selectHunt],
-  (hunt) => hunt.puzzle_tags
-);
-export const selectHuntCreateChannelByDefault = createSelector(
-  [selectHunt],
-  (hunt) => hunt.create_channel_by_default
-);
+export default huntSlice;

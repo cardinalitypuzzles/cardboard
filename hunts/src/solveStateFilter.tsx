@@ -1,11 +1,7 @@
 import * as React from "react";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  getSolveStateFilter,
-  SOLVE_STATE_FILTER_OPTIONS,
-  updateSolveStateFilter,
-} from "./filterSlice";
 
+import { SOLVE_STATE_FILTER_OPTIONS } from "./filterSlice";
+import { useStore } from "./store";
 import type { Puzzle, Row } from "./types";
 
 function isUnsolved(tableRow: Row<Puzzle>) {
@@ -68,8 +64,9 @@ export function filterSolvedPuzzlesFn(
 filterSolvedPuzzlesFn.autoRemove = (val: any) => !val;
 
 export const SolvedStateFilter = () => {
-  const filterSolved = useSelector(getSolveStateFilter);
-  const dispatch = useDispatch();
+  const { solveStateFilter, setSolveStateFilter } = useStore(
+    (store) => store.filterSlice
+  );
   return (
     <>
       <span>Show:</span>
@@ -77,10 +74,10 @@ export const SolvedStateFilter = () => {
         <input
           style={{ margin: "0 5px 0 10px" }}
           type="radio"
-          checked={filterSolved === SOLVE_STATE_FILTER_OPTIONS.ALL}
+          checked={solveStateFilter === SOLVE_STATE_FILTER_OPTIONS.ALL}
           onChange={(evt) => {
             if (evt.target.checked) {
-              dispatch(updateSolveStateFilter(SOLVE_STATE_FILTER_OPTIONS.ALL));
+              setSolveStateFilter(SOLVE_STATE_FILTER_OPTIONS.ALL);
             }
           }}
         />
@@ -91,42 +88,36 @@ export const SolvedStateFilter = () => {
           style={{ margin: "0 5px 0 10px" }}
           type="radio"
           checked={
-            filterSolved === SOLVE_STATE_FILTER_OPTIONS.UNSOLVED ||
-            filterSolved ===
+            solveStateFilter === SOLVE_STATE_FILTER_OPTIONS.UNSOLVED ||
+            solveStateFilter ===
               SOLVE_STATE_FILTER_OPTIONS.UNSOLVED_WITH_SOLVED_METAS
           }
           onChange={(evt) => {
             if (evt.target.checked) {
-              dispatch(
-                updateSolveStateFilter(SOLVE_STATE_FILTER_OPTIONS.UNSOLVED)
-              );
+              setSolveStateFilter(SOLVE_STATE_FILTER_OPTIONS.UNSOLVED);
             }
           }}
         />
         Unsolved
       </label>
-      {(filterSolved === SOLVE_STATE_FILTER_OPTIONS.UNSOLVED ||
-        filterSolved ===
+      {(solveStateFilter === SOLVE_STATE_FILTER_OPTIONS.UNSOLVED ||
+        solveStateFilter ===
           SOLVE_STATE_FILTER_OPTIONS.UNSOLVED_WITH_SOLVED_METAS) && (
         <label>
           <input
             style={{ margin: "0 5px 0 10px" }}
             type="checkbox"
             checked={
-              filterSolved ===
+              solveStateFilter ===
               SOLVE_STATE_FILTER_OPTIONS.UNSOLVED_WITH_SOLVED_METAS
             }
             onChange={(evt) => {
               if (evt.target.checked) {
-                dispatch(
-                  updateSolveStateFilter(
-                    SOLVE_STATE_FILTER_OPTIONS.UNSOLVED_WITH_SOLVED_METAS
-                  )
+                setSolveStateFilter(
+                  SOLVE_STATE_FILTER_OPTIONS.UNSOLVED_WITH_SOLVED_METAS
                 );
               } else {
-                dispatch(
-                  updateSolveStateFilter(SOLVE_STATE_FILTER_OPTIONS.UNSOLVED)
-                );
+                setSolveStateFilter(SOLVE_STATE_FILTER_OPTIONS.UNSOLVED);
               }
             }}
           />

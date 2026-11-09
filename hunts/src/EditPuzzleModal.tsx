@@ -1,11 +1,9 @@
 import React, { FormEvent } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
-import { useDispatch, useSelector } from "react-redux";
-import { selectPuzzleTags, updatePuzzle } from "./puzzlesSlice";
-import { showModal, hideModal } from "./modalSlice";
 import EditableTagList from "./EditableTagList";
+import api from "./api";
 
-import type { Dispatch } from "./store";
+import { useStore } from "./store";
 import type { HuntId, PuzzleId } from "./types";
 
 type ChangeEvent = React.ChangeEvent<HTMLInputElement>;
@@ -29,27 +27,22 @@ function EditPuzzleModal({
   const [newUrl, setNewUrl] = React.useState(url);
   const [newIsMeta, setNewIsMeta] = React.useState(isMeta);
   const [createChannels, setCreateChannels] = React.useState(hasChannels);
-  const dispatch = useDispatch<Dispatch>();
 
-  const tags = useSelector(selectPuzzleTags);
+  const { showModal, hideModal } = useStore((state) => state.modalSlice);
+
+  const tags = useStore((state) => state.puzzlesSlice.allPuzzleTags)();
   const meta_tags = tags.filter((tag) => tag.is_meta && tag.name != name);
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
-    dispatch(
-      updatePuzzle({
-        huntId,
-        id: puzzleId,
-        body: {
-          name: newName,
-          url: newUrl,
-          is_meta: newIsMeta,
-          create_channels: createChannels,
-        },
+    api
+      .updatePuzzle(huntId, puzzleId, {
+        name: newName,
+        url: newUrl,
+        is_meta: newIsMeta,
+        create_channels: createChannels,
       })
-    ).finally(() => {
-      dispatch(hideModal());
-    });
+      .finally(hideModal);
     return false;
   };
   return (
@@ -106,22 +99,20 @@ function EditPuzzleModal({
             variant="danger"
             onClick={() => {
               hideModal();
-              dispatch(
-                showModal({
-                  type: "DELETE_PUZZLE",
-                  props: {
-                    huntId,
-                    puzzleId: puzzleId,
-                    puzzleName: name,
-                  },
-                })
-              );
+              showModal({
+                type: "DELETE_PUZZLE",
+                props: {
+                  huntId,
+                  puzzleId: puzzleId,
+                  puzzleName: name,
+                },
+              });
             }}
             className="me-auto"
           >
             Delete Puzzle
           </Button>
-          <Button variant="secondary" onClick={() => dispatch(hideModal())}>
+          <Button variant="secondary" onClick={hideModal}>
             Cancel
           </Button>
           <Button variant="primary" type="submit">

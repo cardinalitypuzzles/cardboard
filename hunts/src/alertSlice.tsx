@@ -1,48 +1,54 @@
-import { createSlice } from "@reduxjs/toolkit";
-import { isRejectedAction } from "./utils";
+import { StateCreator } from "zustand";
+
+import { RootState } from "./store";
+
+enum AlertWindowType {
+  SUCCESS = "success",
+  DANGER = "danger",
+  WARNING = "warning",
+  INFO = "info",
+}
+
+export interface AlertSlice {
+  alertSlice: {
+    show: boolean;
+    variant: AlertWindowType;
+    text: string;
+    id: number;
+
+    showAlert: (variant: AlertWindowType, text: string) => void;
+    hideAlert: () => void;
+  };
+}
 
 let nextId = 1;
 
-interface AlertState {
-  show: boolean;
-  variant: string;
-  text: string;
-  id: number;
-}
-
-export const alertSlice = createSlice({
-  name: "alert",
-  initialState: {
+export const alertSlice: StateCreator<
+  RootState,
+  [["zustand/devtools", never], ["zustand/immer", never]],
+  [],
+  AlertSlice
+> = (set, get) => ({
+  alertSlice: {
     show: false,
-    variant: "",
+    variant: AlertWindowType.INFO,
     text: "",
     id: 0,
-  } as AlertState,
-  reducers: {
-    showAlert: (state, action) => {
-      state.show = true;
-      state.variant = action.payload.variant;
-      state.text = action.payload.text;
-      state.id = nextId++;
-    },
-    hideAlert: (state) => {
-      state.show = false;
-    },
-  },
 
-  extraReducers: (builder) => {
-    builder.addMatcher(
-      isRejectedAction,
-      (state, action: { error: { message?: string } }) => {
-        state.show = true;
-        state.variant = "danger";
-        state.text = action.error.message!;
-        state.id = nextId++;
-      }
-    );
+    showAlert: (variant: AlertWindowType, text: string) => {
+      set((state) => {
+        state.alertSlice.show = true;
+        state.alertSlice.variant = variant;
+        state.alertSlice.text = text;
+        state.alertSlice.id = nextId++;
+      });
+    },
+    hideAlert: () => {
+      set((state) => {
+        state.alertSlice.show = false;
+      });
+    },
   },
 });
 
-export const { showAlert, hideAlert } = alertSlice.actions;
-
-export default alertSlice.reducer;
+export default alertSlice;

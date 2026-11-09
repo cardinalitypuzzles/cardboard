@@ -1,10 +1,9 @@
 import React from "react";
 import { Dropdown, DropdownButton } from "react-bootstrap";
-import { useSelector, useDispatch } from "react-redux";
-import { updatePuzzle } from "./puzzlesSlice";
+import api from "./api";
 
 import type { Hunt, Puzzle, Row } from "./types";
-import { Dispatch, RootState } from "./store";
+import { useStore, RootState } from "./store";
 
 export default function StatusCell({
   row,
@@ -13,8 +12,8 @@ export default function StatusCell({
   row: Row<Puzzle>;
   value: string;
 }) {
-  const { id: huntId } = useSelector<RootState, Hunt>((state) => state.hunt);
-  const dispatch = useDispatch<Dispatch>();
+  const huntId = useStore((store) => store.huntSlice.hunt.id);
+  const { updatePuzzle } = useStore((store) => store.puzzlesSlice);
   const statuses_to_display = ["SOLVING", "STUCK", "EXTRACTION"];
   if (value === "SOLVED" || row.original.guesses?.length > 0) {
     statuses_to_display.push("SOLVED");
@@ -27,13 +26,9 @@ export default function StatusCell({
         variant="outline-primary"
         className="cb-btn-compact"
         onSelect={(status: string | null) => {
-          dispatch(
-            updatePuzzle({
-              huntId: huntId!,
-              id: row.values.id,
-              body: { status: status ?? undefined },
-            })
-          );
+          api.updatePuzzle(huntId!, row.values.id, {
+            status: status ?? undefined,
+          });
         }}
       >
         {statuses_to_display.map((status_to_display) => (

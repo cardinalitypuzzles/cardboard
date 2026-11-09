@@ -1,10 +1,7 @@
 import React from "react";
-import { useDispatch } from "react-redux";
 import { Button, Modal } from "react-bootstrap";
-import { deleteAnswer } from "./puzzlesSlice";
-import { hideModal } from "./modalSlice";
 
-import type { Dispatch } from "./store";
+import { useStore } from "./store";
 import type { AnswerId, PuzzleId } from "./types";
 
 function DeleteAnswerModal({
@@ -14,11 +11,11 @@ function DeleteAnswerModal({
   puzzleId: PuzzleId;
   answerId: AnswerId;
 }) {
-  const dispatch = useDispatch<Dispatch>();
+  const { deleteAnswer } = useStore((state) => state.puzzlesSlice);
+  const { hideModal } = useStore((state) => state.modalSlice);
+
   const onDelete = () => {
-    dispatch(deleteAnswer({ puzzleId, answerId })).finally(() => {
-      dispatch(hideModal());
-    });
+    deleteAnswer(puzzleId, answerId).finally(hideModal);
   };
 
   return (
@@ -28,7 +25,7 @@ function DeleteAnswerModal({
       </Modal.Header>
       <Modal.Body>Are you sure you want to delete this answer?</Modal.Body>
       <Modal.Footer>
-        <Button variant="secondary" onClick={() => dispatch(hideModal())}>
+        <Button variant="secondary" onClick={hideModal}>
           Cancel
         </Button>
         <Button variant="danger" onClick={onDelete}>

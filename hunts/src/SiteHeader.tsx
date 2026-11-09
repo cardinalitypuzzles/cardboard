@@ -2,16 +2,13 @@ import React from "react";
 import { DarkModeToggle } from "./DarkModeToggle";
 import Drawer from "react-modern-drawer";
 import { ChatVersionSelector } from "./chatSelector";
-import { useSelector } from "react-redux";
 import { IconMenu2 } from "@tabler/icons";
 import "react-modern-drawer/dist/index.css";
-import { RootState } from "./store";
-
-import type { Hunt } from "./types";
+import { useStore } from "./store";
 
 export const SiteHeader = () => {
   const [isOpen, setIsOpen] = React.useState(false);
-  const hunt = useSelector<RootState, Hunt>((state) => state.hunt);
+  const hunt = useStore((state) => state.huntSlice.hunt);
   const toggleDrawer = () => {
     setIsOpen((prevState) => !prevState);
   };
