@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django_softdelete.admin import hard_delete_selected_items
+from django_softdelete.admin import hard_delete_selected
 
 from answers.models import Answer
 
@@ -47,7 +47,7 @@ class DeletedPuzzlesAdmin(admin.ModelAdmin):
 
     actions = [
         *admin.ModelAdmin.actions,
-        hard_delete_selected_items,
+        hard_delete_selected,
         nonstrict_restore_selected_items,
     ]
 
