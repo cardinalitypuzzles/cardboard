@@ -1,5 +1,5 @@
-from django.contrib.postgres.fields import CICharField
 from django.db import models
+from django.db.models.functions import Lower
 from django.utils.translation import gettext_lazy as _
 
 
@@ -89,7 +89,7 @@ class PuzzleTag(models.Model):
     hunt = models.ForeignKey(
         "hunts.Hunt", on_delete=models.CASCADE, related_name="puzzle_tags"
     )
-    name = CICharField(max_length=100)
+    name = models.CharField(max_length=100)
     color = models.CharField(
         max_length=10, choices=PuzzleTagColor.choices, default=PuzzleTagColor.BLUE
     )
@@ -107,18 +107,20 @@ class PuzzleTag(models.Model):
         ordering = ("id",)
         constraints = [
             models.UniqueConstraint(
-                fields=["name", "hunt"], name="unique_tag_names_per_hunt"
+                Lower("name"),
+                "hunt",
+                name="unique_tag_names_per_hunt",
             ),
             models.CheckConstraint(
                 name="%(app_label)s_%(class)s_location_color",
-                check=(
+                condition=(
                     (models.Q(is_location=False) & ~models.Q(color=LOCATION_COLOR))
                     | (models.Q(is_location=True) & models.Q(color=LOCATION_COLOR))
                 ),
             ),
             models.CheckConstraint(
                 name="%(app_label)s_%(class)s_meta_color",
-                check=(
+                condition=(
                     (models.Q(is_meta=False) & ~models.Q(color=META_COLOR))
                     | (models.Q(is_meta=True) & models.Q(color=META_COLOR))
                 ),

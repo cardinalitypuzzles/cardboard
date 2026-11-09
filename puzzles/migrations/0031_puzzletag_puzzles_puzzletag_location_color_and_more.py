@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name="puzzletag",
             constraint=models.CheckConstraint(
-                check=models.Q(
+                condition=models.Q(
                     models.Q(
                         ("is_location", False),
                         models.Q(("color", "info"), _negated=True),
@@ -27,7 +27,7 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name="puzzletag",
             constraint=models.CheckConstraint(
-                check=models.Q(
+                condition=models.Q(
                     models.Q(
                         ("is_meta", False), models.Q(("color", "dark"), _negated=True)
                     ),
