@@ -7,7 +7,9 @@ from django.db.models import Q
 from puzzles.models import Puzzle
 from puzzles.puzzle_tag import PuzzleTag
 
-client = discord.Client()
+intents = discord.Intents.default()
+intents.message_content = True
+client = discord.Client(intents=intents)
 
 # Message response handlers
 async def send_puzzles_unsolved(message):
