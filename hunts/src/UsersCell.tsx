@@ -3,6 +3,7 @@ import React from "react";
 import Popover from "react-bootstrap/Popover";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import { Badge } from "react-bootstrap";
+import { useTranslation } from "react-i18next";
 
 import type { Puzzle, Row } from "./types";
 
@@ -17,6 +18,7 @@ const getColor = (count: number) => {
 };
 
 export default ({ row }: { row: Row<Puzzle> }) => {
+  const { t } = useTranslation();
   const recentEditors = row.values.recentEditors;
   const topEditors = row.values.topEditors;
   if (recentEditors.length + topEditors.length > 0) {
@@ -24,7 +26,7 @@ export default ({ row }: { row: Row<Puzzle> }) => {
       <Popover className="bootstrap">
         {row.values.recentEditors.length > 0 && (
           <>
-            <Popover.Header>Recent Editors</Popover.Header>
+            <Popover.Header>{t("recent-editors")}</Popover.Header>
             <Popover.Body>
               {recentEditors.map((editor: string) => (
                 <div key={editor}>{editor}</div>
@@ -34,7 +36,7 @@ export default ({ row }: { row: Row<Puzzle> }) => {
         )}
         {row.values.topEditors.length > 0 && (
           <>
-            <Popover.Header>Top Editors</Popover.Header>
+            <Popover.Header>{t("top-editors")}</Popover.Header>
             <Popover.Body>
               {topEditors.map((editor: string) => (
                 <div key={editor}>{editor}</div>

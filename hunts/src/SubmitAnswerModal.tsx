@@ -1,5 +1,6 @@
 import React, { FormEvent } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
+import { useTranslation } from "react-i18next";
 
 import { useStore } from "./store";
 import type { PuzzleId } from "./types";
@@ -15,6 +16,7 @@ function SubmitAnswerModal({
 }) {
   const { addAnswer, addPuzzleTag } = useStore((state) => state.puzzlesSlice);
   const { hideModal } = useStore((state) => state.modalSlice);
+  const { t } = useTranslation();
 
   const [newAnswer, setNewAnswer] = React.useState("");
   const [backsolved, setBacksolved] = React.useState(false);
@@ -33,13 +35,17 @@ function SubmitAnswerModal({
   return (
     <>
       <Modal.Header closeButton>
-        <Modal.Title>Submit Answer for {puzzleName} </Modal.Title>
+        <Modal.Title>
+          {t("submit-answer-title", {
+            puzzleName,
+          })}
+        </Modal.Title>
       </Modal.Header>
       <Form onSubmit={onSubmit} autoComplete="off">
         <Modal.Body>
           <Form.Control
             required
-            placeholder="Enter Answer"
+            placeholder={t("enter-answer")}
             value={newAnswer}
             autoFocus
             onChange={(e: ChangeEvent) => setNewAnswer(e.target.value)}
@@ -47,7 +53,7 @@ function SubmitAnswerModal({
           <Form.Check
             type="checkbox"
             defaultChecked={false}
-            label="backsolved"
+            label={t("backsolved")}
             value={backsolved.toString()}
             onChange={(e: ChangeEvent) => {
               e.target.checked ? setBacksolved(true) : setBacksolved(false);
@@ -56,10 +62,10 @@ function SubmitAnswerModal({
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={hideModal}>
-            Cancel
+            {t("cancel")}
           </Button>
           <Button variant="primary" type="submit">
-            Submit
+            {t("submit")}
           </Button>
         </Modal.Footer>
       </Form>

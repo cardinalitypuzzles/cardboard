@@ -1,5 +1,6 @@
 import React from "react";
 import { Badge, Popover, OverlayTrigger } from "react-bootstrap";
+import { useTranslation } from "react-i18next";
 import { faWrench } from "@fortawesome/free-solid-svg-icons";
 import ClickableIcon from "./ClickableIcon";
 import { IconChevronDown, IconChevronRight } from "@tabler/icons";
@@ -20,13 +21,16 @@ const getColor = (min_since_edit: number) => {
 };
 
 const LastActive = ({ last_edited_on }: { last_edited_on: string }) => {
+  const { t, i18n } = useTranslation();
   const last_edited_date = new Date(Date.parse(last_edited_on));
   const min_since_edit =
     (Date.now() - last_edited_date.getTime()) / (1000 * 60);
+  const currentLocale = i18n.resolvedLanguage || "en-US";
   const editedOnPopOver = (
     <Popover className="bootstrap">
       <Popover.Body>
-        Last active <ReactTimeAgo date={last_edited_date} locale="en-US" />
+        {t("last-active")}{" "}
+        <ReactTimeAgo date={last_edited_date} locale={currentLocale} />
       </Popover.Body>
     </Popover>
   );
@@ -93,6 +97,7 @@ export default function NameCell({
   const { showModal } = useStore((store) => store.modalSlice);
   const [uiHovered, setUiHovered] = React.useState(false);
   const toggleRowExpandedProps = useToggleRowExpandedProps(row);
+  const { t } = useTranslation();
 
   return (
     <div
@@ -132,7 +137,7 @@ export default function NameCell({
         {row.values.is_meta ? (
           <>
             <Badge bg="dark" text="white">
-              META
+              {t("meta")}
             </Badge>{" "}
           </>
         ) : null}

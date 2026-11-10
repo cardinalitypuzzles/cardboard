@@ -1,5 +1,6 @@
 import React, { FormEvent } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
+import { useTranslation } from "react-i18next";
 import { DEFAULT_TAG_COLOR, SELECTABLE_TAG_COLORS } from "./constants";
 import api from "./api";
 import TagPill from "./TagPill";
@@ -20,6 +21,7 @@ function EditPuzzleTagsModal({
   const huntTags = useStore((state) => state.huntSlice.hunt.puzzle_tags);
   const puzzleTags = useStore((state) => state.puzzlesSlice.allPuzzleTags)();
   const hideModal = useStore((state) => state.modalSlice.hideModal);
+  const { t } = useTranslation();
 
   // Use a map to concat huntTags and puzzleTags and then dedupe by id.
   const tagMap = new Map();
@@ -33,16 +35,20 @@ function EditPuzzleTagsModal({
   return (
     <>
       <Modal.Header closeButton>
-        <Modal.Title>Edit Tags for {puzzleName}</Modal.Title>
+        <Modal.Title>
+          {t("edit-tags-title", {
+            puzzleName,
+          })}
+        </Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <h5 style={{ textAlign: "center" }}>Locations</h5>
+        <h5 style={{ textAlign: "center" }}>{t("locations")}</h5>
         <EditableTagList
           puzzleId={puzzleId}
           tags={allTags.filter((tag) => tag.is_location)}
         />
         <br />
-        <h5 style={{ textAlign: "center" }}>Tags</h5>
+        <h5 style={{ textAlign: "center" }}>{t("tags")}</h5>
         <EditableTagList
           puzzleId={puzzleId}
           tags={allTags.filter((tag) => !tag.is_meta && !tag.is_location)}
@@ -68,12 +74,12 @@ function EditPuzzleTagsModal({
             return false;
           }}
         >
-          <h5 style={{ alignSelf: "center" }}>Create new tag</h5>
+          <h5 style={{ alignSelf: "center" }}>{t("tags-create")}</h5>
           <div style={{ alignSelf: "center", marginBottom: "3px" }}>
             <TagPill name={newTagName} color={newTagColor} />
           </div>
           <Form.Control
-            placeholder="Logic Puzzle"
+            placeholder={t("tag-placeholder")}
             value={newTagName}
             onChange={(e: ChangeEvent) => setNewTagName(e.target.value)}
             style={{ margin: "2px" }}
@@ -84,20 +90,20 @@ function EditPuzzleTagsModal({
             onChange={(e: ChangeEvent) => setNewTagColor(e.target.value)}
             style={{ margin: "2px" }}
           >
-            {SELECTABLE_TAG_COLORS.map(({ color, display }) => (
+            {SELECTABLE_TAG_COLORS.map(({ color, key }) => (
               <option key={color} value={color}>
-                {display}
+                {t(key)}
               </option>
             ))}
           </Form.Control>
           <Button variant="primary" type="submit">
-            Create
+            {t("create")}
           </Button>
         </Form>
       </Modal.Body>
       <Modal.Footer>
         <Button variant="primary" type="submit" onClick={hideModal}>
-          Done
+          {t("done")}
         </Button>
       </Modal.Footer>
     </>

@@ -1,5 +1,6 @@
 import React from "react";
 import { Button } from "react-bootstrap";
+import { useTranslation } from "react-i18next";
 import { faEdit, faTrashAlt } from "@fortawesome/free-regular-svg-icons";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import ClickableIcon from "./ClickableIcon";
@@ -10,6 +11,7 @@ import type { Puzzle } from "./types";
 
 export default function AnswerCell({ row }: { row: Row<Puzzle> }) {
   const [uiHovered, setUiHovered] = React.useState<number[]>([]);
+  const { t } = useTranslation();
 
   const { showModal } = useStore((store) => store.modalSlice);
 
@@ -28,7 +30,7 @@ export default function AnswerCell({ row }: { row: Row<Puzzle> }) {
           })
         }
       >
-        Submit Answer
+        {t("submit-answer")}
       </Button>
     );
   }

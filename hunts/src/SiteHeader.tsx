@@ -2,8 +2,10 @@ import React from "react";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
 import Drawer from "react-modern-drawer";
+import { useTranslation } from "react-i18next";
 import { DarkModeToggle } from "./DarkModeToggle";
 import { ChatVersionSelector } from "./chatSelector";
+import { LanguageSelector } from "./LanguageSelector";
 import { IconMenu2 } from "@tabler/icons";
 import "react-modern-drawer/dist/index.css";
 import { useStore } from "./store";
@@ -52,6 +54,7 @@ const ChartBarIcon = () => (
 export const SiteHeader = () => {
   const [isOpen, setIsOpen] = React.useState(false);
   const hunt = useStore((state) => state.huntSlice.hunt);
+  const { t } = useTranslation();
 
   const toggleDrawer = () => {
     setIsOpen((prevState) => !prevState);
@@ -61,10 +64,10 @@ export const SiteHeader = () => {
     <OverlayTrigger
       placement="bottom"
       overlay={
-        <Tooltip id="tooltip-gdrive">Google Drive folder</Tooltip>
+        <Tooltip id="tooltip-gdrive">{t("google-drive-folder")}</Tooltip>
       }
     >
-      <a className="btn" href="drive" aria-label="Google Drive folder">
+      <a className="btn" href="drive" aria-label={t("google-drive-folder")}>
         <GoogleDriveIcon />
       </a>
     </OverlayTrigger>
@@ -86,22 +89,18 @@ export const SiteHeader = () => {
           <div className="text-nowrap">
             <OverlayTrigger
               placement="bottom"
-              overlay={
-                <Tooltip id="tooltip-stats">Stats</Tooltip>
-              }
+              overlay={<Tooltip id="tooltip-stats">{t("stats")}</Tooltip>}
             >
-              <a className="btn" href="stats" aria-label="Stats">
+              <a className="btn" href="stats" aria-label={t("stats")}>
                 <ChartBarIcon />
               </a>
             </OverlayTrigger>
           </div>
-          <div className="text-nowrap">
-            {driveRedirect}
-          </div>
+          <div className="text-nowrap">{driveRedirect}</div>
         </div>
 
         <button type="button" className="btn ms-auto" onClick={toggleDrawer}>
-          <IconMenu2 aria-label="expand menu" />
+          <IconMenu2 aria-label={t("expand-menu")} />
         </button>
       </nav>
       <Drawer
@@ -115,16 +114,18 @@ export const SiteHeader = () => {
         }}
       >
         <a className="nav-link" href="/hunts">
-          Back to Hunt Index
+          {t("back-to-index")}
         </a>
         <a className="nav-link" href="/tools">
-          Tools and References
+          {t("tools-and-references")}
         </a>
         <a className="nav-link" href="/accounts/logout/">
-          Logout
+          {t("logout")}
         </a>
         <div style={{ padding: ".5rem 1rem" }}>
-          Logged in as {window.LOGGED_IN_USER}
+          {t("logged-in-as", {
+            user: window.LOGGED_IN_USER,
+          })}
         </div>
 
         <div
@@ -137,9 +138,24 @@ export const SiteHeader = () => {
               width: "100%",
               display: "inline-block",
               fontWeight: "bold",
+              padding: ".5rem 1rem",
             }}
           >
-            Chat Settings
+            {t("language")}
+          </span>
+          <div style={{ padding: ".5rem 1rem" }}>
+            <LanguageSelector />
+          </div>
+
+          <span
+            style={{
+              borderTop: "1px solid black",
+              width: "100%",
+              display: "inline-block",
+              fontWeight: "bold",
+            }}
+          >
+            {t("chat-settings")}
           </span>
           <div style={{ padding: ".5rem 1rem" }}>
             <ChatVersionSelector />
@@ -153,7 +169,7 @@ export const SiteHeader = () => {
               padding: ".5rem 1rem",
             }}
           >
-            Appearance
+            {t("appearance")}
           </span>
           <div style={{ padding: ".5rem 1rem" }}>
             <DarkModeToggle />

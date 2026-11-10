@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import {
   useTable,
   useExpanded,
@@ -35,81 +36,6 @@ interface TableColumnFormat {
   className?: string;
   accessor?: string | ((row: Puzzle) => any);
 }
-
-const TABLE_COLUMNS: TableColumnFormat[] = [
-  {
-    Header: "Name",
-    accessor: "name",
-    Cell: NameCell as any,
-    className: "col-2",
-  },
-  {
-    Header: "Links",
-    Cell: LinkCell,
-    className: "col-1",
-  },
-  {
-    Header: "Tags",
-    id: "tags",
-    Cell: TagCell,
-    className: "col-2",
-    accessor: (row) => row.tags.map(({ name }) => name).join(" "),
-    filter: "tagsFilter",
-  },
-  {
-    Header: "Notes",
-    id: "notes",
-    Cell: NotesCell,
-    className: "col-2",
-    accessor: (row) => row.notes,
-  },
-  {
-    accessor: "last_edited_on",
-    id: "last_edited_on",
-  },
-  {
-    Header: "",
-    accessor: (row) => row.recent_editors,
-    Cell: UsersCell,
-    id: "recentEditors",
-  },
-  {
-    accessor: "top_editors",
-    id: "topEditors",
-  },
-  {
-    Header: "Answer",
-    accessor: (row) => row.guesses.map(({ text }) => text).join(" "),
-    Cell: AnswerCell,
-    id: "answer",
-    className: "col-2",
-  },
-  {
-    Header: "Status",
-    accessor: "status",
-    Cell: StatusCell,
-    filter: "solvedFilter",
-    className: "col-1",
-  },
-  {
-    Header: "Created",
-    accessor: "created_on",
-    Cell: CreationCell,
-    className: "col-1",
-  },
-  {
-    accessor: "is_meta",
-    id: "is_meta",
-  },
-  {
-    accessor: "id",
-    id: "id",
-  },
-  {
-    accessor: "url",
-    id: "url",
-  },
-];
 
 function textFilterFn(rows: Row<Puzzle>[], _: string, filterValue: string) {
   if (!filterValue || !filterValue.length) {
@@ -166,11 +92,90 @@ export const PuzzleTable = React.memo(
     filterSolved: number;
     filterTags: PuzzleTag[];
   }) => {
+    const { t } = useTranslation();
     const filter = useStore((state) => state.filterSlice.filterValue);
     const collapsedPuzzles = useStore((state) =>
       state.collapsedPuzzlesSlice.getCollapsedPuzzles(
         CURRENT_HUNT_ID.toString()
       )
+    );
+
+    const columns = React.useMemo<TableColumnFormat[]>(
+      () => [
+        {
+          Header: t("table-puzzle-name"),
+          accessor: "name",
+          Cell: NameCell as any,
+          className: "col-2",
+        },
+        {
+          Header: t("table-puzzle-links"),
+          Cell: LinkCell,
+          className: "col-1",
+        },
+        {
+          Header: t("table-puzzle-tags"),
+          id: "tags",
+          Cell: TagCell,
+          className: "col-2",
+          accessor: (row) => row.tags.map(({ name }) => name).join(" "),
+          filter: "tagsFilter",
+        },
+        {
+          Header: t("table-puzzle-notes"),
+          id: "notes",
+          Cell: NotesCell,
+          className: "col-2",
+          accessor: (row) => row.notes,
+        },
+        {
+          accessor: "last_edited_on",
+          id: "last_edited_on",
+        },
+        {
+          Header: "",
+          accessor: (row) => row.recent_editors,
+          Cell: UsersCell,
+          id: "recentEditors",
+        },
+        {
+          accessor: "top_editors",
+          id: "topEditors",
+        },
+        {
+          Header: t("table-puzzle-answer"),
+          accessor: (row) => row.guesses.map(({ text }) => text).join(" "),
+          Cell: AnswerCell,
+          id: "answer",
+          className: "col-2",
+        },
+        {
+          Header: t("table-puzzle-status"),
+          accessor: "status",
+          Cell: StatusCell,
+          filter: "solvedFilter",
+          className: "col-1",
+        },
+        {
+          Header: t("table-puzzle-created"),
+          accessor: "created_on",
+          Cell: CreationCell,
+          className: "col-1",
+        },
+        {
+          accessor: "is_meta",
+          id: "is_meta",
+        },
+        {
+          accessor: "id",
+          id: "id",
+        },
+        {
+          accessor: "url",
+          id: "url",
+        },
+      ],
+      [t]
     );
 
     const filterTypes = React.useMemo(
@@ -203,7 +208,7 @@ export const PuzzleTable = React.memo(
       setFilter,
     }: any = useTable<Puzzle>(
       {
-        columns: TABLE_COLUMNS as any,
+        columns: columns as any,
         data,
         filterTypes,
         getRowId,

@@ -1,5 +1,6 @@
 import React from "react";
 import { Button, Form, Modal } from "react-bootstrap";
+import { useTranslation } from "react-i18next";
 
 type ChangeEvent = React.ChangeEvent<HTMLInputElement>;
 
@@ -18,6 +19,7 @@ function EditAnswerModal({
   const [newAnswer, setNewAnswer] = React.useState(text);
   const { editAnswer } = useStore((state) => state.puzzlesSlice);
   const { hideModal } = useStore((state) => state.modalSlice);
+  const { t } = useTranslation();
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     editAnswer(puzzleId, answerId, newAnswer).finally(hideModal);
@@ -26,24 +28,24 @@ function EditAnswerModal({
   return (
     <>
       <Modal.Header closeButton>
-        <Modal.Title>Edit Answer</Modal.Title>
+        <Modal.Title>{t("edit-answer-title")}</Modal.Title>
       </Modal.Header>
       <Form onSubmit={onSubmit} autoComplete="off">
         <Modal.Body>
           <Form.Control
             required
             autoFocus
-            placeholder="Answer"
+            placeholder={t("answer")}
             value={newAnswer}
             onChange={(e: ChangeEvent) => setNewAnswer(e.target.value)}
           />
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={hideModal}>
-            Cancel
+            {t("cancel")}
           </Button>
           <Button variant="primary" type="submit">
-            Submit
+            {t("submit")}
           </Button>
         </Modal.Footer>
       </Form>

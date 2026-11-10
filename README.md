@@ -36,5 +36,6 @@ For information about **development**, see the [dev guide](dev-guide.md).
 ### Other
 
 * Chrome extension to add new puzzles with one click
-* Supports answer queues (anyone can submit answers to the queue, but only admins can mark them as correct)
+* Answer queues (anyone can submit answers to the queue, but only admins can mark them as correct)
 * Dark and light modes
+* Translations for English, 中文, español

@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import { SOLVE_STATE_FILTER_OPTIONS } from "./filterSlice";
 import { useStore } from "./store";
@@ -67,9 +68,11 @@ export const SolvedStateFilter = () => {
   const { solveStateFilter, setSolveStateFilter } = useStore(
     (store) => store.filterSlice
   );
+  const { t } = useTranslation();
+
   return (
     <>
-      <span>Show:</span>
+      <span>{t("filter-show")}</span>
       <label>
         <input
           style={{ margin: "0 5px 0 10px" }}
@@ -81,7 +84,7 @@ export const SolvedStateFilter = () => {
             }
           }}
         />
-        All
+        {t("filter-all")}
       </label>
       <label>
         <input
@@ -98,7 +101,7 @@ export const SolvedStateFilter = () => {
             }
           }}
         />
-        Unsolved
+        {t("filter-unsolved")}
       </label>
       {(solveStateFilter === SOLVE_STATE_FILTER_OPTIONS.UNSOLVED ||
         solveStateFilter ===
@@ -121,7 +124,7 @@ export const SolvedStateFilter = () => {
               }
             }}
           />
-          Include unsolved with solved metas
+          {t("filter-include-unsolved-with-solved-metas")}
         </label>
       )}
     </>

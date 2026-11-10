@@ -1,6 +1,7 @@
 import React from "react";
 import { Alert, Button, Modal } from "react-bootstrap";
 import PropTypes from "prop-types";
+import { useTranslation } from "react-i18next";
 import api from "./api";
 import { PuzzleTable } from "./puzzle-table";
 import GlobalFilter from "./GlobalFilter";
@@ -81,6 +82,7 @@ export const HuntViewMain = (props: { huntId: HuntId }) => {
   const modal = useStore((state) => state.modalSlice);
   const hunt = useStore((state) => state.huntSlice);
   const alert = useStore((state) => state.alertSlice);
+  const { t } = useTranslation();
   const {
     fetchAllPuzzles,
     puzzles,
@@ -134,15 +136,21 @@ export const HuntViewMain = (props: { huntId: HuntId }) => {
         </Alert>
         <div class="d-flex ms-3 my-1 gap-4 pb-1 mb-2 fw-bold text-center">
           <div>
-            <div class="small">Metas</div>
+            <div class="small">{t("metas")}</div>
             <div>
-              <span class="text-primary" style={{fontSize: "1.25rem"}}>{numMetasSolved()}</span> / <span class="text-secondary">{numMetasUnlocked()}</span>
+              <span class="text-primary" style={{ fontSize: "1.25rem" }}>
+                {numMetasSolved()}
+              </span>{" "}
+              / <span class="text-secondary">{numMetasUnlocked()}</span>
             </div>
           </div>
           <div>
-            <div class="small">Puzzles</div>
+            <div class="small">{t("puzzles")}</div>
             <div>
-              <span class="text-success" style={{fontSize: "1.25rem"}}>{numPuzzlesSolved()}</span> / <span class="text-secondary">{numPuzzlesUnlocked()}</span>
+              <span class="text-success" style={{ fontSize: "1.25rem" }}>
+                {numPuzzlesSolved()}
+              </span>{" "}
+              / <span class="text-secondary">{numPuzzlesUnlocked()}</span>
             </div>
           </div>
           <div class="d-flex align-items-center">
@@ -150,7 +158,7 @@ export const HuntViewMain = (props: { huntId: HuntId }) => {
             <SolvedStateFilter />
           </div>
           <div>
-            {filterTags.length > 0 ? "Viewing puzzles with tags: " : ""}
+            {filterTags.length > 0 ? t("viewing-with-tags") : ""}
             {filterTags.map((tag) => {
               // This use of toggleFilterTag will remove the tag from the list
               return (
@@ -176,7 +184,7 @@ export const HuntViewMain = (props: { huntId: HuntId }) => {
               })
             }
           >
-            Add Puzzle
+            {t("add-puzzle")}
           </Button>
         </div>
 

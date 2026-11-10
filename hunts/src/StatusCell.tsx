@@ -1,5 +1,6 @@
 import React from "react";
 import { Dropdown, DropdownButton } from "react-bootstrap";
+import { useTranslation } from "react-i18next";
 import api from "./api";
 
 import type { Hunt, Puzzle, Row } from "./types";
@@ -14,6 +15,7 @@ export default function StatusCell({
 }) {
   const huntId = useStore((store) => store.huntSlice.hunt.id);
   const { updatePuzzle } = useStore((store) => store.puzzlesSlice);
+  const { t } = useTranslation();
   const statuses_to_display = ["SOLVING", "STUCK", "EXTRACTION"];
   if (value === "SOLVED" || row.original.guesses?.length > 0) {
     statuses_to_display.push("SOLVED");
@@ -22,7 +24,7 @@ export default function StatusCell({
     <>
       <DropdownButton
         id={`status-dropdown-${row.id}`}
-        title={value}
+        title={t(`status-${value.toLowerCase()}`)}
         variant="outline-primary"
         className="cb-btn-compact"
         onSelect={(status: string | null) => {
@@ -33,7 +35,7 @@ export default function StatusCell({
       >
         {statuses_to_display.map((status_to_display) => (
           <Dropdown.Item eventKey={status_to_display} key={status_to_display}>
-            {status_to_display}
+            {t(`status-${status_to_display.toLowerCase()}`)}
           </Dropdown.Item>
         ))}
       </DropdownButton>
