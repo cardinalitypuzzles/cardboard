@@ -82,7 +82,7 @@ export const SiteHeader = () => {
         </a>
         {hunt.name}
 
-        <div class="d-flex fw-bold text-center justify-content-end w-100 flex-nowrap">
+        <div class="d-flex fw-bold text-center justify-content-end flex-nowrap flex-grow-1">
           <div className="text-nowrap">
             <OverlayTrigger
               placement="bottom"
