@@ -30,7 +30,7 @@ psycopg2 = "^2.9.10"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "*"
-black = "^24.3.0"
+black = "^26.10.1"
 coverage = "*"
 django-silk = "^5.0.2"
 
