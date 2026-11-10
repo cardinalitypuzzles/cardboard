@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django_softdelete.admin import hard_delete_selected
+from django_softdelete.admin import GlobalObjectsModelAdmin
 
 from answers.models import Answer
 
@@ -35,8 +35,7 @@ def nonstrict_restore_selected_items(modeladmin, request, queryset):
     queryset.restore(strict=False)
 
 
-class DeletedPuzzlesAdmin(admin.ModelAdmin):
-    # this is a duplicate of SoftDeletedModelAdmin but with strict = False for restores
+class DeletedPuzzlesAdmin(GlobalObjectsModelAdmin):
     def get_queryset(self, request):
         super().get_queryset(request)
         qs = self.model.deleted_objects.get_queryset()
@@ -47,7 +46,6 @@ class DeletedPuzzlesAdmin(admin.ModelAdmin):
 
     actions = [
         *admin.ModelAdmin.actions,
-        hard_delete_selected,
         nonstrict_restore_selected_items,
     ]
 

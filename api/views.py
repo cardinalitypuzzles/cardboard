@@ -142,7 +142,7 @@ class AnswerViewSet(viewsets.ModelViewSet):
                 # remove backsolve tag if puzzle is no longer solved
                 if was_backsolved:
                     backsolve_tag = PuzzleTag.objects.filter(
-                        name=PuzzleTag.BACKSOLVED, hunt=puzzle.hunt
+                        name__iexact=PuzzleTag.BACKSOLVED, hunt=puzzle.hunt
                     )
 
                     puzzle.tags.remove(backsolve_tag[0])
@@ -463,10 +463,14 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
                 serializer.validated_data["name"],
                 PuzzleTagColor(serializer.validated_data["color"]),
             )
-            tag, _ = PuzzleTag.objects.get_or_create(name=tag_name, hunt=puzzle.hunt)
+            tag, _ = PuzzleTag.objects.get_or_create(
+                name__iexact=tag_name,
+                hunt=puzzle.hunt,
+                defaults={"name": tag_name}
+            )
             if tag.is_meta:
                 # Look up the meta and then add it to puzzle.metas
-                meta = get_object_or_404(Puzzle, name=tag.name, hunt=puzzle.hunt)
+                meta = get_object_or_404(Puzzle, name__iexact=tag.name, hunt=puzzle.hunt)
                 if is_ancestor(puzzle, meta):
                     return Response(
                         {
@@ -479,7 +483,7 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
                     puzzle.metas.add(meta)
             else:
                 is_location = tag_color == LOCATION_COLOR
-                PuzzleTag.objects.filter(name=tag_name, hunt=puzzle.hunt).update(
+                PuzzleTag.objects.filter(name__iexact=tag_name, hunt=puzzle.hunt).update(
                     color=tag_color, is_location=is_location
                 )
                 puzzle.tags.add(tag)

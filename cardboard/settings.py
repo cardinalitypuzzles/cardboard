@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import logging
 import os
-from distutils.util import strtobool
 
 from django.core.management.utils import get_random_secret_key
 
@@ -30,8 +29,11 @@ if not SECRET_KEY:
     logger.warn("No DJANGO_SECRET_KEY set. Generating random secret key")
     SECRET_KEY = get_random_secret_key()
 
+def strtobool(val):
+    return str(val).lower() in ("y", "yes", "t", "true", "on", "1")
+
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = bool(strtobool(os.environ.get("DEBUG", "false")))
+DEBUG = strtobool(os.environ.get("DEBUG", "false"))
 
 # Hosts/domain names that are valid for this site.
 # "*" matches anything, ".example.com" matches example.com and all subdomains
@@ -45,7 +47,7 @@ CSRF_TRUSTED_ORIGINS = [
 # This should be turned on in production to redirect HTTP to HTTPS
 # The development web server doesn't support HTTPS, however, so do not
 # turn this on in dev.
-SECURE_SSL_REDIRECT = bool(strtobool(os.environ.get("SECURE_SSL_REDIRECT", "False")))
+SECURE_SSL_REDIRECT = strtobool(os.environ.get("SECURE_SSL_REDIRECT", "False"))
 
 # Pass along the original protocol (Heroku does SSL termination)
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
