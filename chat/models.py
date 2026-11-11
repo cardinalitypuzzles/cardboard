@@ -188,7 +188,7 @@ class ChatRoom(SoftDeleteModel):
         if update_fields:
             self.save(update_fields=update_fields)
 
-    def send_message(self, msg, embedded_urls={}):
+    def send_message(self, msg, embedded_urls={}, pin=False):
         """
         Sends msg to text channel.
         embedded_urls is a map mapping display_text to url.
@@ -196,7 +196,7 @@ class ChatRoom(SoftDeleteModel):
         """
         if self.text_channel_id:
             service = self.get_service()
-            service.send_message(self.text_channel_id, msg, embedded_urls)
+            service.send_message(self.text_channel_id, msg, embedded_urls, pin)
 
     def send_and_announce_message(self, msg):
         self.get_service().announce(
@@ -225,11 +225,11 @@ class ChatRoom(SoftDeleteModel):
             embedded_urls,
         )
 
-    def send_message_with_embedded_urls(self, msg, puzzle):
+    def send_and_pin_message_with_embedded_urls(self, msg, puzzle):
         embedded_urls = {}
         if puzzle:
             embedded_urls = puzzle.create_field_url_map()
-        self.send_message(msg, embedded_urls)
+        self.send_message(msg, embedded_urls, pin=True)
 
     def handle_tag_added(self, puzzle, tag_name):
         if tag_name in [PuzzleTag.HIGH_PRIORITY, PuzzleTag.LOW_PRIORITY]:

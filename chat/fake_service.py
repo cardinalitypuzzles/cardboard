@@ -55,5 +55,5 @@ class FakeChatService(ChatService):
     def create_channel_url(self, guild_id, channel_id, is_audio=False):
         return ""
 
-    def send_message(self, channel_id, msg, embedded_urls={}):
+    def send_message(self, channel_id, msg, embedded_urls={}, pin=False):
         self.messages.add(msg)
