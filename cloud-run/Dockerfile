@@ -1,4 +1,4 @@
-FROM python:3.10.19-alpine AS build
+FROM python:3.15.2-alpine AS build
 
 WORKDIR /usr/src/cardboard
 
@@ -35,7 +35,7 @@ RUN . /venv/bin/activate && poetry install --without dev
 COPY pyproject.toml poetry.lock ./
 RUN . /venv/bin/activate && poetry build && python manage.py collectstatic --no-input
 
-FROM python:3.10.19-alpine
+FROM python:3.15.2-alpine
 WORKDIR /usr/src/cardboard
 
 RUN apk update && apk add \
