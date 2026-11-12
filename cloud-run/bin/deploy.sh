@@ -1,7 +1,7 @@
 #!/bin/bash
 set -eo pipefail
 
-# https://mikefarah.gitbook.io/yq
+# Requires https://mikefarah.gitbook.io/yq
 
 cd cloud-run
 
@@ -16,10 +16,5 @@ MY_COMMAND="$MY_COMMAND"' | .spec.template.spec.serviceAccountName = strenv(MY_Y
 MY_COMMAND="$MY_COMMAND"' | .spec.template.spec.containers[].image = strenv(MY_YQ_IMAGE)'
 
 yq "$MY_COMMAND" service.yaml > .service.yaml
-
-# .spec.template.metadata.annotations."run.googleapis.com/cloudsql-instances"
-# .spec.template.spec.serviceAccountName
-# .spec.template.spec.containers[].image
-
 
 gcloud --project="$CARDBOARD_CR_PROJECT" run services replace .service.yaml
