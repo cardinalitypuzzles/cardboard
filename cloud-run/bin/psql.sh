@@ -1,6 +1,6 @@
 #!/bin/sh
 MY_PORT="$(python3 -c 'import socket; s=socket.socket(); s.bind(("", 0)); print(s.getsockname()[1]); s.close()')"
-MY_INSTANCE="$CARDBOARD_DB_INSTANCE"
+MY_INSTANCE="$CARDBOARD_CR_DB_INSTANCE"
 MY_PID=
 
 _csql_cleanup() {
