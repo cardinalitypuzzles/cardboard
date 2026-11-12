@@ -153,10 +153,12 @@ class TestPuzzle(APITestCase):
         )
         self.assertTrue(feeder.tags.filter(name="newname").exists())
 
-    def test_sheets_redirect(self):
+    def test_puzzle_frame(self):
         puzzle = self.create_puzzle("test_redirects", False)
         response = self.client.get(f"/puzzles/s/{puzzle.pk}", follow=False)
-        self.assertEqual(response["Location"], puzzle.sheet)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="sheet-app"')
+        self.assertContains(response, puzzle.sheet)
 
         response = self.client.get(f"/puzzles/s/0", follow=False)
         # If the puzzle doesn't exist we 404

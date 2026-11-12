@@ -1,6 +1,6 @@
 import Cookies from "js-cookie";
 
-import { AnswerId, HuntId, PuzzleId, TagId } from "./types";
+import { AnswerId, HuntId, PuzzleChatMessage, PuzzleId, TagId } from "./types";
 
 const API_PREFIX = "/api/v1";
 
@@ -158,6 +158,37 @@ function addPuzzleTag(
   }).then(handleErrors);
 }
 
+function getPuzzleChatMessages(
+  puzzleId: PuzzleId,
+  afterId?: number
+): Promise<PuzzleChatMessage[]> {
+  const query = afterId !== undefined ? `?after=${afterId}` : "";
+  const chatApiUrl = `${API_PREFIX}/puzzles/${puzzleId}/native-chat${query}`;
+  return fetch(chatApiUrl).then(handleErrors);
+}
+
+function sendPuzzleChatMessage(
+  puzzleId: PuzzleId,
+  text: string,
+  imageFile?: File | null
+): Promise<PuzzleChatMessage> {
+  const chatApiUrl = `${API_PREFIX}/puzzles/${puzzleId}/native-chat`;
+  const formData = new FormData();
+  if (text) {
+    formData.append("text", text);
+  }
+  if (imageFile) {
+    formData.append("image", imageFile);
+  }
+  return fetch(chatApiUrl, {
+    method: "POST",
+    headers: {
+      "X-CSRFToken": Cookies.get("csrftoken")!,
+    },
+    body: formData,
+  }).then(handleErrors);
+}
+
 export default {
   getHunt,
   getPuzzles,
@@ -170,4 +201,6 @@ export default {
   editNotes,
   deletePuzzleTag,
   addPuzzleTag,
+  getPuzzleChatMessages,
+  sendPuzzleChatMessage,
 };
