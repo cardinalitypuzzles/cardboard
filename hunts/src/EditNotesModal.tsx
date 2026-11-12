@@ -1,5 +1,6 @@
 import React, { FormEvent } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
+import { useTranslation } from "react-i18next";
 
 import { useStore } from "./store";
 import type { PuzzleId } from "./types";
@@ -15,6 +16,7 @@ function EditNotesModal({
 }) {
   const { editNotes } = useStore((state) => state.puzzlesSlice);
   const { hideModal } = useStore((state) => state.modalSlice);
+  const { t } = useTranslation();
 
   const [newNotes, setNewNotes] = React.useState(text);
   const onSubmit = (e: FormEvent) => {
@@ -25,24 +27,24 @@ function EditNotesModal({
   return (
     <>
       <Modal.Header closeButton>
-        <Modal.Title>Edit Notes</Modal.Title>
+        <Modal.Title>{t("edit-notes-title")}</Modal.Title>
       </Modal.Header>
       <Form onSubmit={onSubmit} autoComplete="off">
         <Modal.Body>
           <Form.Control
             required
             autoFocus
-            placeholder="Notes"
+            placeholder={t("notes")}
             value={newNotes}
             onChange={(e: ChangeEvent) => setNewNotes(e.target.value)}
           />
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={hideModal}>
-            Cancel
+            {t("cancel")}
           </Button>
           <Button variant="primary" type="submit">
-            Submit
+            {t("submit")}
           </Button>
         </Modal.Footer>
       </Form>

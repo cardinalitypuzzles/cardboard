@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 const isCurrentlyDark = () => {
   return localStorage.getItem("cardboard-theme") === "dark";
@@ -6,6 +7,7 @@ const isCurrentlyDark = () => {
 
 export const DarkModeToggle = () => {
   const [isDark, setIsDark] = React.useState(isCurrentlyDark());
+  const { t } = useTranslation();
   return (
     <>
       <div className="form-check">
@@ -22,7 +24,7 @@ export const DarkModeToggle = () => {
           }}
         />
         <label className="form-check-label" htmlFor="dark-mode-checkbox">
-          Dark Mode
+          {t("dark-mode")}
         </label>
       </div>
     </>

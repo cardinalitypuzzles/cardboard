@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { CHAT_VERSION_OPTIONS } from "./chatSlice";
 import { IconLink } from "./ClickableIcon";
 import { CHAT_PLATFORM, SHEET_REDIRECT_BASE } from "./constants";
@@ -30,6 +31,7 @@ const createDiscordLink = (puzzle: Puzzle, chatVersion: number) => {
 const BlurpleDiscordSvg = () => <DiscordSvg fillColor="#5865F2" />;
 const LightBlurpleDiscordSvg = () => <DiscordSvg fillColor="#CCD0FB" />;
 const PulsingBlurpleDiscordSvg = () => {
+  const { t } = useTranslation();
   return (
     <>
       <style>{`
@@ -54,7 +56,7 @@ const PulsingBlurpleDiscordSvg = () => {
           margin: "0 5px",
           display: "inline-block",
         }}
-        title="loading"
+        title={t("loading")}
       >
         <DiscordSvg />
       </span>
@@ -153,6 +155,7 @@ const SvgLink = ({
 };
 
 export const LinkCell = ({ row }: { row: Row<Puzzle> }) => {
+  const { t } = useTranslation();
   const puzzle = row.original;
   const puzzleLink = puzzle.url;
 
@@ -222,7 +225,7 @@ export const LinkCell = ({ row }: { row: Row<Puzzle> }) => {
             margin: "0 5px",
             display: "inline-block",
           }}
-          title="Create channels"
+          title={t("create-channels")}
         >
           <LightBlurpleDiscordSvg />
         </a>

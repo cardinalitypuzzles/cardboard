@@ -1,5 +1,6 @@
 import React from "react";
 import { Button, Modal } from "react-bootstrap";
+import { useTranslation } from "react-i18next";
 
 import { useStore } from "./store";
 import type { AnswerId, PuzzleId } from "./types";
@@ -13,6 +14,7 @@ function DeleteAnswerModal({
 }) {
   const { deleteAnswer } = useStore((state) => state.puzzlesSlice);
   const { hideModal } = useStore((state) => state.modalSlice);
+  const { t } = useTranslation();
 
   const onDelete = () => {
     deleteAnswer(puzzleId, answerId).finally(hideModal);
@@ -21,15 +23,15 @@ function DeleteAnswerModal({
   return (
     <>
       <Modal.Header closeButton>
-        <Modal.Title>Delete Answer</Modal.Title>
+        <Modal.Title>{t("delete-answer-title")}</Modal.Title>
       </Modal.Header>
-      <Modal.Body>Are you sure you want to delete this answer?</Modal.Body>
+      <Modal.Body>{t("delete-answer-confirm")}</Modal.Body>
       <Modal.Footer>
         <Button variant="secondary" onClick={hideModal}>
-          Cancel
+          {t("cancel")}
         </Button>
         <Button variant="danger" onClick={onDelete}>
-          Delete
+          {t("delete")}
         </Button>
       </Modal.Footer>
     </>

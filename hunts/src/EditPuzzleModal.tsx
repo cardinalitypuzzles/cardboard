@@ -1,5 +1,6 @@
 import React, { FormEvent } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
+import { useTranslation } from "react-i18next";
 import EditableTagList from "./EditableTagList";
 import api from "./api";
 
@@ -23,6 +24,7 @@ function EditPuzzleModal({
   isMeta: boolean;
   hasChannels: boolean;
 }) {
+  const { t } = useTranslation();
   const [newName, setNewName] = React.useState(name);
   const [newUrl, setNewUrl] = React.useState(url);
   const [newIsMeta, setNewIsMeta] = React.useState(isMeta);
@@ -48,39 +50,39 @@ function EditPuzzleModal({
   return (
     <>
       <Modal.Header closeButton>
-        <Modal.Title>Edit Puzzle</Modal.Title>
+        <Modal.Title>{t("edit-puzzle-title")}</Modal.Title>
       </Modal.Header>
       <Form onSubmit={onSubmit} autoComplete="off">
         <Modal.Body>
           <Form.Group controlId="editPuzzle.name">
-            <Form.Label>Puzzle name</Form.Label>
+            <Form.Label>{t("puzzle-name")}</Form.Label>
             <Form.Control
               required
               autoFocus
-              placeholder="Name"
+              placeholder={t("name-placeholder")}
               value={newName}
               onChange={(e: ChangeEvent) => setNewName(e.target.value)}
             />
           </Form.Group>
           <Form.Group controlId="editPuzzle.url">
-            <Form.Label>Puzzle url</Form.Label>
+            <Form.Label>{t("puzzle-url")}</Form.Label>
             <Form.Control
               required
-              placeholder="https://www.example.com/"
+              placeholder={t("url-placeholder")}
               value={newUrl}
               onChange={(e: ChangeEvent) => setNewUrl(e.target.value)}
             />
           </Form.Group>
           <Form.Check
             type="checkbox"
-            label="This is a meta"
+            label={t("is-meta")}
             id="is-meta-checkbox"
             checked={newIsMeta}
             onChange={(e: ChangeEvent) => setNewIsMeta(e.target.checked)}
           />
           <Form.Check
             type="checkbox"
-            label="Create discord channels"
+            label={t("create-discord-channels")}
             id="create-channels-checkbox"
             checked={createChannels}
             onChange={(e: ChangeEvent) => setCreateChannels(e.target.checked)}
@@ -89,7 +91,7 @@ function EditPuzzleModal({
           />
           {meta_tags.length > 0 ? (
             <>
-              <h5 style={{ textAlign: "center" }}>Parent Metas</h5>
+              <h5 style={{ textAlign: "center" }}>{t("parent-metas")}</h5>
               <EditableTagList puzzleId={puzzleId} tags={meta_tags} />
             </>
           ) : undefined}
@@ -110,13 +112,13 @@ function EditPuzzleModal({
             }}
             className="me-auto"
           >
-            Delete Puzzle
+            {t("delete-puzzle")}
           </Button>
           <Button variant="secondary" onClick={hideModal}>
-            Cancel
+            {t("cancel")}
           </Button>
           <Button variant="primary" type="submit">
-            Submit
+            {t("submit")}
           </Button>
         </Modal.Footer>
       </Form>
