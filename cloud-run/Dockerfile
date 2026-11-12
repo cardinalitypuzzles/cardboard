@@ -32,7 +32,8 @@ RUN python -m venv /venv
 
 RUN . /venv/bin/activate && poetry install --without dev
 
-COPY pyproject.toml poetry.lock ./
+COPY cloud-run/.pyproject.toml ./pyproject.toml
+COPY poetry.lock ./
 RUN . /venv/bin/activate && poetry build && python manage.py collectstatic --no-input
 
 FROM python:3.15.2-alpine

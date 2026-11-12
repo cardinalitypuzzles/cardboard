@@ -171,3 +171,4 @@ logfile
 # cloud-run
 cloud-run/.env.yaml
 cloud-run/.service.yaml
+cloud-run/.pyproject.toml
