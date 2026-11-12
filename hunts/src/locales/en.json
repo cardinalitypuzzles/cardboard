@@ -78,5 +78,21 @@
   "tag-placeholder": "Logic Puzzle",
   "blue": "Blue",
   "white": "White",
-  "teal-location": "Teal (Location)"
+  "teal-location": "Teal (Location)",
+  "chat": "Chat",
+  "chat-header": "Puzzle Chat",
+  "chat-placeholder": "Message",
+  "chat-empty": "(nothing here yet)",
+  "chat-loading": "Loading chat...",
+  "chat-send": "Send",
+  "chat-attach-image": "Attach image",
+  "chat-remove-image": "Remove image",
+  "chat-collapse": "Hide chat",
+  "chat-expand": "Show chat",
+  "chat-resize": "Drag to resize chat",
+  "chat-open-sheet-raw": "Open sheet only",
+  "chat-back-to-hunt": "Back to hunt",
+  "chat-open-puzzle": "Puzzle page",
+  "chat-image-alt": "Pasted chat image",
+  "chat-error-unsupported-image": "Unsupported image type. Use PNG, JPEG, GIF, or WebP."
 }

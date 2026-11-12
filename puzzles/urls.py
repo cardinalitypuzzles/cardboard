@@ -1,8 +1,8 @@
 from django.urls import path
 
-from .views import redirect_to_sheet
+from .views import puzzle_frame
 
 app_name = "puzzles"
 urlpatterns = [
-    path("s/<int:puzzle_pk>", redirect_to_sheet, name="puzzle_sheet_redirect"),
+    path("s/<int:puzzle_pk>", puzzle_frame, name="puzzle_frame"),
 ]

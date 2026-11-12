@@ -1,6 +1,8 @@
 from unittest.mock import patch
 
 from django.conf import settings
+from django.core.cache import cache
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TransactionTestCase, override_settings
 from django.utils import timezone
 from rest_framework import status
@@ -8,6 +10,7 @@ from rest_framework.test import APITestCase
 
 import google_api_lib
 import google_api_lib.tests
+from native_chat.models import CardboardNativeChatMessage
 from puzzles.models import Puzzle
 from puzzles.puzzle_tag import LOCATION_COLOR, META_COLOR, PuzzleTag, PuzzleTagColor
 
@@ -652,3 +655,105 @@ class SheetTests(CardboardTestCase, TransactionTestCase):
             rename_sheet.assert_called_with(
                 sheet_url=google_api_lib.tests.TEST_SHEET, name=f"{puzzle.name}"
             )
+
+
+class CardboardNativeChatApiTests(CardboardTestCase, APITestCase):
+    def setUp(self):
+        super().setUp()
+        cache.clear()
+        self.check_response_status(
+            self.create_puzzle({"name": TEST_NAME, "url": TEST_URL})
+        )
+        self.puzzle = Puzzle.objects.get()
+
+    def tearDown(self):
+        cache.clear()
+        super().tearDown()
+
+    def test_chat_permissions(self):
+        url = f"/api/v1/puzzles/{self.puzzle.pk}/native-chat"
+        self.set_permissions_level(can_access=False)
+        self.check_response_status(self.client.get(url), status.HTTP_403_FORBIDDEN)
+        self.check_response_status(
+            self.client.post(url, {"text": "hello"}), status.HTTP_403_FORBIDDEN
+        )
+
+    def test_chat_text_history_and_incremental_polling(self):
+        url = f"/api/v1/puzzles/{self.puzzle.pk}/native-chat"
+
+        empty_resp = self.client.get(url)
+        self.assertEqual(empty_resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(empty_resp.data, [])
+
+        post1 = self.client.post(url, {"text": "first clue"})
+        self.assertEqual(post1.status_code, status.HTTP_201_CREATED)
+        msg1_id = post1.data["id"]
+        self.assertEqual(post1.data["text"], "first clue")
+        self.assertIsNone(post1.data["image_url"])
+
+        post2 = self.client.post(url, {"text": "second clue"})
+        self.assertEqual(post2.status_code, status.HTTP_201_CREATED)
+        msg2_id = post2.data["id"]
+
+        # Full history load returns all messages in order
+        history_resp = self.client.get(url)
+        self.assertEqual(history_resp.status_code, status.HTTP_200_OK)
+        self.assertEqual([m["id"] for m in history_resp.data], [msg1_id, msg2_id])
+
+        # Incremental poll after msg1 returns only msg2
+        inc_resp = self.client.get(f"{url}?after={msg1_id}")
+        self.assertEqual(inc_resp.status_code, status.HTTP_200_OK)
+        self.assertEqual([m["id"] for m in inc_resp.data], [msg2_id])
+
+        # Incremental poll after latest returns empty list
+        up_to_date_resp = self.client.get(f"{url}?after={msg2_id}")
+        self.assertEqual(up_to_date_resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(up_to_date_resp.data, [])
+
+    def test_chat_image_upload_and_retrieval(self):
+        url = f"/api/v1/puzzles/{self.puzzle.pk}/native-chat"
+        png_bytes = (
+            b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01"
+            b"\x00\x00\x00\x01\x08\x06\x00\x00\x00\x1f\x15c4"
+        )
+        uploaded = SimpleUploadedFile(
+            "screenshot.png", png_bytes, content_type="image/png"
+        )
+        resp = self.client.post(
+            url, {"text": "look at this", "image": uploaded}, format="multipart"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        image_url = resp.data["image_url"]
+        self.assertIsNotNone(image_url)
+
+        img_resp = self.client.get(image_url)
+        self.assertEqual(img_resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(img_resp["Content-Type"], "image/png")
+        self.assertEqual(img_resp["X-Content-Type-Options"], "nosniff")
+        self.assertEqual(img_resp.content, png_bytes)
+
+        # Users without hunt access cannot fetch the image
+        self.set_permissions_level(can_access=False)
+        self.check_response_status(
+            self.client.get(image_url), status.HTTP_403_FORBIDDEN
+        )
+
+    def test_chat_validation(self):
+        url = f"/api/v1/puzzles/{self.puzzle.pk}/native-chat"
+        self.check_response_status(
+            self.client.post(url, {"text": "   "}), status.HTTP_400_BAD_REQUEST
+        )
+
+        svg = SimpleUploadedFile(
+            "bad.svg", b"<svg></svg>", content_type="image/svg+xml"
+        )
+        self.check_response_status(
+            self.client.post(url, {"image": svg}, format="multipart"),
+            status.HTTP_400_BAD_REQUEST,
+        )
+        self.assertEqual(CardboardNativeChatMessage.objects.count(), 0)
+
+        self.check_response_status(
+            self.client.get(f"{url}?after=notanumber"),
+            status.HTTP_400_BAD_REQUEST,
+        )

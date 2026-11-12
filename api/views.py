@@ -4,29 +4,36 @@ import logging
 from dateutil import tz
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.cache import cache
 from django.db import transaction
 from django.db.models import Prefetch
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets
+from rest_framework import status, viewsets
+from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 import chat.tasks
 import google_api_lib.tasks
 from answers.models import Answer
 from chat.models import ChatRoom
 from hunts.models import Hunt
+from native_chat.models import CardboardNativeChat, CardboardNativeChatMessage
 from puzzles.models import Puzzle, PuzzleModelError, is_ancestor
 from puzzles.puzzle_tag import LOCATION_COLOR, PuzzleTag, PuzzleTagColor
 
 from .permissions import (
     AnswerAccessPermission,
+    CardboardNativeChatAccessPermission,
     HuntAccessPermission,
     PuzzleAccessPermission,
     PuzzleTagAccessPermission,
 )
 from .serializers import (
     AnswerSerializer,
+    CardboardNativeChatMessageSerializer,
     HuntSerializer,
     PuzzleNotesSerializer,
     PuzzleSerializer,
@@ -530,3 +537,127 @@ class PuzzleNotesView(viewsets.ViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(PuzzleNotesSerializer(puzzle).data)
+
+
+ALLOWED_CHAT_IMAGE_TYPES = {
+    "image/png",
+    "image/jpeg",
+    "image/gif",
+    "image/webp",
+}
+
+
+def _native_chat_latest_cache_key(puzzle_id):
+    return f"cardboard_native_chat_latest_id:{puzzle_id}"
+
+
+class CardboardNativeChatView(APIView):
+    permission_classes = [IsAuthenticated, CardboardNativeChatAccessPermission]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
+
+    def get(self, request, puzzle_id):
+        puzzle = get_object_or_404(Puzzle, pk=puzzle_id)
+        after_param = request.query_params.get("after")
+        after_id = None
+
+        if after_param is not None:
+            try:
+                after_id = int(after_param)
+            except (TypeError, ValueError):
+                return Response(
+                    {"detail": "Invalid 'after' parameter."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            cached_latest = cache.get(_native_chat_latest_cache_key(puzzle.pk))
+            if cached_latest is not None and cached_latest <= after_id:
+                return Response([])
+
+        native_chat = CardboardNativeChat.objects.filter(puzzle=puzzle).first()
+        if native_chat is None:
+            if after_id is None:
+                cache.set(
+                    _native_chat_latest_cache_key(puzzle.pk), 0, timeout=60 * 60 * 24
+                )
+            return Response([])
+
+        queryset = native_chat.messages.select_related("user", "chat").defer("image")
+        if after_id is not None:
+            queryset = queryset.filter(id__gt=after_id)
+
+        messages_list = list(queryset)
+        if messages_list:
+            cache.set(
+                _native_chat_latest_cache_key(puzzle.pk),
+                messages_list[-1].id,
+                timeout=60 * 60 * 24,
+            )
+        elif after_id is None:
+            cache.set(_native_chat_latest_cache_key(puzzle.pk), 0, timeout=60 * 60 * 24)
+
+        serializer = CardboardNativeChatMessageSerializer(messages_list, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, puzzle_id):
+        puzzle = get_object_or_404(Puzzle, pk=puzzle_id)
+        text = (request.data.get("text") or "").strip()
+        image_file = request.FILES.get("image")
+
+        if not text and not image_file:
+            return Response(
+                {"detail": "Message must include text or an image."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        image_bytes = None
+        image_content_type = ""
+        if image_file is not None:
+            if image_file.size > settings.MAX_CHAT_IMAGE_BYTES:
+                return Response(
+                    {"detail": "Image file exceeds maximum allowed size."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            content_type = (image_file.content_type or "").lower()
+            if content_type not in ALLOWED_CHAT_IMAGE_TYPES:
+                return Response(
+                    {"detail": "Unsupported image type."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            image_bytes = image_file.read()
+            image_content_type = content_type
+
+        native_chat = CardboardNativeChat.for_puzzle(puzzle)
+        message = CardboardNativeChatMessage.objects.create(
+            chat=native_chat,
+            user=request.user,
+            text=text,
+            image=image_bytes,
+            image_content_type=image_content_type,
+        )
+        cache.set(
+            _native_chat_latest_cache_key(puzzle.pk),
+            message.id,
+            timeout=60 * 60 * 24,
+        )
+
+        serializer = CardboardNativeChatMessageSerializer(message)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class CardboardNativeChatImageView(APIView):
+    permission_classes = [IsAuthenticated, CardboardNativeChatAccessPermission]
+
+    def get(self, request, puzzle_id, message_id):
+        message = get_object_or_404(
+            CardboardNativeChatMessage, pk=message_id, chat__puzzle_id=puzzle_id
+        )
+        if not message.image or not message.image_content_type:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        response = HttpResponse(
+            bytes(message.image),
+            content_type=message.image_content_type,
+        )
+        response["Cache-Control"] = "private, max-age=31536000, immutable"
+        response["X-Content-Type-Options"] = "nosniff"
+        return response

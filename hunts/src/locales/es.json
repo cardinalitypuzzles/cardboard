@@ -78,5 +78,21 @@
   "tag-placeholder": "Puzzle de lógica",
   "blue": "Azul",
   "white": "Blanco",
-  "teal-location": "Verde azulado (Ubicación)"
+  "teal-location": "Verde azulado (Ubicación)",
+  "chat": "Chat",
+  "chat-header": "Chat del puzzle",
+  "chat-placeholder": "Mensaje",
+  "chat-empty": "(nada por aquí todavía)",
+  "chat-loading": "Cargando chat...",
+  "chat-send": "Enviar",
+  "chat-attach-image": "Adjuntar imagen",
+  "chat-remove-image": "Quitar imagen",
+  "chat-collapse": "Ocultar chat",
+  "chat-expand": "Mostrar chat",
+  "chat-resize": "Arrastra para cambiar el ancho del chat",
+  "chat-open-sheet-raw": "Abrir solo la hoja",
+  "chat-back-to-hunt": "Volver a la cacería",
+  "chat-open-puzzle": "Página del puzzle",
+  "chat-image-alt": "Imagen pegada en el chat",
+  "chat-error-unsupported-image": "Tipo de imagen no compatible. Usa PNG, JPEG, GIF o WebP."
 }

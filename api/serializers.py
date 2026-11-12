@@ -7,9 +7,12 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 from url_normalize import url_normalize
 
+from django.urls import reverse
+
 from answers.models import Answer
 from chat.models import ChatRoom
 from hunts.models import Hunt
+from native_chat.models import CardboardNativeChatMessage
 from puzzles.models import Puzzle, PuzzleTag
 
 
@@ -284,3 +287,33 @@ class PuzzleSerializer(serializers.ModelSerializer):
                 message="There is already a puzzle with this URL.",
             ),
         )
+
+
+class CardboardNativeChatMessageSerializer(serializers.ModelSerializer):
+    user_id = serializers.IntegerField(source="user.id", read_only=True)
+    user_name = serializers.SerializerMethodField()
+    image_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CardboardNativeChatMessage
+        fields = (
+            "id",
+            "user_id",
+            "user_name",
+            "text",
+            "image_url",
+            "created_on",
+        )
+        read_only_fields = fields
+
+    def get_user_name(self, obj):
+        full_name = f"{obj.user.first_name} {obj.user.last_name}".strip()
+        return full_name or obj.user.username
+
+    def get_image_url(self, obj):
+        if obj.image_content_type:
+            return reverse(
+                "native_chat_image",
+                kwargs={"puzzle_id": obj.chat.puzzle_id, "message_id": obj.id},
+            )
+        return None
