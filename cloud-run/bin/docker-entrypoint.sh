@@ -19,7 +19,8 @@ case "$1" in
         ;;
 esac
 
+echo "Running ($1) CMD..."
+
 shift 1
 
-echo "Running CMD..."
 exec "$@"

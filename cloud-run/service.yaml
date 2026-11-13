@@ -15,7 +15,6 @@ spec:
         autoscaling.knative.dev/maxScale: "1"
         run.googleapis.com/cloudsql-instances: "SET_AT_DEPLOY_TIME"
         run.googleapis.com/startup-cpu-boost: "true"
-        run.googleapis.com/container-dependencies: '{"celery":["web"], "bot":["web"]}'
         run.googleapis.com/network-interfaces: '[{"network":"default"}]'
         run.googleapis.com/vpc-access-egress: private-ranges-only
     spec:
@@ -37,7 +36,7 @@ spec:
           containerPort: 8000
         resources:
           limits:
-            cpu: 1000m
+            cpu: 500m
             memory: 512Mi
         startupProbe:
           timeoutSeconds: 240
@@ -46,7 +45,7 @@ spec:
           tcpSocket:
             port: 8000
         env:
-      - name: celery
+      - name: worker
         image: "SET_AT_DEPLOY_TIME"
         args:
         - "celery"
@@ -62,14 +61,22 @@ spec:
         - "--concurrency"
         - "3"
         - "--beat"
+        resources:
+          limits:
+            cpu: 500m
+            memory: 512Mi
         env:
-      - name: bot
-        image: "SET_AT_DEPLOY_TIME"
-        args:
-        - "bot"
-        - python
-        - manage.py
-        - rundiscordbot
+      # - name: bot
+      #   image: "SET_AT_DEPLOY_TIME"
+      #   args:
+      #   - "bot"
+      #   - python
+      #   - manage.py
+      #   - rundiscordbot
+      #   resources:
+      #     limits:
+      #       cpu: 500m
+      #       memory: 512Mi
         env:
   traffic:
   - percent: 100
