@@ -29,10 +29,9 @@ Do the following at https://console.developers.google.com/:
   * Note that adding a Google Group will *not* propagate down permissions to members of the group!
 * Add a template spreadsheet file to the Drive folder
 
-### Google OAuth2 login (optional)
+### Google OAuth2 login
 
 * Add the URI `https://[app domain]/complete/google-oauth2/` under the "Authorized redirect URIs" in your OAuth 2.0 client settings. On Google Cloud: APIs & Services > Credentials > (click the name of the OAuth 2.0 Client you added) > scroll down to the "Authorized redirect URIs" section.
-* If you skip this step, your administrator will have to manually create logins through the Django admin interface.
 
 -----
 
