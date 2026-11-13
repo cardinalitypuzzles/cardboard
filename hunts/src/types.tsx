@@ -65,7 +65,6 @@ export interface PuzzleTag {
   is_meta: boolean;
   is_high_pri?: boolean;
   is_low_pri?: boolean;
-  is_location?: boolean;
 }
 
 export interface ChatRoom {

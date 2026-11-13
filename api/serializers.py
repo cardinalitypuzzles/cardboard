@@ -23,10 +23,9 @@ class PuzzleTagSerializer(serializers.ModelSerializer):
             "is_meta",
             "is_high_pri",
             "is_low_pri",
-            "is_location",
         )
 
-        read_only_fields = ("id", "is_meta", "is_high_pri", "is_low_pri", "is_location")
+        read_only_fields = ("id", "is_meta", "is_high_pri", "is_low_pri")
 
 
 class PuzzleNotesSerializer(serializers.ModelSerializer):

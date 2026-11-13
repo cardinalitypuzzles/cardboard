@@ -55,8 +55,16 @@ tag_detail = views.PuzzleTagViewSet.as_view(
     }
 )
 
+hunt_tag_detail = views.HuntTagViewSet.as_view(
+    {
+        "patch": "partial_update",
+        "delete": "destroy",
+    }
+)
+
 urlpatterns = [
     path("v1/hunts/<int:pk>", hunt_detail, name="hunt_detail"),
+    path("v1/hunts/<int:hunt_id>/tags/<int:pk>", hunt_tag_detail, name="hunt_tag_detail"),
     path("v1/hunts/<int:hunt_id>/puzzles", puzzle_list, name="puzzle_list"),
     path(
         "v1/hunts/<int:hunt_id>/puzzles/<int:pk>", puzzle_detail, name="puzzle_detail"

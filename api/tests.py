@@ -9,7 +9,7 @@ from rest_framework.test import APITestCase
 import google_api_lib
 import google_api_lib.tests
 from puzzles.models import Puzzle
-from puzzles.puzzle_tag import LOCATION_COLOR, META_COLOR, PuzzleTag, PuzzleTagColor
+from puzzles.puzzle_tag import META_COLOR, PuzzleTag, PuzzleTagColor
 
 from .test_helpers import CardboardTestCase
 
@@ -366,18 +366,6 @@ class ApiTests(CardboardTestCase, APITestCase):
         )
         self.assertEqual(puzzle.tags.count(), 0)
 
-    def test_create_location_tag(self):
-        self.check_response_status(
-            self.create_puzzle({"name": TEST_NAME, "url": TEST_URL})
-        )
-        puzzle = Puzzle.objects.get()
-        response = self.create_tag(
-            puzzle.pk, {"name": "location", "color": LOCATION_COLOR}
-        )
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(puzzle.tags.count(), 1)
-        self.assertTrue(puzzle.tags.first().is_location)
-
     def test_delete_tag(self):
         self.check_response_status(
             self.create_puzzle({"name": TEST_NAME, "url": TEST_URL})
@@ -530,6 +518,110 @@ class ApiTests(CardboardTestCase, APITestCase):
                     hunt=self._hunt, name=name, color=color
                 ).exists()
             )
+
+    def test_update_hunt_tag_color(self):
+        self.check_response_status(
+            self.create_puzzle({"name": TEST_NAME, "url": TEST_URL})
+        )
+        puzzle = Puzzle.objects.get()
+        self.check_response_status(
+            self.create_tag(puzzle.pk, {"name": "taggy", "color": PuzzleTagColor.WHITE})
+        )
+        tag = puzzle.tags.get()
+
+        response = self.client.patch(
+            f"/api/v1/hunts/{self._hunt.pk}/tags/{tag.pk}",
+            {"color": PuzzleTagColor.INDIGO},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        tag.refresh_from_db()
+        self.assertEqual(tag.color, PuzzleTagColor.INDIGO)
+
+        response = self.client.patch(
+            f"/api/v1/hunts/{self._hunt.pk}/tags/{tag.pk}",
+            {"color": PuzzleTagColor.TEAL},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        tag.refresh_from_db()
+        self.assertEqual(tag.color, PuzzleTagColor.TEAL)
+
+        # Cannot assign META_COLOR to a non-meta tag
+        response = self.client.patch(
+            f"/api/v1/hunts/{self._hunt.pk}/tags/{tag.pk}",
+            {"color": META_COLOR},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_delete_hunt_tag(self):
+        self.check_response_status(
+            self.create_puzzle({"name": TEST_NAME, "url": TEST_URL})
+        )
+        self.check_response_status(
+            self.create_puzzle({"name": "Test 2", "url": f"{TEST_URL}2"})
+        )
+        puzzles = list(Puzzle.objects.all())
+        PuzzleTag.create_default_tags(self._hunt)
+        tag = PuzzleTag.objects.get(hunt=self._hunt, name="Crossword")
+        for puzzle in puzzles:
+            puzzle.tags.add(tag)
+
+        response = self.client.delete(
+            f"/api/v1/hunts/{self._hunt.pk}/tags/{tag.pk}",
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(
+            PuzzleTag.objects.filter(hunt=self._hunt, pk=tag.pk).exists()
+        )
+        for puzzle in puzzles:
+            self.assertFalse(puzzle.tags.filter(pk=tag.pk).exists())
+
+    def test_cannot_modify_or_delete_meta_hunt_tag(self):
+        self.check_response_status(
+            self.create_puzzle({"name": TEST_NAME, "url": TEST_URL, "is_meta": True})
+        )
+        puzzle = Puzzle.objects.get()
+        meta_tag = puzzle.tags.get()
+
+        response = self.client.patch(
+            f"/api/v1/hunts/{self._hunt.pk}/tags/{meta_tag.pk}",
+            {"color": PuzzleTagColor.BLUE},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        response = self.client.delete(
+            f"/api/v1/hunts/{self._hunt.pk}/tags/{meta_tag.pk}",
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertTrue(PuzzleTag.objects.filter(pk=meta_tag.pk).exists())
+
+    def test_hunt_tag_permissions(self):
+        self.check_response_status(
+            self.create_puzzle({"name": TEST_NAME, "url": TEST_URL})
+        )
+        puzzle = Puzzle.objects.get()
+        self.check_response_status(
+            self.create_tag(puzzle.pk, {"name": "taggy", "color": PuzzleTagColor.WHITE})
+        )
+        tag = puzzle.tags.get()
+
+        self.set_permissions_level(can_access=False)
+        self.check_response_status(
+            self.client.patch(
+                f"/api/v1/hunts/{self._hunt.pk}/tags/{tag.pk}",
+                {"color": PuzzleTagColor.BLUE},
+                format="json",
+            ),
+            status.HTTP_403_FORBIDDEN,
+        )
+        self.check_response_status(
+            self.client.delete(f"/api/v1/hunts/{self._hunt.pk}/tags/{tag.pk}"),
+            status.HTTP_403_FORBIDDEN,
+        )
+        self.assertTrue(PuzzleTag.objects.filter(pk=tag.pk).exists())
 
 
 @override_settings(

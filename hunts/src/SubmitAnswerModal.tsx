@@ -2,6 +2,7 @@ import React, { FormEvent } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
+import { SELECTABLE_TAG_COLORS } from "./constants";
 import { useStore } from "./store";
 import type { PuzzleId } from "./types";
 
@@ -26,7 +27,7 @@ function SubmitAnswerModal({
     if (backsolved) {
       addPuzzleTag(puzzleId, {
         name: "Backsolved",
-        color: "success",
+        color: SELECTABLE_TAG_COLORS.green[1],
       });
     }
     addAnswer(puzzleId, newAnswer).finally(hideModal);

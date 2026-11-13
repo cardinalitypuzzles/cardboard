@@ -1,13 +1,15 @@
 import { StateCreator } from "zustand";
 import { immer } from "zustand/middleware/immer"; // eslint-disable-line
 
-import { Hunt } from "./types";
+import { Hunt, PuzzleTag, TagId } from "./types";
 import type { RootState } from "./store";
 
 export interface HuntSlice {
   huntSlice: {
     hunt: Hunt;
     set: (hunt: Partial<Hunt>) => void;
+    upsertTag: (tag: PuzzleTag) => void;
+    removeTag: (tagId: TagId) => void;
   };
 }
 
@@ -36,6 +38,26 @@ export const huntSlice: StateCreator<
           ...state.huntSlice.hunt,
           ...hunt,
         };
+      });
+    },
+
+    upsertTag: (tag: PuzzleTag) => {
+      set((state) => {
+        const idx = state.huntSlice.hunt.puzzle_tags.findIndex(
+          (t) => t.id === tag.id
+        );
+        if (idx >= 0) {
+          state.huntSlice.hunt.puzzle_tags[idx] = tag;
+        } else {
+          state.huntSlice.hunt.puzzle_tags.push(tag);
+        }
+      });
+    },
+
+    removeTag: (tagId: TagId) => {
+      set((state) => {
+        state.huntSlice.hunt.puzzle_tags =
+          state.huntSlice.hunt.puzzle_tags.filter((t) => t.id !== tagId);
       });
     },
   },
