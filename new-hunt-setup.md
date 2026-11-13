@@ -1,5 +1,7 @@
 ## Setting up Cardboard
 
+Before starting your Cardboard server:
+
 ### Google Cloud integration
 
 Do the following at https://console.developers.google.com/:
@@ -12,13 +14,13 @@ Do the following at https://console.developers.google.com/:
 * Enable **People API** (APIs & Services > Library)
 * Enable **Google Sheets API** (APIs & Services > Library)
 
-#### Discord integration (optional)
+### Discord integration (optional)
 
 * Set up a Discord application (https://discord.com/developers/applications)
 * Create a bot for your application (can be done on the "Bot" settings page)
 * Invite the application to your Discord server. To do so, go to the OAuth2 > URL Generator settings page for your application. For "Scopes", select "bot" and "applications.commands". After selecting "bot", a "Bot permissions" panel will appear, where you should select "Administrator". Copy the URL that was generated and open it in a new tab. There you can select the Discord server to add the app to. For more details, see [here](https://discordjs.guide/preparations/adding-your-bot-to-servers.html).
 
-### Set up Google Drive
+### Google Drive setup
 
 * Create a new Google Drive folder for the hunt
 * Add the Google API service account you created above as an Editor to the Drive folder
@@ -27,12 +29,16 @@ Do the following at https://console.developers.google.com/:
   * Note that adding a Google Group will *not* propagate down permissions to members of the group!
 * Add a template spreadsheet file to the Drive folder
 
-### Set up Google OAuth2 login (optional)
+### Google OAuth2 login (optional)
 
 * Add the URI `https://[app domain]/complete/google-oauth2/` under the "Authorized redirect URIs" in your OAuth 2.0 client settings. On Google Cloud: APIs & Services > Credentials > (click the name of the OAuth 2.0 Client you added) > scroll down to the "Authorized redirect URIs" section.
 * If you skip this step, your administrator will have to manually create logins through the Django admin interface.
 
-### Set up Heroku (if using)
+-----
+
+Now you're ready to run the server.
+
+### Using Heroku
 
 Follow the Heroku documentation to [set up a Heroku app](https://devcenter.heroku.com/articles/git#for-an-existing-app) from an existing repository (this one).
 
@@ -51,7 +57,13 @@ You'll also see a few dyno instances on the Resources page: "web", "bot", and "w
 
 If you have a large team or are using Cardboard for a hunt with many puzzles, you may want to increase the number or tier of the dynos in your Heroku deployment.
 
-## Configuration
+### Using Google Cloud Run
+
+TODO
+
+-----
+
+## Configuring Cardboard
 
 Cardboard is configured via a combination of global environmental variables and per-hunt variables (called `HuntSettings`) in the Django admin.
 
