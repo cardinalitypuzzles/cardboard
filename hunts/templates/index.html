@@ -28,10 +28,18 @@
         {% if request.user.is_staff %}
 
         <h2>Add New Hunt</h2>
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger py-1 px-2 mb-2 small" role="alert">
+            {% for error in form.non_field_errors %}
+                <div>{{ error }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
         <form action="/hunts/" method="post">
             {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="btn btn-primary">Submit</button>
+            {% include "_hunt_fields.html" with form=form %}
+            {% include "_settings_field.html" with field=form.populate_tags %}
+            <button type="submit" class="btn btn-sm btn-primary mt-1">Submit</button>
         </form>
         {% endif %}
     </div>

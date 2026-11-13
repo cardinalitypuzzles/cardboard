@@ -21,7 +21,9 @@ export const huntSlice: StateCreator<
     hunt: {
       id: null,
       name: null,
+      slug: null,
       has_drive: false,
+      is_admin: false,
       // Caution: will be stale if you've added a tag but haven't refreshed the page.
       // TODO: keep this up to date when adding tags
       puzzle_tags: [],

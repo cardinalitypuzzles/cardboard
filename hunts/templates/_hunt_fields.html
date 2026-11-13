@@ -1,0 +1,10 @@
+{% include "_settings_field.html" with field=form.name %}
+{% include "_settings_field.html" with field=form.url %}
+<div class="row g-2">
+    <div class="col-sm-6">
+        {% include "_settings_field.html" with field=form.start_time stacked=True %}
+    </div>
+    <div class="col-sm-6">
+        {% include "_settings_field.html" with field=form.end_time stacked=True %}
+    </div>
+</div>

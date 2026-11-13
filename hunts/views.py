@@ -83,12 +83,16 @@ def edit(request, hunt_slug):
                 else:
                     transaction.on_commit(lambda: PuzzleTag.remove_default_tags(hunt))
 
+                messages.success(request, "Hunt settings saved.")
+                return redirect(reverse("hunts:edit", kwargs={"hunt_slug": hunt.slug}))
+
     else:
         hunt = Hunt.get_object_or_404(user=request.user, slug=hunt_slug)
         hunt_form = HuntForm(instance=hunt)
         settings_form = HuntSettingsForm(instance=hunt.settings)
 
     context = {
+        "hunt": hunt,
         "hunt_form": hunt_form,
         "settings_form": settings_form,
     }
@@ -154,6 +158,16 @@ def redirect_to_drive(request, hunt_slug):
             f"Cannot redirect to Google folder. Did you set a human Drive URL setting?",
         )
         return redirect("/")
+
+
+@login_required(login_url="/")
+@permission_required_or_403("hunt_admin", (Hunt, "slug", "hunt_slug"))
+def sync(request, hunt_slug):
+    if request.method != "POST":
+        return HttpResponseForbidden()
+
+    sync_discord_roles(request, hunt_slug)
+    return sync_drive_permissions(request, hunt_slug)
 
 
 @login_required(login_url="/")

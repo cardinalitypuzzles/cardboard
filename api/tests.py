@@ -33,9 +33,11 @@ class ApiTests(CardboardTestCase, APITestCase):
             {
                 "id": self._hunt.pk,
                 "name": self._hunt.name,
+                "slug": self._hunt.slug,
                 "url": self._hunt.url,
                 "active": self._hunt.active,
                 "has_drive": bool(self._hunt.settings.google_drive_human_url),
+                "is_admin": True,
                 "puzzle_tags": [],
                 "create_channel_by_default": self._hunt.settings.create_channel_by_default,
             },

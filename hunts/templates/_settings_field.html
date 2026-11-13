@@ -1,0 +1,35 @@
+{% if field.widget_type == "checkbox" %}
+<div class="mb-1 form-check">
+  {{ field }}
+  <label class="form-check-label small" for="{{ field.id_for_label }}">{{ field.label }}</label>
+  {% with tip=tooltip|default:field.help_text %}
+    {% include "_help_icon.html" with tooltip=tip %}
+  {% endwith %}
+  {% for error in field.errors %}
+    <div class="invalid-feedback d-block">{{ error }}</div>
+  {% endfor %}
+</div>
+{% elif stacked %}
+<div class="mb-1">
+  <label class="form-label small mb-0" for="{{ field.id_for_label }}">{{ field.label }}</label>
+  {% with tip=tooltip|default:field.help_text %}
+    {% include "_help_icon.html" with tooltip=tip %}
+  {% endwith %}
+  {{ field }}
+  {% for error in field.errors %}
+    <div class="invalid-feedback d-block">{{ error }}</div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="row g-2 align-items-center mb-1">
+  <label class="col-sm-5 col-form-label col-form-label-sm py-0" for="{{ field.id_for_label }}">
+    {{ field.label }}{% with tip=tooltip|default:field.help_text %}{% include "_help_icon.html" with tooltip=tip %}{% endwith %}
+  </label>
+  <div class="col-sm-7">
+    {{ field }}
+    {% for error in field.errors %}
+      <div class="invalid-feedback d-block">{{ error }}</div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}

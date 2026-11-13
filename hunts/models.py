@@ -176,7 +176,10 @@ class HuntSettings(models.Model):
         related_name="settings",
     )
 
-    answer_queue_enabled = models.BooleanField(default=False)
+    answer_queue_enabled = models.BooleanField(
+        default=False,
+        help_text="Toggles whether submitted answers go to an answer queue for review instead of immediately marking puzzles solved.",
+    )
 
     #
     # Google-specific settings
@@ -186,11 +189,21 @@ class HuntSettings(models.Model):
     # This should be part of the URL (https://drive.google.com/drive/folders/<folder_id>)
     # This folder is used for login permissions and for puzzle storage.
     # This is where puzzle files will be kept, so it should not be modified by humans
-    google_drive_folder_id = models.CharField(max_length=128, blank=True)
+    google_drive_folder_id = models.CharField(
+        max_length=128,
+        blank=True,
+        verbose_name="Google Drive folder",
+        help_text="The ID or URL of the Google Drive folder where spreadsheets will be stored.",
+    )
 
     # The id of your Google Sheets template file
     # This should be part of the url (https://docs.google.com/spreadsheets/d/<sheet_id>)
-    google_sheets_template_file_id = models.CharField(max_length=128, blank=True)
+    google_sheets_template_file_id = models.CharField(
+        max_length=128,
+        blank=True,
+        verbose_name="Google Sheets template",
+        help_text="The ID or URL of your Google Sheets template file.",
+    )
 
     # The id of a Google Drive folder where template files for this hunt can be found
     # Used as a way to get around #372
@@ -198,10 +211,30 @@ class HuntSettings(models.Model):
     # of the master sheet.
     # TODO: Figure out a better solution to this longer-term, like getting Drive permission on sign-in
     # and using those instead of the service account, or using an add-on somehow
-    google_sheets_template_folder_id = models.CharField(max_length=128, blank=True)
+    google_sheets_template_folder_id = models.CharField(
+        max_length=128,
+        blank=True,
+        verbose_name="Google Sheets template folder ID",
+        help_text=(
+            "the ID of a Google Drive folder where extra Sheet templates can be found. "
+            "If this folder is not empty, Cardboard will rename and move one of these sheets "
+            "when a new puzzle is created, instead of copying the template file. This maybe be "
+            "useful because of #372, where scripts in Google sheets will stop working on new "
+            "sheets if you create too many in one day. This way you can create sheets in advance "
+            "to get around the daily limits."
+        ),
+    )
 
     # A link to the Google Drive folder that solvers can use for misc. files
-    google_drive_human_url = models.URLField(blank=True)
+    google_drive_human_url = models.URLField(
+        blank=True,
+        verbose_name="Google Drive Human URL",
+        help_text=(
+            "the URL of a Google Drive folder where human-generated files can be uploaded. "
+            "This folder is linked at the top of Cardboard. If this value is not set, "
+            "there will not be a link to the folder."
+        ),
+    )
 
     #
     # Discord-specific settings
@@ -214,12 +247,14 @@ class HuntSettings(models.Model):
     discord_guild_id = models.CharField(
         max_length=128,
         blank=True,
+        verbose_name="Discord guild ID",
         help_text='The id of your Discord server. This can be found on the "Widget" page in the Server Settings',
     )
 
     discord_puzzle_announcements_channel_id = models.CharField(
         max_length=128,
         blank=True,
+        verbose_name="Discord announcements channel ID",
         help_text="""The id of the Discord channel to make puzzle announcements in.
         This channel can get noisy and is recommended to be its own separate channel.
         This ID can be found by enabling Developer Mode in Discord and right-clicking on the channel""",
@@ -262,5 +297,6 @@ class HuntSettings(models.Model):
 
     active_user_lookback = models.DurationField(
         default=timedelta(minutes=10),
-        help_text="Amount of time to look back for active users of a puzzle.",
+        verbose_name="Active user lookback (s)",
+        help_text="A user is considered active on a puzzle if they've interacted with it within this duration.",
     )

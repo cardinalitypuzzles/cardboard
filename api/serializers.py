@@ -42,6 +42,7 @@ class HuntSerializer(serializers.ModelSerializer):
     has_drive = serializers.SerializerMethodField()
     puzzle_tags = PuzzleTagSerializer(required=False, many=True)
     create_channel_by_default = serializers.SerializerMethodField()
+    is_admin = serializers.SerializerMethodField()
 
     def get_has_drive(self, obj):
         return bool(obj.settings.google_drive_human_url)
@@ -49,14 +50,20 @@ class HuntSerializer(serializers.ModelSerializer):
     def get_create_channel_by_default(self, obj):
         return obj.settings.create_channel_by_default
 
+    def get_is_admin(self, obj):
+        request = self.context.get("request")
+        return bool(request and request.user.has_perm("hunt_admin", obj))
+
     class Meta:
         model = Hunt
         fields = (
             "id",
             "name",
+            "slug",
             "active",
             "url",
             "has_drive",
+            "is_admin",
             "puzzle_tags",
             "create_channel_by_default",
         )
