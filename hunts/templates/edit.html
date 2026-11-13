@@ -1,33 +1,114 @@
 {% extends "base.html" %}
-{% block page_content %}
+{% block head_content %}
+<style>
+    .settings-section {
+        border: 1px solid var(--bs-border-color);
+        border-left-width: 4px;
+        border-radius: 0.375rem;
+        padding: 0.65rem 0.85rem;
+        background-color: var(--bs-body-bg);
+    }
+    .settings-section-hunt {
+        border-left-color: #0dcaf0;
+    }
+    .settings-section-cardboard {
+        border-left-color: #0d6efd;
+    }
+    .settings-section-gdrive {
+        border-left-color: #198754;
+    }
+    .settings-section-discord {
+        border-left-color: #5865f2;
+    }
+    .help-tooltip-trigger {
+        cursor: help;
+        vertical-align: middle;
+    }
+    .bootstrap[data-bs-theme] a.btn-puzzles {
+        background-color: #a13d9c;
+        border-color: #a13d9c;
+        color: #ffffff;
+    }
+    .bootstrap[data-bs-theme] a.btn-puzzles:hover,
+    .bootstrap[data-bs-theme] a.btn-puzzles:focus {
+        background-color: #883284;
+        border-color: #883284;
+        color: #ffffff;
+    }
+</style>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll('[data-bs-toggle="popover"]').forEach((el) => {
+            new bootstrap.Popover(el, { animation: false });
+        });
+    });
+</script>
+{% endblock %}
 
-<div class="m-2 col">
-    <h1>Hunt Settings</h1>
+{% block page_content %}
+<div class="py-2" style="margin: 0px auto; width: 85%; max-width: 1600px;">
+    <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+        <h2 class="mb-0 me-auto">Hunt Settings</h2>
+        <form action="{% url 'hunts:sync' hunt.slug %}" method="post">
+            {% csrf_token %}
+            <button
+                type="submit"
+                class="btn btn-sm btn-success"
+                data-bs-toggle="popover"
+                data-bs-trigger="hover focus"
+                data-bs-placement="bottom"
+                data-bs-content="Sync Discord and Cardboard roles and add users from Google Drive."
+            >Sync</button>
+        </form>
+        <a class="btn btn-sm btn-puzzles" href="{% url 'hunts:all_puzzles_react' hunt.slug %}">Go to Puzzles</a>
+        <button type="submit" class="btn btn-sm btn-primary" form="hunt_settings">Save</button>
+    </div>
+
+    {% if hunt_form.non_field_errors or settings_form.non_field_errors %}
+    <div class="alert alert-danger py-1 px-2 mb-2 small" role="alert">
+        {% for error in hunt_form.non_field_errors %}
+            <div>{{ error }}</div>
+        {% endfor %}
+        {% for error in settings_form.non_field_errors %}
+            <div>{{ error }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
 
     <form id="hunt_settings" action="" method="post">
         {% csrf_token %}
-        <div class="row">
+        <div class="row g-2">
             <div class="col-md-6">
-                {{hunt_form.as_p}}
+                <div class="settings-section settings-section-hunt">
+                    <h6 class="fw-semibold mb-2">Hunt</h6>
+                    {% include "_hunt_fields.html" with form=hunt_form %}
+                </div>
             </div>
 
             <div class="col-md-6">
-                {{settings_form.as_p}}
+                <div class="settings-section settings-section-cardboard mb-2">
+                    <h6 class="fw-semibold mb-2">Cardboard</h6>
+                    {% for field in settings_form.cardboard_fields %}
+                        {% include "_settings_field.html" with field=field %}
+                    {% endfor %}
+                    {% include "_settings_field.html" with field=hunt_form.populate_tags %}
+                </div>
+
+                <div class="settings-section settings-section-gdrive mb-2">
+                    <h6 class="fw-semibold mb-2">Google Drive</h6>
+                    {% for field in settings_form.google_drive_fields %}
+                        {% include "_settings_field.html" with field=field %}
+                    {% endfor %}
+                </div>
+
+                <div class="settings-section settings-section-discord">
+                    <h6 class="fw-semibold mb-2">Discord</h6>
+                    {% for field in settings_form.discord_fields %}
+                        {% include "_settings_field.html" with field=field %}
+                    {% endfor %}
+                </div>
             </div>
         </div>
     </form>
-
-    <div class="d-flex">
-        <form action="sync_discord_roles" method="post">
-          {% csrf_token %}
-          <button type="submit" class="btn btn-secondary mx-2">Sync Discord & Cardboard roles</button>
-        </form>
-        <form action="sync_drive_permissions" method="post">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-secondary mx-2">Add users from Google Drive</button>
-        </form>
-        <a class="btn btn-light ms-auto mx-2" href="/">Go to Puzzles</a>
-        <button type="submit" class="btn btn-primary mx-2" form="hunt_settings" >Submit</button>
-    </div>
 </div>
 {% endblock %}

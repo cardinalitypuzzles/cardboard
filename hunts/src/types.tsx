@@ -21,7 +21,9 @@ declare global {
 export type Hunt = {
   id: HuntId | null;
   name: string | null;
+  slug: string | null;
   has_drive: boolean;
+  is_admin: boolean;
   puzzle_tags: PuzzleTag[];
   create_channel_by_default: boolean;
 };

@@ -1,4 +1,6 @@
 import logging
+import re
+from urllib.parse import parse_qs, urlparse
 
 import googleapiclient
 import googleapiclient.discovery
@@ -8,6 +10,27 @@ from django.conf import settings
 from google.oauth2 import service_account
 
 logger = logging.getLogger(__name__)
+
+
+def extract_google_id(value: str) -> str:
+    """Extracts a Google Drive/Sheets ID from either a raw ID or a Drive/Docs URL."""
+    value = value.strip()
+    if not value:
+        return ""
+
+    if "/" not in value and "?" not in value:
+        return value
+
+    parsed = urlparse(value if "://" in value else f"https://{value}")
+    query_params = parse_qs(parsed.query)
+    if "id" in query_params and query_params["id"]:
+        return query_params["id"][0]
+
+    match = re.search(r"/(?:folders|d)/([A-Za-z0-9_-]+)", parsed.path)
+    if match:
+        return match.group(1)
+
+    raise ValueError("Could not extract a valid Google Drive or Sheets ID.")
 
 
 def enabled():

@@ -23,7 +23,7 @@ from chat.tasks import handle_sheet_created
 from hunts.models import Hunt
 from puzzles.models import Puzzle, PuzzleActivity
 
-from .utils import GoogleApiClientTask, enabled
+from .utils import GoogleApiClientTask, enabled, extract_google_id
 
 logger = logging.getLogger(__name__)
 
@@ -166,9 +166,7 @@ def extract_id_from_sheets_url(url) -> str:
     https://docs.google.com/spreadsheets/d/<ID>/edit...
     and returns the <ID> portion
     """
-    start = url.find("/d/") + 3
-    end = url.find("/edit")
-    return url[start:end]
+    return extract_google_id(url)
 
 
 @shared_task(base=GoogleApiClientTask, bind=True)
@@ -610,7 +608,7 @@ def update_active_users(self, hunt_id):
                 if (user_pk, puzzle_pk) not in latest:
                     latest[(user_pk, puzzle_pk)] = (timestamp, 1)
                 else:
-                    (current_latest, num_edits) = latest[(user_pk, puzzle_pk)]
+                    current_latest, num_edits = latest[(user_pk, puzzle_pk)]
                     latest[(user_pk, puzzle_pk)] = (
                         max(timestamp, current_latest),
                         num_edits + 1,
@@ -654,7 +652,7 @@ def update_active_users(self, hunt_id):
 
         updates = []
         for activity in old_activities:
-            (last_edit_time, num_edits) = latest[(activity.user_id, activity.puzzle_id)]
+            last_edit_time, num_edits = latest[(activity.user_id, activity.puzzle_id)]
             activity.last_edit_time = last_edit_time
             activity.num_edits += num_edits
             updates.append(activity)

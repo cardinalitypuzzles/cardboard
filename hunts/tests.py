@@ -233,12 +233,10 @@ class HuntFormTests(TestCase):
         self._user.delete()
 
     def test_times_missing_start(self):
-        # Start and end time inputs come from the SplitDateTimeWidget
         data = {
             "name": "test",
             "url": "example.com",
-            "end_time_0": "2020-01-01",
-            "end_time_1": "12:00",
+            "end_time": "2020-01-01T12:00",
         }
 
         form = HuntForm(data)
@@ -248,14 +246,11 @@ class HuntFormTests(TestCase):
         )
 
     def test_times_end_before_start(self):
-        # Start and end time inputs come from the SplitDateTimeWidget
         data = {
             "name": "test",
             "url": "example.com",
-            "start_time_0": "2020-02-02",
-            "start_time_1": "12:00",
-            "end_time_0": "2020-01-01",
-            "end_time_1": "12:00",
+            "start_time": "2020-02-02T12:00",
+            "end_time": "2020-01-01T12:00",
         }
 
         form = HuntForm(data)
@@ -267,7 +262,7 @@ class HuntFormTests(TestCase):
     def test_default_tag_creation(self):
         PuzzleTag.create_default_tags(self._test_hunt)
 
-        for (name, color) in PuzzleTag.DEFAULT_TAGS:
+        for name, color in PuzzleTag.DEFAULT_TAGS:
             self.assertTrue(
                 PuzzleTag.objects.filter(
                     hunt=self._test_hunt, name=name, color=color
@@ -278,7 +273,7 @@ class HuntFormTests(TestCase):
         PuzzleTag.create_default_tags(self._test_hunt)
         PuzzleTag.remove_default_tags(self._test_hunt)
 
-        for (name, color) in PuzzleTag.DEFAULT_TAGS:
+        for name, color in PuzzleTag.DEFAULT_TAGS:
             self.assertFalse(
                 PuzzleTag.objects.filter(
                     hunt=self._test_hunt, name=name, color=color
@@ -300,7 +295,7 @@ class HuntFormTests(TestCase):
 
         PuzzleTag.remove_default_tags(self._test_hunt)
 
-        for (name, color) in PuzzleTag.DEFAULT_TAGS:
+        for name, color in PuzzleTag.DEFAULT_TAGS:
             self.assertTrue(
                 PuzzleTag.objects.filter(
                     hunt=self._test_hunt, name=name, color=color

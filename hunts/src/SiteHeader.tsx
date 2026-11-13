@@ -113,6 +113,11 @@ export const SiteHeader = () => {
           flexDirection: "column",
         }}
       >
+        {hunt.is_admin && (
+          <a className="nav-link" href={`/hunts/${hunt.slug}/edit`}>
+            {t("hunt-settings")}
+          </a>
+        )}
         <a className="nav-link" href="/hunts">
           {t("back-to-index")}
         </a>
