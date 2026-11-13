@@ -72,11 +72,10 @@
   "edit-notes-title": "Editar notas",
   "notes": "Notas",
   "edit-tags-title": "Editar etiquetas de {{puzzleName}}",
-  "locations": "Ubicaciones",
   "tags": "Etiquetas",
   "tags-create": "Crear nueva etiqueta",
   "tag-placeholder": "Puzzle de lógica",
   "blue": "Azul",
   "white": "Blanco",
-  "teal-location": "Verde azulado (Ubicación)"
+  "teal": "Verde azulado"
 }

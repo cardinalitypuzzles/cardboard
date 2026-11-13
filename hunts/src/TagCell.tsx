@@ -36,6 +36,7 @@ function TagCell({ row }: { row: PuzzleRow }) {
         <TagPill
           name={tag.name}
           color={tag.color}
+          isMeta={tag.is_meta}
           key={tag.name}
           onClick={(e: React.MouseEvent) => {
             e.stopPropagation();

@@ -72,11 +72,10 @@
   "edit-notes-title": "编辑笔记",
   "notes": "笔记",
   "edit-tags-title": "编辑 {{puzzleName}} 的标签",
-  "locations": "地点",
   "tags": "标签",
   "tags-create": "创建新标签",
   "tag-placeholder": "逻辑谜题",
   "blue": "蓝",
   "white": "白",
-  "teal-location": "青 (地点)"
+  "teal": "青"
 }

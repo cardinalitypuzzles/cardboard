@@ -1,8 +1,36 @@
-export const DEFAULT_TAG_COLOR = "primary";
-export const SELECTABLE_TAG_COLORS = [
-  { color: "primary", display: "Blue", key: "blue" },
-  { color: "light", display: "White", key: "white" },
-  { color: "info", display: "Teal (Location)", key: "teal-location" },
+export const FAVORITE_TAG_COLOR = "#9b26ff";
+export const SELECTED_TAG_BORDER_COLOR = "#d9534f";
+
+export const SELECTABLE_TAG_COLORS = {
+  white: ["White", "#f8f9fa"],
+  coral: ["Coral", "#f87171"],
+  red: ["Red", "#dc3545"],
+  pink: ["Pink", "#e83e8c"],
+  peach: ["Peach", "#fed7aa"],
+  orange: ["Orange", "#fd7e14"],
+  yellow: ["Yellow", "#ffc107"],
+  cream: ["Cream", "#fef08a"],
+  mint: ["Mint", "#a7f3d0"],
+  lime: ["Lime", "#84cc16"],
+  green: ["Green", "#198754"],
+  "dark-teal": ["Dark Teal", "#0d9488"],
+  teal: ["Teal", "#0dcaf0"],
+  "sky-blue": ["Sky Blue", "#bae6fd"],
+  blue: ["Blue", "#0d6efd"],
+  indigo: ["Indigo", "#4f46e5"],
+} as const;
+
+export const DEFAULT_TAG_COLOR = SELECTABLE_TAG_COLORS.white[1];
+
+export const SPECIAL_TAG_ORDER = [
+  "High priority",
+  "Low priority",
+  "Backsolved",
+  "Freebie",
+  "On campus",
+  "Remote",
+  "Slog",
+  "Grunt work",
 ];
 
 export const SHEET_REDIRECT_BASE = "/puzzles/s";

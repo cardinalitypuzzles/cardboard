@@ -53,6 +53,24 @@ class PuzzleTagAccessPermission(permissions.BasePermission):
         return request.user.has_perm("hunt_access", obj.hunt)
 
 
+class HuntTagAccessPermission(permissions.BasePermission):
+    message = "You do not have access to this hunt tag"
+
+    def has_permission(self, request, view):
+        try:
+            hunt = Hunt.objects.get(id=view.kwargs["hunt_id"])
+        except Hunt.DoesNotExist:
+            hunt = None
+
+        if not hunt:
+            return False
+
+        return request.user.has_perm("hunt_access", hunt)
+
+    def has_object_permission(self, request, view, obj):
+        return request.user.has_perm("hunt_access", obj.hunt)
+
+
 class AnswerAccessPermission(permissions.BasePermission):
     message = "You do not have access to this answer"
 
