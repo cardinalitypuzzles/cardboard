@@ -1,47 +1,44 @@
-## Setting up Cardboard for a new hunt
+## Setting up Cardboard
 
-Currently, Cardboard is not multi-tenant (see [#191](https://github.com/cardinalitypuzzles/cardboard/issues/191)), so each team for the same hunt needs their own Cardboard instance.
+Before starting your Cardboard server:
 
-### Prerequisites
+### Google Cloud integration
 
-This guide assumes you have already done the following at https://console.developers.google.com/:
+Do the following at https://console.developers.google.com/:
 
-* created a Google Cloud project
-* created a Google API service account (go to APIs & Services > Credentials) under that project
-* created an OAuth 2.0 Client (also under APIs & Services > Credentials) in the same project (this is needed to enable logging to Cardboard using a Google account)
-* enabled Google Drive API (APIs & Services > Library > search for "Google Drive API" > select and enable)
-* enabled Drive Activity API (APIs & Services > Library > search for "Drive Activity API" > select and enable)
-* enabled People API (APIs & Services > Library > search for "People API" > select and enable)
-* enabled Google Sheets API (APIs & Services > Library > search for "Google Sheets API" > select and enable)
+* Create a Google Cloud project
+* Create a Google API service account (APIs & Services > Credentials) under that project
+* Create an OAuth 2.0 Client (APIs & Services > Credentials)
+* Enable **Google Drive API** (APIs & Services > Library)
+* Enable **Drive Activity API** (APIs & Services > Library)
+* Enable **People API** (APIs & Services > Library)
+* Enable **Google Sheets API** (APIs & Services > Library)
 
-#### Discord prerequisites
+### Discord integration (optional)
 
-For Discord integration (optional), you will additionally need to set up:
+* Set up a Discord application (https://discord.com/developers/applications)
+* Create a bot for your application (can be done on the "Bot" settings page)
+* Invite the application to your Discord server. To do so, go to the OAuth2 > URL Generator settings page for your application. For "Scopes", select "bot" and "applications.commands". After selecting "bot", a "Bot permissions" panel will appear, where you should select "Administrator". Copy the URL that was generated and open it in a new tab. There you can select the Discord server to add the app to. For more details, see [here](https://discordjs.guide/preparations/adding-your-bot-to-servers.html).
 
-* a Discord application at https://discord.com/developers/applications
-* a bot for your application (can be done on the "Bot" settings page)
-* invite the application to your Discord server. To do so, go to the OAuth2 > URL Generator settings page for your application. For "Scopes", select "bot" and "applications.commands". After selecting "bot", a "Bot permissions" panel will appear, where you should select "Administrator". Copy the URL that was generated and open it in a new tab. There you can select the Discord server to add the app to. For more details, see [here](https://discordjs.guide/preparations/adding-your-bot-to-servers.html).
+### Google Drive setup
 
-### New hunt setup
+* Create a new Google Drive folder for the hunt
+* Add the Google API service account you created above as an Editor to the Drive folder
+* Add all your team members as Editors to the Drive folder.
+  * Users can login to Cardboard only if they have access to the Google Drive folder.
+  * Note that adding a Google Group will *not* propagate down permissions to members of the group!
+* Add a template spreadsheet file to the Drive folder
 
-#### Google Drive setup
+### Google OAuth2 login (optional)
 
-Cardboard expects a hunt Google Drive folder to already be set up with a template spreadsheet in it (from which puzzle spreadsheets will be cloned). Users can login to Cardboard only if they have access to the Google Drive folder.
+* Add the URI `https://[app domain]/complete/google-oauth2/` under the "Authorized redirect URIs" in your OAuth 2.0 client settings. On Google Cloud: APIs & Services > Credentials > (click the name of the OAuth 2.0 Client you added) > scroll down to the "Authorized redirect URIs" section.
+* If you skip this step, your administrator will have to manually create logins through the Django admin interface.
 
-To set up a new hunt:
+-----
 
-* create a new Google Drive folder for the hunt.
-* add the Google API service account you created above as an Editor to the Drive folder
-* add all your team members as Editors to the Drive folder. Note that adding a Google Group will *not* propagate down permissions to members of the group.
-* add a template Sheet file to the Drive folder
+Now you're ready to run the server.
 
-
-#### Google OAuth2 login setup
-
-In order for Google OAuth2 login to work, you need to add the URI `https://<YOUR_APP>.herokuapp.com/complete/google-oauth2/` under the "Authorized redirect URIs" in your OAuth 2.0 client settings. (Recent Heroku apps' [subdomains will include a hex ID](https://devcenter.heroku.com/articles/custom-domains) in their URI too.) You can do this on Google Cloud: APIs & Services > Credentials > click the name of the OAuth 2.0 Client you added > scroll down to the "Authorized redirect URIs" section.
-
-
-#### Heroku setup
+### Using Heroku
 
 Follow the Heroku documentation to [set up a Heroku app](https://devcenter.heroku.com/articles/git#for-an-existing-app) from an existing repository (this one).
 
@@ -60,16 +57,23 @@ You'll also see a few dyno instances on the Resources page: "web", "bot", and "w
 
 If you have a large team or are using Cardboard for a hunt with many puzzles, you may want to increase the number or tier of the dynos in your Heroku deployment.
 
-#### Configuration
+### Using Google Cloud Run
 
-At the moment, Cardboard is configured via a combination of two ways: setting global environmental variables and setting per-hunt variables (called HuntSettings) in the Django admin.
+TODO
 
-##### Admin account
+-----
 
-To set the per-hunt configuration, you must have an admin account in your Cardboard instance. You'll need to log in first, so finish all Google OAuth2 and Drive integration (see below). Then:
+## Configuring Cardboard
 
-* Start `python manage.py shell`. If you are using Heroku, you can do this by running `heroku run python manage.py shell`
-* Enter and run the following Python code:
+Cardboard is configured via a combination of global environmental variables and per-hunt variables (called `HuntSettings`) in the Django admin.
+
+### Admin accounts
+
+Cardboard automatically creates an account with username `admin`. The account password is in `docker-compose.yaml`.
+
+You can use the Django interface at `https://[app domain]/admin` to mark a user as staff or admin, logging in with the `admin` account.
+
+Alternatively, if you're comfortable using the shell, you can run `python manage.py shell` and then type these commands:
 
 ```python
 from django.contrib.auth import get_user_model
@@ -81,15 +85,11 @@ user.is_superuser = True
 user.save()
 ```
 
-##### HuntSettings setup
+### Hunt Settings
 
 The page to edit hunt settings is visible to all staff users and above from the hunt index page or at `/hunts/<slug>/edit`.
 
-###### Default hunt tags
-
-The default tags are found in [puzzles/puzzle_tag.py](https://github.com/cardinalitypuzzles/cardboard/blob/master/puzzles/puzzle_tag.py). Checking "Populate hunt with default tags?" will create any missing default tags. Unchecking will remove any unused default tags.
-
-###### Discord setup
+### Discord setup
 
 To connect a hunt with a discord server, fill out the following fields
 
@@ -101,7 +101,7 @@ To connect a hunt with a discord server, fill out the following fields
 * **Discord archive category:** category to archive solved puzzles' text and voice channels under (defaults to "archive")
 * **Discord devs role:** the Discord role to tell users to ping in case of issues opening a puzzle's sheet link (defaults to "dev")
 
-###### Google Drive setup
+### Google Drive setup
 
 For the Google Drive/Sheets integration, fill out the following fields. Many of them can also be configured as global config variables in Heroku, below; the values in the Django admin will take precedence.
 
@@ -114,14 +114,14 @@ For the Google Drive/Sheets integration, fill out the following fields. Many of 
 
 The active user lookback sets how recently an user needed to have edited a sheet to be considered a "recent editor." This will not work without the Celery task below for activity tracking.
 
-##### Heroku config variables
+##### Config variables
 
-Settings to enable logging in using a Google account:
+For logging in using Google accounts:
 
 * `SOCIAL_AUTH_GOOGLE_OAUTH2_KEY` - this is the "Client ID" of the OAuth 2.0 Client you created on the API & Services > Credentials page.
 * `SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET` - the "Client secret" for your OAuth2 Client (click on the Name of the OAuth2 Client you created on the APIs & Services > Credentials page, which will bring you to a details page that shows the Client secret)
 
-Global Google Drive, Sheets, and API settings for automatic sheets creation:
+For automatic Google Sheets creation:
 
 * `GOOGLE_API_PROJECT_ID` - the "Project ID" of the Google Cloud project your service account belongs to. You can find it under "Project info" on the Google Cloud dashboard for your project.
 * `GOOGLE_API_CLIENT_ID` - the "Unique ID" found on your service account's "Details" page
@@ -134,7 +134,7 @@ For Discord integration:
 
 * `DISCORD_API_TOKEN` - This is the "Token" for your bot, which you can find on the "Bot" settings page (you may have to click "Click to Reveal Token")
 
-Miscellaneous configs:
+Miscellaneous:
 
 * `DJANGO_SECRET_KEY` - used by Django to generate secrets, such as for user sessions. It's best to set this so that user sessions will not expire after each restart. You can generate a key using `python -c "import secrets; print(secrets.token_urlsafe())"`.
 * `DEBUG` - you probably want to set this to `False` in production so users don't get gory error pages and so profiling is disabled.
@@ -152,7 +152,7 @@ To associate Discord roles with Cardboard tags, so that puzzles with certain tag
 * Add a Chat Role for each Cardboard tag/Discord role relationship that you want to set up. The Cardboard tag name should go as "Name", and the role id is found in Discord via right-clicking a role and selecting "Copy ID", or Server Settings > Roles > ... > Copy ID.
   * You may especially want to do this for some or all of the default role tags, found in [puzzles/puzzle_tag.py](https://github.com/cardinalitypuzzles/cardboard/blob/master/puzzles/puzzle_tag.py)
 
-#### User Google sheet activity tracking
+#### Google Sheets activity tracking
 
 Tracking recent editors of the Google sheets is done through the Celery task [google_api_lib.tasks.update_active_users](https://github.com/cardinalitypuzzles/cardboard/blob/master/google_api_lib/tasks.py). The task must be scheduled after the hunt is created through the Django admin:
 
@@ -164,9 +164,6 @@ Tracking recent editors of the Google sheets is done through the Celery task [go
 6. Under "Arguments", give the hunt ID of the hunt to be tracked under "Keyword Arguments" as a dictionary, i.e. `{"hunt_id": 1}`
 7. Save.
 
-If you have users that logged in prior to the addition of this feature, it is necessary to replace the UID of user social auth objects with the Google UID (prior to this feature, the email was used as the uid). This is done automatically in the task through the Peoples API. However, the Peoples API only works for emails that are in one's contact list. See `scripts/add_service_account_contacts.py` for the script to add all current users to the service account's contacts.
-
-
 ### Giving a new user access to Cardboard
 
-The authorized users for a Cardboard deployment are the Google users who have access to the Google Drive folder for the hunt (configured on the hunt settings page). To give a new user access, simply share the Google Drive folder with that user and re-sync the permissions on the edit page.
+Share the Google Drive folder with that user and re-sync the permissions on the edit page.
