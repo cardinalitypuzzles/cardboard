@@ -44,6 +44,9 @@
       window.CURRENT_SHEET_URL = "{{ puzzle.sheet|escapejs }}";
       window.APP_SHORT_TITLE = "{{ APP_SHORT_TITLE|escapejs }}";
       window.FAVICON = "{{ FAVICON|escapejs }}";
+      window.ALLOWED_CHAT_IMAGE_TYPES = [
+        {% for mime_type in allowed_chat_image_types %}"{{ mime_type|escapejs }}"{% if not forloop.last %}, {% endif %}{% endfor %}
+      ];
     </script>
     <script type="text/javascript" src="{% static 'main.js' %}"></script>
   </body>

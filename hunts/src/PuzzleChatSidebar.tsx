@@ -4,7 +4,7 @@ import ReactTimeAgo from "react-time-ago";
 import { faImage, faTimes } from "@fortawesome/free-solid-svg-icons";
 
 import api from "./api";
-import { resizeImageFile } from "./imageUtils";
+import { getAllowedChatImageTypes, resizeImageFile } from "./imageUtils";
 import {
   PuzzleChatMessage,
   PuzzleId,
@@ -123,10 +123,28 @@ export function PuzzleChatSidebar({
 
   useEffect(() => {
     let cancelled = false;
-    const poll = () => {
-      if (document.visibilityState === "hidden") {
+    let inFlight = false;
+    let timeoutId: number | undefined;
+
+    const scheduleNext = () => {
+      if (cancelled) {
         return;
       }
+      if (timeoutId !== undefined) {
+        window.clearTimeout(timeoutId);
+      }
+      timeoutId = window.setTimeout(poll, POLL_INTERVAL_MS);
+    };
+
+    const poll = () => {
+      if (cancelled || inFlight) {
+        return;
+      }
+      if (document.visibilityState === "hidden") {
+        scheduleNext();
+        return;
+      }
+      inFlight = true;
       api
         .getPuzzleChatMessages(puzzleId, lastMessageIdRef.current)
         .then((newer) => {
@@ -136,12 +154,20 @@ export function PuzzleChatSidebar({
         })
         .catch(() => {
           // Ignore transient polling failures; next tick will retry.
+        })
+        .finally(() => {
+          inFlight = false;
+          scheduleNext();
         });
     };
 
-    const intervalId = window.setInterval(poll, POLL_INTERVAL_MS);
+    scheduleNext();
     const onVisibilityChange = () => {
       if (document.visibilityState === "visible") {
+        if (timeoutId !== undefined) {
+          window.clearTimeout(timeoutId);
+          timeoutId = undefined;
+        }
         poll();
       }
     };
@@ -149,7 +175,9 @@ export function PuzzleChatSidebar({
 
     return () => {
       cancelled = true;
-      window.clearInterval(intervalId);
+      if (timeoutId !== undefined) {
+        window.clearTimeout(timeoutId);
+      }
       document.removeEventListener("visibilitychange", onVisibilityChange);
     };
   }, [puzzleId, appendMessages]);
@@ -182,9 +210,6 @@ export function PuzzleChatSidebar({
     setError(null);
     try {
       const resized = await resizeImageFile(file, MAX_IMAGE_DIMENSION);
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
-      }
       setPendingImage(resized);
       setPreviewUrl(URL.createObjectURL(resized));
       textareaRef.current?.focus();
@@ -194,9 +219,6 @@ export function PuzzleChatSidebar({
   };
 
   const clearPendingImage = () => {
-    if (previewUrl) {
-      URL.revokeObjectURL(previewUrl);
-    }
     setPendingImage(null);
     setPreviewUrl(null);
     if (fileInputRef.current) {
@@ -250,7 +272,7 @@ export function PuzzleChatSidebar({
       setText("");
       clearPendingImage();
     } catch (err: any) {
-      setError(err?.message || "Failed to send message");
+      setError(err?.message || t("chat-error-send-failed"));
     } finally {
       setSending(false);
       requestAnimationFrame(() => {
@@ -260,6 +282,9 @@ export function PuzzleChatSidebar({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.nativeEvent.isComposing) {
+      return;
+    }
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       void handleSend();
@@ -340,7 +365,7 @@ export function PuzzleChatSidebar({
         <input
           ref={fileInputRef}
           type="file"
-          accept="image/png,image/jpeg,image/gif,image/webp"
+          accept={getAllowedChatImageTypes().join(",")}
           className="d-none"
           onChange={handleFileChange}
         />
