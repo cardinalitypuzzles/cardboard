@@ -1,0 +1,83 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: cardboard
+  labels:
+    cloud.googleapis.com/location: "us-central1"
+  annotations:
+    run.googleapis.com/ingress: "all"
+    run.googleapis.com/invoker-iam-disabled: "true"
+    run.googleapis.com/maxScale: "1"
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/maxScale: "1"
+        run.googleapis.com/cloudsql-instances: "SET_AT_DEPLOY_TIME"
+        run.googleapis.com/startup-cpu-boost: "true"
+        run.googleapis.com/network-interfaces: '[{"network":"default"}]'
+        run.googleapis.com/vpc-access-egress: private-ranges-only
+    spec:
+      containerConcurrency: 80
+      timeoutSeconds: 300
+      serviceAccountName: "SET_AT_DEPLOY_TIME"
+      containers:
+      - name: web
+        image: "SET_AT_DEPLOY_TIME"
+        args:
+        - "web"
+        - "gunicorn"
+        - "cardboard.wsgi"
+        - "--bind=0.0.0.0:8000"
+        - "--log-file"
+        - "-"
+        ports:
+        - name: http1
+          containerPort: 8000
+        resources:
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        startupProbe:
+          timeoutSeconds: 240
+          periodSeconds: 240
+          failureThreshold: 1
+          tcpSocket:
+            port: 8000
+        env:
+      - name: worker
+        image: "SET_AT_DEPLOY_TIME"
+        args:
+        - "celery"
+        - "celery"
+        - "-A"
+        - "cardboard"
+        - "worker"
+        - "-l"
+        - "INFO"
+        - "--without-heartbeat"
+        - "--without-gossip"
+        - "--without-mingle"
+        - "--concurrency"
+        - "3"
+        - "--beat"
+        resources:
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        env:
+      # - name: bot
+      #   image: "SET_AT_DEPLOY_TIME"
+      #   args:
+      #   - "bot"
+      #   - python
+      #   - manage.py
+      #   - rundiscordbot
+      #   resources:
+      #     limits:
+      #       cpu: 500m
+      #       memory: 512Mi
+      #   env:
+  traffic:
+  - percent: 100
+    latestRevision: true
