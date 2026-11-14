@@ -89,5 +89,6 @@
   "chat-expand": "Show chat",
   "chat-resize": "Drag to resize chat",
   "chat-image-alt": "Pasted chat image",
-  "chat-error-unsupported-image": "Unsupported image type. Use PNG, JPEG, GIF, or WebP."
+  "chat-error-unsupported-image": "Unsupported image type. Use PNG, JPEG, GIF, or WebP.",
+  "chat-error-send-failed": "Failed to send message"
 }

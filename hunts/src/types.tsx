@@ -18,6 +18,7 @@ declare global {
     CURRENT_PUZZLE_ID?: PuzzleId;
     CURRENT_PUZZLE_NAME?: string;
     CURRENT_SHEET_URL?: string;
+    ALLOWED_CHAT_IMAGE_TYPES?: string[];
   }
 }
 

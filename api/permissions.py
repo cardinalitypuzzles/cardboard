@@ -78,6 +78,9 @@ class CardboardNativeChatAccessPermission(permissions.BasePermission):
         try:
             hunt = Hunt.objects.get(puzzles=view.kwargs["puzzle_id"])
         except Hunt.DoesNotExist:
+            hunt = None
+
+        if not hunt:
             return False
 
         return request.user.has_perm("hunt_access", hunt)

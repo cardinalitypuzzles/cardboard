@@ -1,13 +1,12 @@
+export function getAllowedChatImageTypes(): string[] {
+  return window.ALLOWED_CHAT_IMAGE_TYPES ?? [];
+}
+
 export async function resizeImageFile(
   file: File,
   maxDimension: number = 1000
 ): Promise<File> {
-  const allowedTypes = new Set([
-    "image/png",
-    "image/jpeg",
-    "image/gif",
-    "image/webp",
-  ]);
+  const allowedTypes = new Set(getAllowedChatImageTypes());
   if (!allowedTypes.has(file.type)) {
     throw new Error("Unsupported image type");
   }

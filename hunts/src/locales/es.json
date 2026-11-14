@@ -89,5 +89,6 @@
   "chat-expand": "Mostrar chat",
   "chat-resize": "Arrastra para cambiar el ancho del chat",
   "chat-image-alt": "Imagen pegada en el chat",
-  "chat-error-unsupported-image": "Tipo de imagen no compatible. Usa PNG, JPEG, GIF o WebP."
+  "chat-error-unsupported-image": "Tipo de imagen no compatible. Usa PNG, JPEG, GIF o WebP.",
+  "chat-error-send-failed": "No se pudo enviar el mensaje"
 }

@@ -540,12 +540,6 @@ class PuzzleNotesView(viewsets.ViewSet):
         return Response(PuzzleNotesSerializer(puzzle).data)
 
 
-ALLOWED_CHAT_IMAGE_TYPES = {
-    "image/png",
-    "image/jpeg",
-    "image/gif",
-    "image/webp",
-}
 NATIVE_CHAT_CACHE_TIMEOUT_SECONDS = 60 * 60 * 24
 
 
@@ -660,7 +654,7 @@ class CardboardNativeChatView(APIView):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
             content_type = (image_file.content_type or "").lower()
-            if content_type not in ALLOWED_CHAT_IMAGE_TYPES:
+            if content_type not in settings.ALLOWED_CHAT_IMAGE_TYPES:
                 return Response(
                     {"detail": "Unsupported image type."},
                     status=status.HTTP_400_BAD_REQUEST,

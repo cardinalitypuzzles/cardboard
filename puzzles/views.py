@@ -21,7 +21,14 @@ def puzzle_frame(request, puzzle_pk):
         return redirect("/")
 
     if puzzle.sheet:
-        return render(request, "puzzle_frame.html", {"puzzle": puzzle})
+        return render(
+            request,
+            "puzzle_frame.html",
+            {
+                "puzzle": puzzle,
+                "allowed_chat_image_types": list(settings.ALLOWED_CHAT_IMAGE_TYPES),
+            },
+        )
     else:
 
         messages.error(
