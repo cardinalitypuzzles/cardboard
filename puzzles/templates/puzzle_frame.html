@@ -41,10 +41,7 @@
     <script>
       window.CURRENT_PUZZLE_ID = {{ puzzle.id }};
       window.CURRENT_PUZZLE_NAME = "{{ puzzle.name|escapejs }}";
-      window.CURRENT_PUZZLE_URL = "{{ puzzle.url|escapejs }}";
       window.CURRENT_SHEET_URL = "{{ puzzle.sheet|escapejs }}";
-      window.CURRENT_HUNT_URL = "{% url 'hunts:all_puzzles_react' puzzle.hunt.slug %}";
-      window.LOGGED_IN_USER = "{% if user.first_name %}{{ user.first_name|escapejs }} {{ user.last_name|escapejs }}{% else %}{{ user.username|escapejs }}{% endif %}";
       window.APP_SHORT_TITLE = "{{ APP_SHORT_TITLE|escapejs }}";
       window.FAVICON = "{{ FAVICON|escapejs }}";
     </script>
