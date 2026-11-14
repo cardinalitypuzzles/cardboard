@@ -165,6 +165,7 @@ export const HuntViewMain = (props: { huntId: HuntId }) => {
                 <TagPill
                   name={tag.name}
                   color={tag.color}
+                  isMeta={tag.is_meta}
                   key={tag.name}
                   onClick={() => toggleFilterTag(tag)}
                 />

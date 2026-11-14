@@ -8,6 +8,7 @@ import {
   collapsedPuzzlesSlice,
   CollapsedPuzzlesSlice,
 } from "./collapsedPuzzlesSlice";
+import { favoriteTagsSlice, FavoriteTagsSlice } from "./favoriteTagsSlice";
 import { filterSlice, FilterSlice } from "./filterSlice";
 import { huntSlice, HuntSlice } from "./huntSlice";
 import { modalSlice, ModalSlice } from "./modalSlice";
@@ -16,6 +17,7 @@ import { puzzlesSlice, PuzzlesSlice } from "./puzzlesSlice";
 export type RootState = AlertSlice &
   ChatSlice &
   CollapsedPuzzlesSlice &
+  FavoriteTagsSlice &
   FilterSlice &
   HuntSlice &
   ModalSlice &
@@ -30,6 +32,7 @@ export const useStore = create<
       ...alertSlice(...a),
       ...chatSlice(...a),
       ...collapsedPuzzlesSlice(...a),
+      ...favoriteTagsSlice(...a),
       ...filterSlice(...a),
       ...huntSlice(...a),
       ...modalSlice(...a),

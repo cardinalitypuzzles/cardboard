@@ -132,6 +132,10 @@ body {
   background-color: #ffe579;
 }
 
+.tag-name-input::placeholder {
+  opacity: 0.45;
+}
+
 :root {
   --bs-navbar-padding-y: .5rem;
   --bs-nav-link-padding-x: 1rem;

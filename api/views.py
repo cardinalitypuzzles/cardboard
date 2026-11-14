@@ -17,11 +17,12 @@ from answers.models import Answer
 from chat.models import ChatRoom
 from hunts.models import Hunt
 from puzzles.models import Puzzle, PuzzleModelError, is_ancestor
-from puzzles.puzzle_tag import LOCATION_COLOR, PuzzleTag, PuzzleTagColor
+from puzzles.puzzle_tag import META_COLOR, PuzzleTag, PuzzleTagColor
 
 from .permissions import (
     AnswerAccessPermission,
     HuntAccessPermission,
+    HuntTagAccessPermission,
     PuzzleAccessPermission,
     PuzzleTagAccessPermission,
 )
@@ -482,10 +483,14 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
                     # the post m2m hook will add tag
                     puzzle.metas.add(meta)
             else:
-                is_location = tag_color == LOCATION_COLOR
+                if tag_color == META_COLOR:
+                    return Response(
+                        {"detail": "Cannot assign meta color to a non-meta tag."},
+                        status=400,
+                    )
                 PuzzleTag.objects.filter(
                     name__iexact=tag_name, hunt=puzzle.hunt
-                ).update(color=tag_color, is_location=is_location)
+                ).update(color=tag_color)
                 puzzle.tags.add(tag)
                 if (
                     tag.name == PuzzleTag.HIGH_PRIORITY
@@ -519,6 +524,68 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
             )
         else:
             return Response([PuzzleSerializer(puzzle).data])
+
+
+class HuntTagViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated, HuntTagAccessPermission]
+    serializer_class = PuzzleTagSerializer
+
+    def get_queryset(self):
+        hunt_id = self.kwargs["hunt_id"]
+        return PuzzleTag.objects.filter(hunt_id=hunt_id)
+
+    def partial_update(self, request, hunt_id=None, pk=None):
+        with transaction.atomic():
+            tag = self.get_object()
+            if tag.is_meta:
+                return Response(
+                    {"detail": "You cannot modify a meta's tag."},
+                    status=400,
+                )
+            if "color" not in request.data:
+                return Response(
+                    {"detail": "Color is required."},
+                    status=400,
+                )
+            serializer = self.get_serializer(
+                tag, data={"color": request.data["color"]}, partial=True
+            )
+            serializer.is_valid(raise_exception=True)
+            new_color = PuzzleTagColor(serializer.validated_data["color"])
+            if new_color == META_COLOR:
+                return Response(
+                    {"detail": "Cannot assign meta color to a non-meta tag."},
+                    status=400,
+                )
+            tag.color = new_color
+            tag.save()
+        return Response(PuzzleTagSerializer(tag).data)
+
+    def destroy(self, request, hunt_id=None, pk=None):
+        with transaction.atomic():
+            tag = self.get_object()
+            if tag.is_meta:
+                return Response(
+                    {"detail": "You cannot delete a meta's tag directly."},
+                    status=400,
+                )
+            tag_id = tag.id
+            tag_name = tag.name
+            affected_puzzles = list(tag.puzzles.all())
+            tag.delete()
+
+            for puzzle in affected_puzzles:
+                if puzzle.chat_room:
+                    transaction.on_commit(
+                        lambda p_id=puzzle.id, t_name=tag_name: chat.tasks.handle_tag_removed.delay(
+                            p_id, t_name
+                        )
+                    )
+                if tag_name.upper() == PuzzleTag.BACKSOLVED.upper():
+                    transaction.on_commit(
+                        lambda p=puzzle: AnswerViewSet._maybe_update_sheets_title(p)
+                    )
+        return Response({"deleted_tag_id": tag_id})
 
 
 class PuzzleNotesView(viewsets.ViewSet):

@@ -33,6 +33,8 @@ export interface PuzzlesSlice {
       tag: { name: string; color: string }
     ) => Promise<void>;
     deletePuzzleTag: (puzzleId: PuzzleId, tagId: TagId) => Promise<void>;
+    updateHuntTag: (tagId: TagId, changes: { color: string }) => Promise<void>;
+    deleteHuntTag: (tagId: TagId, tagName: string) => Promise<void>;
     editNotes: (puzzleId: PuzzleId, text: string) => Promise<void>;
 
     numPuzzlesUnlocked: () => number;
@@ -155,6 +157,45 @@ export const puzzlesSlice: StateCreator<
     deletePuzzleTag: async (puzzleId: PuzzleId, tagId: TagId) => {
       return api.deletePuzzleTag(puzzleId, tagId).then((response) => {
         get().puzzlesSlice.bulkUpdatePuzzlesFromDict(response);
+      });
+    },
+    updateHuntTag: async (tagId: TagId, changes: { color: string }) => {
+      const huntId = get().huntSlice.hunt.id;
+      if (huntId === null) {
+        return;
+      }
+      return api.updateHuntTag(huntId, tagId, changes).then((updatedTag) => {
+        get().huntSlice.upsertTag(updatedTag);
+        get().filterSlice.removeFilterTag(tagId);
+        set((state) => {
+          state.puzzlesSlice.lastUpdate = Date.now();
+          for (const puzzle of Object.values(state.puzzlesSlice.puzzles)) {
+            if (puzzle.tags.some((t) => t.id === tagId)) {
+              puzzle.tags = puzzle.tags.map((t) =>
+                t.id === tagId ? updatedTag : t
+              );
+            }
+          }
+        });
+      });
+    },
+    deleteHuntTag: async (tagId: TagId, tagName: string) => {
+      const huntId = get().huntSlice.hunt.id;
+      if (huntId === null) {
+        return;
+      }
+      return api.deleteHuntTag(huntId, tagId).then(() => {
+        get().huntSlice.removeTag(tagId);
+        get().filterSlice.removeFilterTag(tagId);
+        get().favoriteTagsSlice.removeFavoriteTag(tagName);
+        set((state) => {
+          state.puzzlesSlice.lastUpdate = Date.now();
+          for (const puzzle of Object.values(state.puzzlesSlice.puzzles)) {
+            if (puzzle.tags.some((t) => t.id === tagId)) {
+              puzzle.tags = puzzle.tags.filter((t) => t.id !== tagId);
+            }
+          }
+        });
       });
     },
     editNotes: async (puzzleId: PuzzleId, text: string) => {

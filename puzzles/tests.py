@@ -9,7 +9,7 @@ from chat.models import ChatRoom
 from hunts.models import Hunt
 
 from .models import Puzzle, is_ancestor
-from .puzzle_tag import PuzzleTag
+from .puzzle_tag import META_COLOR, PuzzleTag, PuzzleTagColor
 
 
 @override_settings(
@@ -116,7 +116,7 @@ class TestPuzzle(APITestCase):
 
         self.client.post(
             f"/api/v1/puzzles/{feeder.pk}/tags",
-            {"name": meta.name, "color": "dark"},
+            {"name": meta.name, "color": META_COLOR},
         )
         self.assertTrue(feeder.metas.filter(pk=meta.pk).exists())
 
@@ -189,7 +189,7 @@ class TestPuzzle(APITestCase):
 
         self.client.post(
             f"/api/v1/puzzles/{feeder.pk}/tags",
-            {"name": PuzzleTag.BACKSOLVED.upper(), "color": "success"},
+            {"name": PuzzleTag.BACKSOLVED.upper(), "color": PuzzleTagColor.GREEN},
         )
         # Not backsolved as it hasn't been solved yet
         self.assertFalse(feeder.is_backsolved())
@@ -207,7 +207,7 @@ class TestPuzzle(APITestCase):
         # Lowercase tag should work too
         self.client.post(
             f"/api/v1/puzzles/{feeder.pk}/tags",
-            {"name": PuzzleTag.BACKSOLVED.lower(), "color": "success"},
+            {"name": PuzzleTag.BACKSOLVED.lower(), "color": PuzzleTagColor.GREEN},
         )
         # Now it should be backsolved again
         self.assertTrue(feeder.is_backsolved())
