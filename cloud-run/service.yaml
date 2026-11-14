@@ -77,7 +77,7 @@ spec:
       #     limits:
       #       cpu: 500m
       #       memory: 512Mi
-        env:
+      #   env:
   traffic:
   - percent: 100
     latestRevision: true
