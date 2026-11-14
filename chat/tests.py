@@ -34,13 +34,9 @@ class TestChatRoom(TestCase):
             is_meta=False,
         )
 
-        self.room = ChatRoom.objects.create(
-            name="Test Room 🧩", service="FAKE"
-        )
+        self.room = ChatRoom.objects.create(name="Test Room 🧩", service="FAKE")
         self.room.puzzle = self.feeder
-        self.meta_room = ChatRoom.objects.create(
-            name="Meta Room", service="FAKE"
-        )
+        self.meta_room = ChatRoom.objects.create(name="Meta Room", service="FAKE")
         self.meta_room.puzzle = self.meta
         self.fake_service = FakeChatService.get_instance()
 

@@ -29,8 +29,10 @@ if not SECRET_KEY:
     logger.warn("No DJANGO_SECRET_KEY set. Generating random secret key")
     SECRET_KEY = get_random_secret_key()
 
+
 def strtobool(val):
     return str(val).lower() in ("y", "yes", "t", "true", "on", "1")
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = strtobool(os.environ.get("DEBUG", "false"))
