@@ -160,14 +160,31 @@ def redirect_to_drive(request, hunt_slug):
         return redirect("/")
 
 
+def _queue_discord_role_sync(hunt_slug):
+    import chat.tasks
+
+    chat.tasks.sync_roles.delay(
+        hunt_slug,
+        settings.CHAT_DEFAULT_SERVICE,
+    )
+
+
+def _queue_drive_permission_sync(request, hunt_slug):
+    hunt = Hunt.get_object_or_404(user=request.user, slug=hunt_slug)
+    sync_drive_permissions_for_hunt.delay(hunt.id)
+
+
 @login_required(login_url="/")
 @permission_required_or_403("hunt_admin", (Hunt, "slug", "hunt_slug"))
 def sync(request, hunt_slug):
     if request.method != "POST":
         return HttpResponseForbidden()
 
-    sync_discord_roles(request, hunt_slug)
-    return sync_drive_permissions(request, hunt_slug)
+    _queue_discord_role_sync(hunt_slug)
+    _queue_drive_permission_sync(request, hunt_slug)
+
+    messages.success(request, "Discord roles synced and users added to hunt.")
+    return redirect(reverse("hunts:edit", kwargs={"hunt_slug": hunt_slug}))
 
 
 @login_required(login_url="/")
@@ -176,12 +193,7 @@ def sync_discord_roles(request, hunt_slug):
     if request.method != "POST":
         return HttpResponseForbidden()
 
-    import chat.tasks
-
-    chat.tasks.sync_roles.delay(
-        hunt_slug,
-        settings.CHAT_DEFAULT_SERVICE,
-    )
+    _queue_discord_role_sync(hunt_slug)
 
     messages.success(request, "Discord roles created.")
     return redirect(f"/hunts/{hunt_slug}/edit")
@@ -192,8 +204,7 @@ def sync_drive_permissions(request, hunt_slug):
     if request.method != "POST":
         return HttpResponseForbidden()
 
-    hunt = Hunt.get_object_or_404(user=request.user, slug=hunt_slug)
-    sync_drive_permissions_for_hunt.delay(hunt.id)
+    _queue_drive_permission_sync(request, hunt_slug)
 
     messages.success(request, "Users added to hunt")
     return redirect(f"/hunts/{hunt_slug}/edit")
