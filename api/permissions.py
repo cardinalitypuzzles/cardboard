@@ -69,3 +69,18 @@ class AnswerAccessPermission(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
         return request.user.has_perm("hunt_access", obj.puzzle.hunt)
+
+
+class CardboardNativeChatAccessPermission(permissions.BasePermission):
+    message = "You do not have access to this puzzle's chat"
+
+    def has_permission(self, request, view):
+        try:
+            hunt = Hunt.objects.get(puzzles=view.kwargs["puzzle_id"])
+        except Hunt.DoesNotExist:
+            hunt = None
+
+        if not hunt:
+            return False
+
+        return request.user.has_perm("hunt_access", hunt)

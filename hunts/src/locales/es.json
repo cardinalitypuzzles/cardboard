@@ -78,5 +78,19 @@
   "tag-placeholder": "Puzzle de lógica",
   "blue": "Azul",
   "white": "Blanco",
-  "teal-location": "Verde azulado (Ubicación)"
+  "teal-location": "Verde azulado (Ubicación)",
+  "chat-header": "Chat del puzzle",
+  "chat-open-sheet-new-window": "Abrir hoja en una ventana aparte",
+  "chat-embed-warning": "Es posible que las hojas de cálculo de Google incrustadas no funcionen en Safari, Brave o en iPad/iPhone. Si la hoja no carga, ábrela en una ventana aparte.",
+  "chat-placeholder": "Mensaje",
+  "chat-empty": "(nada por aquí todavía)",
+  "chat-loading": "Cargando chat...",
+  "chat-attach-image": "Adjuntar imagen",
+  "chat-remove-image": "Quitar imagen",
+  "chat-collapse": "Ocultar chat",
+  "chat-expand": "Mostrar chat",
+  "chat-resize": "Arrastra para cambiar el ancho del chat",
+  "chat-image-alt": "Imagen pegada en el chat",
+  "chat-error-unsupported-image": "Tipo de imagen no compatible. Usa PNG, JPEG, GIF o WebP.",
+  "chat-error-send-failed": "No se pudo enviar el mensaje"
 }

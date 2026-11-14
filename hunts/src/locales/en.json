@@ -78,5 +78,19 @@
   "tag-placeholder": "Logic Puzzle",
   "blue": "Blue",
   "white": "White",
-  "teal-location": "Teal (Location)"
+  "teal-location": "Teal (Location)",
+  "chat-header": "Puzzle Chat",
+  "chat-open-sheet-new-window": "Open sheet in a separate window",
+  "chat-embed-warning": "Embedded Google Sheets may not work in Safari, Brave, or on iPad/iPhone. If the sheet fails to load, open it in a separate window.",
+  "chat-placeholder": "Message",
+  "chat-empty": "(nothing here yet)",
+  "chat-loading": "Loading chat...",
+  "chat-attach-image": "Attach image",
+  "chat-remove-image": "Remove image",
+  "chat-collapse": "Hide chat",
+  "chat-expand": "Show chat",
+  "chat-resize": "Drag to resize chat",
+  "chat-image-alt": "Pasted chat image",
+  "chat-error-unsupported-image": "Unsupported image type. Use PNG, JPEG, GIF, or WebP.",
+  "chat-error-send-failed": "Failed to send message"
 }

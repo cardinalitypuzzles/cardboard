@@ -67,6 +67,7 @@ INSTALLED_APPS = [
     "puzzles",
     "accounts",
     "chat",
+    "native_chat",
     "hunts",
     "answers",
     "social_django",
@@ -344,3 +345,13 @@ if "rediss" in REDIS_URL:
 
 # Use 64 bit primary keys
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Native puzzle chat settings
+MAX_CHAT_IMAGE_BYTES = 5 * 1024 * 1024
+MAX_CHAT_MESSAGE_LENGTH = 4000
+ALLOWED_CHAT_IMAGE_TYPES = (
+    "image/png",
+    "image/jpeg",
+    "image/gif",
+    "image/webp",
+)

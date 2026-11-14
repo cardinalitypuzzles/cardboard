@@ -1,0 +1,53 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>{{ puzzle.name }} - {{ APP_SHORT_TITLE }}</title>
+    <link rel="shortcut icon" type="image/png" href="{% static FAVICON %}" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css"
+    />
+    <link rel="stylesheet" href="{% static 'style.css' %}" />
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        document.body.classList.add("bootstrap");
+        const storedTheme = localStorage.getItem("cardboard-theme");
+        if (storedTheme) {
+          document.body.setAttribute("data-bs-theme", storedTheme);
+        } else {
+          document.body.setAttribute("data-bs-theme", "light");
+          localStorage.setItem("cardboard-theme", "light");
+        }
+      });
+    </script>
+    <style>
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+      }
+      #sheet-app {
+        height: 100vh;
+        width: 100vw;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="sheet-app"></div>
+    <script>
+      window.CURRENT_PUZZLE_ID = {{ puzzle.id }};
+      window.CURRENT_PUZZLE_NAME = "{{ puzzle.name|escapejs }}";
+      window.CURRENT_SHEET_URL = "{{ puzzle.sheet|escapejs }}";
+      window.APP_SHORT_TITLE = "{{ APP_SHORT_TITLE|escapejs }}";
+      window.FAVICON = "{{ FAVICON|escapejs }}";
+      window.ALLOWED_CHAT_IMAGE_TYPES = [
+        {% for mime_type in allowed_chat_image_types %}"{{ mime_type|escapejs }}"{% if not forloop.last %}, {% endif %}{% endfor %}
+      ];
+    </script>
+    <script type="text/javascript" src="{% static 'main.js' %}"></script>
+  </body>
+</html>

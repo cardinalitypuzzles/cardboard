@@ -15,7 +15,20 @@ declare global {
     FAVICON: string;
     LOGGED_IN_USER: string;
     APP_SHORT_TITLE: string;
+    CURRENT_PUZZLE_ID?: PuzzleId;
+    CURRENT_PUZZLE_NAME?: string;
+    CURRENT_SHEET_URL?: string;
+    ALLOWED_CHAT_IMAGE_TYPES?: string[];
   }
+}
+
+export interface PuzzleChatMessage {
+  id: number;
+  user_id: number;
+  user_name: string;
+  text: string;
+  image_url: string | null;
+  created_on: string;
 }
 
 export type Hunt = {
