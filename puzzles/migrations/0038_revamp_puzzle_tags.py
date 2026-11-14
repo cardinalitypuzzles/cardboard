@@ -1,6 +1,5 @@
 from django.db import migrations, models
 
-
 PALETTE_COLORS = {
     "#f8f9fa",
     "#f87171",
@@ -142,15 +141,19 @@ def revamp_puzzle_tags(apps, schema_editor):
     grouped_names = set()
     for color, names in GROUP_TAG_COLORS.items():
         grouped_names.update(names)
-        PuzzleTag.objects.filter(
-            name__in=names, is_default=True, is_meta=False
-        ).update(color=color)
+        PuzzleTag.objects.filter(name__in=names, is_default=True, is_meta=False).update(
+            color=color
+        )
     PuzzleTag.objects.filter(is_default=True, is_meta=False).exclude(
         name__in=SPECIAL_TAG_NAMES | grouped_names
     ).update(color="#f8f9fa")
     PuzzleTag.objects.filter(
         name__in=["Slog", "Grunt work"], is_default=True, is_meta=False
     ).update(color="#f8f9fa")
+
+    # Flush deferred FK triggers before AddConstraint alters puzzles_puzzletag in the same transaction.
+    if schema_editor and schema_editor.connection.vendor == "postgresql":
+        schema_editor.execute("SET CONSTRAINTS ALL IMMEDIATE")
 
 
 class Migration(migrations.Migration):

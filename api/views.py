@@ -488,9 +488,9 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
                         {"detail": "Cannot assign meta color to a non-meta tag."},
                         status=400,
                     )
-                PuzzleTag.objects.filter(name__iexact=tag_name, hunt=puzzle.hunt).update(
-                    color=tag_color
-                )
+                PuzzleTag.objects.filter(
+                    name__iexact=tag_name, hunt=puzzle.hunt
+                ).update(color=tag_color)
                 puzzle.tags.add(tag)
                 if (
                     tag.name == PuzzleTag.HIGH_PRIORITY
