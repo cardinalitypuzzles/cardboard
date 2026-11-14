@@ -464,13 +464,13 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
                 PuzzleTagColor(serializer.validated_data["color"]),
             )
             tag, _ = PuzzleTag.objects.get_or_create(
-                name__iexact=tag_name,
-                hunt=puzzle.hunt,
-                defaults={"name": tag_name}
+                name__iexact=tag_name, hunt=puzzle.hunt, defaults={"name": tag_name}
             )
             if tag.is_meta:
                 # Look up the meta and then add it to puzzle.metas
-                meta = get_object_or_404(Puzzle, name__iexact=tag.name, hunt=puzzle.hunt)
+                meta = get_object_or_404(
+                    Puzzle, name__iexact=tag.name, hunt=puzzle.hunt
+                )
                 if is_ancestor(puzzle, meta):
                     return Response(
                         {
@@ -483,9 +483,9 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
                     puzzle.metas.add(meta)
             else:
                 is_location = tag_color == LOCATION_COLOR
-                PuzzleTag.objects.filter(name__iexact=tag_name, hunt=puzzle.hunt).update(
-                    color=tag_color, is_location=is_location
-                )
+                PuzzleTag.objects.filter(
+                    name__iexact=tag_name, hunt=puzzle.hunt
+                ).update(color=tag_color, is_location=is_location)
                 puzzle.tags.add(tag)
                 if (
                     tag.name == PuzzleTag.HIGH_PRIORITY

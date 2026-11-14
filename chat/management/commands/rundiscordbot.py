@@ -11,6 +11,7 @@ intents = discord.Intents.default()
 intents.message_content = True
 client = discord.Client(intents=intents)
 
+
 # Message response handlers
 async def send_puzzles_unsolved(message):
     puzzles = await sync_to_async(list)(

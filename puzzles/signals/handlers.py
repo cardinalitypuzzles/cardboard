@@ -29,7 +29,7 @@ def update_tags_pre_save(sender, instance, **kwargs):
                 instance.tags.filter(name=old_instance.name).delete()
                 puzzles_needing_new_tag = [instance] + list(instance.feeders.all())
 
-        (new_tag, _) = PuzzleTag.objects.update_or_create(
+        new_tag, _ = PuzzleTag.objects.update_or_create(
             name=instance.name,
             defaults={"color": META_COLOR, "is_meta": True},
             hunt=instance.hunt,

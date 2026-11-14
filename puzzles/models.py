@@ -195,7 +195,9 @@ class Puzzle(SoftDeleteModel):
     def is_backsolved(self):
         return (
             self.is_solved()
-            and self.tags.filter(name__iexact=PuzzleTag.BACKSOLVED, hunt=self.hunt).exists()
+            and self.tags.filter(
+                name__iexact=PuzzleTag.BACKSOLVED, hunt=self.hunt
+            ).exists()
         )
 
     def is_freebie(self):

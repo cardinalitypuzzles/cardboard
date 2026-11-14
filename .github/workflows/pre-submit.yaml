@@ -9,9 +9,11 @@ jobs:
   pre-commit:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-      - uses: pre-commit/action@v2.0.0
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.15.x"
+      - uses: pre-commit/action@v3.0.1
       - uses: isort/isort-action@v1.1.0
   test:
     runs-on: ubuntu-latest
@@ -43,9 +45,9 @@ jobs:
           ports:
             - 6379:6379
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.15.x"
 
