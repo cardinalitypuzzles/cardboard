@@ -14,8 +14,6 @@ import {
 const POLL_INTERVAL_MS = 2500;
 const MAX_IMAGE_DIMENSION = 1000;
 const URL_REGEX = /(https?:\/\/[^\s]+)/g;
-const CARDINAL_DIVIDER_COLOR =
-  "color-mix(in srgb, #b81d38 22%, var(--bs-border-color))";
 
 function renderMessageText(text: string) {
   const parts = text.split(URL_REGEX);
@@ -27,7 +25,7 @@ function renderMessageText(text: string) {
           href={part}
           target="_blank"
           rel="noopener noreferrer"
-          style={{ wordBreak: "break-all" }}
+          className="puzzle-chat-link"
         >
           {part}
         </a>
@@ -270,7 +268,6 @@ export function PuzzleChatSidebar({
 
   return (
     <div className="d-flex flex-column h-100 text-body">
-      <style>{".puzzle-chat-input::placeholder { opacity: 0.45; }"}</style>
       <div
         ref={listRef}
         className="flex-grow-1 overflow-auto p-2"
@@ -279,27 +276,20 @@ export function PuzzleChatSidebar({
         {loading ? (
           <div className="text-muted small p-2">{t("chat-loading")}</div>
         ) : messages.length === 0 ? (
-          <div className="text-muted small p-2" style={{ opacity: 0.55 }}>
+          <div className="text-muted small p-2 puzzle-chat-empty">
             {t("chat-empty")}
           </div>
         ) : (
           messages.map((msg) => (
-            <div
-              key={msg.id}
-              className="mb-2 pb-2"
-              style={{ borderBottom: `1px solid ${CARDINAL_DIVIDER_COLOR}` }}
-            >
+            <div key={msg.id} className="mb-2 pb-2 puzzle-chat-message">
               <div className="d-flex justify-content-between align-items-baseline gap-2">
                 <strong className="small text-truncate">{msg.user_name}</strong>
-                <span className="text-muted" style={{ fontSize: "0.75rem" }}>
+                <span className="text-muted puzzle-chat-timestamp">
                   <ReactTimeAgo date={new Date(msg.created_on)} />
                 </span>
               </div>
               {msg.text && (
-                <div
-                  className="small mt-1"
-                  style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}
-                >
+                <div className="small mt-1 puzzle-chat-message-text">
                   {renderMessageText(msg.text)}
                 </div>
               )}
@@ -313,8 +303,7 @@ export function PuzzleChatSidebar({
                     <img
                       src={msg.image_url}
                       alt={t("chat-image-alt")}
-                      className="img-fluid rounded border"
-                      style={{ maxHeight: "300px", objectFit: "contain" }}
+                      className="img-fluid rounded border puzzle-chat-message-image"
                     />
                   </a>
                 </div>
@@ -324,11 +313,7 @@ export function PuzzleChatSidebar({
         )}
       </div>
 
-      <form
-        onSubmit={handleSend}
-        className="p-2"
-        style={{ borderTop: `1px solid ${CARDINAL_DIVIDER_COLOR}` }}
-      >
+      <form onSubmit={handleSend} className="p-2 puzzle-chat-form">
         {error && (
           <div className="alert alert-danger py-1 px-2 small mb-2" role="alert">
             {error}
@@ -339,12 +324,7 @@ export function PuzzleChatSidebar({
             <img
               src={previewUrl}
               alt={t("chat-image-alt")}
-              className="rounded border"
-              style={{
-                maxHeight: "120px",
-                maxWidth: "220px",
-                objectFit: "contain",
-              }}
+              className="rounded border puzzle-chat-preview-image"
             />
             <button
               type="button"
@@ -375,26 +355,10 @@ export function PuzzleChatSidebar({
             onPaste={handlePaste}
             onKeyDown={handleKeyDown}
             readOnly={sending}
-            style={{
-              resize: "none",
-              minHeight: "32px",
-              maxHeight: "100px",
-              overflowY: "auto",
-            }}
           />
           <button
             type="button"
-            className="btn btn-sm btn-outline-secondary flex-shrink-0"
-            style={{
-              width: "32px",
-              height: "32px",
-              minWidth: "32px",
-              minHeight: "32px",
-              padding: 0,
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
+            className="btn btn-sm btn-outline-secondary flex-shrink-0 puzzle-chat-attach-btn"
             onClick={() => fileInputRef.current?.click()}
             title={t("chat-attach-image")}
             aria-label={t("chat-attach-image")}

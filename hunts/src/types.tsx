@@ -17,9 +17,7 @@ declare global {
     APP_SHORT_TITLE: string;
     CURRENT_PUZZLE_ID?: PuzzleId;
     CURRENT_PUZZLE_NAME?: string;
-    CURRENT_PUZZLE_URL?: string;
     CURRENT_SHEET_URL?: string;
-    CURRENT_HUNT_URL?: string;
   }
 }
 

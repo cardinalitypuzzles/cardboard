@@ -20,7 +20,7 @@ import google_api_lib.tasks
 from answers.models import Answer
 from chat.models import ChatRoom
 from hunts.models import Hunt
-from native_chat.models import CardboardNativeChat, CardboardNativeChatMessage
+from native_chat.models import CardboardNativeChatMessage
 from puzzles.models import Puzzle, PuzzleModelError, is_ancestor
 from puzzles.puzzle_tag import LOCATION_COLOR, PuzzleTag, PuzzleTagColor
 
@@ -33,6 +33,7 @@ from .permissions import (
 )
 from .serializers import (
     AnswerSerializer,
+    CardboardNativeChatMessageCreateSerializer,
     CardboardNativeChatMessageSerializer,
     HuntSerializer,
     PuzzleNotesSerializer,
@@ -545,10 +546,58 @@ ALLOWED_CHAT_IMAGE_TYPES = {
     "image/gif",
     "image/webp",
 }
+NATIVE_CHAT_CACHE_TIMEOUT_SECONDS = 60 * 60 * 24
 
 
 def _native_chat_latest_cache_key(puzzle_id):
     return f"cardboard_native_chat_latest_id:{puzzle_id}"
+
+
+def _update_native_chat_latest_cache(puzzle_id, latest_id):
+    """Monotonically advance the cached latest message ID for a puzzle."""
+    key = _native_chat_latest_cache_key(puzzle_id)
+    if hasattr(cache, "_cache") and hasattr(cache._cache, "get_client"):
+        redis_key = cache.make_and_validate_key(key)
+        backend_timeout = cache.get_backend_timeout(NATIVE_CHAT_CACHE_TIMEOUT_SECONDS)
+        serializer = cache._cache._serializer
+        watch_error = cache._cache._lib.WatchError
+        client = cache._cache.get_client(redis_key, write=True)
+        with client.pipeline() as pipe:
+            while True:
+                try:
+                    pipe.watch(redis_key)
+                    raw_current = pipe.get(redis_key)
+                    if raw_current is not None:
+                        current = serializer.loads(raw_current)
+                        if current is not None and current >= latest_id:
+                            pipe.unwatch()
+                            return
+                    pipe.multi()
+                    pipe.set(redis_key, serializer.dumps(latest_id), ex=backend_timeout)
+                    pipe.execute()
+                    return
+                except watch_error:
+                    continue
+
+    current = cache.get(key)
+    if current is None or current < latest_id:
+        cache.set(key, latest_id, timeout=NATIVE_CHAT_CACHE_TIMEOUT_SECONDS)
+
+
+def _matches_image_signature(image_bytes, content_type):
+    if content_type == "image/png":
+        return image_bytes.startswith(b"\x89PNG\r\n\x1a\n")
+    if content_type == "image/jpeg":
+        return image_bytes.startswith(b"\xff\xd8\xff")
+    if content_type == "image/gif":
+        return image_bytes.startswith((b"GIF87a", b"GIF89a"))
+    if content_type == "image/webp":
+        return (
+            len(image_bytes) >= 12
+            and image_bytes[:4] == b"RIFF"
+            and image_bytes[8:12] == b"WEBP"
+        )
+    return False
 
 
 class CardboardNativeChatView(APIView):
@@ -573,34 +622,27 @@ class CardboardNativeChatView(APIView):
             if cached_latest is not None and cached_latest <= after_id:
                 return Response([])
 
-        native_chat = CardboardNativeChat.objects.filter(puzzle=puzzle).first()
-        if native_chat is None:
-            if after_id is None:
-                cache.set(
-                    _native_chat_latest_cache_key(puzzle.pk), 0, timeout=60 * 60 * 24
-                )
-            return Response([])
-
-        queryset = native_chat.messages.select_related("user", "chat").defer("image")
+        queryset = (
+            CardboardNativeChatMessage.objects.filter(puzzle=puzzle)
+            .select_related("user")
+            .defer("image")
+        )
         if after_id is not None:
             queryset = queryset.filter(id__gt=after_id)
 
         messages_list = list(queryset)
         if messages_list:
-            cache.set(
-                _native_chat_latest_cache_key(puzzle.pk),
-                messages_list[-1].id,
-                timeout=60 * 60 * 24,
-            )
+            _update_native_chat_latest_cache(puzzle.pk, messages_list[-1].id)
         elif after_id is None:
-            cache.set(_native_chat_latest_cache_key(puzzle.pk), 0, timeout=60 * 60 * 24)
+            _update_native_chat_latest_cache(puzzle.pk, 0)
 
         serializer = CardboardNativeChatMessageSerializer(messages_list, many=True)
         return Response(serializer.data)
 
     def post(self, request, puzzle_id):
-        puzzle = get_object_or_404(Puzzle, pk=puzzle_id)
-        text = (request.data.get("text") or "").strip()
+        input_serializer = CardboardNativeChatMessageCreateSerializer(data=request.data)
+        input_serializer.is_valid(raise_exception=True)
+        text = input_serializer.validated_data.get("text") or ""
         image_file = request.FILES.get("image")
 
         if not text and not image_file:
@@ -624,21 +666,26 @@ class CardboardNativeChatView(APIView):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
             image_bytes = image_file.read()
+            if not _matches_image_signature(image_bytes, content_type):
+                return Response(
+                    {"detail": "Unsupported image type."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
             image_content_type = content_type
 
-        native_chat = CardboardNativeChat.for_puzzle(puzzle)
-        message = CardboardNativeChatMessage.objects.create(
-            chat=native_chat,
-            user=request.user,
-            text=text,
-            image=image_bytes,
-            image_content_type=image_content_type,
-        )
-        cache.set(
-            _native_chat_latest_cache_key(puzzle.pk),
-            message.id,
-            timeout=60 * 60 * 24,
-        )
+        # Lock the puzzle row while creating the message so message IDs commit
+        # in strictly increasing order per puzzle for safe id__gt polling.
+        with transaction.atomic():
+            puzzle = get_object_or_404(Puzzle.objects.select_for_update(), pk=puzzle_id)
+            message = CardboardNativeChatMessage.objects.create(
+                puzzle=puzzle,
+                user=request.user,
+                text=text,
+                image=image_bytes,
+                image_content_type=image_content_type,
+            )
+
+        _update_native_chat_latest_cache(puzzle.pk, message.id)
 
         serializer = CardboardNativeChatMessageSerializer(message)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -649,7 +696,7 @@ class CardboardNativeChatImageView(APIView):
 
     def get(self, request, puzzle_id, message_id):
         message = get_object_or_404(
-            CardboardNativeChatMessage, pk=message_id, chat__puzzle_id=puzzle_id
+            CardboardNativeChatMessage, pk=message_id, puzzle_id=puzzle_id
         )
         if not message.image or not message.image_content_type:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -660,4 +707,6 @@ class CardboardNativeChatImageView(APIView):
         )
         response["Cache-Control"] = "private, max-age=31536000, immutable"
         response["X-Content-Type-Options"] = "nosniff"
+        response["Content-Security-Policy"] = "sandbox; default-src 'none'"
+        response["Content-Disposition"] = "inline"
         return response

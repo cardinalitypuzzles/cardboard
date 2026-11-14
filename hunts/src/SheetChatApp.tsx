@@ -13,20 +13,11 @@ const MIN_CHAT_WIDTH = 240;
 const MIN_SHEET_WIDTH = 200;
 const CHAT_WIDTH_STORAGE_KEY = "cardboard-chat-width";
 
-const CARDINAL_BORDER_COLOR =
-  "color-mix(in srgb, #b81d38 40%, var(--bs-border-color))";
-const CARDINAL_DIVIDER_INNER_BORDER =
-  "color-mix(in srgb, #b81d38 18%, var(--bs-border-color))";
-const CARDINAL_HANDLE_BG = "color-mix(in srgb, #b81d38 11%, var(--bs-body-bg))";
-const CARDINAL_SIDEBAR_BG = "color-mix(in srgb, #b81d38 5%, var(--bs-body-bg))";
-const CARDINAL_GRIP_COLOR =
-  "color-mix(in srgb, #b81d38 50%, var(--bs-secondary-color))";
-
 function clampChatWidth(width: number): number {
-  const maxWidth =
-    typeof window !== "undefined"
-      ? Math.max(MIN_CHAT_WIDTH, window.innerWidth - MIN_SHEET_WIDTH)
-      : 800;
+  const maxWidth = Math.max(
+    MIN_CHAT_WIDTH,
+    window.innerWidth - MIN_SHEET_WIDTH
+  );
   return Math.min(Math.max(width, MIN_CHAT_WIDTH), maxWidth);
 }
 
@@ -44,27 +35,6 @@ function getInitialChatWidth(): number {
   }
   return clampChatWidth(DEFAULT_CHAT_WIDTH);
 }
-
-const folderTabStyle: React.CSSProperties = {
-  position: "absolute",
-  top: "72px",
-  width: "28px",
-  height: "44px",
-  padding: 0,
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  backgroundColor: CARDINAL_HANDLE_BG,
-  borderTop: `2px solid ${CARDINAL_BORDER_COLOR}`,
-  borderBottom: `2px solid ${CARDINAL_BORDER_COLOR}`,
-  borderLeft: `2px solid ${CARDINAL_BORDER_COLOR}`,
-  borderRight: "none",
-  borderTopLeftRadius: "6px",
-  borderBottomLeftRadius: "6px",
-  borderTopRightRadius: 0,
-  borderBottomRightRadius: 0,
-  zIndex: 20,
-};
 
 export function SheetChatApp() {
   const { t } = useTranslation();
@@ -121,30 +91,24 @@ export function SheetChatApp() {
   };
 
   return (
-    <div
-      className="d-flex position-relative"
-      style={{ height: "100vh", width: "100vw" }}
-    >
+    <div className="d-flex position-relative puzzle-chat-frame">
       <div
-        className="flex-grow-1 h-100"
-        style={{
-          minWidth: 0,
-          pointerEvents: isDragging ? "none" : "auto",
-        }}
+        className={`flex-grow-1 h-100 puzzle-chat-sheet${
+          isDragging ? " is-dragging" : ""
+        }`}
       >
         <iframe
           src={sheetUrl}
           title={puzzleName}
           allow="clipboard-read; clipboard-write"
-          style={{ width: "100%", height: "100%", border: 0 }}
+          className="puzzle-chat-iframe"
         />
       </div>
 
       {collapsed ? (
         <button
           type="button"
-          className="btn text-body"
-          style={{ ...folderTabStyle, right: 0 }}
+          className="btn text-body puzzle-chat-toggle puzzle-chat-toggle-collapsed"
           onClick={() => setCollapsed(false)}
           title={t("chat-expand")}
           aria-label={t("chat-expand")}
@@ -153,17 +117,12 @@ export function SheetChatApp() {
         </button>
       ) : (
         <aside
-          className="d-flex h-100 position-relative"
-          style={{
-            width: `${chatWidth}px`,
-            flexShrink: 0,
-            backgroundColor: CARDINAL_SIDEBAR_BG,
-          }}
+          className="d-flex h-100 position-relative puzzle-chat-sidebar"
+          style={{ width: `${chatWidth}px` }}
         >
           <button
             type="button"
-            className="btn text-body"
-            style={{ ...folderTabStyle, right: "100%" }}
+            className="btn text-body puzzle-chat-toggle puzzle-chat-toggle-expanded"
             onClick={() => setCollapsed(true)}
             title={t("chat-collapse")}
             aria-label={t("chat-collapse")}
@@ -177,51 +136,16 @@ export function SheetChatApp() {
             aria-label={t("chat-resize")}
             title={t("chat-resize")}
             onMouseDown={handleDragStart}
-            className="d-flex align-items-center justify-content-center user-select-none"
-            style={{
-              width: "8px",
-              flexShrink: 0,
-              cursor: "col-resize",
-              backgroundColor: CARDINAL_HANDLE_BG,
-              borderLeft: `2px solid ${CARDINAL_BORDER_COLOR}`,
-              borderRight: `1px solid ${CARDINAL_DIVIDER_INNER_BORDER}`,
-            }}
+            className="d-flex align-items-center justify-content-center user-select-none puzzle-chat-resize-handle"
           >
-            <div
-              style={{
-                width: "3px",
-                height: "32px",
-                borderRadius: "2px",
-                backgroundColor: CARDINAL_GRIP_COLOR,
-              }}
-            />
+            <div className="puzzle-chat-resize-grip" />
           </div>
 
-          <div
-            className="d-flex flex-column flex-grow-1 h-100"
-            style={{ minWidth: 0, minHeight: 0 }}
-          >
-            <style>{`
-              .puzzle-chat-header {
-                color: #8b172c;
-                font-size: 1.05rem;
-                font-weight: 700;
-                letter-spacing: -0.01em;
-              }
-              [data-bs-theme="dark"] .puzzle-chat-header {
-                color: #ea868f;
-              }
-            `}</style>
-            <div
-              className="px-2 py-2 puzzle-chat-header"
-              style={{
-                backgroundColor: CARDINAL_HANDLE_BG,
-                borderBottom: `1px solid ${CARDINAL_DIVIDER_INNER_BORDER}`,
-              }}
-            >
+          <div className="d-flex flex-column flex-grow-1 h-100 puzzle-chat-column">
+            <div className="px-2 py-2 puzzle-chat-header">
               {t("chat-header")}
             </div>
-            <div className="flex-grow-1" style={{ minHeight: 0 }}>
+            <div className="flex-grow-1 puzzle-chat-body">
               <PuzzleChatSidebar puzzleId={puzzleId} puzzleName={puzzleName} />
             </div>
           </div>

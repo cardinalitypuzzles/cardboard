@@ -348,3 +348,4 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Native puzzle chat settings
 MAX_CHAT_IMAGE_BYTES = 5 * 1024 * 1024
+MAX_CHAT_MESSAGE_LENGTH = 4000

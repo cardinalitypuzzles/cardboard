@@ -289,6 +289,17 @@ class PuzzleSerializer(serializers.ModelSerializer):
         )
 
 
+class CardboardNativeChatMessageCreateSerializer(serializers.Serializer):
+    text = serializers.CharField(
+        required=False,
+        allow_blank=True,
+        allow_null=True,
+        default="",
+        trim_whitespace=True,
+        max_length=settings.MAX_CHAT_MESSAGE_LENGTH,
+    )
+
+
 class CardboardNativeChatMessageSerializer(serializers.ModelSerializer):
     user_id = serializers.IntegerField(source="user.id", read_only=True)
     user_name = serializers.SerializerMethodField()
@@ -314,6 +325,6 @@ class CardboardNativeChatMessageSerializer(serializers.ModelSerializer):
         if obj.image_content_type:
             return reverse(
                 "native_chat_image",
-                kwargs={"puzzle_id": obj.chat.puzzle_id, "message_id": obj.id},
+                kwargs={"puzzle_id": obj.puzzle_id, "message_id": obj.id},
             )
         return None

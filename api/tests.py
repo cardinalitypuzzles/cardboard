@@ -15,6 +15,7 @@ from puzzles.models import Puzzle
 from puzzles.puzzle_tag import LOCATION_COLOR, META_COLOR, PuzzleTag, PuzzleTagColor
 
 from .test_helpers import CardboardTestCase
+from .views import _native_chat_latest_cache_key, _update_native_chat_latest_cache
 
 TEST_URL = "https://cardboard.test/"
 TEST_NAME = "Test"
@@ -730,6 +731,10 @@ class CardboardNativeChatApiTests(CardboardTestCase, APITestCase):
         self.assertEqual(img_resp.status_code, status.HTTP_200_OK)
         self.assertEqual(img_resp["Content-Type"], "image/png")
         self.assertEqual(img_resp["X-Content-Type-Options"], "nosniff")
+        self.assertEqual(
+            img_resp["Content-Security-Policy"], "sandbox; default-src 'none'"
+        )
+        self.assertEqual(img_resp["Content-Disposition"], "inline")
         self.assertEqual(img_resp.content, png_bytes)
 
         # Users without hunt access cannot fetch the image
@@ -743,6 +748,24 @@ class CardboardNativeChatApiTests(CardboardTestCase, APITestCase):
         self.check_response_status(
             self.client.post(url, {"text": "   "}), status.HTTP_400_BAD_REQUEST
         )
+        self.check_response_status(
+            self.client.post(url, {"text": None}), status.HTTP_400_BAD_REQUEST
+        )
+        for bad_text in (True, ["a"], {"a": 1}):
+            self.check_response_status(
+                self.client.post(url, {"text": bad_text}),
+                status.HTTP_400_BAD_REQUEST,
+            )
+        self.check_response_status(
+            self.client.post(url, ["not", "a", "dict"]),
+            status.HTTP_400_BAD_REQUEST,
+        )
+
+        max_len = settings.MAX_CHAT_MESSAGE_LENGTH
+        self.check_response_status(
+            self.client.post(url, {"text": "a" * (max_len + 1)}),
+            status.HTTP_400_BAD_REQUEST,
+        )
 
         svg = SimpleUploadedFile(
             "bad.svg", b"<svg></svg>", content_type="image/svg+xml"
@@ -751,9 +774,45 @@ class CardboardNativeChatApiTests(CardboardTestCase, APITestCase):
             self.client.post(url, {"image": svg}, format="multipart"),
             status.HTTP_400_BAD_REQUEST,
         )
+        spoofed_png = SimpleUploadedFile(
+            "spoof.png", b"<html><script></script></html>", content_type="image/png"
+        )
+        self.check_response_status(
+            self.client.post(url, {"image": spoofed_png}, format="multipart"),
+            status.HTTP_400_BAD_REQUEST,
+        )
         self.assertEqual(CardboardNativeChatMessage.objects.count(), 0)
 
         self.check_response_status(
             self.client.get(f"{url}?after=notanumber"),
             status.HTTP_400_BAD_REQUEST,
         )
+
+        # Numeric text is coerced by CharField, and text at the exact limit succeeds
+        num_resp = self.client.post(url, {"text": 123})
+        self.assertEqual(num_resp.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(num_resp.data["text"], "123")
+
+        self.check_response_status(
+            self.client.post(url, {"text": f" {'a' * max_len} "}),
+            status.HTTP_201_CREATED,
+        )
+
+    def test_chat_cache_monotonic_update(self):
+        url = f"/api/v1/puzzles/{self.puzzle.pk}/native-chat"
+        post1 = self.client.post(url, {"text": "msg 1"})
+        post2 = self.client.post(url, {"text": "msg 2"})
+        msg1_id = post1.data["id"]
+        msg2_id = post2.data["id"]
+
+        cache_key = _native_chat_latest_cache_key(self.puzzle.pk)
+        self.assertEqual(cache.get(cache_key), msg2_id)
+
+        # Stale/lower updates must not move the cached cursor backwards
+        _update_native_chat_latest_cache(self.puzzle.pk, msg1_id)
+        _update_native_chat_latest_cache(self.puzzle.pk, 0)
+        self.assertEqual(cache.get(cache_key), msg2_id)
+
+        inc_resp = self.client.get(f"{url}?after={msg1_id}")
+        self.assertEqual(inc_resp.status_code, status.HTTP_200_OK)
+        self.assertEqual([m["id"] for m in inc_resp.data], [msg2_id])
