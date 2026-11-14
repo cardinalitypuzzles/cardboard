@@ -3,11 +3,10 @@ import re
 
 from dateutil import tz
 from django.conf import settings
+from django.urls import reverse
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 from url_normalize import url_normalize
-
-from django.urls import reverse
 
 from answers.models import Answer
 from chat.models import ChatRoom
