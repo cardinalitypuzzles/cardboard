@@ -8,7 +8,6 @@
   "scripts": {
     "dev": "webpack --config webpack.dev.js",
     "build": "webpack --config webpack.prod.js",
-    "postinstall": "patch-package",
     "lint": "eslint ./hunts/src/**"
   },
   "devDependencies": {
@@ -37,7 +36,7 @@
     "@fortawesome/free-solid-svg-icons": "^5.15.1",
     "@fortawesome/react-fontawesome": "^0.1.13",
     "@tabler/icons": "^1.118.0",
-    "@types/react-table": "^7.7.20",
+    "@tanstack/react-table": "^9.3.1",
     "@use-it/interval": "^1.0.0",
     "babel-loader": "^8.2.2",
     "css-loader": "^6.7.3",
@@ -48,15 +47,12 @@
     "javascript-time-ago": "^2.3.10",
     "js-cookie": "^2.2.1",
     "match-sorter": "^6.0.1",
-    "patch-package": "^6.2.2",
-    "postinstall-postinstall": "^2.1.0",
     "prop-types": "^15.7.2",
     "react": "^18.0.0",
     "react-bootstrap": "^2.10.7",
     "react-dom": "^18.0.0",
     "react-i18next": "^18.0.1",
     "react-modern-drawer": "^1.1.2",
-    "react-table": "^7.6.2",
     "react-time-ago": "^7.1.7",
     "regenerator-runtime": "^0.13.7",
     "style-loader": "^3.3.1",

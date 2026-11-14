@@ -1,9 +1,15 @@
 import React, { useState } from "react";
 
 import { useStore } from "./store";
-import type { Row } from "./types";
+import type { PuzzleRow } from "./types";
 
-export default function NotesCell({ row, value }: { row: Row; value: string }) {
+export default function NotesCell({
+  row,
+  value,
+}: {
+  row: PuzzleRow;
+  value: string;
+}) {
   const [editing, setEditing] = useState(false);
   const [editedNotesValue, setEditedNotesValue] = useState(value);
   const { editNotes } = useStore((store) => store.puzzlesSlice);
@@ -29,7 +35,7 @@ export default function NotesCell({ row, value }: { row: Row; value: string }) {
             }}
             onKeyDown={(e) => {
               if (e.key === "Enter" && (e.ctrlKey || e.shiftKey || e.metaKey)) {
-                editNotes(row.values.id, editedNotesValue).finally(() => {
+                editNotes(row.original.id, editedNotesValue).finally(() => {
                   setEditing(false);
                 });
               } else if (e.key == "Escape") {
@@ -41,7 +47,7 @@ export default function NotesCell({ row, value }: { row: Row; value: string }) {
           <div
             style={{ cursor: "pointer" }}
             onClick={() => {
-              editNotes(row.values.id, editedNotesValue).finally(() => {
+              editNotes(row.original.id, editedNotesValue).finally(() => {
                 setEditing(false);
               });
             }}

@@ -3,66 +3,43 @@ import { useTranslation } from "react-i18next";
 
 import { SOLVE_STATE_FILTER_OPTIONS } from "./filterSlice";
 import { useStore } from "./store";
-import type { Puzzle, Row } from "./types";
+import type { Puzzle } from "./types";
 
-function isUnsolved(tableRow: Row<Puzzle>) {
-  return tableRow.values.status !== "SOLVED";
-}
-
-function isSolved(tableRow: Row<Puzzle>) {
-  return !isUnsolved(tableRow);
-}
-
-function getDescendants(tableRow: Row<Puzzle>) {
-  const allChildren = [tableRow];
-  for (let i = 0; i < allChildren.length; i++) {
-    const current = allChildren[i];
-    Array.prototype.push.apply(allChildren, current.subRows);
-  }
-  return allChildren;
-}
-
-function hasUnsolvedDescendants(tableRow: Row<Puzzle>) {
-  return getDescendants(tableRow).filter(isUnsolved).length !== 0;
-}
-
-export function filterSolvedPuzzlesFn(
-  rows: Row<Puzzle>[],
-  id: string,
-  filterValue: number
-) {
-  if (filterValue === SOLVE_STATE_FILTER_OPTIONS.ALL) {
+export function filterRowsBySolveState<
+  TRow extends { original: Puzzle; subRows: TRow[] }
+>(
+  rows: TRow[],
+  filterValue: SOLVE_STATE_FILTER_OPTIONS,
+  cloneRow: (row: TRow, subRows: TRow[]) => TRow
+): TRow[] {
+  if (!filterValue || filterValue === SOLVE_STATE_FILTER_OPTIONS.ALL) {
     return rows;
   }
 
   if (filterValue === SOLVE_STATE_FILTER_OPTIONS.UNSOLVED) {
-    const rowIdsToExclude = new Set();
-    rows.forEach((row) => {
-      if (isSolved(row)) {
-        // Explicitly exclude this row.
-        rowIdsToExclude.add(row.id);
-        // Also exclude its children.
-        getDescendants(row).forEach((subRow) => {
-          rowIdsToExclude.add(subRow.id);
-        });
-      }
-    });
-    return rows
-      .filter((row) => !rowIdsToExclude.has(row.id))
-      .map((row) => Object.assign({}, row));
+    const filterUnsolved = (rowList: TRow[]): TRow[] =>
+      rowList
+        .filter((row) => row.original.status !== "SOLVED")
+        .map((row) => cloneRow(row, filterUnsolved(row.subRows)));
+    return filterUnsolved(rows);
   }
 
   if (filterValue === SOLVE_STATE_FILTER_OPTIONS.UNSOLVED_WITH_SOLVED_METAS) {
-    return rows
-      .filter((row) => {
-        return isUnsolved(row) || hasUnsolvedDescendants(row);
-      })
-      .map((row) => Object.assign({}, row));
+    const filterWithSolvedMetas = (rowList: TRow[]): TRow[] => {
+      const result: TRow[] = [];
+      for (const row of rowList) {
+        const filteredSubRows = filterWithSolvedMetas(row.subRows);
+        if (row.original.status !== "SOLVED" || filteredSubRows.length > 0) {
+          result.push(cloneRow(row, filteredSubRows));
+        }
+      }
+      return result;
+    };
+    return filterWithSolvedMetas(rows);
   }
-}
 
-// If the value is empty, it should be treated as equivalent to a no-op and be removed.
-filterSolvedPuzzlesFn.autoRemove = (val: any) => !val;
+  return rows;
+}
 
 export const SolvedStateFilter = () => {
   const { solveStateFilter, setSolveStateFilter } = useStore(

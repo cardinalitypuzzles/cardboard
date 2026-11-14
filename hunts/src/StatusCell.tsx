@@ -3,14 +3,14 @@ import { Dropdown, DropdownButton } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 import api from "./api";
 
-import type { Hunt, Puzzle, Row } from "./types";
-import { useStore, RootState } from "./store";
+import type { PuzzleRow } from "./types";
+import { useStore } from "./store";
 
 export default function StatusCell({
   row,
   value,
 }: {
-  row: Row<Puzzle>;
+  row: PuzzleRow;
   value: string;
 }) {
   const huntId = useStore((store) => store.huntSlice.hunt.id);
@@ -28,7 +28,7 @@ export default function StatusCell({
         variant="outline-primary"
         className="cb-btn-compact"
         onSelect={(status: string | null) => {
-          api.updatePuzzle(huntId!, row.values.id, {
+          api.updatePuzzle(huntId!, row.original.id, {
             status: status ?? undefined,
           });
         }}

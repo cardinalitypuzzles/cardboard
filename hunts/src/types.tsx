@@ -1,7 +1,8 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import ReactTimeAgo from "react-time-ago";
 
-import type { Row as BaseTableRow } from "react-table";
+import type { Row as TanStackRow } from "@tanstack/react-table";
+import type { puzzleTableFeatures } from "./puzzle-table";
 
 export type PuzzleId = number & { readonly __brand: unique symbol };
 export type HuntId = number & { readonly __brand: unique symbol };
@@ -37,7 +38,7 @@ export interface Puzzle {
   notes: string;
   has_sheet: boolean;
   chat_room: ChatRoom | null;
-  status: "SOLVING" | "SOLVED" | "PENDING" | "STUCK";
+  status: "SOLVING" | "SOLVED" | "PENDING" | "STUCK" | "EXTRACTION";
   tags: PuzzleTag[];
   guesses: PuzzleGuess[];
   metas: PuzzleId[];
@@ -78,13 +79,7 @@ export interface ChatRoom {
   audio_channel_url?: string;
 }
 
-export interface Row<D extends object = {}> extends BaseTableRow<D> {
-  canExpand: boolean;
-  isExpanded: boolean;
-  depth: number;
-
-  getToggleRowExpandedProps: any;
-}
+export type PuzzleRow = TanStackRow<typeof puzzleTableFeatures, Puzzle>;
 
 // FontAwesome typing requires the 'icon' field to be one from an
 // enumeration of predefined possible strings, which can create incompatibilities

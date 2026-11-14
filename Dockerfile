@@ -25,6 +25,3 @@ RUN poetry install
 # Install npm dependencies
 COPY ./package.json ./yarn.lock ./
 RUN yarn install
-# Install patches
-COPY ./patches ./patches
-RUN yarn install

@@ -6,7 +6,7 @@ import { CHAT_PLATFORM, SHEET_REDIRECT_BASE } from "./constants";
 import { faPuzzlePiece } from "@fortawesome/free-solid-svg-icons";
 
 import { useStore } from "./store";
-import type { Puzzle, Row } from "./types";
+import type { Puzzle, PuzzleRow } from "./types";
 
 const createSheetLink = (puzzle: Puzzle) => {
   return `${SHEET_REDIRECT_BASE}/${puzzle.id}`;
@@ -154,7 +154,7 @@ const SvgLink = ({
   );
 };
 
-export const LinkCell = ({ row }: { row: Row<Puzzle> }) => {
+export const LinkCell = ({ row }: { row: PuzzleRow }) => {
   const { t } = useTranslation();
   const puzzle = row.original;
   const puzzleLink = puzzle.url;

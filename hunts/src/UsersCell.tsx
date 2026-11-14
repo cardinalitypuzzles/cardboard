@@ -5,7 +5,7 @@ import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import { Badge } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
-import type { Puzzle, Row } from "./types";
+import type { PuzzleRow } from "./types";
 
 const getColor = (count: number) => {
   if (count <= 4) {
@@ -17,14 +17,14 @@ const getColor = (count: number) => {
   }
 };
 
-export default ({ row }: { row: Row<Puzzle> }) => {
+export default ({ row }: { row: PuzzleRow }) => {
   const { t } = useTranslation();
-  const recentEditors = row.values.recentEditors;
-  const topEditors = row.values.topEditors;
+  const recentEditors = row.original.recent_editors;
+  const topEditors = row.original.top_editors;
   if (recentEditors.length + topEditors.length > 0) {
     const editorsPopover = (
       <Popover className="bootstrap">
-        {row.values.recentEditors.length > 0 && (
+        {recentEditors.length > 0 && (
           <>
             <Popover.Header>{t("recent-editors")}</Popover.Header>
             <Popover.Body>
@@ -34,7 +34,7 @@ export default ({ row }: { row: Row<Puzzle> }) => {
             </Popover.Body>
           </>
         )}
-        {row.values.topEditors.length > 0 && (
+        {topEditors.length > 0 && (
           <>
             <Popover.Header>{t("top-editors")}</Popover.Header>
             <Popover.Body>
