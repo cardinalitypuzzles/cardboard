@@ -35,17 +35,52 @@ function renderMessageText(text: string) {
   });
 }
 
+interface ChatListMessage extends PuzzleChatMessage {
+  isLocal?: boolean;
+}
+
+async function shouldWarnEmbeddedSheet(): Promise<boolean> {
+  const ua = navigator.userAgent || "";
+  const isIOSOrIPadOS =
+    /iPad|iPhone|iPod/.test(ua) ||
+    (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+  if (isIOSOrIPadOS) {
+    return true;
+  }
+  const isSafari =
+    /Safari/i.test(ua) &&
+    !/Chrome|CriOS|Chromium|Edg|EdgiOS|OPR|OPT|FxiOS|Firefox|Android/i.test(ua);
+  if (isSafari) {
+    return true;
+  }
+  const brave = (
+    navigator as Navigator & {
+      brave?: { isBrave?: () => Promise<boolean> };
+    }
+  ).brave;
+  if (brave?.isBrave) {
+    try {
+      return await brave.isBrave();
+    } catch {
+      return false;
+    }
+  }
+  return Boolean(brave);
+}
+
 interface PuzzleChatSidebarProps {
   puzzleId: PuzzleId;
   puzzleName: string;
+  sheetUrl?: string;
 }
 
 export function PuzzleChatSidebar({
   puzzleId,
   puzzleName,
+  sheetUrl,
 }: PuzzleChatSidebarProps) {
   const { t } = useTranslation();
-  const [messages, setMessages] = useState<PuzzleChatMessage[]>([]);
+  const [messages, setMessages] = useState<ChatListMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [text, setText] = useState("");
   const [pendingImage, setPendingImage] = useState<File | null>(null);
@@ -58,6 +93,8 @@ export function PuzzleChatSidebar({
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const shouldScrollRef = useRef(true);
+  const tRef = useRef(t);
+  tRef.current = t;
 
   const appendMessages = useCallback((incoming: PuzzleChatMessage[]) => {
     if (incoming.length === 0) {
@@ -71,15 +108,18 @@ export function PuzzleChatSidebar({
     }
     setMessages((prev) => {
       const existingIds = new Set(prev.map((m) => m.id));
-      const merged = [...prev];
+      const merged: ChatListMessage[] = [...prev];
       for (const msg of incoming) {
         if (!existingIds.has(msg.id)) {
           merged.push(msg);
           existingIds.add(msg.id);
         }
       }
-      if (merged.length > 0) {
-        lastMessageIdRef.current = merged[merged.length - 1].id;
+      for (let i = merged.length - 1; i >= 0; i--) {
+        if (!merged[i].isLocal) {
+          lastMessageIdRef.current = merged[i].id;
+          break;
+        }
       }
       return merged;
     });
@@ -92,16 +132,31 @@ export function PuzzleChatSidebar({
     lastMessageIdRef.current = undefined;
     shouldScrollRef.current = true;
 
+    const warnPromise = shouldWarnEmbeddedSheet();
     api
       .getPuzzleChatMessages(puzzleId)
-      .then((initialMessages) => {
+      .then(async (initialMessages) => {
+        const shouldWarn = await warnPromise;
         if (cancelled) {
           return;
         }
-        setMessages(initialMessages);
         if (initialMessages.length > 0) {
           lastMessageIdRef.current =
             initialMessages[initialMessages.length - 1].id;
+        }
+        if (shouldWarn) {
+          const localWarning: ChatListMessage = {
+            id: -1,
+            user_id: 0,
+            user_name: window.APP_SHORT_TITLE || "Cardboard",
+            text: tRef.current("chat-embed-warning"),
+            image_url: null,
+            created_on: new Date().toISOString(),
+            isLocal: true,
+          };
+          setMessages([...initialMessages, localWarning]);
+        } else {
+          setMessages(initialMessages);
         }
         setError(null);
       })
@@ -316,6 +371,13 @@ export function PuzzleChatSidebar({
               {msg.text && (
                 <div className="small mt-1 puzzle-chat-message-text">
                   {renderMessageText(msg.text)}
+                </div>
+              )}
+              {msg.isLocal && sheetUrl && (
+                <div className="small mt-1">
+                  <a href={sheetUrl} target="_blank" rel="noopener noreferrer">
+                    {t("chat-open-sheet-new-window")}
+                  </a>
                 </div>
               )}
               {msg.image_url && (

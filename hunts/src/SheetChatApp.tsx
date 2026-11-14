@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import {
   faChevronLeft,
   faChevronRight,
+  faExternalLinkAlt,
 } from "@fortawesome/free-solid-svg-icons";
 
 import { PuzzleChatSidebar } from "./PuzzleChatSidebar";
@@ -142,11 +143,27 @@ export function SheetChatApp() {
           </div>
 
           <div className="d-flex flex-column flex-grow-1 h-100 puzzle-chat-column">
-            <div className="px-2 py-2 puzzle-chat-header">
-              {t("chat-header")}
+            <div className="d-flex align-items-center justify-content-between gap-2 px-2 py-2 puzzle-chat-header">
+              <span>{t("chat-header")}</span>
+              {sheetUrl && (
+                <a
+                  href={sheetUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-reset text-decoration-none"
+                  title={t("chat-open-sheet-new-window")}
+                  aria-label={t("chat-open-sheet-new-window")}
+                >
+                  <TypeIgnoredFontAwesomeIcon icon={faExternalLinkAlt} />
+                </a>
+              )}
             </div>
             <div className="flex-grow-1 puzzle-chat-body">
-              <PuzzleChatSidebar puzzleId={puzzleId} puzzleName={puzzleName} />
+              <PuzzleChatSidebar
+                puzzleId={puzzleId}
+                puzzleName={puzzleName}
+                sheetUrl={sheetUrl}
+              />
             </div>
           </div>
         </aside>

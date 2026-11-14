@@ -80,6 +80,8 @@
   "white": "白",
   "teal-location": "青 (地点)",
   "chat-header": "谜题聊天",
+  "chat-open-sheet-new-window": "在新窗口中打开表格",
+  "chat-embed-warning": "嵌入式 Google 表格在 Safari、Brave 或 iPad/iPhone 上可能无法正常工作。如果表格无法加载，请在新窗口中打开。",
   "chat-placeholder": "消息",
   "chat-empty": "(这里还没有消息)",
   "chat-loading": "正在加载聊天...",

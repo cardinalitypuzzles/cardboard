@@ -80,6 +80,8 @@
   "white": "Blanco",
   "teal-location": "Verde azulado (Ubicación)",
   "chat-header": "Chat del puzzle",
+  "chat-open-sheet-new-window": "Abrir hoja en una ventana aparte",
+  "chat-embed-warning": "Es posible que las hojas de cálculo de Google incrustadas no funcionen en Safari, Brave o en iPad/iPhone. Si la hoja no carga, ábrela en una ventana aparte.",
   "chat-placeholder": "Mensaje",
   "chat-empty": "(nada por aquí todavía)",
   "chat-loading": "Cargando chat...",

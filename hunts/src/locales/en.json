@@ -80,6 +80,8 @@
   "white": "White",
   "teal-location": "Teal (Location)",
   "chat-header": "Puzzle Chat",
+  "chat-open-sheet-new-window": "Open sheet in a separate window",
+  "chat-embed-warning": "Embedded Google Sheets may not work in Safari, Brave, or on iPad/iPhone. If the sheet fails to load, open it in a separate window.",
   "chat-placeholder": "Message",
   "chat-empty": "(nothing here yet)",
   "chat-loading": "Loading chat...",
