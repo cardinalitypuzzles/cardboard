@@ -5,11 +5,10 @@ import { faEdit, faTrashAlt } from "@fortawesome/free-regular-svg-icons";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import ClickableIcon from "./ClickableIcon";
 
-import type { Row } from "react-table";
 import { useStore } from "./store";
-import type { Puzzle } from "./types";
+import type { PuzzleRow } from "./types";
 
-export default function AnswerCell({ row }: { row: Row<Puzzle> }) {
+export default function AnswerCell({ row }: { row: PuzzleRow }) {
   const [uiHovered, setUiHovered] = React.useState<number[]>([]);
   const { t } = useTranslation();
 
@@ -24,8 +23,8 @@ export default function AnswerCell({ row }: { row: Row<Puzzle> }) {
           showModal({
             type: "SUBMIT_ANSWER",
             props: {
-              puzzleId: row.values.id,
-              puzzleName: row.values.name,
+              puzzleId: row.original.id,
+              puzzleName: row.original.name,
             },
           })
         }
@@ -60,7 +59,7 @@ export default function AnswerCell({ row }: { row: Row<Puzzle> }) {
                 showModal({
                   type: "EDIT_ANSWER",
                   props: {
-                    puzzleId: row.values.id,
+                    puzzleId: row.original.id,
                     answerId: id,
                     text,
                   },
@@ -73,7 +72,7 @@ export default function AnswerCell({ row }: { row: Row<Puzzle> }) {
                 showModal({
                   type: "DELETE_ANSWER",
                   props: {
-                    puzzleId: row.values.id,
+                    puzzleId: row.original.id,
                     answerId: id,
                   },
                 })
@@ -85,8 +84,8 @@ export default function AnswerCell({ row }: { row: Row<Puzzle> }) {
                 showModal({
                   type: "SUBMIT_ANSWER",
                   props: {
-                    puzzleId: row.values.id,
-                    puzzleName: row.values.name,
+                    puzzleId: row.original.id,
+                    puzzleName: row.original.name,
                   },
                 })
               }
