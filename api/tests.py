@@ -572,9 +572,7 @@ class ApiTests(CardboardTestCase, APITestCase):
             f"/api/v1/hunts/{self._hunt.pk}/tags/{tag.pk}",
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertFalse(
-            PuzzleTag.objects.filter(hunt=self._hunt, pk=tag.pk).exists()
-        )
+        self.assertFalse(PuzzleTag.objects.filter(hunt=self._hunt, pk=tag.pk).exists())
         for puzzle in puzzles:
             self.assertFalse(puzzle.tags.filter(pk=tag.pk).exists())
 
