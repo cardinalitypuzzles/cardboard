@@ -98,6 +98,7 @@ class ApiTests(CardboardTestCase, APITestCase):
                     timezone.get_current_timezone()
                 ).isoformat(),
                 "last_edited_on": None,
+                "solved_time": None,
                 "recent_editors": [],
                 "top_editors": [],
             },

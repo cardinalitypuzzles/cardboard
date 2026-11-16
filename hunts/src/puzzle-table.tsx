@@ -133,6 +133,10 @@ export const PuzzleTable = React.memo(
           id: "last_edited_on",
         },
         {
+          accessor: "solved_time",
+          id: "solved_time",
+        },
+        {
           Header: "",
           accessor: (row) => row.recent_editors,
           Cell: UsersCell,
@@ -223,6 +227,7 @@ export const PuzzleTable = React.memo(
             "url",
             "topEditors",
             "last_edited_on",
+            "solved_time",
           ],
           // @ts-ignore
           filters: [],

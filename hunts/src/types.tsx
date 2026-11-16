@@ -47,6 +47,7 @@ export interface Puzzle {
   recent_editors: any[];
   top_editors: any[];
   last_edited_on: string | null;
+  solved_time: string | null;
 }
 
 // All the answers that are currently assigned to a given puzzle.

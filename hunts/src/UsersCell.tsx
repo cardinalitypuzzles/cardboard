@@ -5,6 +5,7 @@ import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import { Badge } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
+import { SOLVED_HIDE_EDITORS_MINUTES } from "./constants";
 import type { Puzzle, Row } from "./types";
 
 const getColor = (count: number) => {
@@ -19,6 +20,16 @@ const getColor = (count: number) => {
 
 export default ({ row }: { row: Row<Puzzle> }) => {
   const { t } = useTranslation();
+  // Hide editor counts with a delay after a puzzle has been solved.
+  // We don't do it immediately because it's hype to see so many people there right after a solve.
+  if (
+    row.values.status === "SOLVED" &&
+    row.values.solved_time &&
+    (Date.now() - Date.parse(row.values.solved_time)) / (1000 * 60) >
+      SOLVED_HIDE_EDITORS_MINUTES
+  ) {
+    return null;
+  }
   const recentEditors = row.values.recentEditors;
   const topEditors = row.values.topEditors;
   if (recentEditors.length + topEditors.length > 0) {

@@ -149,6 +149,7 @@ class PuzzleSerializer(serializers.ModelSerializer):
     recent_editors = serializers.SerializerMethodField()
     top_editors = serializers.SerializerMethodField()
     last_edited_on = serializers.SerializerMethodField()
+    solved_time = serializers.SerializerMethodField()
 
     def get_guesses(self, obj):
         # Show only correct guesses.
@@ -203,6 +204,20 @@ class PuzzleSerializer(serializers.ModelSerializer):
         else:
             return None
 
+    def get_solved_time(self, obj):
+        if not obj.is_solved():
+            return None
+        if hasattr(obj, "_prefetched_correct_answers"):
+            if not obj._prefetched_correct_answers:
+                return None
+            return max(
+                answer.created_on for answer in obj._prefetched_correct_answers
+            )
+        try:
+            return obj.solved_time()
+        except Answer.DoesNotExist:
+            return None
+
     def validate_url(self, url):
         return url_normalize(url)
 
@@ -255,6 +270,7 @@ class PuzzleSerializer(serializers.ModelSerializer):
             "recent_editors",
             "top_editors",
             "last_edited_on",
+            "solved_time",
         )
 
         read_only_fields = (
@@ -270,6 +286,7 @@ class PuzzleSerializer(serializers.ModelSerializer):
             "recent_editors",
             "top_editors",
             "last_edited_on",
+            "solved_time",
         )
 
         validators = (

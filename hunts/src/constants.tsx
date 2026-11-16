@@ -7,3 +7,4 @@ export const SELECTABLE_TAG_COLORS = [
 
 export const SHEET_REDIRECT_BASE = "/puzzles/s";
 export const CHAT_PLATFORM = "discord";
+export const SOLVED_HIDE_EDITORS_MINUTES = 10;
