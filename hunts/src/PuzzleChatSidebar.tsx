@@ -72,12 +72,16 @@ interface PuzzleChatSidebarProps {
   puzzleId: PuzzleId;
   puzzleName: string;
   sheetUrl?: string;
+  isCollapsed?: boolean;
+  onUnreadMessage?: () => void;
 }
 
 export function PuzzleChatSidebar({
   puzzleId,
   puzzleName,
   sheetUrl,
+  isCollapsed = false,
+  onUnreadMessage,
 }: PuzzleChatSidebarProps) {
   const { t } = useTranslation();
   const [messages, setMessages] = useState<ChatListMessage[]>([]);
@@ -89,10 +93,15 @@ export function PuzzleChatSidebar({
   const [error, setError] = useState<string | null>(null);
 
   const lastMessageIdRef = useRef<number | undefined>(undefined);
+  const knownMessageIdsRef = useRef<Set<number>>(new Set());
   const listRef = useRef<HTMLDivElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const shouldScrollRef = useRef(true);
+  const isCollapsedRef = useRef(isCollapsed);
+  isCollapsedRef.current = isCollapsed;
+  const onUnreadMessageRef = useRef(onUnreadMessage);
+  onUnreadMessageRef.current = onUnreadMessage;
   const tRef = useRef(t);
   tRef.current = t;
 
@@ -100,11 +109,25 @@ export function PuzzleChatSidebar({
     if (incoming.length === 0) {
       return;
     }
+    const addedNew = incoming.some(
+      (msg) => !knownMessageIdsRef.current.has(msg.id)
+    );
+    if (!addedNew) {
+      return;
+    }
+    for (const msg of incoming) {
+      knownMessageIdsRef.current.add(msg.id);
+    }
     const listEl = listRef.current;
-    if (listEl) {
+    if (listEl && !isCollapsedRef.current) {
       const distanceFromBottom =
         listEl.scrollHeight - listEl.scrollTop - listEl.clientHeight;
       shouldScrollRef.current = distanceFromBottom < 60;
+    } else {
+      shouldScrollRef.current = true;
+    }
+    if (isCollapsedRef.current) {
+      onUnreadMessageRef.current?.();
     }
     setMessages((prev) => {
       const existingIds = new Set(prev.map((m) => m.id));
@@ -130,6 +153,7 @@ export function PuzzleChatSidebar({
     setLoading(true);
     setMessages([]);
     lastMessageIdRef.current = undefined;
+    knownMessageIdsRef.current = new Set();
     shouldScrollRef.current = true;
 
     const warnPromise = shouldWarnEmbeddedSheet();
@@ -140,6 +164,7 @@ export function PuzzleChatSidebar({
         if (cancelled) {
           return;
         }
+        knownMessageIdsRef.current = new Set(initialMessages.map((m) => m.id));
         if (initialMessages.length > 0) {
           lastMessageIdRef.current =
             initialMessages[initialMessages.length - 1].id;
@@ -238,11 +263,11 @@ export function PuzzleChatSidebar({
   }, [puzzleId, appendMessages]);
 
   useEffect(() => {
-    if (shouldScrollRef.current && listRef.current) {
+    if (!isCollapsed && shouldScrollRef.current && listRef.current) {
       listRef.current.scrollTop = listRef.current.scrollHeight;
       shouldScrollRef.current = false;
     }
-  }, [messages, loading]);
+  }, [messages, loading, isCollapsed]);
 
   useEffect(() => {
     return () => {
@@ -253,13 +278,16 @@ export function PuzzleChatSidebar({
   }, [previewUrl]);
 
   useEffect(() => {
+    if (isCollapsed) {
+      return;
+    }
     const el = textareaRef.current;
     if (!el) {
       return;
     }
     el.style.height = "auto";
     el.style.height = `${Math.max(32, Math.min(el.scrollHeight, 100))}px`;
-  }, [text]);
+  }, [text, isCollapsed]);
 
   const attachImage = async (file: File) => {
     setError(null);
