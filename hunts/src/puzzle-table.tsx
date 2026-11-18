@@ -94,12 +94,20 @@ function filterPuzzleRows(
       );
     }
 
-    // Keep matching children nested under matching parents, and hide
-    // non-matching parent metas by promoting their matching children.
     const matchedIds = new Set(candidateFlatRows.map((row) => row.id));
-    filteredRows = candidateFlatRows.filter(
-      (row) => !row.parentId || !matchedIds.has(row.parentId)
-    );
+    const _filter = (rowList: PuzzleRow[]): PuzzleRow[] => {
+      const result: PuzzleRow[] = [];
+      for (const row of rowList) {
+        const matchedSubRows = _filter(row.subRows);
+        if (matchedIds.has(row.id)) {
+          result.push({ ...row, subRows: matchedSubRows });
+        } else {
+          result.push(...matchedSubRows);
+        }
+      }
+      return result;
+    };
+    filteredRows = _filter(filteredRows);
   }
 
   return filteredRows;
