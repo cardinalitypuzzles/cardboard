@@ -158,26 +158,6 @@ function addPuzzleTag(
   }).then(handleErrors);
 }
 
-function updateHuntTag(huntId: HuntId, tagId: TagId, data: { color: string }) {
-  const tagApiUrl = `${API_PREFIX}/hunts/${huntId}/tags/${tagId}`;
-  return fetch(tagApiUrl, {
-    method: "PATCH",
-    headers: {
-      "X-CSRFToken": Cookies.get("csrftoken")!,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  }).then(handleErrors);
-}
-
-function deleteHuntTag(huntId: HuntId, tagId: TagId) {
-  const tagApiUrl = `${API_PREFIX}/hunts/${huntId}/tags/${tagId}`;
-  return fetch(tagApiUrl, {
-    method: "DELETE",
-    headers: { "X-CSRFToken": Cookies.get("csrftoken")! },
-  }).then(handleErrors);
-}
-
 export default {
   getHunt,
   getPuzzles,
@@ -190,6 +170,4 @@ export default {
   editNotes,
   deletePuzzleTag,
   addPuzzleTag,
-  updateHuntTag,
-  deleteHuntTag,
 };

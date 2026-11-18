@@ -1,55 +1,27 @@
 import React from "react";
 import { Badge } from "react-bootstrap";
-import { FAVORITE_TAG_COLOR, SELECTED_TAG_BORDER_COLOR } from "./constants";
-import { useStore } from "./store";
-import { interpolateWithGray, isLightColor } from "./utils";
+import { isLightColor } from "./utils";
 
 interface TagPillProps {
   name: string;
   color: string;
-  selected?: boolean;
   faded?: boolean;
   isMeta?: boolean;
-  ignoreFavorite?: boolean;
-  noMargin?: boolean;
   onClick?: React.MouseEventHandler<HTMLElement>;
 }
 
 function TagPill(props: TagPillProps) {
-  const {
-    name,
-    color,
-    selected = false,
-    faded = false,
-    isMeta = false,
-    ignoreFavorite = false,
-    noMargin = false,
-    onClick = null,
-  } = props;
+  const { name, color, faded = false, onClick = null } = props;
 
-  const favoriteTagNames = useStore(
-    (state) => state.favoriteTagsSlice.favoriteTagNames
-  );
-  const isFavorite =
-    !isMeta &&
-    !ignoreFavorite &&
-    Boolean(name) &&
-    favoriteTagNames.includes(name.trim().toLowerCase());
-
-  const baseColor = isFavorite ? FAVORITE_TAG_COLOR : color;
-  const effectiveColor = faded ? interpolateWithGray(baseColor) : baseColor;
+  const effectiveColor = faded ? "#6c757d" : color;
   const useDarkText = isLightColor(effectiveColor);
+  const textColor = faded ? "#dee2e6" : useDarkText ? "#000000" : "#ffffff";
 
   const style: React.CSSProperties = {
-    margin: noMargin ? "0px" : "2px",
+    margin: "2px",
     backgroundColor: effectiveColor,
-    color: useDarkText ? "#000000" : "#ffffff",
+    color: textColor,
   };
-  if (selected) {
-    style.border = `2px solid ${SELECTED_TAG_BORDER_COLOR}`;
-  } else if (faded) {
-    style.border = "2px solid transparent";
-  }
   if (onClick !== null) {
     style.cursor = "pointer";
   }

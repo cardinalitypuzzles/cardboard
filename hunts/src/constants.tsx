@@ -1,6 +1,3 @@
-export const FAVORITE_TAG_COLOR = "#9b26ff";
-export const SELECTED_TAG_BORDER_COLOR = "#d9534f";
-
 export const SELECTABLE_TAG_COLORS = {
   white: ["White", "#f8f9fa"],
   coral: ["Coral", "#f87171"],

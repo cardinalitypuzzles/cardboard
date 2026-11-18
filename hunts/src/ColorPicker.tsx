@@ -93,7 +93,7 @@ function ColorPicker({
       <button
         ref={targetRef}
         type="button"
-        className="rounded-circle border border-2 p-0 flex-shrink-0"
+        className="btn border bg-body d-inline-flex align-items-center gap-1 px-2 flex-shrink-0"
         title={currentLabel}
         aria-label={currentLabel}
         aria-expanded={show}
@@ -105,13 +105,18 @@ function ColorPicker({
             setShow(true);
           }
         }}
-        style={{
-          backgroundColor: value,
-          width: "32px",
-          height: "32px",
-          cursor: "pointer",
-        }}
-      />
+        style={{ cursor: "pointer" }}
+      >
+        <span
+          className="rounded-circle border d-inline-block"
+          style={{
+            backgroundColor: value,
+            width: "24px",
+            height: "24px",
+          }}
+        />
+        <span className="small opacity-75">▾</span>
+      </button>
       {popoverStyle &&
         createPortal(
           <div

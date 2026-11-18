@@ -1,7 +1,7 @@
 import { StateCreator } from "zustand";
 import { immer } from "zustand/middleware/immer"; // eslint-disable-line
 
-import { PuzzleTag, TagId } from "./types";
+import { PuzzleTag } from "./types";
 import { RootState } from "./store";
 
 export enum SOLVE_STATE_FILTER_OPTIONS {
@@ -19,7 +19,6 @@ export interface FilterSlice {
     setFilterValue: (filterValue: string) => void;
     setSolveStateFilter: (solveStateFilter: SOLVE_STATE_FILTER_OPTIONS) => void;
     toggleFilterTag: (newTag: PuzzleTag) => void;
-    removeFilterTag: (tagId: TagId) => void;
   };
 }
 
@@ -58,13 +57,6 @@ export const filterSlice: StateCreator<
         }
 
         state.filterSlice.tags = state.filterSlice.tags.concat([newTag]);
-      });
-    },
-    removeFilterTag: (tagId: TagId) => {
-      set((state) => {
-        state.filterSlice.tags = state.filterSlice.tags.filter(
-          (tag: PuzzleTag) => tag.id !== tagId
-        );
       });
     },
   },

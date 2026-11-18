@@ -16,7 +16,7 @@ class PuzzleTagColor(models.TextChoices):
     LIME = "#84cc16", _("lime")
     GREEN = "#198754", _("green")  # reserved for backsolved and freebie
     DARK_TEAL = "#0d9488", _("dark teal")
-    TEAL = "#0dcaf0", _("teal")
+    TEAL = "#0dcaf0", _("teal")  # reserved for On campus and Remote
     SKY_BLUE = "#bae6fd", _("sky blue")
     BLUE = "#0d6efd", _("blue")
     INDIGO = "#4f46e5", _("indigo")
@@ -34,6 +34,17 @@ class PuzzleTag(models.Model):
     HIGH_PRIORITY = "High priority"
     LOW_PRIORITY = "Low priority"
     FREEBIE = "Freebie"
+    ON_CAMPUS = "On campus"
+    REMOTE = "Remote"
+
+    RESERVED_TAG_COLORS = {
+        BACKSOLVED.lower(): PuzzleTagColor.GREEN,
+        HIGH_PRIORITY.lower(): PuzzleTagColor.RED,
+        LOW_PRIORITY.lower(): PuzzleTagColor.YELLOW,
+        FREEBIE.lower(): PuzzleTagColor.GREEN,
+        ON_CAMPUS.lower(): PuzzleTagColor.TEAL,
+        REMOTE.lower(): PuzzleTagColor.TEAL,
+    }
 
     DEFAULT_TAGS = [
         # Special / status / priority tags
@@ -41,8 +52,8 @@ class PuzzleTag(models.Model):
         (LOW_PRIORITY, PuzzleTagColor.YELLOW),
         (BACKSOLVED, PuzzleTagColor.GREEN),
         (FREEBIE, PuzzleTagColor.GREEN),
-        ("On campus", PuzzleTagColor.TEAL),
-        ("Remote", PuzzleTagColor.TEAL),
+        (ON_CAMPUS, PuzzleTagColor.TEAL),
+        (REMOTE, PuzzleTagColor.TEAL),
         ("Slog", PuzzleTagColor.WHITE),
         ("Grunt work", PuzzleTagColor.WHITE),
         # Logic puzzles

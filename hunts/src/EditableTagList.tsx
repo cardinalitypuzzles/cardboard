@@ -32,7 +32,6 @@ function EditableTagList({
           name={tag.name}
           color={tag.color}
           isMeta={tag.is_meta}
-          selected={puzzleTagIds.has(tag.id)}
           faded={!puzzleTagIds.has(tag.id)}
           key={tag.name}
           onClick={() => {

@@ -16,27 +16,6 @@ export function isLightColor(color: string): boolean {
   return brightness >= 140;
 }
 
-export function interpolateWithGray(color: string, grayRatio = 0.72): string {
-  const hex = color.replace(/^#/, "");
-  if (hex.length !== 6) {
-    return "#6c757d";
-  }
-  const r = parseInt(hex.slice(0, 2), 16);
-  const g = parseInt(hex.slice(2, 4), 16);
-  const b = parseInt(hex.slice(4, 6), 16);
-  if (Number.isNaN(r) || Number.isNaN(g) || Number.isNaN(b)) {
-    return "#6c757d";
-  }
-  const grayR = 108;
-  const grayG = 117;
-  const grayB = 125;
-  const mix = (c: number, target: number) =>
-    Math.round(c * (1 - grayRatio) + target * grayRatio)
-      .toString(16)
-      .padStart(2, "0");
-  return `#${mix(r, grayR)}${mix(g, grayG)}${mix(b, grayB)}`;
-}
-
 export function sortPuzzleTags(tags: PuzzleTag[]): PuzzleTag[] {
   const priorityMap = new Map(
     SPECIAL_TAG_ORDER.map((name, idx) => [name.toLowerCase(), idx])
