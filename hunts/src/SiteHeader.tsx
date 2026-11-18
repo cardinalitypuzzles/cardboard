@@ -1,4 +1,5 @@
 import React from "react";
+import Button from "react-bootstrap/Button";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
 import Drawer from "react-modern-drawer";
@@ -6,9 +7,12 @@ import { useTranslation } from "react-i18next";
 import { DarkModeToggle } from "./DarkModeToggle";
 import { ChatVersionSelector } from "./chatSelector";
 import { LanguageSelector } from "./LanguageSelector";
-import { IconMenu2 } from "@tabler/icons";
+import GlobalFilter from "./GlobalFilter";
+import { SolvedStateFilter } from "./solveStateFilter";
+import { IconMenu2, IconPlus } from "@tabler/icons";
 import "react-modern-drawer/dist/index.css";
 import { useStore } from "./store";
+import type { HuntId } from "./types";
 
 const GoogleDriveIcon = () => (
   <svg
@@ -51,10 +55,27 @@ const ChartBarIcon = () => (
   </svg>
 );
 
-export const SiteHeader = () => {
+export const SiteHeader = ({ huntId }: { huntId?: HuntId }) => {
   const [isOpen, setIsOpen] = React.useState(false);
+  const [headerHeight, setHeaderHeight] = React.useState(44);
+  const navRef = React.useRef<HTMLElement>(null);
   const hunt = useStore((state) => state.huntSlice.hunt);
+  const modal = useStore((state) => state.modalSlice);
   const { t } = useTranslation();
+
+  React.useLayoutEffect(() => {
+    const nav = navRef.current;
+    if (!nav) return;
+    const updateHeight = () => setHeaderHeight(nav.offsetHeight);
+    updateHeight();
+    if (typeof ResizeObserver !== "undefined") {
+      const observer = new ResizeObserver(updateHeight);
+      observer.observe(nav);
+      return () => observer.disconnect();
+    }
+    window.addEventListener("resize", updateHeight);
+    return () => window.removeEventListener("resize", updateHeight);
+  }, []);
 
   const toggleDrawer = () => {
     setIsOpen((prevState) => !prevState);
@@ -67,7 +88,11 @@ export const SiteHeader = () => {
         <Tooltip id="tooltip-gdrive">{t("google-drive-folder")}</Tooltip>
       }
     >
-      <a className="btn" href="drive" aria-label={t("google-drive-folder")}>
+      <a
+        className="btn btn-sm"
+        href="drive"
+        aria-label={t("google-drive-folder")}
+      >
         <GoogleDriveIcon />
       </a>
     </OverlayTrigger>
@@ -76,37 +101,96 @@ export const SiteHeader = () => {
   return (
     <>
       <nav
-        className="navbar navbar-expand-lg navbar-themed"
-        style={{ marginBottom: "5px" }}
+        ref={navRef}
+        className="navbar navbar-expand-lg navbar-themed fixed-top py-1 border-bottom"
       >
-        <a className="navbar-brand" href="/">
-          <img width="48" src={`/static/${window.FAVICON}`} alt="" />{" "}
-          {window.APP_SHORT_TITLE}
-        </a>
-        {hunt.name}
-
-        <div class="d-flex fw-bold text-center justify-content-end flex-nowrap flex-grow-1">
-          <div className="text-nowrap">
-            <OverlayTrigger
-              placement="bottom"
-              overlay={<Tooltip id="tooltip-stats">{t("stats")}</Tooltip>}
+        <div
+          className="d-flex align-items-center text-nowrap"
+          style={{ marginRight: "3rem" }}
+        >
+          <a href="/" className="me-2 d-flex align-items-center">
+            <img width="26" src={`/static/${window.FAVICON}`} alt="" />
+          </a>
+          <a
+            className="navbar-brand py-0 me-0"
+            href="/"
+            style={{ fontSize: "1.05rem" }}
+          >
+            {window.APP_SHORT_TITLE}
+          </a>
+          {hunt.name && (
+            <span
+              className="d-inline-flex align-items-center text-body-secondary ms-2"
+              style={{ fontSize: "0.82rem", opacity: 0.78 }}
             >
-              <a className="btn" href="stats" aria-label={t("stats")}>
-                <ChartBarIcon />
-              </a>
-            </OverlayTrigger>
-          </div>
-          <div className="text-nowrap">{driveRedirect}</div>
+              <span>/</span>
+              <span className="ms-2" style={{ paddingTop: "2px" }}>
+                {hunt.name}
+              </span>
+            </span>
+          )}
         </div>
 
-        <button type="button" className="btn ms-auto" onClick={toggleDrawer}>
-          <IconMenu2 aria-label={t("expand-menu")} />
-        </button>
+        <div className="d-flex align-items-center justify-content-between flex-grow-1 flex-wrap gap-2">
+          <div className="d-flex align-items-center gap-2 flex-wrap">
+            <GlobalFilter />
+            <div className="d-flex align-items-center text-nowrap">
+              <SolvedStateFilter />
+            </div>
+          </div>
+
+          <div className="d-flex align-items-center flex-nowrap ms-auto">
+            <Button
+              variant="primary"
+              size="sm"
+              className="d-inline-flex align-items-center gap-1 text-nowrap btn-add-puzzle"
+              style={{ marginRight: "2.5rem" }}
+              onClick={() =>
+                modal.showModal({
+                  type: "ADD_PUZZLE",
+                  props: {
+                    huntId: huntId ?? hunt.id ?? CURRENT_HUNT_ID,
+                  },
+                })
+              }
+            >
+              <IconPlus size={16} />
+              {t("add-puzzle")}
+            </Button>
+
+            <div className="d-flex fw-bold text-center align-items-center flex-nowrap">
+              <div className="text-nowrap">
+                <OverlayTrigger
+                  placement="bottom"
+                  overlay={<Tooltip id="tooltip-stats">{t("stats")}</Tooltip>}
+                >
+                  <a
+                    className="btn btn-sm"
+                    href="stats"
+                    aria-label={t("stats")}
+                  >
+                    <ChartBarIcon />
+                  </a>
+                </OverlayTrigger>
+              </div>
+              <div className="text-nowrap">{driveRedirect}</div>
+              <button
+                type="button"
+                className="btn btn-sm"
+                onClick={toggleDrawer}
+              >
+                <IconMenu2 aria-label={t("expand-menu")} />
+              </button>
+            </div>
+          </div>
+        </div>
       </nav>
+      <div style={{ height: `${headerHeight}px`, marginBottom: "5px" }} />
       <Drawer
         open={isOpen}
         onClose={toggleDrawer}
         direction="right"
+        zIndex={1040}
         className="navbar-themed"
         style={{
           display: "flex",
