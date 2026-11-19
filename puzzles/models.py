@@ -137,6 +137,10 @@ class Puzzle(SoftDeleteModel):
 
         self.save()
 
+    def get_hunt(self):
+        """The hunt this object belongs to, for permission checks."""
+        return self.hunt
+
     def set_answer(self, answer):
         self.answer = answer
         self.status = Puzzle.SOLVED
