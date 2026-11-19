@@ -18,7 +18,7 @@ import { SiteHeader } from "./SiteHeader";
 import { puzzleComparator } from "./utils";
 
 import { useStore, RootState } from "./store";
-import type { HuntId, PuzzleId, Puzzle } from "./types";
+import type { HuntId, PuzzleId, Puzzle, PuzzleTableData } from "./types";
 
 const MODAL_COMPONENTS: Record<string, any> = {
   DELETE_PUZZLE: DeletePuzzleModal,
@@ -31,22 +31,13 @@ const MODAL_COMPONENTS: Record<string, any> = {
   EDIT_TAGS: EditPuzzleTagsModal,
 };
 
-export interface PuzzleTable extends Puzzle {
-  subRows: Puzzle[];
-}
-
-const makePuzzleTableData = (ids: Puzzle[]) => {
-  // We need to construct the meta/subtree relationships.
-  // Each meta that contains a puzzle gets a reference to the same
-  // puzzle object. Then we can offload any actual graph traversal
-  // to the table library.
-
+const makePuzzleTableData = (ids: Puzzle[]): PuzzleTableData[] => {
   // Make a deep copy of everything first
-  const rowsCopy: PuzzleTable[] = ids.map((id) => ({
+  const rowsCopy: PuzzleTableData[] = ids.map((id) => ({
     ...id,
     subRows: [],
   }));
-  const rowMap: { [id: PuzzleId]: Puzzle } = {};
+  const rowMap: { [id: PuzzleId]: PuzzleTableData } = {};
   rowsCopy.forEach((row) => {
     rowMap[row.id] = row;
   });
@@ -67,9 +58,7 @@ const makePuzzleTableData = (ids: Puzzle[]) => {
   // Once all the meta-child relationships are there, we can sort
   // every list of puzzles: all the subRows lists, and the list of outer puzzles as well.
   rowsCopy.forEach((row) => {
-    if (row.subRows) {
-      row.subRows.sort(puzzleComparator);
-    }
+    row.subRows.sort(puzzleComparator);
   });
   const outerRows = rowsCopy.filter((row) => row.metas.length == 0);
   outerRows.sort(puzzleComparator);
@@ -113,6 +102,11 @@ export const HuntViewMain = (props: { huntId: HuntId }) => {
       return () => clearTimeout(timer);
     }
   }, [alert.id]);
+
+  const tableData = React.useMemo(
+    () => makePuzzleTableData(Object.values(puzzles)),
+    [puzzles]
+  );
 
   return (
     <>
@@ -168,7 +162,7 @@ export const HuntViewMain = (props: { huntId: HuntId }) => {
         </div>
 
         <PuzzleTable
-          data={makePuzzleTableData(Object.values(puzzles))}
+          data={tableData}
           filterSolved={filterSolved}
           filterTags={filterTags}
         />

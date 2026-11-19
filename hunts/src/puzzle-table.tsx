@@ -1,14 +1,9 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import {
-  useTable,
-  useExpanded,
-  useGlobalFilter,
-  useFilters,
-} from "react-table";
-import { Table } from "react-bootstrap";
+import { Table as BootstrapTable } from "react-bootstrap";
 import { matchSorter } from "match-sorter";
-import { filterSolvedPuzzlesFn } from "./solveStateFilter";
+import { filterRowsBySolveState } from "./solveStateFilter";
+import type { SOLVE_STATE_FILTER_OPTIONS } from "./filterSlice";
 
 import AnswerCell from "./AnswerCell";
 import CreationCell from "./CreationCell";
@@ -20,55 +15,123 @@ import UsersCell from "./UsersCell";
 import { LinkCell } from "./LinkCell";
 
 import { useStore } from "./store";
-import type { Puzzle, PuzzleTag, Row } from "./types";
-import type { Row as BaseRow } from "react-table";
+import type { PuzzleRow, PuzzleTableData, PuzzleTag } from "./types";
 
-// The react-table typing is a mess for our current version
-// (it's probably fine if we upgrade) and seems to be underpowered for
-// the set of features it actually exposes. Around sensitive areas, we
-// just use any to avoid fighting with the type system.
+function buildPuzzleTree(data: PuzzleTableData[]): {
+  rows: PuzzleRow[];
+  flatRows: PuzzleRow[];
+} {
+  const flatRows: PuzzleRow[] = [];
 
-interface TableColumnFormat {
-  Header?: string;
-  Cell?: any;
-  id?: string;
-  filter?: string;
-  className?: string;
-  accessor?: string | ((row: Puzzle) => any);
+  const _dfsBuild = (
+    items: PuzzleTableData[],
+    depth: number,
+    parentId?: string
+  ): PuzzleRow[] =>
+    items.map((item) => {
+      const id = parentId ? `${parentId}.${item.id}` : item.id.toString();
+      const row: PuzzleRow = {
+        id,
+        parentId,
+        depth,
+        original: item,
+        subRows: [],
+      };
+      flatRows.push(row);
+      if (item.subRows.length > 0) {
+        row.subRows = _dfsBuild(item.subRows, depth + 1, id);
+      }
+      return row;
+    });
+
+  return {
+    rows: _dfsBuild(data, 0),
+    flatRows,
+  };
 }
 
-function textFilterFn(rows: Row<Puzzle>[], _: string, filterValue: string) {
-  if (!filterValue || !filterValue.length) {
-    return rows;
+function flattenRows(rows: PuzzleRow[], out: PuzzleRow[] = []): PuzzleRow[] {
+  for (const row of rows) {
+    out.push(row);
+    if (row.subRows.length > 0) {
+      flattenRows(row.subRows, out);
+    }
+  }
+  return out;
+}
+
+function filterPuzzleRows(
+  rows: PuzzleRow[],
+  solveState: SOLVE_STATE_FILTER_OPTIONS,
+  filterTags: PuzzleTag[],
+  globalFilter: string
+): PuzzleRow[] {
+  let filteredRows = filterRowsBySolveState(rows, solveState);
+
+  if (filterTags.length > 0 || globalFilter) {
+    let candidateFlatRows = flattenRows(filteredRows);
+
+    if (filterTags.length > 0) {
+      candidateFlatRows = candidateFlatRows.filter((row) =>
+        filterTags.every((tag) =>
+          row.original.tags.some((t) => t.id === tag.id)
+        )
+      );
+    }
+
+    if (globalFilter) {
+      const words = globalFilter.split(" ");
+      const keys = [
+        (row: PuzzleRow) => row.original.name,
+        (row: PuzzleRow) => row.original.tags.map(({ name }) => name).join(" "),
+        (row: PuzzleRow) => row.original.status,
+        (row: PuzzleRow) =>
+          row.original.guesses.map(({ text }) => text).join(" "),
+      ];
+      candidateFlatRows = words.reduceRight(
+        (results, word) => matchSorter(results, word, { keys }),
+        candidateFlatRows
+      );
+    }
+
+    const matchedIds = new Set(candidateFlatRows.map((row) => row.id));
+    const _filter = (rowList: PuzzleRow[]): PuzzleRow[] => {
+      const result: PuzzleRow[] = [];
+      for (const row of rowList) {
+        const matchedSubRows = _filter(row.subRows);
+        if (matchedIds.has(row.id)) {
+          result.push({ ...row, subRows: matchedSubRows });
+        } else {
+          result.push(...matchedSubRows);
+        }
+      }
+      return result;
+    };
+    filteredRows = _filter(filteredRows);
   }
 
-  const words = filterValue.split(" ");
-  if (!words) {
-    return rows;
-  }
-  const keys = ["values.name", "values.tags", "values.status", "values.answer"];
-  // Need to clone these results because this library is broken as shit
-  return words
-    .reduceRight((results, word) => matchSorter(results, word, { keys }), rows)
-    .map((row) => Object.assign({}, row));
+  return filteredRows;
 }
 
-textFilterFn.autoRemove = (val: any) => !val;
-
-function filterPuzzlesByTagFn(
-  rows: Row<Puzzle>[],
-  _: string,
-  tagList: PuzzleTag[]
-) {
-  return rows.filter((row) => {
-    return tagList.every((tag) =>
-      row.original.tags.map((x) => x.id).includes(tag.id)
-    );
-  });
+function expandPuzzleRows(
+  rows: PuzzleRow[],
+  collapsedPuzzles: Record<string, boolean>
+): PuzzleRow[] {
+  const expanded: PuzzleRow[] = [];
+  const walk = (rowList: PuzzleRow[]) => {
+    for (const row of rowList) {
+      expanded.push(row);
+      if (row.subRows.length > 0 && !collapsedPuzzles[row.id]) {
+        walk(row.subRows);
+      }
+    }
+  };
+  walk(rows);
+  return expanded;
 }
 
-function rowClassName(row: Row<Puzzle>) {
-  switch (row.values.status) {
+function rowClassName(row: PuzzleRow) {
+  switch (row.original.status) {
     case "SOLVED":
       return "table-success";
     case "STUCK":
@@ -82,17 +145,122 @@ function rowClassName(row: Row<Puzzle>) {
   }
 }
 
+const MetaGroupHeaderRows = React.memo(
+  ({
+    hasSpacerSlot,
+    showSpacer,
+    showHeader,
+    colSpan,
+    color,
+  }: {
+    hasSpacerSlot: boolean;
+    showSpacer: boolean;
+    showHeader: boolean;
+    colSpan: number;
+    color: string;
+  }) => (
+    <>
+      {hasSpacerSlot && (
+        <tr hidden={!showSpacer} style={{ height: "20px" }}></tr>
+      )}
+      <tr hidden={!showHeader}>
+        <td
+          className="table-top-colorbar"
+          colSpan={colSpan}
+          style={{
+            background: `linear-gradient(90deg, ${color}, transparent)`,
+          }}
+        ></td>
+      </tr>
+    </>
+  )
+);
+
+const PuzzleTableRowCells = React.memo(
+  ({ row, color }: { row: PuzzleRow; color: string; language: string }) => (
+    <>
+      <td
+        className="table-side-colorbar"
+        style={{
+          backgroundColor: color,
+        }}
+      ></td>
+      <td>
+        <NameCell row={row} value={row.original.name} />
+      </td>
+      <td>
+        <LinkCell row={row} />
+      </td>
+      <td>
+        <TagCell row={row} />
+      </td>
+      <td>
+        <NotesCell row={row} value={row.original.notes} />
+      </td>
+      <td>
+        <UsersCell row={row} />
+      </td>
+      <td>
+        <AnswerCell row={row} />
+      </td>
+      <td>
+        <StatusCell row={row} value={row.original.status} />
+      </td>
+      <td>
+        <CreationCell value={row.original.created_on} />
+      </td>
+    </>
+  )
+);
+
+const PuzzleTableRow = React.memo(
+  ({
+    row,
+    isHidden,
+    color,
+    language,
+  }: {
+    row: PuzzleRow;
+    isHidden: boolean;
+    color: string;
+    language: string;
+  }) => (
+    <tr hidden={isHidden} className={rowClassName(row)}>
+      <PuzzleTableRowCells row={row} color={color} language={language} />
+    </tr>
+  )
+);
+
+const ROUND_COLORS = [
+  "crimson",
+  "dodgerblue",
+  "forestgreen",
+  "darkorchid",
+  "darkorange",
+  "goldenrod",
+  "coral",
+  "darkslategray",
+  "powderblue",
+  "aquamarine",
+  "palevioletred",
+  "indigo",
+  "olive",
+  "violet",
+];
+
+const topLevelId = (row: PuzzleRow) => parseInt(row.id.split(".")[0], 10);
+
 export const PuzzleTable = React.memo(
   ({
     data,
     filterSolved,
     filterTags,
   }: {
-    data: any;
+    data: PuzzleTableData[];
     filterSolved: number;
     filterTags: PuzzleTag[];
   }) => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const filter = useStore((state) => state.filterSlice.filterValue);
     const collapsedPuzzles = useStore((state) =>
       state.collapsedPuzzlesSlice.getCollapsedPuzzles(
@@ -100,233 +268,84 @@ export const PuzzleTable = React.memo(
       )
     );
 
-    const columns = React.useMemo<TableColumnFormat[]>(
-      () => [
-        {
-          Header: t("table-puzzle-name"),
-          accessor: "name",
-          Cell: NameCell as any,
-          className: "col-2",
-        },
-        {
-          Header: t("table-puzzle-links"),
-          Cell: LinkCell,
-          className: "col-1",
-        },
-        {
-          Header: t("table-puzzle-tags"),
-          id: "tags",
-          Cell: TagCell,
-          className: "col-2",
-          accessor: (row) => row.tags.map(({ name }) => name).join(" "),
-          filter: "tagsFilter",
-        },
-        {
-          Header: t("table-puzzle-notes"),
-          id: "notes",
-          Cell: NotesCell,
-          className: "col-2",
-          accessor: (row) => row.notes,
-        },
-        {
-          accessor: "last_edited_on",
-          id: "last_edited_on",
-        },
-        {
-          Header: "",
-          accessor: (row) => row.recent_editors,
-          Cell: UsersCell,
-          id: "recentEditors",
-        },
-        {
-          accessor: "top_editors",
-          id: "topEditors",
-        },
-        {
-          Header: t("table-puzzle-answer"),
-          accessor: (row) => row.guesses.map(({ text }) => text).join(" "),
-          Cell: AnswerCell,
-          id: "answer",
-          className: "col-2",
-        },
-        {
-          Header: t("table-puzzle-status"),
-          accessor: "status",
-          Cell: StatusCell,
-          filter: "solvedFilter",
-          className: "col-1",
-        },
-        {
-          Header: t("table-puzzle-created"),
-          accessor: "created_on",
-          Cell: CreationCell,
-          className: "col-1",
-        },
-        {
-          accessor: "is_meta",
-          id: "is_meta",
-        },
-        {
-          accessor: "id",
-          id: "id",
-        },
-        {
-          accessor: "url",
-          id: "url",
-        },
-      ],
-      [t]
+    const tree = React.useMemo(() => buildPuzzleTree(data), [data]);
+
+    const filteredRows = React.useMemo(
+      () =>
+        filterPuzzleRows(
+          tree.rows,
+          filterSolved as SOLVE_STATE_FILTER_OPTIONS,
+          filterTags,
+          filter
+        ),
+      [tree.rows, filterSolved, filterTags, filter]
     );
 
-    const filterTypes = React.useMemo(
-      () => ({
-        globalFilter: textFilterFn,
-        solvedFilter: filterSolvedPuzzlesFn,
-        tagsFilter: filterPuzzlesByTagFn,
-      }),
-      []
+    const visibleRows = React.useMemo(
+      () => expandPuzzleRows(filteredRows, collapsedPuzzles),
+      [filteredRows, collapsedPuzzles]
     );
 
-    const getRowId = React.useCallback(
-      (row: Puzzle, _: any, parent: BaseRow<Puzzle> | undefined) => {
-        if (parent) {
-          return `${parent.id}.${row.id}`;
-        } else {
-          return row.id.toString();
+    const visibleRowIds = new Set(visibleRows.map((row) => row.id));
+    const visibleTopLevelIds = new Set(visibleRows.map(topLevelId));
+
+    const headerColSpan = 9;
+    const language = i18n.resolvedLanguage || "en";
+    const rowsList: React.ReactNode[] = [];
+    let seenVisibleGroup = false;
+
+    tree.flatRows.forEach((row, i) => {
+      const groupId = topLevelId(row);
+      const color = ROUND_COLORS[groupId % ROUND_COLORS.length];
+
+      // Keep one spacer + colorbar header per top-level meta group and toggle
+      // their visibility based on whether any row in the group is visible.
+      if (i == 0 || groupId != topLevelId(tree.flatRows[i - 1])) {
+        const showHeader = visibleTopLevelIds.has(groupId);
+        const showSpacer = showHeader && seenVisibleGroup;
+        if (showHeader) {
+          seenVisibleGroup = true;
         }
-      },
-      []
-    );
-
-    const {
-      getTableProps,
-      getTableBodyProps,
-      allColumns,
-      rows,
-      prepareRow,
-      setGlobalFilter,
-      setFilter,
-    }: any = useTable<Puzzle>(
-      {
-        columns: columns as any,
-        data,
-        filterTypes,
-        getRowId,
-        autoResetExpanded: false,
-        autoResetGlobalFilter: false,
-        globalFilter: "globalFilter",
-        autoResetFilters: false,
-        initialState: {
-          hiddenColumns: [
-            "is_meta",
-            "id",
-            "url",
-            "topEditors",
-            "last_edited_on",
-          ],
-          // @ts-ignore
-          filters: [],
-          // Apparently our patch of react-table introduces the 'collapsed'
-          // object that has the opposite semantics of the 'expanded' API.
-          collapsed: collapsedPuzzles,
-        },
-      },
-      useGlobalFilter,
-      useExpanded,
-      useFilters
-    );
-
-    React.useEffect(() => setGlobalFilter(filter), [filter]);
-
-    // This pattern does not spark joy, but react-table only provides an imperative filter api.
-    React.useEffect(() => {
-      setFilter("status", filterSolved);
-    }, [filterSolved]);
-
-    React.useEffect(() => {
-      setFilter("tags", filterTags);
-    }, [filterTags]);
-
-    let rowsList: React.ReactNode[] = [];
-    const roundColors = [
-      "crimson",
-      "dodgerblue",
-      "forestgreen",
-      "darkorchid",
-      "darkorange",
-      "goldenrod",
-      "coral",
-      "darkslategray",
-      "powderblue",
-      "aquamarine",
-      "palevioletred",
-      "indigo",
-      "olive",
-      "violet",
-    ];
-
-    const topLevelId = (row: Row<Puzzle>) => parseInt(row.id.split(".")[0]);
-
-    rows.forEach((row: Row<Puzzle>, i: number) => {
-      prepareRow(row);
-
-      // Add coloring and space between top-level metas
-      if (i == 0 || topLevelId(row) != topLevelId(rows[i - 1] as Row<Puzzle>)) {
-        if (i > 0) {
-          rowsList.push(
-            <tr key={`spacer-${row.id}`} style={{ height: "20px" }}></tr>
-          );
-        }
-
         rowsList.push(
-          <tr key={`header-${row.id}`}>
-            <td
-              className="table-top-colorbar"
-              colSpan={row.cells.length + 1}
-              style={{
-                background: `linear-gradient(90deg, ${
-                  roundColors[topLevelId(row) % roundColors.length]
-                }, transparent)`,
-              }}
-            ></td>
-          </tr>
+          <MetaGroupHeaderRows
+            key={`group-header-${groupId}`}
+            hasSpacerSlot={i > 0}
+            showSpacer={showSpacer}
+            showHeader={showHeader}
+            colSpan={headerColSpan}
+            color={color}
+          />
         );
       }
 
       rowsList.push(
-        <tr className={rowClassName(row)} {...row.getRowProps()}>
-          <td
-            className="table-side-colorbar"
-            style={{
-              backgroundColor:
-                roundColors[topLevelId(row) % roundColors.length],
-            }}
-          ></td>
-          {row.cells.map((cell: any) => {
-            return <td {...cell.getCellProps()}>{cell.render("Cell")}</td>;
-          })}
-        </tr>
+        <PuzzleTableRow
+          key={row.id}
+          row={row}
+          isHidden={!visibleRowIds.has(row.id)}
+          color={color}
+          language={language}
+        />
       );
     });
 
     return (
-      <>
-        <Table size="sm" {...getTableProps()}>
-          <thead>
-            <tr>
-              <th className="table-side-colorbar"></th>
-              {allColumns.map((column: any) =>
-                column.isVisible ? (
-                  <th {...column.getHeaderProps()} className={column.className}>
-                    {column.render("Header")}
-                  </th>
-                ) : null
-              )}
-            </tr>
-          </thead>
-          <tbody {...getTableBodyProps()}>{rowsList}</tbody>
-        </Table>
-      </>
+      <BootstrapTable size="sm">
+        <thead>
+          <tr>
+            <th className="table-side-colorbar"></th>
+            <th className="col-2">{t("table-puzzle-name")}</th>
+            <th className="col-1">{t("table-puzzle-links")}</th>
+            <th className="col-2">{t("table-puzzle-tags")}</th>
+            <th className="col-2">{t("table-puzzle-notes")}</th>
+            <th></th>
+            <th className="col-2">{t("table-puzzle-answer")}</th>
+            <th className="col-1">{t("table-puzzle-status")}</th>
+            <th className="col-1">{t("table-puzzle-created")}</th>
+          </tr>
+        </thead>
+        <tbody>{rowsList}</tbody>
+      </BootstrapTable>
     );
   }
 );

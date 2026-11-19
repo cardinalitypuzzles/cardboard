@@ -2,10 +2,9 @@ import React from "react";
 import { useStore } from "./store";
 import TagPill from "./TagPill";
 
-import type { RootState } from "./store";
-import type { Hunt, Puzzle, Row } from "./types";
+import type { PuzzleRow } from "./types";
 
-function TagCell({ row }: { row: Row<Puzzle> }) {
+function TagCell({ row }: { row: PuzzleRow }) {
   const modalSlice = useStore((state) => state.modalSlice);
   const hunt = useStore((state) => state.huntSlice.hunt);
   const { toggleFilterTag } = useStore((state) => state.filterSlice);
@@ -27,8 +26,8 @@ function TagCell({ row }: { row: Row<Puzzle> }) {
           type: "EDIT_TAGS",
           props: {
             huntId: hunt.id,
-            puzzleId: row.values.id,
-            puzzleName: row.values.name,
+            puzzleId: row.original.id,
+            puzzleName: row.original.name,
           },
         });
       }}
