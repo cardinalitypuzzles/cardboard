@@ -138,3 +138,14 @@ body {
   --bs-nav-link-padding-y: .5rem;
   --bs-nav-link-color: var(--bs-link-color);
 }
+
+/* Logout has to be a POST (Django 5.0 dropped GET), so it renders as a
+   button that has to pass for a nav link. */
+.nav-link-button {
+  background: none;
+  border: 0;
+  font: inherit;
+  text-align: left;
+  width: 100%;
+  cursor: pointer;
+}
