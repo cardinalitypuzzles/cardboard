@@ -145,8 +145,6 @@ TIME_ZONE = "America/New_York"
 
 USE_I18N = True
 
-USE_L10N = True
-
 USE_TZ = True
 
 
@@ -160,7 +158,14 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "cardboard/static"),
     os.path.join(BASE_DIR, "hunts/static"),
 ]
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 # User login
 AUTH_USER_MODEL = "accounts.Puzzler"

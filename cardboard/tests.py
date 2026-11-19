@@ -1,4 +1,5 @@
 from django.test import TestCase
+from django.urls import reverse
 from guardian.shortcuts import assign_perm
 
 from accounts.models import Puzzler
@@ -44,3 +45,35 @@ class TestHomePage(TestCase):
         self.client.login(username="test", password="testingpwd")
         response = self.client.get("/tools")
         self.assertTemplateUsed(response, "tools.html")
+
+
+class TestLogout(TestCase):
+    def setUp(self):
+        self._user = Puzzler.objects.create_user(
+            username="test", email="test@ing.com", password="testingpwd"
+        )
+
+    def tearDown(self):
+        self._user.delete()
+
+    def testLogoutRejectsGet(self):
+        # Django 5.0 dropped GET support from LogoutView; a GET must not log
+        # the user out, and must not 500.
+        self.client.login(username="test", password="testingpwd")
+        response = self.client.get(reverse("logout"))
+        self.assertEqual(response.status_code, 405)
+        self.assertIn("_auth_user_id", self.client.session)
+
+    def testLogoutAcceptsPost(self):
+        self.client.login(username="test", password="testingpwd")
+        response = self.client.post(reverse("logout"))
+        self.assertEqual(response.status_code, 302)
+        self.assertNotIn("_auth_user_id", self.client.session)
+
+    def testNavLogoutIsAPostForm(self):
+        # Guards against the nav reverting to a plain <a href>, which renders
+        # a 405 page on every click.
+        self.client.login(username="test", password="testingpwd")
+        response = self.client.get("/tools")
+        self.assertContains(response, 'action="%s"' % reverse("logout"))
+        self.assertNotContains(response, 'href="%s"' % reverse("logout"))

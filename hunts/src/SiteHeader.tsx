@@ -1,4 +1,5 @@
 import React from "react";
+import Cookies from "js-cookie";
 import Button from "react-bootstrap/Button";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
@@ -208,9 +209,16 @@ export const SiteHeader = ({ huntId }: { huntId?: HuntId }) => {
         <a className="nav-link" href="/tools">
           {t("tools-and-references")}
         </a>
-        <a className="nav-link" href="/accounts/logout/">
-          {t("logout")}
-        </a>
+        <form method="post" action="/accounts/logout/">
+          <input
+            type="hidden"
+            name="csrfmiddlewaretoken"
+            value={Cookies.get("csrftoken") ?? ""}
+          />
+          <button type="submit" className="nav-link nav-link-button">
+            {t("logout")}
+          </button>
+        </form>
         <div style={{ padding: ".5rem 1rem" }}>
           {t("logged-in-as", {
             user: window.LOGGED_IN_USER,
