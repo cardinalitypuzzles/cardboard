@@ -114,6 +114,21 @@ body {
   background-color: #343a40 !important;
 }
 
+.bootstrap .btn-add-puzzle {
+  background-image: linear-gradient(135deg, #7f1d3a 0%, #b81d38 55%, #cf4a5f 100%);
+  border-color: transparent;
+  color: #fff;
+  font-weight: 600;
+}
+
+.bootstrap .btn-add-puzzle:hover,
+.bootstrap .btn-add-puzzle:focus-visible,
+.bootstrap .btn-add-puzzle:active {
+  background-image: linear-gradient(135deg, #6b1630 0%, #9e172f 55%, #b83c50 100%);
+  border-color: transparent;
+  color: #fff;
+}
+
 .bootstrap button.cb-btn-compact,
 .bootstrap div.cb-btn-compact button,
 .bootstrap[data-bs-theme="dark"] button.cb-btn-compact,

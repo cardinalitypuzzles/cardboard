@@ -1,10 +1,9 @@
 import React from "react";
-import { Alert, Button, Modal } from "react-bootstrap";
+import { Alert, Modal } from "react-bootstrap";
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
 import api from "./api";
 import { PuzzleTable } from "./puzzle-table";
-import GlobalFilter from "./GlobalFilter";
 import DeleteAnswerModal from "./DeleteAnswerModal";
 import DeletePuzzleModal from "./DeletePuzzleModal";
 import EditAnswerModal from "./EditAnswerModal";
@@ -15,12 +14,11 @@ import SubmitAnswerModal from "./SubmitAnswerModal";
 import EditPuzzleTagsModal from "./EditPuzzleTagsModal";
 import useInterval from "@use-it/interval";
 import TagPill from "./TagPill";
-import { SolvedStateFilter } from "./solveStateFilter";
 import { SiteHeader } from "./SiteHeader";
 import { puzzleComparator } from "./utils";
 
 import { useStore, RootState } from "./store";
-import type { HuntId, PuzzleId, Puzzle } from "./types";
+import type { HuntId, PuzzleId, Puzzle, PuzzleTableData } from "./types";
 
 const MODAL_COMPONENTS: Record<string, any> = {
   DELETE_PUZZLE: DeletePuzzleModal,
@@ -33,22 +31,13 @@ const MODAL_COMPONENTS: Record<string, any> = {
   EDIT_TAGS: EditPuzzleTagsModal,
 };
 
-export interface PuzzleTable extends Puzzle {
-  subRows: Puzzle[];
-}
-
-const makePuzzleTableData = (ids: Puzzle[]) => {
-  // We need to construct the meta/subtree relationships.
-  // Each meta that contains a puzzle gets a reference to the same
-  // puzzle object. Then we can offload any actual graph traversal
-  // to the table library.
-
+const makePuzzleTableData = (ids: Puzzle[]): PuzzleTableData[] => {
   // Make a deep copy of everything first
-  const rowsCopy: PuzzleTable[] = ids.map((id) => ({
+  const rowsCopy: PuzzleTableData[] = ids.map((id) => ({
     ...id,
     subRows: [],
   }));
-  const rowMap: { [id: PuzzleId]: Puzzle } = {};
+  const rowMap: { [id: PuzzleId]: PuzzleTableData } = {};
   rowsCopy.forEach((row) => {
     rowMap[row.id] = row;
   });
@@ -69,9 +58,7 @@ const makePuzzleTableData = (ids: Puzzle[]) => {
   // Once all the meta-child relationships are there, we can sort
   // every list of puzzles: all the subRows lists, and the list of outer puzzles as well.
   rowsCopy.forEach((row) => {
-    if (row.subRows) {
-      row.subRows.sort(puzzleComparator);
-    }
+    row.subRows.sort(puzzleComparator);
   });
   const outerRows = rowsCopy.filter((row) => row.metas.length == 0);
   outerRows.sort(puzzleComparator);
@@ -116,9 +103,14 @@ export const HuntViewMain = (props: { huntId: HuntId }) => {
     }
   }, [alert.id]);
 
+  const tableData = React.useMemo(
+    () => makePuzzleTableData(Object.values(puzzles)),
+    [puzzles]
+  );
+
   return (
     <>
-      <SiteHeader />
+      <SiteHeader huntId={props.huntId} />
       <div
         style={{
           margin: "0px auto",
@@ -134,28 +126,24 @@ export const HuntViewMain = (props: { huntId: HuntId }) => {
         >
           {alert.text}
         </Alert>
-        <div class="d-flex ms-3 my-1 gap-4 pb-1 mb-2 fw-bold text-center">
+        <div className="d-flex ms-3 my-1 gap-4 pb-1 mb-2 fw-bold text-center align-items-center">
           <div>
-            <div class="small">{t("metas")}</div>
+            <div className="small">{t("metas")}</div>
             <div>
-              <span class="text-primary" style={{ fontSize: "1.25rem" }}>
+              <span className="text-primary" style={{ fontSize: "1.25rem" }}>
                 {numMetasSolved()}
               </span>{" "}
-              / <span class="text-secondary">{numMetasUnlocked()}</span>
+              / <span className="text-secondary">{numMetasUnlocked()}</span>
             </div>
           </div>
           <div>
-            <div class="small">{t("puzzles")}</div>
+            <div className="small">{t("puzzles")}</div>
             <div>
-              <span class="text-success" style={{ fontSize: "1.25rem" }}>
+              <span className="text-success" style={{ fontSize: "1.25rem" }}>
                 {numPuzzlesSolved()}
               </span>{" "}
-              / <span class="text-secondary">{numPuzzlesUnlocked()}</span>
+              / <span className="text-secondary">{numPuzzlesUnlocked()}</span>
             </div>
-          </div>
-          <div class="d-flex align-items-center">
-            <GlobalFilter />
-            <SolvedStateFilter />
           </div>
           <div>
             {filterTags.length > 0 ? t("viewing-with-tags") : ""}
@@ -171,25 +159,10 @@ export const HuntViewMain = (props: { huntId: HuntId }) => {
               );
             })}
           </div>
-
-          <Button
-            variant="primary"
-            size="lg"
-            onClick={() =>
-              modal.showModal({
-                type: "ADD_PUZZLE",
-                props: {
-                  huntId: props.huntId,
-                },
-              })
-            }
-          >
-            {t("add-puzzle")}
-          </Button>
         </div>
 
         <PuzzleTable
-          data={makePuzzleTableData(Object.values(puzzles))}
+          data={tableData}
           filterSolved={filterSolved}
           filterTags={filterTags}
         />
