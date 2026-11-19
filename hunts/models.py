@@ -34,7 +34,7 @@ class Hunt(models.Model):
         )
 
     def get_hunt(self):
-        """The hunt this object belongs to, for permission checks."""
+        """The hunt this object belongs to."""
         return self
 
     def __str__(self):

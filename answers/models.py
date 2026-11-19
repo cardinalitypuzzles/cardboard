@@ -31,7 +31,7 @@ class Answer(SoftDeleteModel):
         return '{}: "{}" ({})'.format(self.puzzle.name, self.text, self.status)
 
     def get_hunt(self):
-        """The hunt this object belongs to, for permission checks."""
+        """The hunt this object belongs to."""
         return self.puzzle.hunt
 
     def set_status(self, status):

@@ -101,7 +101,7 @@ class PuzzleTag(models.Model):
     is_location = models.BooleanField(default=False)
 
     def get_hunt(self):
-        """The hunt this object belongs to, for permission checks."""
+        """The hunt this object belongs to."""
         return self.hunt
 
     def __str__(self):

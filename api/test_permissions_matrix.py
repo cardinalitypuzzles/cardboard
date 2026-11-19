@@ -1,9 +1,4 @@
-"""Authorization matrix for every API route.
-
-Asserts which callers each route refuses, independent of what the route then
-does. This exists so that changes to the permission classes have to prove they
-did not move a cell: the only interesting value is 403 vs not-403.
-"""
+"""Which callers each API route refuses. Only 403-vs-not matters here."""
 
 from django.test import override_settings
 from guardian.shortcuts import assign_perm
@@ -22,8 +17,8 @@ NO_PERMS = "authenticated, no hunt perms"
 ACCESS = "hunt_access"
 ADMIN = "hunt_access + hunt_admin"
 
-# Every route requires hunt_access. Writes to a hunt itself require hunt_admin,
-# but no unsafe method is routed to HuntViewSet, so no cell exercises that yet.
+# Hunt writes need hunt_admin, but none are routed yet -- see
+# test_hunt_writes_require_admin.
 EXPECTED_DENIED = {ANONYMOUS: True, NO_PERMS: True, ACCESS: False, ADMIN: False}
 
 
@@ -53,8 +48,7 @@ class PermissionMatrixTests(APITestCase):
         self.hunt = Hunt.objects.create(name="matrix hunt", url="m.com")
 
     def _fixtures(self, tag):
-        """Objects for one probe run, created through the ORM so that the
-        matrix measures the routes rather than its own setup."""
+        """Objects for one probe run, created via the ORM."""
         puzzle = Puzzle.objects.create(
             name=f"pz-{tag}", hunt=self.hunt, url=f"{tag}.com", sheet=f"s-{tag}"
         )
@@ -155,9 +149,7 @@ class PermissionMatrixTests(APITestCase):
         self._assert_level(ADMIN, "admin")
 
     def test_hunt_writes_require_admin(self):
-        """No route exposes a hunt write yet, so the matrix above cannot cover
-        this. Asserted directly so that adding such a route inherits the
-        policy rather than quietly widening it."""
+        """No route exposes a hunt write yet, so check the class directly."""
         factory = APIRequestFactory()
         permission = HuntAdminPermission()
 
@@ -185,4 +177,31 @@ class PermissionMatrixTests(APITestCase):
                 expected,
                 f"{user.username} {kind} on hunt: expected "
                 f"{'allowed' if expected else 'denied'}",
+            )
+
+    def test_unknown_ids_are_refused_uniformly(self):
+        """An unresolvable hunt is refused, not 404'd."""
+        user = Puzzler.objects.create_user(
+            username="known", email="k@t.com", password="pw"
+        )
+        assign_perm("hunt_access", user, self.hunt)
+        client = APIClient()
+        client.force_login(user)
+
+        missing = 999999
+        for label, response in [
+            ("GET  /hunts/{missing}", client.get(f"/api/v1/hunts/{missing}")),
+            (
+                "GET  /hunts/{missing}/puzzles",
+                client.get(f"/api/v1/hunts/{missing}/puzzles"),
+            ),
+            (
+                "POST /puzzles/{missing}/notes",
+                client.post(f"/api/v1/puzzles/{missing}/notes", {"text": "x"}),
+            ),
+        ]:
+            self.assertEqual(
+                response.status_code,
+                status.HTTP_403_FORBIDDEN,
+                f"{label}: got {response.status_code}",
             )

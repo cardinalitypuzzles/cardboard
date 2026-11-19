@@ -10,8 +10,8 @@ logger = logging.getLogger(__name__)
 class HuntAccessPermission(permissions.BasePermission):
     """Requires a permission on the hunt the request concerns.
 
-    The hunt comes from whichever kwarg the route carries, and from the object
-    itself on detail routes -- every hunt-scoped model answers get_hunt().
+    Requires models to implement get_hunt() for the has_object_permission
+    check.
     """
 
     message = "You do not have access to this hunt"
@@ -29,9 +29,7 @@ class HuntAccessPermission(permissions.BasePermission):
         elif "puzzle_id" in view.kwargs:
             hunt = Hunt.objects.filter(puzzles=view.kwargs["puzzle_id"]).first()
         else:
-            # A hunt's own routes identify it by pk, so there is nothing to
-            # check until get_object() calls has_object_permission below.
-            return True
+            return False
 
         if not hunt:
             return False

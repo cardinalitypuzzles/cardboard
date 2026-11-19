@@ -39,6 +39,8 @@ class HuntViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated, HuntAdminPermission]
     serializer_class = HuntSerializer
     queryset = Hunt.objects.all()
+    # Keeps every route's hunt reachable the same way, rather than using pk
+    lookup_url_kwarg = "hunt_id"
 
 
 class AnswerViewSet(viewsets.ModelViewSet):

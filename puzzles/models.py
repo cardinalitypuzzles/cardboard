@@ -138,7 +138,7 @@ class Puzzle(SoftDeleteModel):
         self.save()
 
     def get_hunt(self):
-        """The hunt this object belongs to, for permission checks."""
+        """The hunt this object belongs to."""
         return self.hunt
 
     def set_answer(self, answer):
