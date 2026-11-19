@@ -35,8 +35,12 @@ class PuzzleAccessPermission(permissions.BasePermission):
         return request.user.has_perm("hunt_access", obj.hunt)
 
 
-class PuzzleTagAccessPermission(permissions.BasePermission):
-    message = "You do not have access to this puzzle tag"
+class HuntAccessViaPuzzleIdPermission(permissions.BasePermission):
+    """Checks hunt_access on the hunt owning the view's "puzzle_id" kwarg.
+
+    Routes nested under /puzzles/<puzzle_id>/ have no hunt_id to check, so the
+    hunt is reached through the puzzle instead.
+    """
 
     def has_permission(self, request, view):
         try:
@@ -48,24 +52,21 @@ class PuzzleTagAccessPermission(permissions.BasePermission):
             return False
 
         return request.user.has_perm("hunt_access", hunt)
+
+
+class PuzzleTagAccessPermission(HuntAccessViaPuzzleIdPermission):
+    message = "You do not have access to this puzzle tag"
 
     def has_object_permission(self, request, view, obj):
         return request.user.has_perm("hunt_access", obj.hunt)
 
 
-class AnswerAccessPermission(permissions.BasePermission):
+class AnswerAccessPermission(HuntAccessViaPuzzleIdPermission):
     message = "You do not have access to this answer"
-
-    def has_permission(self, request, view):
-        try:
-            hunt = Hunt.objects.get(puzzles=view.kwargs["puzzle_id"])
-        except Hunt.DoesNotExist:
-            hunt = None
-
-        if not hunt:
-            return False
-
-        return request.user.has_perm("hunt_access", hunt)
 
     def has_object_permission(self, request, view, obj):
         return request.user.has_perm("hunt_access", obj.puzzle.hunt)
+
+
+class PuzzleNotesAccessPermission(HuntAccessViaPuzzleIdPermission):
+    message = "You do not have access to this puzzle"

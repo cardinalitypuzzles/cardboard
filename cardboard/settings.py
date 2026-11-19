@@ -178,6 +178,12 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.SessionAuthentication",
     ],
+    # So that a view which forgets permission_classes rejects anonymous
+    # requests instead of allowing them. Views still declare the object-level
+    # hunt permission they need.
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ],
     "TEST_REQUEST_DEFAULT_FORMAT": "json",
 }
 

@@ -23,6 +23,7 @@ from .permissions import (
     AnswerAccessPermission,
     HuntAccessPermission,
     PuzzleAccessPermission,
+    PuzzleNotesAccessPermission,
     PuzzleTagAccessPermission,
 )
 from .serializers import (
@@ -522,6 +523,8 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
 
 
 class PuzzleNotesView(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated, PuzzleNotesAccessPermission]
+
     def update(self, request, puzzle_id=None):
         puzzle = get_object_or_404(Puzzle, pk=puzzle_id)
         serializer = PuzzleNotesSerializer(
