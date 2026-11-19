@@ -26,7 +26,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 if not SECRET_KEY:
-    logger.warn("No DJANGO_SECRET_KEY set. Generating random secret key")
+    logger.warning("No DJANGO_SECRET_KEY set. Generating random secret key")
     SECRET_KEY = get_random_secret_key()
 
 
@@ -233,7 +233,7 @@ try:
     ]
 except KeyError as e:
     GOOGLE_API_AUTHN_INFO = None
-    logger.warn(
+    logger.warning(
         f"No {e.args[0]} found in environment. Automatic sheets creation disabled."
     )
 
@@ -255,7 +255,7 @@ try:
 except KeyError as e:
     SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = None
     SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = None
-    logger.warn(
+    logger.warning(
         f"No {e.args[0]} environment variable set. Google login will be disabled."
     )
 
@@ -280,7 +280,7 @@ TAGGIT_TAGS_FROM_STRING = "puzzles.tag_utils.to_tag"
 import discord_lib
 
 if not "DISCORD_API_TOKEN" in os.environ:
-    logger.warn(
+    logger.warning(
         "No Discord API token found in environment. Automatic Discord channel creation disabled."
     )
     CHAT_DEFAULT_SERVICE = None
