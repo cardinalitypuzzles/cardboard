@@ -73,9 +73,18 @@
   "notes": "笔记",
   "edit-tags-title": "编辑 {{puzzleName}} 的标签",
   "tags": "标签",
-  "tags-create": "创建新标签",
+  "tags-create": "添加新标签",
   "tag-placeholder": "逻辑谜题",
-  "blue": "蓝",
   "white": "白",
-  "teal": "青"
+  "coral": "珊瑚红",
+  "pink": "粉红",
+  "peach": "桃色",
+  "orange": "橙",
+  "cream": "米黄",
+  "mint": "薄荷绿",
+  "lime": "酸橙绿",
+  "dark-teal": "深青",
+  "sky-blue": "天蓝",
+  "blue": "蓝",
+  "indigo": "靛蓝"
 }

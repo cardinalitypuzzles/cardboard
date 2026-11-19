@@ -31,7 +31,6 @@ function EditableTagList({
         <TagPill
           name={tag.name}
           color={tag.color}
-          isMeta={tag.is_meta}
           faded={!puzzleTagIds.has(tag.id)}
           key={tag.name}
           onClick={() => {

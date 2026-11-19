@@ -6,7 +6,6 @@ interface TagPillProps {
   name: string;
   color: string;
   faded?: boolean;
-  isMeta?: boolean;
   onClick?: React.MouseEventHandler<HTMLElement>;
 }
 
@@ -27,14 +26,7 @@ function TagPill(props: TagPillProps) {
   }
 
   return (
-    <Badge
-      pill
-      bg=""
-      text={useDarkText ? "black" : "white"}
-      key={name}
-      onClick={onClick || undefined}
-      style={style}
-    >
+    <Badge pill bg="" key={name} onClick={onClick || undefined} style={style}>
       {name}
     </Badge>
   );

@@ -197,7 +197,7 @@ for (const tab of tabs) {
               mode: "cors",
               body: JSON.stringify({
                 name: document.getElementById("puzzle_meta").value,
-                color: "dark",
+                color: "#212529",
               }),
               headers: {
                 "X-CSRFToken": cardboard_cookie.value,
@@ -246,7 +246,7 @@ for (const tab of tabs) {
               mode: "cors",
               body: JSON.stringify({
                 name: "Backsolved",
-                color: "success",
+                color: "#198754",
               }),
               headers: {
                 "X-CSRFToken": cardboard_cookie.value,
@@ -377,7 +377,7 @@ for (const tab of tabs) {
               mode: "cors",
               body: JSON.stringify({
                 name: document.getElementById("puzzle_meta").value,
-                color: "dark",
+                color: "#212529",
               }),
               headers: {
                 "X-CSRFToken": cardboard_cookie.value,
@@ -431,7 +431,7 @@ for (const tab of tabs) {
               mode: "cors",
               body: JSON.stringify({
                 name: "Backsolved",
-                color: "success",
+                color: "#198754",
               }),
               headers: {
                 "X-CSRFToken": cardboard_cookie.value,

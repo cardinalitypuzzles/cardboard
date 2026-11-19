@@ -519,21 +519,21 @@ class ApiTests(CardboardTestCase, APITestCase):
                 ).exists()
             )
 
-    def test_reserved_tag_colors_cannot_be_overwritten(self):
+    def test_adding_existing_tag_does_not_overwrite_color(self):
         self.check_response_status(
             self.create_puzzle({"name": TEST_NAME, "url": TEST_URL})
         )
         puzzle = Puzzle.objects.get()
         PuzzleTag.create_default_tags(self._hunt)
 
-        for tag_name, expected_color in PuzzleTag.RESERVED_TAG_COLORS.items():
-            self.check_response_status(
-                self.create_tag(
-                    puzzle.pk, {"name": tag_name, "color": PuzzleTagColor.INDIGO}
-                )
+        self.check_response_status(
+            self.create_tag(
+                puzzle.pk, {"name": "crossword", "color": PuzzleTagColor.WHITE}
             )
-            tag = PuzzleTag.objects.get(hunt=self._hunt, name__iexact=tag_name)
-            self.assertEqual(tag.color, expected_color)
+        )
+        tag = PuzzleTag.objects.get(hunt=self._hunt, name="Crossword")
+        self.assertEqual(tag.color, PuzzleTagColor.INDIGO)
+        self.assertTrue(puzzle.tags.filter(pk=tag.pk).exists())
 
 
 @override_settings(

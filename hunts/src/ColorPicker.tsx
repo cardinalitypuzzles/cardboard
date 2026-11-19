@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { SELECTABLE_TAG_COLORS } from "./constants";
 import { isLightColor } from "./utils";
 
-// A simple 4x4 color palette selector
+// A simple 3x4 color palette selector
 function ColorPicker({
   value,
   onChange,
@@ -65,25 +65,26 @@ function ColorPicker({
     if (!show || !anchorRect) {
       return null;
     }
-    const POPOVER_SIZE = 154;
+    const POPOVER_WIDTH = 154;
+    const POPOVER_HEIGHT = 118;
     const GAP = 6;
     const MARGIN = 8;
     const spaceBelow = window.innerHeight - anchorRect.bottom - GAP;
     const placeAbove =
-      spaceBelow < POPOVER_SIZE + MARGIN &&
-      anchorRect.top > POPOVER_SIZE + GAP + MARGIN;
+      spaceBelow < POPOVER_HEIGHT + MARGIN &&
+      anchorRect.top > POPOVER_HEIGHT + GAP + MARGIN;
     const top = placeAbove
-      ? anchorRect.top - POPOVER_SIZE - GAP
+      ? anchorRect.top - POPOVER_HEIGHT - GAP
       : anchorRect.bottom + GAP;
     const left = Math.max(
       MARGIN,
-      Math.min(anchorRect.left, window.innerWidth - POPOVER_SIZE - MARGIN)
+      Math.min(anchorRect.left, window.innerWidth - POPOVER_WIDTH - MARGIN)
     );
     return {
       left: `${Math.round(left)}px`,
       top: `${Math.round(top)}px`,
-      width: `${POPOVER_SIZE}px`,
-      height: `${POPOVER_SIZE}px`,
+      width: `${POPOVER_WIDTH}px`,
+      height: `${POPOVER_HEIGHT}px`,
       zIndex: 1080,
     };
   }, [show, anchorRect]);

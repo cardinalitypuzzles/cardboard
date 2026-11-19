@@ -202,9 +202,7 @@ class Migration(migrations.Migration):
                 max_length=10,
             ),
         ),
-        migrations.RunPython(
-            revamp_puzzle_tags, reverse_code=migrations.RunPython.noop
-        ),
+        migrations.RunPython(revamp_puzzle_tags),
         migrations.AddConstraint(
             model_name="puzzletag",
             constraint=models.CheckConstraint(

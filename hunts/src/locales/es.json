@@ -73,9 +73,18 @@
   "notes": "Notas",
   "edit-tags-title": "Editar etiquetas de {{puzzleName}}",
   "tags": "Etiquetas",
-  "tags-create": "Crear nueva etiqueta",
+  "tags-create": "Añadir nueva etiqueta",
   "tag-placeholder": "Puzzle de lógica",
-  "blue": "Azul",
   "white": "Blanco",
-  "teal": "Verde azulado"
+  "coral": "Coral",
+  "pink": "Rosa",
+  "peach": "Melocotón",
+  "orange": "Naranja",
+  "cream": "Crema",
+  "mint": "Menta",
+  "lime": "Lima",
+  "dark-teal": "Verde azulado oscuro",
+  "sky-blue": "Azul cielo",
+  "blue": "Azul",
+  "indigo": "Índigo"
 }
