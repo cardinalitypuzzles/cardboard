@@ -15,7 +15,7 @@ import UsersCell from "./UsersCell";
 import { LinkCell } from "./LinkCell";
 
 import { useStore } from "./store";
-import type { Puzzle, PuzzleRow, PuzzleTableData, PuzzleTag } from "./types";
+import type { PuzzleRow, PuzzleTableData, PuzzleTag } from "./types";
 
 function buildPuzzleTree(data: PuzzleTableData[]): {
   rows: PuzzleRow[];
