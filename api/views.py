@@ -24,7 +24,11 @@ from native_chat.models import CardboardNativeChatMessage
 from puzzles.models import Puzzle, PuzzleModelError, is_ancestor
 from puzzles.puzzle_tag import META_COLOR, PuzzleTag, PuzzleTagColor
 
-from .permissions import CardboardNativeChatAccessPermission, HuntAccessPermission, HuntAdminPermission
+from .permissions import (
+    CardboardNativeChatAccessPermission,
+    HuntAccessPermission,
+    HuntAdminPermission,
+)
 from .serializers import (
     AnswerSerializer,
     CardboardNativeChatMessageCreateSerializer,
