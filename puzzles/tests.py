@@ -1,3 +1,6 @@
+from unittest import skipUnless
+
+from django.db import IntegrityError, connection, transaction
 from django.test import override_settings
 from guardian.shortcuts import assign_perm
 from rest_framework.test import APITestCase
@@ -254,3 +257,21 @@ class TestPuzzle(APITestCase):
             f"/api/v1/hunts/{self._test_hunt.pk}/puzzles/{puzzle.pk}"
         )
         self.assertEqual(response.status_code, 200)
+
+    @skipUnless(connection.vendor == "postgresql", "trigger is postgres-only")
+    def test_tag_from_another_hunt_rejected(self):
+        other_hunt = Hunt.objects.create(name="other hunt", url="other.test")
+        other_tag = PuzzleTag.objects.create(name="Elsewhere", hunt=other_hunt)
+        puzzle = Puzzle.objects.create(
+            name="Tagged", hunt=self._test_hunt, url="t1.test", sheet="t1"
+        )
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            puzzle.tags.add(other_tag)
+
+    def test_tag_from_same_hunt_accepted(self):
+        tag = PuzzleTag.objects.create(name="Here", hunt=self._test_hunt)
+        puzzle = Puzzle.objects.create(
+            name="Tagged2", hunt=self._test_hunt, url="t2.test", sheet="t2"
+        )
+        puzzle.tags.add(tag)
+        self.assertIn(tag, puzzle.tags.all())
