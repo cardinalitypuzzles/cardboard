@@ -83,8 +83,13 @@ class Puzzle(SoftDeleteModel):
 
     class Meta:
         constraints = [
+            # deleted_at allows you to reuse the name of a deleted puzzle
+            # nulls_distinct=False is needed to enforce that two puzzles
+            # don't have the same name.
             models.UniqueConstraint(
-                fields=["name", "hunt", "deleted_at"], name="unique_names_per_hunt"
+                fields=["name", "hunt", "deleted_at"],
+                name="unique_names_per_hunt",
+                nulls_distinct=False,
             ),
         ]
 
