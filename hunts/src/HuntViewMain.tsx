@@ -111,13 +111,7 @@ export const HuntViewMain = (props: { huntId: HuntId }) => {
   return (
     <>
       <SiteHeader huntId={props.huntId} />
-      <div
-        style={{
-          margin: "0px auto",
-          width: "85%",
-          maxWidth: "1600px",
-        }}
-      >
+      <div className="cb-shell">
         <Alert
           dismissible
           variant={alert.variant}

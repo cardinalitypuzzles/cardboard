@@ -23,7 +23,7 @@
   "filter-show": "Show:",
   "filter-all": "All",
   "filter-unsolved": "Unsolved",
-  "filter-include-unsolved-with-solved-metas": "Include unsolved with solved metas",
+  "filter-unsolved-plus": "Unsolved + w/ unsolved metas",
   "table-puzzle-name": "Name",
   "table-puzzle-links": "Links",
   "table-puzzle-tags": "Tags",
