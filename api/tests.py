@@ -8,7 +8,6 @@ from rest_framework.test import APITestCase
 
 import google_api_lib
 import google_api_lib.tests
-
 from accounts.models import Puzzler
 from puzzles.models import Puzzle, PuzzleActivity
 from puzzles.puzzle_tag import META_COLOR, PuzzleTag, PuzzleTagColor
