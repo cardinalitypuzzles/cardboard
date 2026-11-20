@@ -103,6 +103,9 @@ class PuzzleTag(models.Model):
         ("Jigsaw", PuzzleTagColor.MINT),
     ]
 
+    # Tags can be associated with both a Hunt and with Puzzles. Consistency that
+    # the puzzles correspond to the hunt is enforced via a DB trigger
+    # in the migrations files
     hunt = models.ForeignKey(
         "hunts.Hunt", on_delete=models.CASCADE, related_name="puzzle_tags"
     )
