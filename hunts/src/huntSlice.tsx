@@ -22,6 +22,8 @@ export const huntSlice: StateCreator<
       id: null,
       name: null,
       slug: null,
+      start_time: null,
+      end_time: null,
       has_drive: false,
       is_admin: false,
       // Caution: will be stale if you've added a tag but haven't refreshed the page.

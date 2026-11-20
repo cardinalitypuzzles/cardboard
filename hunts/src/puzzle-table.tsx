@@ -16,6 +16,7 @@ import { LinkCell } from "./LinkCell";
 
 import { useStore } from "./store";
 import type { PuzzleRow, PuzzleTableData, PuzzleTag } from "./types";
+import { getRoundColorByGroupId } from "./utils";
 
 function buildPuzzleTree(data: PuzzleTableData[]): {
   rows: PuzzleRow[];
@@ -231,23 +232,6 @@ const PuzzleTableRow = React.memo(
   )
 );
 
-const ROUND_COLORS = [
-  "crimson",
-  "dodgerblue",
-  "forestgreen",
-  "darkorchid",
-  "darkorange",
-  "goldenrod",
-  "coral",
-  "darkslategray",
-  "powderblue",
-  "aquamarine",
-  "palevioletred",
-  "indigo",
-  "olive",
-  "violet",
-];
-
 const topLevelId = (row: PuzzleRow) => parseInt(row.id.split(".")[0], 10);
 
 export const PuzzleTable = React.memo(
@@ -296,7 +280,7 @@ export const PuzzleTable = React.memo(
 
     tree.flatRows.forEach((row, i) => {
       const groupId = topLevelId(row);
-      const color = ROUND_COLORS[groupId % ROUND_COLORS.length];
+      const color = getRoundColorByGroupId(groupId);
 
       // Keep one spacer + colorbar header per top-level meta group and toggle
       // their visibility based on whether any row in the group is visible.

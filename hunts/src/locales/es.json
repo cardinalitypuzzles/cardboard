@@ -1,5 +1,11 @@
 {
   "stats": "Estadísticas",
+  "stats-solved": "Resueltos",
+  "stats-unlocked": "Desbloqueados",
+  "latest-puzzles-solved": "Últimos puzzles resueltos",
+  "no-puzzles-solved-yet": "Aún no se ha resuelto ningún puzzle.",
+  "no-chart-data": "Aún no hay datos de puzzles.",
+  "close": "Cerrar",
   "google-drive-folder": "Carpeta de Google Drive",
   "expand-menu": "expandir menú",
   "hunt-settings": "Configuración de la caza",

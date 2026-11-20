@@ -36,6 +36,8 @@ class ApiTests(CardboardTestCase, APITestCase):
                 "name": self._hunt.name,
                 "slug": self._hunt.slug,
                 "url": self._hunt.url,
+                "start_time": self._hunt.start_time,
+                "end_time": self._hunt.end_time,
                 "active": self._hunt.active,
                 "has_drive": bool(self._hunt.settings.google_drive_human_url),
                 "is_admin": True,

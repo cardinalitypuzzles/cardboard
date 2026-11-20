@@ -7,7 +7,6 @@ urlpatterns = [
     path("", views.index, name="index"),
     path("<slug:hunt_slug>/", views.ReactHuntView.as_view(), name="all_puzzles_react"),
     path("<slug:hunt_slug>/edit", views.edit, name="edit"),
-    path("<slug:hunt_slug>/stats", views.stats, name="stats"),
     path("<slug:hunt_slug>/sync", views.sync, name="sync"),
     path("<slug:hunt_slug>/drive", views.redirect_to_drive, name="drive"),
 ]
