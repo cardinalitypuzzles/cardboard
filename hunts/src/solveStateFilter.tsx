@@ -1,4 +1,5 @@
 import * as React from "react";
+import { Dropdown } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 
 import { SOLVE_STATE_FILTER_OPTIONS } from "./filterSlice";
@@ -44,63 +45,48 @@ export const SolvedStateFilter = () => {
   );
   const { t } = useTranslation();
 
+  // The Show: control — one dropdown trigger labeled with the current
+  // option, three items (replacing the old radio + conditional checkbox
+  // pair). Same enum values, same filtering outcomes.
+  const OPTIONS = [
+    {
+      value: SOLVE_STATE_FILTER_OPTIONS.ALL,
+      labelKey: "filter-all",
+    },
+    {
+      value: SOLVE_STATE_FILTER_OPTIONS.UNSOLVED,
+      labelKey: "filter-unsolved",
+    },
+    {
+      value: SOLVE_STATE_FILTER_OPTIONS.UNSOLVED_WITH_SOLVED_METAS,
+      labelKey: "filter-unsolved-plus",
+    },
+  ];
+  const currentLabelKey =
+    OPTIONS.find((o) => o.value === solveStateFilter)?.labelKey ?? "filter-all";
+
   return (
-    <>
-      <span>{t("filter-show")}</span>
-      <label>
-        <input
-          style={{ margin: "0 5px 0 10px" }}
-          type="radio"
-          checked={solveStateFilter === SOLVE_STATE_FILTER_OPTIONS.ALL}
-          onChange={(evt) => {
-            if (evt.target.checked) {
-              setSolveStateFilter(SOLVE_STATE_FILTER_OPTIONS.ALL);
-            }
-          }}
-        />
-        {t("filter-all")}
-      </label>
-      <label>
-        <input
-          style={{ margin: "0 5px 0 10px" }}
-          type="radio"
-          checked={
-            solveStateFilter === SOLVE_STATE_FILTER_OPTIONS.UNSOLVED ||
-            solveStateFilter ===
-              SOLVE_STATE_FILTER_OPTIONS.UNSOLVED_WITH_SOLVED_METAS
-          }
-          onChange={(evt) => {
-            if (evt.target.checked) {
-              setSolveStateFilter(SOLVE_STATE_FILTER_OPTIONS.UNSOLVED);
-            }
-          }}
-        />
-        {t("filter-unsolved")}
-      </label>
-      {(solveStateFilter === SOLVE_STATE_FILTER_OPTIONS.UNSOLVED ||
-        solveStateFilter ===
-          SOLVE_STATE_FILTER_OPTIONS.UNSOLVED_WITH_SOLVED_METAS) && (
-        <label>
-          <input
-            style={{ margin: "0 5px 0 10px" }}
-            type="checkbox"
-            checked={
-              solveStateFilter ===
-              SOLVE_STATE_FILTER_OPTIONS.UNSOLVED_WITH_SOLVED_METAS
-            }
-            onChange={(evt) => {
-              if (evt.target.checked) {
-                setSolveStateFilter(
-                  SOLVE_STATE_FILTER_OPTIONS.UNSOLVED_WITH_SOLVED_METAS
-                );
-              } else {
-                setSolveStateFilter(SOLVE_STATE_FILTER_OPTIONS.UNSOLVED);
-              }
-            }}
-          />
-          {t("filter-include-unsolved-with-solved-metas")}
-        </label>
-      )}
-    </>
+    <Dropdown
+      onSelect={(key: string | null) => {
+        if (key !== null) {
+          setSolveStateFilter(Number(key));
+        }
+      }}
+    >
+      <Dropdown.Toggle as="button" className="cb-filter-dd-toggle">
+        {t("filter-show")} {t(currentLabelKey)}
+      </Dropdown.Toggle>
+      <Dropdown.Menu>
+        {OPTIONS.map((option) => (
+          <Dropdown.Item
+            eventKey={String(option.value)}
+            key={option.value}
+            active={solveStateFilter === option.value}
+          >
+            {t(option.labelKey)}
+          </Dropdown.Item>
+        ))}
+      </Dropdown.Menu>
+    </Dropdown>
   );
 };

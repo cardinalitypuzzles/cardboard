@@ -87,7 +87,7 @@ body {
   border: none;
 }
 
-.bootstrap[data-bs-theme="dark"] a {
+.bootstrap[data-bs-theme="dark"] a:not(.dropdown-item) {
   color: #007bff;
 }
 
@@ -131,6 +131,17 @@ body {
    navbar's own padding-x is zeroed to keep the columns flush. */
 .bootstrap .navbar-themed.cb-masthead {
   --bs-navbar-padding-x: 0 !important;
+}
+
+/* The Show: solve-state control's dropdown trigger — a ghost button
+   labeled with the current option (dropdown items are anchors, which
+   is why the dark-mode link fix above excludes .dropdown-item). */
+.cb-filter-dd-toggle {
+  border: none;
+  background-color: transparent;
+  color: inherit;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
 }
 
 .bootstrap .btn-add-puzzle {
