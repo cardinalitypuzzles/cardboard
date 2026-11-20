@@ -28,7 +28,7 @@ def get_human_drive_folder(self, file_id) -> str:
     human_folders = response.get("files", [])
     if len(human_folders) > 0:
         if len(human_folders) > 1:
-            logger.warn(
+            logger.warning(
                 f"Multiple folders for humans: "
                 + ", ".join([f["webViewLink"] for f in human_folders])
             )

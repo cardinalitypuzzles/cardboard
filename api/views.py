@@ -380,7 +380,7 @@ class PuzzleViewSet(viewsets.ModelViewSet):
                         lambda: chat.tasks.create_channels_for_puzzle.delay(puzzle.id)
                     )
             else:
-                logger.warn("Chat room not created for puzzle %s" % name)
+                logger.warning("Chat room not created for puzzle %s" % name)
                 chat_room = None
 
             puzzle = serializer.save(hunt=hunt, chat_room=chat_room)
@@ -396,7 +396,7 @@ class PuzzleViewSet(viewsets.ModelViewSet):
                     lambda: google_api_lib.tasks.create_google_sheets.delay(puzzle.id)
                 )
             else:
-                logger.warn("Sheet not created for puzzle %s" % name)
+                logger.warning("Sheet not created for puzzle %s" % name)
 
         return Response(PuzzleSerializer(puzzle).data)
 
