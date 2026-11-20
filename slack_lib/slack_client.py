@@ -222,7 +222,9 @@ class SlackClient:
             if not response["channel"]["is_archived"]:
                 self._web_client.channels_archive(channel=channel_id)
         except SlackApiError as e:
-            _logger.warn("Encountered error archiving channel %s: %s" % (channel_id, e))
+            _logger.warning(
+                "Encountered error archiving channel %s: %s" % (channel_id, e)
+            )
 
     def unarchive_channel(self, channel_id):
         """Unarchives a channel if it is archived"""
@@ -234,6 +236,6 @@ class SlackClient:
             if response["ok"] and response["channel"]["is_archived"]:
                 self._web_client.channels_unarchive(channel=channel_id)
         except SlackApiError as e:
-            _logger.warn(
+            _logger.warning(
                 "Encountered error unarchiving channel %s: %s" % (channel_id, e)
             )

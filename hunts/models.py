@@ -33,6 +33,10 @@ class Hunt(models.Model):
             ("hunt_access", "Hunt access"),
         )
 
+    def get_hunt(self):
+        """The hunt this object belongs to."""
+        return self
+
     def __str__(self):
         return self.name
 

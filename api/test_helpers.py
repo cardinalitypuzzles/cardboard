@@ -11,7 +11,11 @@ TEST_SHEET_TEMPLATE_ID = "12345abcde"
 class CardboardTestCase:
     def setUp(self):
         self._user = Puzzler.objects.create_user(
-            username="test", email="test@ing.com", password="testingpwd"
+            username="test",
+            email="test@ing.com",
+            password="testingpwd",
+            first_name="Test",
+            last_name="User",
         )
         self.client.login(username="test", password="testingpwd")
 
@@ -76,3 +80,8 @@ class CardboardTestCase:
 
     def edit_answer(self, puzzle_id, pk, data):
         return self.client.patch(f"/api/v1/puzzles/{puzzle_id}/answers/{pk}", data)
+
+    # Notes methods
+
+    def update_notes(self, puzzle_id, data):
+        return self.client.post(f"/api/v1/puzzles/{puzzle_id}/notes", data)

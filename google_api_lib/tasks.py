@@ -64,7 +64,7 @@ def maybe_get_renamable_sheet_for_puzzle(self, puzzle):
     )
     files = response.get("files", [])
     if len(files) == 0:
-        logger.warn(
+        logger.warning(
             f"The Drive template folder {template_folder_id} for hunt {puzzle.hunt.name} is empty"
         )
         return None
@@ -124,7 +124,7 @@ def create_google_sheets(self, puzzle_id) -> None:
             new_file = existing_file
         else:
             if not template_file_id:
-                logging.warn(
+                logging.warning(
                     f"Cannot create a sheet for {puzzle.name} as we can't find a sheets template"
                 )
                 return
@@ -147,7 +147,7 @@ def create_google_sheets(self, puzzle_id) -> None:
                     file_id=new_file["id"], destination_folder_id=destination_folder_id
                 )
             else:
-                logging.warn(
+                logging.warning(
                     f"Cannot move the new puzzle for {puzzle.name} as we can't find a drive folder"
                 )
 
@@ -704,7 +704,7 @@ def sync_drive_permissions_for_hunt(self, hunt_id):
     UserModel = get_user_model()
     emails = get_file_user_emails.run(hunt.settings.google_drive_folder_id)
     if not emails:
-        logger.warn("Unable to get Google Drive emails for hunt", hunt)
+        logger.warning("Unable to get Google Drive emails for hunt %s", hunt)
         return
 
     users = UserModel.objects.filter(email__in=emails).exclude(

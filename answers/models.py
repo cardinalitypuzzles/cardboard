@@ -30,6 +30,10 @@ class Answer(SoftDeleteModel):
     def __str__(self):
         return '{}: "{}" ({})'.format(self.puzzle.name, self.text, self.status)
 
+    def get_hunt(self):
+        """The hunt this object belongs to."""
+        return self.puzzle.hunt
+
     def set_status(self, status):
         self.status = status
         self.save()

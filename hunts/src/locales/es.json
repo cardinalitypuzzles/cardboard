@@ -23,7 +23,7 @@
   "filter-show": "Mostrar:",
   "filter-all": "Todos",
   "filter-unsolved": "No resueltos",
-  "filter-include-unsolved-with-solved-metas": "Incluir no resueltos con metas resueltas",
+  "filter-unsolved-plus": "No resueltos + c/ metas no resueltas",
   "table-puzzle-name": "Nombre",
   "table-puzzle-links": "Enlaces",
   "table-puzzle-tags": "Etiquetas",

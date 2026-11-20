@@ -26,7 +26,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 if not SECRET_KEY:
-    logger.warn("No DJANGO_SECRET_KEY set. Generating random secret key")
+    logger.warning("No DJANGO_SECRET_KEY set. Generating random secret key")
     SECRET_KEY = get_random_secret_key()
 
 
@@ -145,8 +145,6 @@ TIME_ZONE = "America/New_York"
 
 USE_I18N = True
 
-USE_L10N = True
-
 USE_TZ = True
 
 
@@ -160,7 +158,14 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "cardboard/static"),
     os.path.join(BASE_DIR, "hunts/static"),
 ]
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 # User login
 AUTH_USER_MODEL = "accounts.Puzzler"
@@ -172,6 +177,9 @@ LOGIN_ERROR_URL = "/"
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.SessionAuthentication",
+    ],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
     ],
     "TEST_REQUEST_DEFAULT_FORMAT": "json",
 }
@@ -228,7 +236,7 @@ try:
     ]
 except KeyError as e:
     GOOGLE_API_AUTHN_INFO = None
-    logger.warn(
+    logger.warning(
         f"No {e.args[0]} found in environment. Automatic sheets creation disabled."
     )
 
@@ -250,7 +258,7 @@ try:
 except KeyError as e:
     SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = None
     SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = None
-    logger.warn(
+    logger.warning(
         f"No {e.args[0]} environment variable set. Google login will be disabled."
     )
 
@@ -275,7 +283,7 @@ TAGGIT_TAGS_FROM_STRING = "puzzles.tag_utils.to_tag"
 import discord_lib
 
 if not "DISCORD_API_TOKEN" in os.environ:
-    logger.warn(
+    logger.warning(
         "No Discord API token found in environment. Automatic Discord channel creation disabled."
     )
     CHAT_DEFAULT_SERVICE = None
