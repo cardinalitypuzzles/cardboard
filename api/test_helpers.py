@@ -11,7 +11,11 @@ TEST_SHEET_TEMPLATE_ID = "12345abcde"
 class CardboardTestCase:
     def setUp(self):
         self._user = Puzzler.objects.create_user(
-            username="test", email="test@ing.com", password="testingpwd"
+            username="test",
+            email="test@ing.com",
+            password="testingpwd",
+            first_name="Test",
+            last_name="User",
         )
         self.client.login(username="test", password="testingpwd")
 
