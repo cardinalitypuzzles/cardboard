@@ -78,4 +78,14 @@ urlpatterns = [
         tag_detail,
         name="tag_detail",
     ),
+    path(
+        "v1/puzzles/<int:puzzle_id>/native-chat",
+        views.CardboardNativeChatView.as_view(),
+        name="native_chat",
+    ),
+    path(
+        "v1/puzzles/<int:puzzle_id>/native-chat/<int:message_id>/image",
+        views.CardboardNativeChatImageView.as_view(),
+        name="native_chat_image",
+    ),
 ]
