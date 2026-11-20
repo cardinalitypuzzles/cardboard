@@ -72,11 +72,19 @@
   "edit-notes-title": "Edit Notes",
   "notes": "Notes",
   "edit-tags-title": "Edit Tags for {{puzzleName}}",
-  "locations": "Locations",
   "tags": "Tags",
-  "tags-create": "Create new tag",
+  "tags-create": "Add new tag",
   "tag-placeholder": "Logic Puzzle",
-  "blue": "Blue",
   "white": "White",
-  "teal-location": "Teal (Location)"
+  "coral": "Coral",
+  "pink": "Pink",
+  "peach": "Peach",
+  "orange": "Orange",
+  "cream": "Cream",
+  "mint": "Mint",
+  "lime": "Lime",
+  "dark-teal": "Dark Teal",
+  "sky-blue": "Sky Blue",
+  "blue": "Blue",
+  "indigo": "Indigo"
 }

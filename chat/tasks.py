@@ -9,7 +9,7 @@ from answers.models import Answer
 from cardboard.settings import TaskPriority
 from hunts.models import Hunt
 from puzzles.models import Puzzle
-from puzzles.puzzle_tag import PuzzleTag, PuzzleTagColor
+from puzzles.puzzle_tag import PuzzleTag
 
 logger = logging.getLogger(__name__)
 
@@ -175,10 +175,6 @@ def handle_sheet_created(puzzle_id):
         logger.exception(f"handle_sheet_created failed with error: {e}")
 
 
-DISCORD_ROLE_COLOR_BLUE = 0x3498DB
-DISCORD_ROLE_COLOR_WHITE = 0xFFFFFF
-
-
 @shared_task(rate_limit="6/m", acks_late=True)
 def sync_roles(hunt_slug, service_name):
     from django.conf import settings
@@ -195,21 +191,19 @@ def sync_roles(hunt_slug, service_name):
     cardboard_tags = PuzzleTag.objects.filter(hunt=hunt)
     existing_chat_roles = ChatRole.objects.filter(hunt=hunt)
 
-    default_tag_names = [n[0] for n in PuzzleTag.DEFAULT_TAGS]
+    default_tag_names = {n[0] for n in PuzzleTag.DEFAULT_TAGS}
+    excluded_role_tags = set(PuzzleTag.RESERVED_TAG_COLORS.keys()) | {
+        "slog",
+        "grunt work",
+    }
 
     for tag in cardboard_tags:
-        if (
-            tag.color != PuzzleTagColor.BLUE and tag.color != PuzzleTagColor.WHITE
-        ) or tag.name not in default_tag_names:
+        if tag.name not in default_tag_names or tag.name.lower() in excluded_role_tags:
             continue
 
         # Create corresponding Discord tag, if needed
         if tag.name not in discord_roles_by_name:
-            discord_tag_color = (
-                DISCORD_ROLE_COLOR_BLUE
-                if tag.color == PuzzleTagColor.BLUE
-                else DISCORD_ROLE_COLOR_WHITE
-            )
+            discord_tag_color = int(tag.color.lstrip("#"), 16)
             new_role_info = chat_service.create_role(
                 guild_id, tag.name, discord_tag_color
             )

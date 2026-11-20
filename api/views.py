@@ -17,7 +17,7 @@ from answers.models import Answer
 from chat.models import ChatRoom
 from hunts.models import Hunt
 from puzzles.models import Puzzle, PuzzleModelError, is_ancestor
-from puzzles.puzzle_tag import LOCATION_COLOR, PuzzleTag, PuzzleTagColor
+from puzzles.puzzle_tag import META_COLOR, PuzzleTag, PuzzleTagColor
 
 from .permissions import HuntAccessPermission, HuntAdminPermission
 from .serializers import (
@@ -452,16 +452,40 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
         meta = None
         with transaction.atomic():
             puzzle = get_object_or_404(Puzzle, pk=self.kwargs["puzzle_id"])
-            serializer = self.get_serializer(
-                data=request.data, context={"hunt": puzzle.hunt}
+            data = request.data.copy()
+            raw_name = data.get("name", "")
+            trimmed_name = raw_name.strip() if isinstance(raw_name, str) else ""
+            existing_tag = (
+                PuzzleTag.objects.filter(
+                    name__iexact=trimmed_name, hunt=puzzle.hunt
+                ).first()
+                if trimmed_name
+                else None
             )
+            if trimmed_name:
+                reserved_color = PuzzleTag.RESERVED_TAG_COLORS.get(trimmed_name.lower())
+                if existing_tag and existing_tag.is_meta:
+                    data["color"] = META_COLOR
+                elif reserved_color is not None:
+                    data["color"] = reserved_color
+
+            serializer = self.get_serializer(data=data, context={"hunt": puzzle.hunt})
             serializer.is_valid(raise_exception=True)
             tag_name, tag_color = (
                 serializer.validated_data["name"],
                 PuzzleTagColor(serializer.validated_data["color"]),
             )
+            is_existing_meta = existing_tag is not None and existing_tag.is_meta
+            if not is_existing_meta and tag_color == META_COLOR:
+                return Response(
+                    {"detail": "Cannot assign meta color to a non-meta tag."},
+                    status=400,
+                )
+
             tag, _ = PuzzleTag.objects.get_or_create(
-                name__iexact=tag_name, hunt=puzzle.hunt, defaults={"name": tag_name}
+                name__iexact=tag_name,
+                hunt=puzzle.hunt,
+                defaults={"name": tag_name, "color": tag_color},
             )
             if tag.is_meta:
                 # Look up the meta and then add it to puzzle.metas
@@ -479,10 +503,6 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
                     # the post m2m hook will add tag
                     puzzle.metas.add(meta)
             else:
-                is_location = tag_color == LOCATION_COLOR
-                PuzzleTag.objects.filter(
-                    name__iexact=tag_name, hunt=puzzle.hunt
-                ).update(color=tag_color, is_location=is_location)
                 puzzle.tags.add(tag)
                 if (
                     tag.name == PuzzleTag.HIGH_PRIORITY

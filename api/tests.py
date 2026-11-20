@@ -10,7 +10,7 @@ import google_api_lib
 import google_api_lib.tests
 from accounts.models import Puzzler
 from puzzles.models import Puzzle, PuzzleActivity
-from puzzles.puzzle_tag import LOCATION_COLOR, META_COLOR, PuzzleTag, PuzzleTagColor
+from puzzles.puzzle_tag import META_COLOR, PuzzleTag, PuzzleTagColor
 
 from .test_helpers import CardboardTestCase
 
@@ -375,18 +375,6 @@ class ApiTests(CardboardTestCase, APITestCase):
         )
         self.assertEqual(puzzle.tags.count(), 0)
 
-    def test_create_location_tag(self):
-        self.check_response_status(
-            self.create_puzzle({"name": TEST_NAME, "url": TEST_URL})
-        )
-        puzzle = Puzzle.objects.get()
-        response = self.create_tag(
-            puzzle.pk, {"name": "location", "color": LOCATION_COLOR}
-        )
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(puzzle.tags.count(), 1)
-        self.assertTrue(puzzle.tags.first().is_location)
-
     def test_delete_tag(self):
         self.check_response_status(
             self.create_puzzle({"name": TEST_NAME, "url": TEST_URL})
@@ -539,6 +527,22 @@ class ApiTests(CardboardTestCase, APITestCase):
                     hunt=self._hunt, name=name, color=color
                 ).exists()
             )
+
+    def test_adding_existing_tag_does_not_overwrite_color(self):
+        self.check_response_status(
+            self.create_puzzle({"name": TEST_NAME, "url": TEST_URL})
+        )
+        puzzle = Puzzle.objects.get()
+        PuzzleTag.create_default_tags(self._hunt)
+
+        self.check_response_status(
+            self.create_tag(
+                puzzle.pk, {"name": "crossword", "color": PuzzleTagColor.WHITE}
+            )
+        )
+        tag = PuzzleTag.objects.get(hunt=self._hunt, name="Crossword")
+        self.assertEqual(tag.color, PuzzleTagColor.INDIGO)
+        self.assertTrue(puzzle.tags.filter(pk=tag.pk).exists())
 
     def test_recent_editors(self):
         puzzle_a = Puzzle.objects.create(

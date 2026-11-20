@@ -72,11 +72,19 @@
   "edit-notes-title": "Editar notas",
   "notes": "Notas",
   "edit-tags-title": "Editar etiquetas de {{puzzleName}}",
-  "locations": "Ubicaciones",
   "tags": "Etiquetas",
-  "tags-create": "Crear nueva etiqueta",
+  "tags-create": "Añadir nueva etiqueta",
   "tag-placeholder": "Puzzle de lógica",
-  "blue": "Azul",
   "white": "Blanco",
-  "teal-location": "Verde azulado (Ubicación)"
+  "coral": "Coral",
+  "pink": "Rosa",
+  "peach": "Melocotón",
+  "orange": "Naranja",
+  "cream": "Crema",
+  "mint": "Menta",
+  "lime": "Lima",
+  "dark-teal": "Verde azulado oscuro",
+  "sky-blue": "Azul cielo",
+  "blue": "Azul",
+  "indigo": "Índigo"
 }
