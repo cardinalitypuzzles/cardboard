@@ -7,8 +7,28 @@ services:
       - POSTGRES_USER=cardboard_user
       - POSTGRES_PASSWORD=cardboard_password
       - POSTGRES_DB=cardboard
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cardboard_user -d cardboard"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
   redis:
     image: redis:alpine
+  # Runs to completion before web and celery start, so neither can reach a
+  # database whose tables do not exist yet.
+  migrate:
+    build: .
+    command: python manage.py migrate
+    volumes:
+      - .:/usr/src/cardboard/:Z
+    environment:
+      - DATABASE_URL=postgres://cardboard_user:cardboard_password@db/cardboard
+      - REDIS_URL=redis://redis:6379
+    env_file:
+      - ./.env
+    depends_on:
+      db:
+        condition: service_healthy
   web:
     build: .
     command: python manage.py runserver 0.0.0.0:8000
@@ -26,8 +46,10 @@ services:
     entrypoint:
       - ./docker-entrypoint.sh
     depends_on:
-      - db
-      - redis
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_started
   celery:
     build: .
     command: python manage.py celery_worker
@@ -39,8 +61,10 @@ services:
     env_file:
       - ./.env
     depends_on:
-      - db
-      - redis
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_started
 
 volumes:
   postgres_data:
