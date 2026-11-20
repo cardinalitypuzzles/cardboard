@@ -25,7 +25,6 @@ from puzzles.models import Puzzle, PuzzleModelError, is_ancestor
 from puzzles.puzzle_tag import META_COLOR, PuzzleTag, PuzzleTagColor
 
 from .permissions import (
-    CardboardNativeChatAccessPermission,
     HuntAccessPermission,
     HuntAdminPermission,
 )
@@ -617,7 +616,7 @@ def _matches_image_signature(image_bytes, content_type):
 
 
 class CardboardNativeChatView(APIView):
-    permission_classes = [IsAuthenticated, CardboardNativeChatAccessPermission]
+    permission_classes = [IsAuthenticated, HuntAccessPermission]
     parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get(self, request, puzzle_id):
@@ -708,7 +707,7 @@ class CardboardNativeChatView(APIView):
 
 
 class CardboardNativeChatImageView(APIView):
-    permission_classes = [IsAuthenticated, CardboardNativeChatAccessPermission]
+    permission_classes = [IsAuthenticated, HuntAccessPermission]
 
     def get(self, request, puzzle_id, message_id):
         message = get_object_or_404(
