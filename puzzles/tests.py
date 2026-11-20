@@ -29,16 +29,6 @@ class TestPuzzle(APITestCase):
         assign_perm("hunt_admin", self._user, self._test_hunt)
         assign_perm("hunt_access", self._user, self._test_hunt)
         self._suffix = 0
-        self._puzzles = []
-
-    def tearDown(self):
-        for p in self._puzzles:
-            p.delete()
-
-        for tag in PuzzleTag.objects.all():
-            tag.delete()
-
-        self._test_hunt.delete()
 
     def create_puzzle(self, name, is_meta=False):
         fake_url = "fakeurl%i.com" % self._suffix
@@ -52,7 +42,6 @@ class TestPuzzle(APITestCase):
             sheet=fake_sheet,
             is_meta=is_meta,
         )
-        self._puzzles.append(puzzle)
         return puzzle
 
     def test_solved_time(self):
