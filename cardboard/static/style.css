@@ -127,9 +127,11 @@ body {
   padding-inline: 40px;
 }
 
-/* The board masthead: the shell defines the horizontal inset, so the
-   navbar's own padding-x is zeroed to keep the columns flush. */
-.bootstrap .navbar-themed.cb-masthead {
+/* Navbars whose contents sit in the cb-shell column (the board
+   masthead, the footer): the shell defines the horizontal inset, so
+   the navbar's own padding-x is zeroed to keep the columns flush. */
+.bootstrap .navbar-themed.cb-masthead,
+.bootstrap .navbar-themed.cb-footer {
   --bs-navbar-padding-x: 0 !important;
 }
 
