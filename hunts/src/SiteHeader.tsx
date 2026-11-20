@@ -105,8 +105,6 @@ export const SiteHeader = ({ huntId }: { huntId?: HuntId }) => {
         ref={navRef}
         className="navbar navbar-expand-lg navbar-themed fixed-top py-1 border-bottom cb-masthead"
       >
-        {/* cb-shell — the same content column as the board body, so the
-            masthead edges line up with the table. */}
         <div className="cb-shell d-flex align-items-center flex-wrap gap-2">
           <div
             className="d-flex align-items-center text-nowrap"
@@ -189,7 +187,6 @@ export const SiteHeader = ({ huntId }: { huntId?: HuntId }) => {
             </div>
           </div>
         </div>
-        {/* end cb-shell */}
       </nav>
       <div style={{ height: `${headerHeight}px`, marginBottom: "5px" }} />
       <Drawer

@@ -114,30 +114,21 @@ body {
   background-color: #343a40 !important;
 }
 
-/* cb-shell — the shared centered content column: a 1280px cap with
-   a 40px inset. Both the board masthead and the board body use it
-   so their edges line up. width: 100% matters — inside the flex
-   navbar a max-width-only child collapses to content size; this
-   keeps the shell filling up to the cap in both the nav (flex
-   item) and the body (block). */
+/* cb-shell — the shared centered content column used by the masthead,
+   board body, and footer so their edges line up. Keep width: 100%:
+   inside the flex navbar a max-width-only child collapses to content size. */
 .cb-shell {
   width: 100%;
-  max-width: 1280px;
+  max-width: 1600px;
   margin-inline: auto;
   padding-inline: 40px;
 }
 
-/* Navbars whose contents sit in the cb-shell column (the board
-   masthead, the footer): the shell defines the horizontal inset, so
-   the navbar's own padding-x is zeroed to keep the columns flush. */
 .bootstrap .navbar-themed.cb-masthead,
 .bootstrap .navbar-themed.cb-footer {
   --bs-navbar-padding-x: 0 !important;
 }
 
-/* The Show: solve-state control's dropdown trigger — a ghost button
-   labeled with the current option (dropdown items are anchors, which
-   is why the dark-mode link fix above excludes .dropdown-item). */
 .cb-filter-dd-toggle {
   border: none;
   background-color: transparent;

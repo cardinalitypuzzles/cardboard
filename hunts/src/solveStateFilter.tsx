@@ -45,9 +45,6 @@ export const SolvedStateFilter = () => {
   );
   const { t } = useTranslation();
 
-  // The Show: control — one dropdown trigger labeled with the current
-  // option, three items (replacing the old radio + conditional checkbox
-  // pair). Same enum values, same filtering outcomes.
   const OPTIONS = [
     {
       value: SOLVE_STATE_FILTER_OPTIONS.ALL,
