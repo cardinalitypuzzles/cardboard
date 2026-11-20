@@ -8,64 +8,39 @@ logger = logging.getLogger(__name__)
 
 
 class HuntAccessPermission(permissions.BasePermission):
+    """Requires a permission on the hunt the request concerns.
+
+    Requires models to implement get_hunt() for the has_object_permission
+    check.
+    """
+
     message = "You do not have access to this hunt"
+    read_perm = "hunt_access"
+    write_perm = "hunt_access"
 
-    def has_object_permission(self, request, view, obj):
+    def _required_perm(self, request):
         if request.method in permissions.SAFE_METHODS:
-            return request.user.has_perm("hunt_access", obj)
+            return self.read_perm
+        return self.write_perm
+
+    def has_permission(self, request, view):
+        if "hunt_id" in view.kwargs:
+            hunt = Hunt.objects.filter(pk=view.kwargs["hunt_id"]).first()
+        elif "puzzle_id" in view.kwargs:
+            hunt = Hunt.objects.filter(puzzles=view.kwargs["puzzle_id"]).first()
         else:
-            return request.user.has_perm("hunt_admin", obj)
-
-
-class PuzzleAccessPermission(permissions.BasePermission):
-    message = "You do not have access to this puzzle"
-
-    def has_permission(self, request, view):
-        try:
-            hunt = Hunt.objects.get(id=view.kwargs["hunt_id"])
-        except Hunt.DoesNotExist:
-            hunt = None
+            return False
 
         if not hunt:
             return False
 
-        return request.user.has_perm("hunt_access", hunt)
+        return request.user.has_perm(self._required_perm(request), hunt)
 
     def has_object_permission(self, request, view, obj):
-        return request.user.has_perm("hunt_access", obj.hunt)
+        return request.user.has_perm(self._required_perm(request), obj.get_hunt())
 
 
-class PuzzleTagAccessPermission(permissions.BasePermission):
-    message = "You do not have access to this puzzle tag"
+class HuntAdminPermission(HuntAccessPermission):
+    """Reading a hunt needs access; changing one needs admin."""
 
-    def has_permission(self, request, view):
-        try:
-            hunt = Hunt.objects.get(puzzles=view.kwargs["puzzle_id"])
-        except Hunt.DoesNotExist:
-            hunt = None
-
-        if not hunt:
-            return False
-
-        return request.user.has_perm("hunt_access", hunt)
-
-    def has_object_permission(self, request, view, obj):
-        return request.user.has_perm("hunt_access", obj.hunt)
-
-
-class AnswerAccessPermission(permissions.BasePermission):
-    message = "You do not have access to this answer"
-
-    def has_permission(self, request, view):
-        try:
-            hunt = Hunt.objects.get(puzzles=view.kwargs["puzzle_id"])
-        except Hunt.DoesNotExist:
-            hunt = None
-
-        if not hunt:
-            return False
-
-        return request.user.has_perm("hunt_access", hunt)
-
-    def has_object_permission(self, request, view, obj):
-        return request.user.has_perm("hunt_access", obj.puzzle.hunt)
+    write_perm = "hunt_admin"

@@ -19,12 +19,7 @@ from hunts.models import Hunt
 from puzzles.models import Puzzle, PuzzleModelError, is_ancestor
 from puzzles.puzzle_tag import LOCATION_COLOR, PuzzleTag, PuzzleTagColor
 
-from .permissions import (
-    AnswerAccessPermission,
-    HuntAccessPermission,
-    PuzzleAccessPermission,
-    PuzzleTagAccessPermission,
-)
+from .permissions import HuntAccessPermission, HuntAdminPermission
 from .serializers import (
     AnswerSerializer,
     HuntSerializer,
@@ -41,13 +36,15 @@ logger = logging.getLogger(__name__)
 
 
 class HuntViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated, HuntAccessPermission]
+    permission_classes = [IsAuthenticated, HuntAdminPermission]
     serializer_class = HuntSerializer
     queryset = Hunt.objects.all()
+    # Keeps every route's hunt reachable the same way, rather than using pk
+    lookup_url_kwarg = "hunt_id"
 
 
 class AnswerViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated, AnswerAccessPermission]
+    permission_classes = [IsAuthenticated, HuntAccessPermission]
     serializer_class = AnswerSerializer
 
     @staticmethod
@@ -194,7 +191,7 @@ class AnswerViewSet(viewsets.ModelViewSet):
 
 
 class PuzzleViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated, PuzzleAccessPermission]
+    permission_classes = [IsAuthenticated, HuntAccessPermission]
     serializer_class = PuzzleSerializer
 
     def get_queryset(self):
@@ -402,7 +399,7 @@ class PuzzleViewSet(viewsets.ModelViewSet):
 
 
 class PuzzleTagViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated, PuzzleTagAccessPermission]
+    permission_classes = [IsAuthenticated, HuntAccessPermission]
     serializer_class = PuzzleTagSerializer
 
     def get_queryset(self):
@@ -522,6 +519,8 @@ class PuzzleTagViewSet(viewsets.ModelViewSet):
 
 
 class PuzzleNotesView(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated, HuntAccessPermission]
+
     def update(self, request, puzzle_id=None):
         puzzle = get_object_or_404(Puzzle, pk=puzzle_id)
         serializer = PuzzleNotesSerializer(

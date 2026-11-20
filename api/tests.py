@@ -340,6 +340,14 @@ class ApiTests(CardboardTestCase, APITestCase):
         answer.refresh_from_db()
         self.assertEqual(answer.text, "ANSWER")
 
+    def test_update_notes(self):
+        puzzle_id = self.create_puzzle(
+            {"name": TEST_NAME, "url": TEST_URL, "is_meta": False}
+        ).data["id"]
+        response = self.update_notes(puzzle_id, {"text": "some notes"})
+        self.check_response_status(response)
+        self.assertEqual(Puzzle.objects.get(pk=puzzle_id).notes, "some notes")
+
     def test_create_tag(self):
         self.check_response_status(
             self.create_puzzle({"name": TEST_NAME, "url": TEST_URL})

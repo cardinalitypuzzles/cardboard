@@ -80,3 +80,8 @@ class CardboardTestCase:
 
     def edit_answer(self, puzzle_id, pk, data):
         return self.client.patch(f"/api/v1/puzzles/{puzzle_id}/answers/{pk}", data)
+
+    # Notes methods
+
+    def update_notes(self, puzzle_id, data):
+        return self.client.post(f"/api/v1/puzzles/{puzzle_id}/notes", data)
