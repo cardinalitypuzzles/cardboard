@@ -103,88 +103,93 @@ export const SiteHeader = ({ huntId }: { huntId?: HuntId }) => {
     <>
       <nav
         ref={navRef}
-        className="navbar navbar-expand-lg navbar-themed fixed-top py-1 border-bottom"
+        className="navbar navbar-expand-lg navbar-themed fixed-top py-1 border-bottom cb-masthead"
       >
-        <div
-          className="d-flex align-items-center text-nowrap"
-          style={{ marginRight: "3rem" }}
-        >
-          <a href="/" className="me-2 d-flex align-items-center">
-            <img width="26" src={`/static/${window.FAVICON}`} alt="" />
-          </a>
-          <a
-            className="navbar-brand py-0 me-0"
-            href="/"
-            style={{ fontSize: "1.05rem" }}
+        {/* cb-shell — the same content column as the board body, so the
+            masthead edges line up with the table. */}
+        <div className="cb-shell d-flex align-items-center flex-wrap gap-2">
+          <div
+            className="d-flex align-items-center text-nowrap"
+            style={{ marginRight: "3rem" }}
           >
-            {window.APP_SHORT_TITLE}
-          </a>
-          {hunt.name && (
-            <span
-              className="d-inline-flex align-items-center text-body-secondary ms-2"
-              style={{ fontSize: "0.82rem", opacity: 0.78 }}
+            <a href="/" className="me-2 d-flex align-items-center">
+              <img width="26" src={`/static/${window.FAVICON}`} alt="" />
+            </a>
+            <a
+              className="navbar-brand py-0 me-0"
+              href="/"
+              style={{ fontSize: "1.05rem" }}
             >
-              <span>/</span>
-              <span className="ms-2" style={{ paddingTop: "2px" }}>
-                {hunt.name}
-              </span>
-            </span>
-          )}
-        </div>
-
-        <div className="d-flex align-items-center justify-content-between flex-grow-1 flex-wrap gap-2">
-          <div className="d-flex align-items-center gap-2 flex-wrap">
-            <GlobalFilter />
-            <div className="d-flex align-items-center text-nowrap">
-              <SolvedStateFilter />
-            </div>
-          </div>
-
-          <div className="d-flex align-items-center flex-nowrap ms-auto">
-            <Button
-              variant="primary"
-              size="sm"
-              className="d-inline-flex align-items-center gap-1 text-nowrap btn-add-puzzle"
-              style={{ marginRight: "2.5rem" }}
-              onClick={() =>
-                modal.showModal({
-                  type: "ADD_PUZZLE",
-                  props: {
-                    huntId: huntId ?? hunt.id ?? CURRENT_HUNT_ID,
-                  },
-                })
-              }
-            >
-              <IconPlus size={16} />
-              {t("add-puzzle")}
-            </Button>
-
-            <div className="d-flex fw-bold text-center align-items-center flex-nowrap">
-              <div className="text-nowrap">
-                <OverlayTrigger
-                  placement="bottom"
-                  overlay={<Tooltip id="tooltip-stats">{t("stats")}</Tooltip>}
-                >
-                  <a
-                    className="btn btn-sm"
-                    href="stats"
-                    aria-label={t("stats")}
-                  >
-                    <ChartBarIcon />
-                  </a>
-                </OverlayTrigger>
-              </div>
-              <div className="text-nowrap">{driveRedirect}</div>
-              <button
-                type="button"
-                className="btn btn-sm"
-                onClick={toggleDrawer}
+              {window.APP_SHORT_TITLE}
+            </a>
+            {hunt.name && (
+              <span
+                className="d-inline-flex align-items-center text-body-secondary ms-2"
+                style={{ fontSize: "0.82rem", opacity: 0.78 }}
               >
-                <IconMenu2 aria-label={t("expand-menu")} />
-              </button>
+                <span>/</span>
+                <span className="ms-2" style={{ paddingTop: "2px" }}>
+                  {hunt.name}
+                </span>
+              </span>
+            )}
+          </div>
+
+          <div className="d-flex align-items-center justify-content-between flex-grow-1 flex-wrap gap-2">
+            <div className="d-flex align-items-center gap-2 flex-wrap">
+              <GlobalFilter />
+              <div className="d-flex align-items-center text-nowrap">
+                <SolvedStateFilter />
+              </div>
+            </div>
+
+            <div className="d-flex align-items-center flex-nowrap ms-auto">
+              <Button
+                variant="primary"
+                size="sm"
+                className="d-inline-flex align-items-center gap-1 text-nowrap btn-add-puzzle"
+                style={{ marginRight: "2.5rem" }}
+                onClick={() =>
+                  modal.showModal({
+                    type: "ADD_PUZZLE",
+                    props: {
+                      huntId: huntId ?? hunt.id ?? CURRENT_HUNT_ID,
+                    },
+                  })
+                }
+              >
+                <IconPlus size={16} />
+                {t("add-puzzle")}
+              </Button>
+
+              <div className="d-flex fw-bold text-center align-items-center flex-nowrap">
+                <div className="text-nowrap">
+                  <OverlayTrigger
+                    placement="bottom"
+                    overlay={<Tooltip id="tooltip-stats">{t("stats")}</Tooltip>}
+                  >
+                    <a
+                      className="btn btn-sm"
+                      href="stats"
+                      aria-label={t("stats")}
+                    >
+                      <ChartBarIcon />
+                    </a>
+                  </OverlayTrigger>
+                </div>
+                <div className="text-nowrap">{driveRedirect}</div>
+                <button
+                  type="button"
+                  className="btn btn-sm"
+                  onClick={toggleDrawer}
+                >
+                  <IconMenu2 aria-label={t("expand-menu")} />
+                </button>
+              </div>
             </div>
           </div>
         </div>
+        {/* end cb-shell */}
       </nav>
       <div style={{ height: `${headerHeight}px`, marginBottom: "5px" }} />
       <Drawer

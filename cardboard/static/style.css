@@ -114,6 +114,22 @@ body {
   background-color: #343a40 !important;
 }
 
+/* cb-shell — the shared centered content column (85%, 1600px cap).
+   Both the board masthead and the board body use it so their edges
+   line up. Keep the explicit width: the navbar is a flex container,
+   and a flex item with only max-width collapses to its content size. */
+.cb-shell {
+  width: 85%;
+  max-width: 1600px;
+  margin-inline: auto;
+}
+
+/* The board masthead: the shell defines the horizontal inset, so the
+   navbar's own padding-x is zeroed to keep the columns flush. */
+.bootstrap .navbar-themed.cb-masthead {
+  --bs-navbar-padding-x: 0 !important;
+}
+
 .bootstrap .btn-add-puzzle {
   background-image: linear-gradient(135deg, #7f1d3a 0%, #b81d38 55%, #cf4a5f 100%);
   border-color: transparent;
