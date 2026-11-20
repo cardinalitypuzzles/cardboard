@@ -40,9 +40,20 @@ class Hunt(models.Model):
     def __str__(self):
         return self.name
 
+    def _available_slug(self):
+        """Two hunts may share a name, so the slug gets a numeric suffix."""
+        limit = self._meta.get_field("slug").max_length
+        base = slugify(self.name)[:limit] or "hunt"
+        slug, n = base, 2
+        while Hunt.objects.filter(slug=slug).exists():
+            suffix = f"-{n}"
+            slug = base[: limit - len(suffix)] + suffix
+            n += 1
+        return slug
+
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.name)
+            self.slug = self._available_slug()
         super().save(*args, **kwargs)
         if not hasattr(self, "settings"):
             HuntSettings.objects.create(hunt=self)
