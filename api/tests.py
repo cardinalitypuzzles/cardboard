@@ -1,3 +1,4 @@
+from datetime import timedelta
 from unittest.mock import patch
 
 from django.conf import settings
@@ -8,7 +9,7 @@ from rest_framework.test import APITestCase
 
 import google_api_lib
 import google_api_lib.tests
-from puzzles.models import Puzzle
+from puzzles.models import Puzzle, PuzzleActivity
 from puzzles.puzzle_tag import LOCATION_COLOR, META_COLOR, PuzzleTag, PuzzleTagColor
 
 from .test_helpers import CardboardTestCase
@@ -530,6 +531,48 @@ class ApiTests(CardboardTestCase, APITestCase):
                     hunt=self._hunt, name=name, color=color
                 ).exists()
             )
+
+    def test_recent_editors(self):
+        puzzle_a = Puzzle.objects.create(
+            name="Puzzle A",
+            hunt=self._hunt,
+            url="https://puzzle-a.test/",
+        )
+        puzzle_b = Puzzle.objects.create(
+            name="Puzzle B",
+            hunt=self._hunt,
+            url="https://puzzle-b.test/",
+        )
+
+        now = timezone.now()
+        lookback = self._hunt.settings.active_user_lookback
+
+        PuzzleActivity.objects.create(
+            user=self._user,
+            puzzle=puzzle_a,
+            last_edit_time=now - (lookback / 2),
+            num_edits=1,
+        )
+        PuzzleActivity.objects.create(
+            user=self._user,
+            puzzle=puzzle_b,
+            last_edit_time=now - lookback * 2,
+            num_edits=1,
+        )
+
+        response = self.list_puzzles()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        puzzles_by_name = {puzzle["name"]: puzzle for puzzle in response.data}
+
+        self.assertEqual(
+            puzzles_by_name["Puzzle A"]["recent_editors"],
+            [str(self._user)],
+        )
+        self.assertEqual(
+            puzzles_by_name["Puzzle B"]["recent_editors"],
+            [],
+        )
 
 
 @override_settings(
