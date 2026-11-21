@@ -127,18 +127,47 @@ interface CustomDotProps {
   index?: number;
 }
 
+function getStarPoints(
+  cx: number,
+  cy: number,
+  outerRadius: number,
+  innerRadius: number
+): string {
+  const points: string[] = [];
+  for (let i = 0; i < 10; i++) {
+    const angle = -Math.PI / 2 + (i * Math.PI) / 5;
+    const radius = i % 2 === 0 ? outerRadius : innerRadius;
+    const x = cx + Math.cos(angle) * radius;
+    const y = cy + Math.sin(angle) * radius;
+    points.push(`${x.toFixed(2)},${y.toFixed(2)}`);
+  }
+  return points.join(" ");
+}
+
 const renderSolveDot = (props: CustomDotProps) => {
   const { cx, cy, payload, index } = props;
   if (cx == null || cy == null || !payload?.solveEvent) {
     return <g key={`empty-dot-${index ?? "x"}`} />;
   }
   const { color, isMeta, id } = payload.solveEvent;
+  if (isMeta) {
+    return (
+      <polygon
+        key={`solve-dot-${id}`}
+        points={getStarPoints(cx, cy, 7.5, 3.4)}
+        fill={color}
+        stroke="var(--bs-body-bg)"
+        strokeWidth={1.25}
+        strokeLinejoin="round"
+      />
+    );
+  }
   return (
     <circle
       key={`solve-dot-${id}`}
       cx={cx}
       cy={cy}
-      r={isMeta ? 5.5 : 4}
+      r={4}
       fill={color}
       stroke="var(--bs-body-bg)"
       strokeWidth={1.25}
@@ -152,12 +181,24 @@ const renderActiveSolveDot = (props: CustomDotProps) => {
     return <g key={`empty-active-dot-${index ?? "x"}`} />;
   }
   const { color, isMeta, id } = payload.solveEvent;
+  if (isMeta) {
+    return (
+      <polygon
+        key={`active-solve-dot-${id}`}
+        points={getStarPoints(cx, cy, 9, 4)}
+        fill={color}
+        stroke="var(--bs-body-color)"
+        strokeWidth={1.5}
+        strokeLinejoin="round"
+      />
+    );
+  }
   return (
     <circle
       key={`active-solve-dot-${id}`}
       cx={cx}
       cy={cy}
-      r={isMeta ? 7 : 5.5}
+      r={5.5}
       fill={color}
       stroke="var(--bs-body-color)"
       strokeWidth={1.5}
