@@ -1,3 +1,4 @@
+from django.db import IntegrityError, transaction
 from django.test import override_settings
 from guardian.shortcuts import assign_perm
 from rest_framework.test import APITestCase
@@ -254,3 +255,22 @@ class TestPuzzle(APITestCase):
             f"/api/v1/hunts/{self._test_hunt.pk}/puzzles/{puzzle.pk}"
         )
         self.assertEqual(response.status_code, 200)
+
+    def test_duplicate_live_names_rejected(self):
+        """The constraint has to compare null deleted_at values as equal."""
+        Puzzle.objects.create(
+            name="Dup", hunt=self._test_hunt, url="d1.test", sheet="d1"
+        )
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            Puzzle.objects.create(
+                name="Dup", hunt=self._test_hunt, url="d2.test", sheet="d2"
+            )
+
+    def test_soft_deleted_name_can_be_reused(self):
+        p = Puzzle.objects.create(
+            name="Reuse", hunt=self._test_hunt, url="r1.test", sheet="r1"
+        )
+        p.delete()
+        Puzzle.objects.create(
+            name="Reuse", hunt=self._test_hunt, url="r2.test", sheet="r2"
+        )
