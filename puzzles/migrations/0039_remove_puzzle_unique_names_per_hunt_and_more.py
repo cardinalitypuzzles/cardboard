@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ("chat", "0011_puzzles_soft_delete"),
         ("hunts", "0018_alter_huntsettings_active_user_lookback_and_more"),
-        ("puzzles", "0037_remove_puzzletag_unique_tag_names_per_hunt_and_more"),
+        ("puzzles", "0038_revamp_puzzle_tags"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
