@@ -301,3 +301,29 @@ class HuntFormTests(TestCase):
                     hunt=self._test_hunt, name=name, color=color
                 ).exists()
             )
+
+
+class HuntSlugTests(TestCase):
+    def test_same_name_gets_distinct_slugs(self):
+        first = Hunt.objects.create(name="Mystery Hunt 2026", url="a.test")
+        second = Hunt.objects.create(name="Mystery Hunt 2026", url="b.test")
+        self.assertEqual(first.slug, "mystery-hunt-2026")
+        self.assertEqual(second.slug, "mystery-hunt-2026-2")
+
+    def test_third_hunt_keeps_counting(self):
+        for _ in range(3):
+            Hunt.objects.create(name="Repeat", url="r.test")
+        self.assertEqual(
+            sorted(Hunt.objects.values_list("slug", flat=True)),
+            ["repeat", "repeat-2", "repeat-3"],
+        )
+
+    def test_name_with_no_sluggable_characters(self):
+        first = Hunt.objects.create(name="\u4e2d\u6587", url="c1.test")
+        second = Hunt.objects.create(name="\u65e5\u672c\u8a9e", url="c2.test")
+        self.assertEqual(first.slug, "hunt")
+        self.assertEqual(second.slug, "hunt-2")
+
+    def test_explicit_slug_is_kept(self):
+        hunt = Hunt.objects.create(name="Whatever", url="w.test", slug="custom")
+        self.assertEqual(hunt.slug, "custom")
