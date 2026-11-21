@@ -190,6 +190,9 @@ DATABASES = {}
 DATABASES["default"] = dj_database_url.config(conn_max_age=600, ssl_require=False)
 DATABASES["default"]["TEST"] = {"NAME": "test_cardboard"}
 
+# Keeps tests from reaching Google, Discord, or the real Celery queue.
+TEST_RUNNER = "cardboard.test_runner.IsolatedTestRunner"
+
 # App title
 APP_TITLE = os.environ.get("APP_TITLE", "Cardinality Cardboard")
 APP_SHORT_TITLE = os.environ.get("APP_SHORT_TITLE", "Cardboard")
