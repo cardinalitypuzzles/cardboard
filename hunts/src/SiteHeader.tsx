@@ -10,6 +10,7 @@ import { ChatVersionSelector } from "./chatSelector";
 import { LanguageSelector } from "./LanguageSelector";
 import GlobalFilter from "./GlobalFilter";
 import { SolvedStateFilter } from "./solveStateFilter";
+import { StatsDrawer } from "./StatsDrawer";
 import { IconMenu2, IconPlus } from "@tabler/icons";
 import "react-modern-drawer/dist/index.css";
 import { useStore } from "./store";
@@ -35,29 +36,29 @@ const GoogleDriveIcon = () => (
   </svg>
 );
 
-const ChartBarIcon = () => (
+const ChartLineIcon = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="24"
     height="24"
     viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className="icon icon-tabler icons-tabler-outline icon-tabler-chart-bar"
   >
-    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-    <path d="M3 13a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1l0 -6" />
-    <path d="M15 9a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1l0 -10" />
-    <path d="M9 5a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v14a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1l0 -14" />
-    <path d="M4 20h14" />
+    <g
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="square"
+      strokeMiterlimit="3.5"
+      strokeWidth="1.5"
+    >
+      <path d="M3.5 3v17.5H21" />
+      <path d="m6.5 16l4-5l3.5 3l5-7.5" />
+    </g>
   </svg>
 );
 
 export const SiteHeader = ({ huntId }: { huntId?: HuntId }) => {
   const [isOpen, setIsOpen] = React.useState(false);
+  const [isStatsOpen, setIsStatsOpen] = React.useState(false);
   const [headerHeight, setHeaderHeight] = React.useState(44);
   const navRef = React.useRef<HTMLElement>(null);
   const hunt = useStore((state) => state.huntSlice.hunt);
@@ -79,7 +80,21 @@ export const SiteHeader = ({ huntId }: { huntId?: HuntId }) => {
   }, []);
 
   const toggleDrawer = () => {
-    setIsOpen((prevState) => !prevState);
+    setIsOpen((prevState) => {
+      if (!prevState) {
+        setIsStatsOpen(false);
+      }
+      return !prevState;
+    });
+  };
+
+  const toggleStatsDrawer = () => {
+    setIsStatsOpen((prevState) => {
+      if (!prevState) {
+        setIsOpen(false);
+      }
+      return !prevState;
+    });
   };
 
   const driveRedirect = hunt.has_drive ? (
@@ -161,21 +176,28 @@ export const SiteHeader = ({ huntId }: { huntId?: HuntId }) => {
               </Button>
 
               <div className="d-flex fw-bold text-center align-items-center flex-nowrap">
+                <div className="text-nowrap">{driveRedirect}</div>
                 <div className="text-nowrap">
                   <OverlayTrigger
                     placement="bottom"
+                    trigger="hover"
                     overlay={<Tooltip id="tooltip-stats">{t("stats")}</Tooltip>}
                   >
                     <a
                       className="btn btn-sm"
-                      href="stats"
+                      href="#stats"
+                      role="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.currentTarget.blur();
+                        toggleStatsDrawer();
+                      }}
                       aria-label={t("stats")}
                     >
-                      <ChartBarIcon />
+                      <ChartLineIcon />
                     </a>
                   </OverlayTrigger>
                 </div>
-                <div className="text-nowrap">{driveRedirect}</div>
                 <button
                   type="button"
                   className="btn btn-sm"
@@ -194,6 +216,7 @@ export const SiteHeader = ({ huntId }: { huntId?: HuntId }) => {
         onClose={toggleDrawer}
         direction="right"
         zIndex={1040}
+        customIdSuffix="settings"
         className="navbar-themed"
         style={{
           display: "flex",
@@ -275,6 +298,7 @@ export const SiteHeader = ({ huntId }: { huntId?: HuntId }) => {
           </div>
         </div>
       </Drawer>
+      <StatsDrawer open={isStatsOpen} onClose={() => setIsStatsOpen(false)} />
     </>
   );
 };

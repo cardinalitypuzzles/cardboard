@@ -1,5 +1,28 @@
-import { SPECIAL_TAG_ORDER } from "./constants";
-import { Puzzle, PuzzleTag } from "./types";
+import { ROUND_COLORS, SPECIAL_TAG_ORDER } from "./constants";
+import { Puzzle, PuzzleId, PuzzleTag } from "./types";
+
+export function getRoundColorByGroupId(groupId: number): string {
+  return ROUND_COLORS[groupId % ROUND_COLORS.length];
+}
+
+export function getPuzzleRoundColor(
+  puzzle: Puzzle,
+  puzzles: Record<PuzzleId, Puzzle>
+): string {
+  let current = puzzle;
+  const visited = new Set<number>();
+  while (current.metas.length > 0) {
+    visited.add(current.id);
+    const parentId = current.metas.find(
+      (metaId) => metaId in puzzles && !visited.has(metaId)
+    );
+    if (parentId === undefined) {
+      break;
+    }
+    current = puzzles[parentId];
+  }
+  return getRoundColorByGroupId(current.id);
+}
 
 export function isLightColor(color: string): boolean {
   const hex = color.replace(/^#/, "");

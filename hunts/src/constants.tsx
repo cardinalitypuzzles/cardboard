@@ -67,3 +67,20 @@ export const SPECIAL_TAG_ORDER = [
 
 export const SHEET_REDIRECT_BASE = "/puzzles/s";
 export const CHAT_PLATFORM = "discord";
+
+export const ROUND_COLORS = [
+  "crimson",
+  "dodgerblue",
+  "forestgreen",
+  "darkorchid",
+  "darkorange",
+  "goldenrod",
+  "coral",
+  "darkslategray",
+  "powderblue",
+  "aquamarine",
+  "palevioletred",
+  "indigo",
+  "olive",
+  "violet",
+] as const;

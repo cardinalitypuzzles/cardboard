@@ -61,6 +61,8 @@ class HuntSerializer(serializers.ModelSerializer):
             "slug",
             "active",
             "url",
+            "start_time",
+            "end_time",
             "has_drive",
             "is_admin",
             "puzzle_tags",
@@ -108,10 +110,12 @@ class AnswerSerializer(serializers.ModelSerializer):
             "id",
             "text",
             "puzzle_id",
+            "created_on",
         )
         read_only_fields = (
             "id",
             "puzzle_id",
+            "created_on",
         )
         validators = (
             UniqueTogetherValidator(

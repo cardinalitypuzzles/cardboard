@@ -20,6 +20,8 @@ export type Hunt = {
   id: HuntId | null;
   name: string | null;
   slug: string | null;
+  start_time: string | null;
+  end_time: string | null;
   has_drive: boolean;
   is_admin: boolean;
   puzzle_tags: PuzzleTag[];
@@ -54,6 +56,7 @@ export interface PuzzleGuess {
   id: AnswerId;
   puzzle_id: PuzzleId;
   text: string;
+  created_on: string;
 }
 
 export interface PuzzleTag {
