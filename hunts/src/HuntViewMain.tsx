@@ -70,7 +70,14 @@ export const HuntViewMain = (props: { huntId: HuntId }) => {
   const hunt = useStore((state) => state.huntSlice);
   const alert = useStore((state) => state.alertSlice);
   const { t } = useTranslation();
-  const { fetchAllPuzzles, puzzles } = useStore((state) => state.puzzlesSlice);
+  const {
+    fetchAllPuzzles,
+    puzzles,
+    numPuzzlesUnlocked,
+    numPuzzlesSolved,
+    numMetasUnlocked,
+    numMetasSolved,
+  } = useStore((state) => state.puzzlesSlice);
   const { tags: filterTags, toggleFilterTag } = useStore(
     (state) => state.filterSlice
   );
@@ -113,9 +120,27 @@ export const HuntViewMain = (props: { huntId: HuntId }) => {
         >
           {alert.text}
         </Alert>
-        {filterTags.length > 0 && (
-          <div className="d-flex ms-3 my-1 gap-2 pb-1 mb-2 fw-bold align-items-center">
-            {t("viewing-with-tags")}
+        <div className="d-flex ms-3 my-1 gap-4 pb-1 mb-2 fw-bold text-center align-items-center">
+          <div>
+            <div className="small">{t("metas")}</div>
+            <div>
+              <span className="text-primary" style={{ fontSize: "1.25rem" }}>
+                {numMetasSolved()}
+              </span>{" "}
+              / <span className="text-secondary">{numMetasUnlocked()}</span>
+            </div>
+          </div>
+          <div>
+            <div className="small">{t("puzzles")}</div>
+            <div>
+              <span className="text-success" style={{ fontSize: "1.25rem" }}>
+                {numPuzzlesSolved()}
+              </span>{" "}
+              / <span className="text-secondary">{numPuzzlesUnlocked()}</span>
+            </div>
+          </div>
+          <div>
+            {filterTags.length > 0 ? t("viewing-with-tags") : ""}
             {filterTags.map((tag) => {
               // This use of toggleFilterTag will remove the tag from the list
               return (
@@ -128,7 +153,7 @@ export const HuntViewMain = (props: { huntId: HuntId }) => {
               );
             })}
           </div>
-        )}
+        </div>
 
         <PuzzleTable
           data={tableData}

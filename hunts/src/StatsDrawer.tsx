@@ -230,6 +230,33 @@ const StatsChartTooltip = ({ active, payload, locale }: StatsTooltipProps) => {
   );
 };
 
+const DEFAULT_STATS_DRAWER_WIDTH = 520;
+const MIN_STATS_DRAWER_WIDTH = 260;
+const STATS_DRAWER_WIDTH_STORAGE_KEY = "cardboard-stats-drawer-width";
+
+function clampDrawerWidth(width: number): number {
+  const maxWidth = Math.max(
+    MIN_STATS_DRAWER_WIDTH,
+    Math.floor(window.innerWidth * 0.95)
+  );
+  return Math.min(Math.max(width, MIN_STATS_DRAWER_WIDTH), maxWidth);
+}
+
+function getInitialDrawerWidth(): number {
+  try {
+    const stored = localStorage.getItem(STATS_DRAWER_WIDTH_STORAGE_KEY);
+    if (stored) {
+      const parsed = parseInt(stored, 10);
+      if (!Number.isNaN(parsed)) {
+        return clampDrawerWidth(parsed);
+      }
+    }
+  } catch {
+    // Ignore localStorage access errors.
+  }
+  return clampDrawerWidth(DEFAULT_STATS_DRAWER_WIDTH);
+}
+
 export const StatsDrawer = ({
   open,
   onClose,
@@ -239,16 +266,65 @@ export const StatsDrawer = ({
 }) => {
   const { t, i18n } = useTranslation();
   const hunt = useStore((state) => state.huntSlice.hunt);
-  const {
-    puzzles,
-    numPuzzlesUnlocked,
-    numPuzzlesSolved,
-    numMetasUnlocked,
-    numMetasSolved,
-  } = useStore((state) => state.puzzlesSlice);
+  const { puzzles } = useStore((state) => state.puzzlesSlice);
+
+  const [drawerWidth, setDrawerWidth] = React.useState<number>(
+    getInitialDrawerWidth
+  );
+  const [isDragging, setIsDragging] = React.useState(false);
+  const dragStartRef = React.useRef<{ x: number; width: number } | null>(null);
+  const latestWidthRef = React.useRef<number>(drawerWidth);
+  latestWidthRef.current = drawerWidth;
 
   const locale = i18n.resolvedLanguage || "en";
   const timeAgoLocale = i18n.resolvedLanguage || "en-US";
+
+  React.useEffect(() => {
+    if (!isDragging) {
+      return;
+    }
+
+    const prevUserSelect = document.body.style.userSelect;
+    const prevCursor = document.body.style.cursor;
+    document.body.style.userSelect = "none";
+    document.body.style.cursor = "col-resize";
+
+    const onMouseMove = (e: MouseEvent) => {
+      if (!dragStartRef.current) {
+        return;
+      }
+      const deltaX = dragStartRef.current.x - e.clientX;
+      setDrawerWidth(clampDrawerWidth(dragStartRef.current.width + deltaX));
+    };
+
+    const onMouseUp = () => {
+      setIsDragging(false);
+      dragStartRef.current = null;
+      try {
+        localStorage.setItem(
+          STATS_DRAWER_WIDTH_STORAGE_KEY,
+          String(latestWidthRef.current)
+        );
+      } catch {
+        // Ignore localStorage access errors.
+      }
+    };
+
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
+    return () => {
+      document.body.style.userSelect = prevUserSelect;
+      document.body.style.cursor = prevCursor;
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
+    };
+  }, [isDragging]);
+
+  const handleDragStart = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    dragStartRef.current = { x: e.clientX, width: drawerWidth };
+    setIsDragging(true);
+  };
 
   React.useEffect(() => {
     if (!open) {
@@ -408,75 +484,58 @@ export const StatsDrawer = ({
       onClose={onClose}
       direction="right"
       zIndex={1040}
-      size="min(520px, 95vw)"
+      size={drawerWidth}
       customIdSuffix="stats"
       className="navbar-themed"
       style={{
         display: "flex",
         flexDirection: "column",
+        transition: isDragging ? "none" : undefined,
       }}
     >
+      <div
+        role="separator"
+        aria-orientation="vertical"
+        onMouseDown={handleDragStart}
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          bottom: 0,
+          width: "8px",
+          cursor: "col-resize",
+          zIndex: 10,
+        }}
+      />
       <div style={{ flex: 1, overflowY: "auto", padding: "1rem" }}>
         {open && (
           <>
-            <div className="d-flex align-items-end justify-content-between flex-wrap gap-2 mb-2 me-2">
-              <div className="d-flex gap-4 fw-bold text-center ms-4">
-                <div>
-                  <div className="small">{t("metas")}</div>
-                  <div>
-                    <span
-                      className="text-primary"
-                      style={{ fontSize: "1.25rem" }}
-                    >
-                      {numMetasSolved()}
-                    </span>{" "}
-                    /{" "}
-                    <span className="text-secondary">{numMetasUnlocked()}</span>
-                  </div>
-                </div>
-                <div>
-                  <div className="small">{t("puzzles")}</div>
-                  <div>
-                    <span
-                      className="text-success"
-                      style={{ fontSize: "1.25rem" }}
-                    >
-                      {numPuzzlesSolved()}
-                    </span>{" "}
-                    /{" "}
-                    <span className="text-secondary">
-                      {numPuzzlesUnlocked()}
-                    </span>
-                  </div>
-                </div>
+            {chartData.length > 0 && domain && (
+              <div className="d-flex align-items-center justify-content-end gap-3 small text-body-secondary mb-2 me-2">
+                <span className="d-inline-flex align-items-center gap-1">
+                  <span
+                    style={{
+                      display: "inline-block",
+                      width: "12px",
+                      height: "2px",
+                      backgroundColor: "#198754",
+                    }}
+                  />
+                  {t("stats-solved")}
+                </span>
+                <span className="d-inline-flex align-items-center gap-1">
+                  <span
+                    style={{
+                      display: "inline-block",
+                      width: "12px",
+                      height: "2px",
+                      backgroundColor: "#6c757d",
+                    }}
+                  />
+                  {t("stats-unlocked")}
+                </span>
               </div>
-              {chartData.length > 0 && domain && (
-                <div className="d-flex align-items-center gap-3 small text-body-secondary">
-                  <span className="d-inline-flex align-items-center gap-1">
-                    <span
-                      style={{
-                        display: "inline-block",
-                        width: "12px",
-                        height: "2px",
-                        backgroundColor: "#198754",
-                      }}
-                    />
-                    {t("stats-solved")}
-                  </span>
-                  <span className="d-inline-flex align-items-center gap-1">
-                    <span
-                      style={{
-                        display: "inline-block",
-                        width: "12px",
-                        height: "2px",
-                        backgroundColor: "#6c757d",
-                      }}
-                    />
-                    {t("stats-unlocked")}
-                  </span>
-                </div>
-              )}
-            </div>
+            )}
 
             <div className="mb-3">
               {chartData.length > 0 && domain ? (
