@@ -180,6 +180,7 @@ export const SiteHeader = ({ huntId }: { huntId?: HuntId }) => {
                 <div className="text-nowrap">
                   <OverlayTrigger
                     placement="bottom"
+                    trigger="hover"
                     overlay={<Tooltip id="tooltip-stats">{t("stats")}</Tooltip>}
                   >
                     <a
@@ -188,6 +189,7 @@ export const SiteHeader = ({ huntId }: { huntId?: HuntId }) => {
                       role="button"
                       onClick={(e) => {
                         e.preventDefault();
+                        e.currentTarget.blur();
                         toggleStatsDrawer();
                       }}
                       aria-label={t("stats")}

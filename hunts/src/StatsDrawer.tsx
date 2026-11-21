@@ -275,6 +275,10 @@ const DEFAULT_STATS_DRAWER_WIDTH = 520;
 const MIN_STATS_DRAWER_WIDTH = 260;
 const STATS_DRAWER_WIDTH_STORAGE_KEY = "cardboard-stats-drawer-width";
 
+const DEFAULT_STATS_CHART_HEIGHT = 240;
+const MIN_STATS_CHART_HEIGHT = 120;
+const STATS_CHART_HEIGHT_STORAGE_KEY = "cardboard-stats-chart-height";
+
 function clampDrawerWidth(width: number): number {
   const maxWidth = Math.max(
     MIN_STATS_DRAWER_WIDTH,
@@ -298,6 +302,29 @@ function getInitialDrawerWidth(): number {
   return clampDrawerWidth(DEFAULT_STATS_DRAWER_WIDTH);
 }
 
+function clampChartHeight(height: number): number {
+  const maxHeight = Math.max(
+    MIN_STATS_CHART_HEIGHT,
+    Math.floor(window.innerHeight * 0.75)
+  );
+  return Math.min(Math.max(height, MIN_STATS_CHART_HEIGHT), maxHeight);
+}
+
+function getInitialChartHeight(): number {
+  try {
+    const stored = localStorage.getItem(STATS_CHART_HEIGHT_STORAGE_KEY);
+    if (stored) {
+      const parsed = parseInt(stored, 10);
+      if (!Number.isNaN(parsed)) {
+        return clampChartHeight(parsed);
+      }
+    }
+  } catch {
+    // Ignore localStorage access errors.
+  }
+  return clampChartHeight(DEFAULT_STATS_CHART_HEIGHT);
+}
+
 export const StatsDrawer = ({
   open,
   onClose,
@@ -316,6 +343,16 @@ export const StatsDrawer = ({
   const dragStartRef = React.useRef<{ x: number; width: number } | null>(null);
   const latestWidthRef = React.useRef<number>(drawerWidth);
   latestWidthRef.current = drawerWidth;
+
+  const [chartHeight, setChartHeight] = React.useState<number>(
+    getInitialChartHeight
+  );
+  const [isDraggingHeight, setIsDraggingHeight] = React.useState(false);
+  const heightDragStartRef = React.useRef<{ y: number; height: number } | null>(
+    null
+  );
+  const latestHeightRef = React.useRef<number>(chartHeight);
+  latestHeightRef.current = chartHeight;
 
   const locale = i18n.resolvedLanguage || "en";
   const timeAgoLocale = i18n.resolvedLanguage || "en-US";
@@ -365,6 +402,55 @@ export const StatsDrawer = ({
     e.preventDefault();
     dragStartRef.current = { x: e.clientX, width: drawerWidth };
     setIsDragging(true);
+  };
+
+  React.useEffect(() => {
+    if (!isDraggingHeight) {
+      return;
+    }
+
+    const prevUserSelect = document.body.style.userSelect;
+    const prevCursor = document.body.style.cursor;
+    document.body.style.userSelect = "none";
+    document.body.style.cursor = "row-resize";
+
+    const onMouseMove = (e: MouseEvent) => {
+      if (!heightDragStartRef.current) {
+        return;
+      }
+      const deltaY = e.clientY - heightDragStartRef.current.y;
+      setChartHeight(
+        clampChartHeight(heightDragStartRef.current.height + deltaY)
+      );
+    };
+
+    const onMouseUp = () => {
+      setIsDraggingHeight(false);
+      heightDragStartRef.current = null;
+      try {
+        localStorage.setItem(
+          STATS_CHART_HEIGHT_STORAGE_KEY,
+          String(latestHeightRef.current)
+        );
+      } catch {
+        // Ignore localStorage access errors.
+      }
+    };
+
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
+    return () => {
+      document.body.style.userSelect = prevUserSelect;
+      document.body.style.cursor = prevCursor;
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
+    };
+  }, [isDraggingHeight]);
+
+  const handleHeightDragStart = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    heightDragStartRef.current = { y: e.clientY, height: chartHeight };
+    setIsDraggingHeight(true);
   };
 
   React.useEffect(() => {
@@ -578,9 +664,9 @@ export const StatsDrawer = ({
               </div>
             )}
 
-            <div className="mb-3">
+            <div>
               {chartData.length > 0 && domain ? (
-                <div style={{ width: "100%", height: "240px" }}>
+                <div style={{ width: "100%", height: `${chartHeight}px` }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <ComposedChart
                       data={chartData}
@@ -651,7 +737,31 @@ export const StatsDrawer = ({
               )}
             </div>
 
-            <div className="border-top pt-3 mx-3">
+            {chartData.length > 0 && domain ? (
+              <div
+                role="separator"
+                aria-orientation="horizontal"
+                onMouseDown={handleHeightDragStart}
+                className="mx-3 my-2"
+                style={{
+                  height: "10px",
+                  cursor: "row-resize",
+                  display: "flex",
+                  alignItems: "center",
+                }}
+              >
+                <div
+                  style={{
+                    width: "100%",
+                    borderTop: "1px solid var(--bs-border-color)",
+                  }}
+                />
+              </div>
+            ) : (
+              <div className="border-top mx-3 my-3" />
+            )}
+
+            <div className="pt-1 mx-3">
               <h6 className="fw-bold mb-2">{t("latest-puzzles-solved")}</h6>
               {solvedEntries.length === 0 ? (
                 <p className="text-body-secondary small mb-0">
