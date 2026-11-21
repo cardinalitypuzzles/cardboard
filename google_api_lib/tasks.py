@@ -620,11 +620,16 @@ def update_active_users(self, hunt_id):
             body["pageToken"] = response["nextPageToken"]
 
     with transaction.atomic():
+        puzzles = Puzzle.global_objects.in_bulk(
+            {puzzle_pk for (_, puzzle_pk) in latest}
+        )
+        latest = {key: value for key, value in latest.items() if key[1] in puzzles}
+
         user_puzzle_pairs = [
             f"{user_pk}-{puzzle_pk}" for (user_pk, puzzle_pk) in latest.keys()
         ]
-        old_activities = (
-            PuzzleActivity.objects.annotate(
+        old_activities = list(
+            PuzzleActivity.global_objects.annotate(
                 user_puzzle_pair=Concat(
                     F("user_id"), Value("-"), F("puzzle_id"), output_field=CharField()
                 )
@@ -632,34 +637,36 @@ def update_active_users(self, hunt_id):
             .filter(user_puzzle_pair__in=user_puzzle_pairs)
             .select_for_update()
         )
-        old_keys = [(e.user_id, e.puzzle_id) for e in old_activities]
+        old_keys = {(e.user_id, e.puzzle_id) for e in old_activities}
 
-        PuzzleActivity.objects.bulk_create(
-            [
+        new_activities = []
+        for (user_pk, puzzle_pk), (last_edit_time, num_edits) in latest.items():
+            if (user_pk, puzzle_pk) in old_keys:
+                continue
+            puzzle = puzzles[puzzle_pk]
+            # A new row on a deleted puzzle is created already soft-deleted, as part
+            # of the puzzle's deletion, so that restoring the puzzle restores it too.
+            # It should be rare but not impossible to actually reach this
+            new_activities.append(
                 PuzzleActivity(
                     puzzle_id=puzzle_pk,
                     user_id=user_pk,
                     last_edit_time=last_edit_time,
                     num_edits=num_edits,
+                    deleted_at=puzzle.deleted_at,
+                    transaction_id=puzzle.transaction_id,
                 )
-                for (
-                    (user_pk, puzzle_pk),
-                    (last_edit_time, num_edits),
-                ) in latest.items()
-                if (user_pk, puzzle_pk) not in old_keys
-            ],
-        )
+            )
+        PuzzleActivity.global_objects.bulk_create(new_activities)
 
-        updates = []
         for activity in old_activities:
             last_edit_time, num_edits = latest[(activity.user_id, activity.puzzle_id)]
             activity.last_edit_time = last_edit_time
             activity.num_edits += num_edits
-            updates.append(activity)
 
-        if updates:
-            PuzzleActivity.objects.bulk_update(
-                updates, fields=["last_edit_time", "num_edits"]
+        if old_activities:
+            PuzzleActivity.global_objects.bulk_update(
+                old_activities, fields=["last_edit_time", "num_edits"]
             )
 
         hunt.last_active_users_update_time = end
