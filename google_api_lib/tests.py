@@ -5,6 +5,7 @@ from django.test import TestCase
 
 import google_api_lib
 from accounts.models import Puzzler
+from answers.models import Answer
 from google_api_lib.utils import GoogleApiClientTask
 from hunts.models import Hunt
 from puzzles.models import Puzzle, PuzzleActivity
@@ -229,3 +230,67 @@ class TestUpdateActiveUsers(TestCase):
         self._assert_watermark_advanced()
         activity = self._activities().get()
         self.assertEqual(activity.num_edits, 4)
+
+
+@patch("google_api_lib.tasks.maybe_get_renamable_sheet_for_puzzle", lambda *args: None)
+@patch("google_api_lib.tasks.transfer_ownership.delay")
+@patch("google_api_lib.tasks.add_puzzle_link_to_sheet.delay")
+@patch("google_api_lib.tasks.move_drive_file.delay")
+@patch("google_api_lib.tasks.rename_sheet.delay")
+class TestSheetCreationRaces(TestCase):
+    """The Drive copy takes seconds; edits made meanwhile must survive the task."""
+
+    def setUp(self):
+        self._hunt = Hunt.objects.create(name="fake hunt", url="google.com")
+        self._hunt.settings.google_sheets_template_file_id = TEST_SHEET_TEMPLATE_ID
+        self._hunt.settings.save()
+        self._puzzle = Puzzle.objects.create(
+            name="orig", hunt=self._hunt, url="fake_url.com", is_meta=False
+        )
+
+    def _create_sheet(self, during_copy=None):
+        def copy(task, name, template_file_id):
+            if during_copy:
+                during_copy()
+            return mock_create_google_sheets_helper(task, name, template_file_id)
+
+        with patch("google_api_lib.tasks.create_google_sheets_helper", copy):
+            with self.captureOnCommitCallbacks(execute=True):
+                google_api_lib.tasks.create_google_sheets(self._puzzle.id)
+
+    def test_edits_during_copy_are_kept_and_retitle_the_sheet(self, rename_sheet, *_):
+        def edit():
+            puzzle = Puzzle.objects.get(pk=self._puzzle.pk)
+            puzzle.name = "renamed"
+            puzzle.notes = "my notes"
+            puzzle.status = Puzzle.SOLVED
+            puzzle.answer = "ANS"
+            puzzle.save()
+            Answer.objects.create(text="ANS", puzzle=puzzle, status=Answer.CORRECT)
+
+        self._create_sheet(during_copy=edit)
+
+        puzzle = Puzzle.objects.get(pk=self._puzzle.pk)
+        self.assertEqual(puzzle.sheet, TEST_SHEET)
+        self.assertEqual(puzzle.name, "renamed")
+        self.assertEqual(puzzle.notes, "my notes")
+        self.assertEqual(puzzle.status, Puzzle.SOLVED)
+        self.assertEqual(puzzle.answer, "ANS")
+        # The rename view saw no sheet yet, so the task must retitle it.
+        rename_sheet.assert_called_once_with(TEST_SHEET, "[SOLVED: ANS] renamed")
+
+    def test_no_rename_when_nothing_changed_during_copy(self, rename_sheet, *_):
+        self._create_sheet()
+
+        self.assertEqual(Puzzle.objects.get(pk=self._puzzle.pk).sheet, TEST_SHEET)
+        rename_sheet.assert_not_called()
+
+    def test_delete_during_copy_is_not_undone(self, rename_sheet, *_):
+        self._create_sheet(
+            during_copy=lambda: Puzzle.objects.get(pk=self._puzzle.pk).delete()
+        )
+
+        self.assertFalse(Puzzle.objects.filter(pk=self._puzzle.pk).exists())
+        puzzle = Puzzle.global_objects.get(pk=self._puzzle.pk)
+        self.assertEqual(puzzle.sheet, TEST_SHEET)
+        rename_sheet.assert_called_once_with(TEST_SHEET, "[DELETED] orig")
