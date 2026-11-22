@@ -60,18 +60,9 @@ class AnswerViewSet(viewsets.ModelViewSet):
     @staticmethod
     def _maybe_update_sheets_title(puzzle):
         if google_api_lib.enabled() and puzzle.sheet:
-            if puzzle.is_solved():
-                solve_label = "BACKSOLVED" if puzzle.is_backsolved() else "SOLVED"
-                answers = ", ".join(puzzle.correct_answers())
-
-                google_api_lib.tasks.rename_sheet.delay(
-                    sheet_url=puzzle.sheet,
-                    name=f"[{solve_label}: {answers}] {puzzle.name}",
-                )
-            else:
-                google_api_lib.tasks.rename_sheet.delay(
-                    sheet_url=puzzle.sheet, name=puzzle.name
-                )
+            google_api_lib.tasks.rename_sheet.delay(
+                sheet_url=puzzle.sheet, name=puzzle.sheet_title()
+            )
 
     def create(self, request, **kwargs):
         puzzle = None

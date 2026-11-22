@@ -106,38 +106,45 @@ def transfer_ownership(self, file, template_file_id) -> None:
     default_retry_delay=30,
 )
 def create_google_sheets(self, puzzle_id) -> None:
+    puzzle = Puzzle.objects.select_related("hunt__settings").get(pk=puzzle_id)
+    template_file_id = (
+        puzzle.hunt.settings.google_sheets_template_file_id
+        or settings.GOOGLE_SHEETS_TEMPLATE_FILE_ID
+    )
+    destination_folder_id = (
+        puzzle.hunt.settings.google_drive_folder_id
+        or settings.GOOGLE_DRIVE_HUNT_FOLDER_ID
+    )
+
+    # The Drive calls below could be slow, so they run outside any transaction,
+    # and `puzzle` is stale once they return.
+    existing_file = maybe_get_renamable_sheet_for_puzzle(self, puzzle)
+    if existing_file:
+        new_file = existing_file
+        file_title = None  # a spare template still has its template name
+    else:
+        if not template_file_id:
+            logging.warning(
+                f"Cannot create a sheet for {puzzle.name} as we can't find a sheets template"
+            )
+            return
+        file_title = puzzle.name
+        new_file = create_google_sheets_helper(self, file_title, template_file_id)
+
+    sheet_url = new_file["webViewLink"]
+
     with transaction.atomic():
-        puzzle = Puzzle.objects.select_related("hunt__settings").get(pk=puzzle_id)
-        template_file_id = (
-            puzzle.hunt.settings.google_sheets_template_file_id
-            or settings.GOOGLE_SHEETS_TEMPLATE_FILE_ID
-        )
-        destination_folder_id = (
-            puzzle.hunt.settings.google_drive_folder_id
-            or settings.GOOGLE_DRIVE_HUNT_FOLDER_ID
-        )
-
-        new_file = None
-
-        existing_file = maybe_get_renamable_sheet_for_puzzle(self, puzzle)
-        if existing_file:
-            new_file = existing_file
-        else:
-            if not template_file_id:
-                logging.warning(
-                    f"Cannot create a sheet for {puzzle.name} as we can't find a sheets template"
-                )
-                return
-            new_file = create_google_sheets_helper(self, puzzle.name, template_file_id)
-
-        sheet_url = new_file["webViewLink"]
+        # Re-read puzzle to prevent stale data
+        puzzle = Puzzle.global_objects.select_for_update().get(pk=puzzle_id)
         puzzle.sheet = sheet_url
-        puzzle.save()
+        puzzle.save(update_fields=["sheet"])
+        sheet_title = puzzle.sheet_title()
 
         def post_create_tasks():
-            if existing_file:
-                # We copied over an existing file, but we haven't renamed it yet
-                rename_sheet.delay(sheet_url, puzzle.name)
+            # Handles copying over pre-made files that haven't been renamed,
+            # as well as renames that happened while the sheet was creating
+            if sheet_title != file_title:
+                rename_sheet.delay(sheet_url, sheet_title)
 
             transfer_ownership.delay(new_file, template_file_id)
             add_puzzle_link_to_sheet.delay(puzzle.url, sheet_url)
@@ -151,7 +158,7 @@ def create_google_sheets(self, puzzle_id) -> None:
                     f"Cannot move the new puzzle for {puzzle.name} as we can't find a drive folder"
                 )
 
-            if puzzle.chat_room:
+            if puzzle.chat_room and not puzzle.is_deleted:
                 handle_sheet_created.delay(puzzle_id)
 
         # Only run these other tasks if we successfully commit this particular sheet ID

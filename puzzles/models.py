@@ -185,6 +185,16 @@ class Puzzle(SoftDeleteModel):
             [answer.text for answer in self.guesses.filter(status=Answer.CORRECT)]
         )
 
+    def sheet_title(self):
+        """The title this puzzle's sheet should have, given its current state."""
+        if self.is_deleted:
+            return f"[DELETED] {self.name}"
+        if self.is_solved():
+            solve_label = "BACKSOLVED" if self.is_backsolved() else "SOLVED"
+            answers = ", ".join(self.correct_answers())
+            return f"[{solve_label}: {answers}] {self.name}"
+        return self.name
+
     def create_field_url_map(self):
         """
         Creates dictionary mapping text -> url for all relevant urls if they exist.
