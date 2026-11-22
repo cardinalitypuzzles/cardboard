@@ -77,3 +77,26 @@ class TestLogout(TestCase):
         response = self.client.get("/tools")
         self.assertContains(response, 'action="%s"' % reverse("logout"))
         self.assertNotContains(response, 'href="%s"' % reverse("logout"))
+
+
+class TestTaskPriority(TestCase):
+    def testHighPriorityIsConsumedFirstOnRedis(self):
+        # kombu's Redis transport stores each priority in its own list and
+        # polls them in priority_steps order, so the bucket a priority maps to
+        # determines consumption order. Guards against the enum being flipped
+        # back to RabbitMQ semantics (higher number = more urgent).
+        from kombu.transport.redis import Channel
+
+        from cardboard.settings import TaskPriority
+
+        steps = list(Channel.priority_steps)
+
+        def poll_position(priority):
+            return steps.index(Channel.priority(Channel, priority.value))
+
+        self.assertLess(
+            poll_position(TaskPriority.HIGH), poll_position(TaskPriority.MED)
+        )
+        self.assertLess(
+            poll_position(TaskPriority.MED), poll_position(TaskPriority.LOW)
+        )
