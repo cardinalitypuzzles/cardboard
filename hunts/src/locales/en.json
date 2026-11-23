@@ -1,5 +1,11 @@
 {
   "stats": "Stats",
+  "stats-solved": "Solved",
+  "stats-unlocked": "Unlocked",
+  "latest-puzzles-solved": "Latest Puzzles Solved",
+  "no-puzzles-solved-yet": "No puzzles solved yet.",
+  "no-chart-data": "No puzzle data yet.",
+  "close": "Close",
   "google-drive-folder": "Google Drive folder",
   "expand-menu": "expand menu",
   "hunt-settings": "Hunt Settings",

@@ -1,5 +1,11 @@
 {
   "stats": "统计",
+  "stats-solved": "已解决",
+  "stats-unlocked": "已解锁",
+  "latest-puzzles-solved": "最新已解谜题",
+  "no-puzzles-solved-yet": "尚未解决任何谜题。",
+  "no-chart-data": "暂无谜题数据。",
+  "close": "关闭",
   "google-drive-folder": "Google 云端硬盘文件夹",
   "expand-menu": "展开菜单",
   "hunt-settings": "Hunt设置",
