@@ -298,7 +298,7 @@ class PuzzleViewSet(viewsets.ModelViewSet):
                 if "name" in data and data["name"] != old_name:
                     if puzzle.chat_room:
                         puzzle.chat_room.name = data["name"]
-                        puzzle.chat_room.save()
+                        puzzle.chat_room.save(update_fields=["name"])
                         transaction.on_commit(
                             lambda: chat.tasks.handle_puzzle_rename.delay(
                                 puzzle.id, old_name, data["name"]

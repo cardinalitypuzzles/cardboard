@@ -35,13 +35,31 @@ def announce_puzzle_unlock(puzzle_id):
         logger.exception(f"announce_puzzle_unlock failed with error: {e}")
 
 
-@shared_task(rate_limit="6/m", acks_late=True, priority=TaskPriority.HIGH.value)
-def create_channels_for_puzzle(puzzle_id):
+@shared_task(
+    bind=True,
+    rate_limit="6/m",
+    acks_late=True,
+    priority=TaskPriority.HIGH.value,
+    max_retries=5,
+)
+def create_channels_for_puzzle(self, puzzle_id):
     puzzle = _get_puzzles_queryset().get(id=puzzle_id)
     if not puzzle.chat_room:
         return
+    if not puzzle.hunt.settings.discord_guild_id:
+        # Retrying can't help until the hunt is configured.
+        logger.warning(
+            f"create_channels_for_puzzle: hunt {puzzle.hunt_id} has no Discord guild id"
+        )
+        return
     try:
         puzzle.chat_room.create_channels()
+    except Exception as e:
+        # create_channels() saves each channel id as soon as the channel exists,
+        # so a retry only creates the channels that are still missing.
+        logger.exception(f"create_channels_for_puzzle failed with error: {e}")
+        raise self.retry(exc=e, countdown=30 * 2**self.request.retries)
+    try:
         msg = f"**{puzzle.name}** has been created!"
         puzzle.chat_room.send_message_with_embedded_urls(msg, puzzle)
     except Exception as e:

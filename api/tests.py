@@ -9,6 +9,7 @@ from rest_framework.test import APITestCase
 import google_api_lib
 import google_api_lib.tests
 from accounts.models import Puzzler
+from chat.models import ChatRoom
 from puzzles.models import Puzzle, PuzzleActivity
 from puzzles.puzzle_tag import META_COLOR, PuzzleTag, PuzzleTagColor
 
@@ -175,6 +176,40 @@ class ApiTests(CardboardTestCase, APITestCase):
         self.assertEqual(len(response.data["tags"]), 1)
         puzzle.refresh_from_db()
         self.assertEqual(puzzle.is_meta, True)
+
+    def test_rename_puzzle_keeps_concurrently_created_channel_ids(self):
+        self.check_response_status(
+            self.create_puzzle({"name": TEST_NAME, "url": TEST_URL})
+        )
+        puzzle = Puzzle.objects.get()
+        puzzle.chat_room = ChatRoom.objects.create(service="DISCORD", name=TEST_NAME)
+        puzzle.save()
+        # Deleting the puzzle in tearDown enqueues channel cleanup; cleanups run
+        # after tearDown, so this keeps the task mocked until then.
+        cleanup_patcher = patch("chat.tasks.cleanup_puzzle_channels.apply_async")
+        cleanup_patcher.start()
+        self.addCleanup(cleanup_patcher.stop)
+
+        # Simulate create_channels_for_puzzle saving channel ids after the view
+        # has loaded the puzzle and its chat room, but before the rename is saved.
+        real_update_metadata = Puzzle.update_metadata
+
+        def update_metadata_racing_channel_creation(self, *args, **kwargs):
+            ChatRoom.objects.filter(pk=self.chat_room_id).update(
+                text_channel_id="text-id", audio_channel_id="audio-id"
+            )
+            return real_update_metadata(self, *args, **kwargs)
+
+        with patch.object(
+            Puzzle, "update_metadata", update_metadata_racing_channel_creation
+        ):
+            response = self.edit_puzzle(puzzle.pk, {"name": TEST_NAME + "2"})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        chat_room = ChatRoom.objects.get(pk=puzzle.chat_room_id)
+        self.assertEqual(chat_room.name, TEST_NAME + "2")
+        self.assertEqual(chat_room.text_channel_id, "text-id")
+        self.assertEqual(chat_room.audio_channel_id, "audio-id")
 
     def test_edit_puzzle_permissions(self):
         self.check_response_status(
