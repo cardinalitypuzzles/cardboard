@@ -1,9 +1,13 @@
-from django.test import TestCase
+import os
+import tempfile
+from unittest import mock
+
+from django.test import SimpleTestCase, TestCase
 from django.urls import reverse
 from guardian.shortcuts import assign_perm
 
 from accounts.models import Puzzler
-from cardboard import views
+from cardboard import env, views
 from hunts.models import Hunt
 
 
@@ -77,3 +81,54 @@ class TestLogout(TestCase):
         response = self.client.get("/tools")
         self.assertContains(response, 'action="%s"' % reverse("logout"))
         self.assertNotContains(response, 'href="%s"' % reverse("logout"))
+
+
+class TestLoadEnv(SimpleTestCase):
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.dir = tmp.name
+        for patcher in (
+            mock.patch.object(env, "BASE_DIR", self.dir),
+            mock.patch.object(env, "_loaded", False),
+            mock.patch.dict(os.environ, clear=True),
+        ):
+            patcher.start()
+            self.addCleanup(patcher.stop)
+
+    def write(self, name, contents):
+        with open(os.path.join(self.dir, name), "w") as f:
+            f.write(contents)
+
+    def load(self, argv):
+        with mock.patch("sys.argv", argv):
+            env.load_env()
+
+    def testTestRunNeverLoadsDotEnv(self):
+        self.write(".env", "SECRET_TOKEN=live\nONLY_IN_ENV=live\n")
+        self.write(".env.test", "SECRET_TOKEN=test\n")
+        self.load(["manage.py", "test"])
+        self.assertEqual(os.environ.get("SECRET_TOKEN"), "test")
+        self.assertNotIn("ONLY_IN_ENV", os.environ)
+
+    def testTestRunPrefersUserTestFile(self):
+        self.write(".env.test.user", "WHICH=user\n")
+        self.write(".env.test", "WHICH=shared\nONLY_IN_SHARED=1\n")
+        self.load(["manage.py", "test"])
+        self.assertEqual(os.environ.get("WHICH"), "user")
+        self.assertNotIn("ONLY_IN_SHARED", os.environ)
+
+    def testNonTestRunLoadsDotEnv(self):
+        self.write(".env", "WHICH=env\n")
+        self.write(".env.test", "WHICH=test\n")
+        self.load(["manage.py", "runserver"])
+        self.assertEqual(os.environ.get("WHICH"), "env")
+
+    def testLaterCallsAreNoOps(self):
+        # Regression: cardboard.celery used to load .env unconditionally after
+        # manage.py had loaded .env.test, filling in the live credentials.
+        self.write(".env", "SECRET_TOKEN=live\n")
+        self.write(".env.test", "OTHER=test\n")
+        self.load(["manage.py", "test"])
+        self.load(["celery", "-A", "cardboard", "worker"])
+        self.assertNotIn("SECRET_TOKEN", os.environ)

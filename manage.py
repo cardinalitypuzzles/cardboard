@@ -4,25 +4,13 @@
 import os
 import sys
 
-import dotenv
-
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+from cardboard.env import load_env
 
 
 def main():
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "cardboard.settings")
 
-    if "test" in sys.argv:
-        test_env_files = [".env.test.user", ".env.test"]
-        for dotenv_file in test_env_files:
-            if os.path.isfile(dotenv_file):
-                dotenv.load_dotenv(dotenv_file)
-                break
-    else:
-        dotenv_file = os.path.join(BASE_DIR, ".env")
-        if os.path.isfile(dotenv_file):
-            dotenv.load_dotenv(dotenv_file)
+    load_env()
 
     try:
         from django.core.management import execute_from_command_line

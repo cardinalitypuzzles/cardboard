@@ -1,15 +1,13 @@
 import os
 
-import dotenv
 from celery import Celery
+
+from cardboard.env import load_env
 
 # set the default Django settings module for the 'celery' program.
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "cardboard.settings")
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-dotenv_file = os.path.join(BASE_DIR, ".env")
-if os.path.isfile(dotenv_file):
-    dotenv.load_dotenv(dotenv_file)
+load_env()
 
 app = Celery("cardboard")
 
