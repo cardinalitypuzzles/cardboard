@@ -23,7 +23,7 @@
   "filter-show": "显示：",
   "filter-all": "全部",
   "filter-unsolved": "未解决",
-  "filter-unsolved-plus": "未解决 + 带未解元题",
+  "filter-unsolved-plus": "未解决 + 带已解元题",
   "table-puzzle-name": "名称",
   "table-puzzle-links": "链接",
   "table-puzzle-tags": "标签",
