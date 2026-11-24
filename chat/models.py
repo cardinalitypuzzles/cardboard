@@ -13,6 +13,10 @@ def _get_default_service():
 SERVICE_CHOICES = ["DISCORD"]
 
 
+class ChannelCreationError(Exception):
+    pass
+
+
 class ChatRoom(SoftDeleteModel):
     """Represents a space for users to communicate about a topic (i.e. puzzle).
 
@@ -91,27 +95,46 @@ class ChatRoom(SoftDeleteModel):
         )
 
     def create_channels(self):
+        """Creates whichever of the text and audio channels don't exist yet.
+
+        Each channel id is saved after creation in order to make this
+        idempotent. Raises ChannelCreationError if the service fails to
+        create a channel.
+        """
         service = self.get_service()
-        update_fields = []
-        if self.text_channel_id is None:
-            self.text_channel_id = service.create_text_channel(
-                self.get_guild_id(), self.name, self._get_text_category_name()
+        guild_id = self.get_guild_id()
+
+        if not self.text_channel_id:
+            channel_id = service.create_text_channel(
+                guild_id, self.name, self._get_text_category_name()
             )
+            if not channel_id:
+                raise ChannelCreationError(
+                    f"Failed to create text channel for {self.name}"
+                )
+            self.text_channel_id = channel_id
+            self.save(update_fields=["text_channel_id"])
+        if not self.text_channel_url:
             self.text_channel_url = service.create_channel_url(
-                self.get_guild_id(), self.text_channel_id, is_audio=False
+                guild_id, self.text_channel_id, is_audio=False
             )
-            update_fields.extend(["text_channel_id", "text_channel_url"])
+            self.save(update_fields=["text_channel_url"])
 
-        if self.audio_channel_id is None:
-            self.audio_channel_id = service.create_audio_channel(
-                self.get_guild_id(), self.name, self._get_audio_category_name()
+        if not self.audio_channel_id:
+            channel_id = service.create_audio_channel(
+                guild_id, self.name, self._get_audio_category_name()
             )
+            if not channel_id:
+                raise ChannelCreationError(
+                    f"Failed to create audio channel for {self.name}"
+                )
+            self.audio_channel_id = channel_id
+            self.save(update_fields=["audio_channel_id"])
+        if not self.audio_channel_url:
             self.audio_channel_url = service.create_channel_url(
-                self.get_guild_id(), self.audio_channel_id, is_audio=True
+                guild_id, self.audio_channel_id, is_audio=True
             )
-            update_fields.extend(["audio_channel_id", "audio_channel_url"])
-
-        self.save(update_fields=update_fields)
+            self.save(update_fields=["audio_channel_url"])
 
     def archive_channels(self):
         service = self.get_service()

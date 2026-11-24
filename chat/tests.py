@@ -1,11 +1,14 @@
+from unittest.mock import patch
+
 from django.test import TestCase, override_settings
 
 from hunts.models import Hunt
 from puzzles.models import Puzzle
 
 from .fake_service import FakeChatService
-from .models import ChatRoom
+from .models import ChannelCreationError, ChatRoom
 from .service import ChatService
+from .tasks import create_channels_for_puzzle
 
 
 @override_settings(
@@ -167,6 +170,69 @@ class TestChatRoom(TestCase):
         msg = self.room.name
         self.room.send_message(msg)
         self.assertIn(msg, self.fake_service.messages)
+
+    def test_create_channels_saves_text_channel_when_audio_fails(self):
+        with patch.object(
+            self.fake_service, "create_audio_channel", side_effect=Exception("boom")
+        ):
+            with self.assertRaises(Exception):
+                self.room.create_channels()
+
+        db_room = ChatRoom.objects.get(pk=self.room.pk)
+        self.assertEqual(db_room.text_channel_id, "Test Room 🧩-text")
+        self.assertIsNone(db_room.audio_channel_id)
+
+        # Re-running only creates the missing audio channel.
+        db_room.puzzle = self.feeder
+        with patch.object(
+            self.fake_service,
+            "create_text_channel",
+            wraps=self.fake_service.create_text_channel,
+        ) as create_text_channel:
+            db_room.create_channels()
+        create_text_channel.assert_not_called()
+        db_room.refresh_from_db()
+        self.assertEqual(db_room.text_channel_id, "Test Room 🧩-text")
+        self.assertEqual(db_room.audio_channel_id, "Test Room 🧩-audio")
+
+    def test_create_channels_raises_when_service_returns_no_id(self):
+        with patch.object(self.fake_service, "create_audio_channel", return_value=None):
+            with self.assertRaises(ChannelCreationError):
+                self.room.create_channels()
+
+        db_room = ChatRoom.objects.get(pk=self.room.pk)
+        self.assertEqual(db_room.text_channel_id, "Test Room 🧩-text")
+        self.assertIsNone(db_room.audio_channel_id)
+
+    def test_create_channels_for_puzzle_retries_and_creates_only_missing(self):
+        self.feeder.hunt.settings.discord_guild_id = "guild"
+        self.feeder.hunt.settings.save()
+        self.feeder.chat_room = self.room
+        self.feeder.save()
+
+        real_create_audio_channel = self.fake_service.create_audio_channel
+
+        def fail_once(*args, **kwargs):
+            if create_audio_channel.call_count == 1:
+                raise Exception("boom")
+            return real_create_audio_channel(*args, **kwargs)
+
+        with patch.object(
+            self.fake_service, "create_audio_channel", side_effect=fail_once
+        ) as create_audio_channel, patch.object(
+            self.fake_service,
+            "create_text_channel",
+            wraps=self.fake_service.create_text_channel,
+        ) as create_text_channel:
+            # Eager apply() runs the retry inline.
+            result = create_channels_for_puzzle.apply(args=[self.feeder.id])
+
+        self.assertTrue(result.successful())
+        self.assertEqual(create_text_channel.call_count, 1)
+        self.assertEqual(create_audio_channel.call_count, 2)
+        self.room.refresh_from_db()
+        self.assertEqual(self.room.text_channel_id, "Test Room 🧩-text")
+        self.assertEqual(self.room.audio_channel_id, "Test Room 🧩-audio")
 
 
 class TestChatService(TestCase):
