@@ -106,6 +106,96 @@ class TestGoogleSheets(TestCase):
             Puzzle.objects.get(pk=puzzle.id).sheet, TEST_SHEET_EXISTING_FILE_URL
         )
 
+    def _spares_drive_service(self, *urls):
+        drive_service = MagicMock()
+        drive_service.files().list().execute.return_value = {
+            "files": [{"id": url, "webViewLink": url} for url in urls]
+        }
+        return drive_service
+
+    def test_renamable_sheet_skips_spares_already_claimed(self):
+        # A claimed spare stays in the template folder until move_drive_file runs
+        # after commit, so the listing alone can't tell it is taken.
+        self._test_hunt.settings.google_sheets_template_folder_id = "folder"
+        self._test_hunt.settings.save()
+        Puzzle.objects.create(
+            name="claimer", hunt=self._test_hunt, url="a.com", sheet="spare1.com"
+        )
+        deleted = Puzzle.objects.create(
+            name="deleted", hunt=self._test_hunt, url="b.com", sheet="spare2.com"
+        )
+        deleted.delete()
+        puzzle = Puzzle.objects.create(name="test", hunt=self._test_hunt, url="c.com")
+        task = MagicMock()
+
+        task.drive_service.return_value = self._spares_drive_service(
+            "spare1.com", "spare2.com", "spare3.com"
+        )
+        for _ in range(20):
+            self.assertEqual(
+                google_api_lib.tasks.maybe_get_renamable_sheet_for_puzzle(task, puzzle)[
+                    "webViewLink"
+                ],
+                "spare3.com",
+            )
+
+        task.drive_service.return_value = self._spares_drive_service(
+            "spare1.com", "spare2.com"
+        )
+        self.assertIsNone(
+            google_api_lib.tasks.maybe_get_renamable_sheet_for_puzzle(task, puzzle)
+        )
+
+    def test_losing_a_spare_claim_retries_with_another_spare(self):
+        self._test_hunt.settings.google_sheets_template_folder_id = "folder"
+        self._test_hunt.settings.save()
+        puzzle = Puzzle.objects.create(name="test", hunt=self._test_hunt, url="b.com")
+        real_get_spare = google_api_lib.tasks.maybe_get_renamable_sheet_for_puzzle
+        winners = []
+
+        def get_spare_then_lose_race(task, puzzle):
+            spare = real_get_spare(task, puzzle)
+            if not winners:
+                # Another puzzle commits the same spare between our listing and
+                # our save.
+                winners.append(
+                    Puzzle.objects.create(
+                        name="winner",
+                        hunt=self._test_hunt,
+                        url="a.com",
+                        sheet=spare["webViewLink"],
+                    )
+                )
+            return spare
+
+        with (
+            patch.object(
+                GoogleApiClientTask,
+                "drive_service",
+                return_value=self._spares_drive_service("spare1.com", "spare2.com"),
+            ),
+            patch("google_api_lib.tasks.random.choice", lambda files: files[0]),
+            patch(
+                "google_api_lib.tasks.maybe_get_renamable_sheet_for_puzzle",
+                get_spare_then_lose_race,
+            ),
+            patch("google_api_lib.tasks.create_google_sheets_helper") as copy,
+            patch("google_api_lib.tasks.transfer_ownership.delay") as transfer,
+            patch("google_api_lib.tasks.move_drive_file.delay"),
+            patch("google_api_lib.tasks.add_puzzle_link_to_sheet.delay"),
+            patch("google_api_lib.tasks.rename_sheet.delay"),
+            self.captureOnCommitCallbacks(execute=True),
+        ):
+            # apply() runs Celery's real retry path, eagerly instead of via the broker.
+            result = google_api_lib.tasks.create_google_sheets.apply(args=[puzzle.id])
+
+        self.assertEqual(result.state, "SUCCESS")
+        self.assertEqual(Puzzle.objects.get(pk=winners[0].id).sheet, "spare1.com")
+        self.assertEqual(Puzzle.objects.get(pk=puzzle.id).sheet, "spare2.com")
+        copy.assert_not_called()
+        transfer.assert_called_once()
+        self.assertEqual(transfer.call_args.args[0]["webViewLink"], "spare2.com")
+
 
 def _drive_activity_response(timestamp):
     return {

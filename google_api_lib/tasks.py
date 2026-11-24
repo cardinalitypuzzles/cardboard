@@ -12,7 +12,7 @@ from dateutil import tz
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
-from django.db import transaction
+from django.db import IntegrityError, transaction
 from django.db.models import CharField, F, Value
 from django.db.models.functions import Concat
 from googleapiclient import _auth
@@ -66,6 +66,20 @@ def maybe_get_renamable_sheet_for_puzzle(self, puzzle):
     if len(files) == 0:
         logger.warning(
             f"The Drive template folder {template_folder_id} for hunt {puzzle.hunt.name} is empty"
+        )
+        return None
+
+    # It's possible for an already-claimed sheet to still be here
+    # if move_drive_file hasn't run yet, so filter those out
+    claimed = set(
+        Puzzle.global_objects.filter(
+            sheet__in=[f["webViewLink"] for f in files]
+        ).values_list("sheet", flat=True)
+    )
+    files = [f for f in files if f["webViewLink"] not in claimed]
+    if len(files) == 0:
+        logger.warning(
+            f"Every spare in the Drive template folder {template_folder_id} for hunt {puzzle.hunt.name} is already claimed"
         )
         return None
 
@@ -133,38 +147,45 @@ def create_google_sheets(self, puzzle_id) -> None:
 
     sheet_url = new_file["webViewLink"]
 
-    with transaction.atomic():
-        # Re-read puzzle to prevent stale data
-        puzzle = Puzzle.global_objects.select_for_update().get(pk=puzzle_id)
-        puzzle.sheet = sheet_url
-        puzzle.save(update_fields=["sheet"])
-        sheet_title = puzzle.sheet_title()
+    try:
+        with transaction.atomic():
+            # Re-read puzzle to prevent stale data
+            puzzle = Puzzle.global_objects.select_for_update().get(pk=puzzle_id)
+            puzzle.sheet = sheet_url
+            puzzle.save(update_fields=["sheet"])
+            sheet_title = puzzle.sheet_title()
 
-        def post_create_tasks():
-            # Handles copying over pre-made files that haven't been renamed,
-            # as well as renames that happened while the sheet was creating
-            if sheet_title != file_title:
-                rename_sheet.delay(sheet_url, sheet_title)
+            def post_create_tasks():
+                # Handles copying over pre-made files that haven't been renamed,
+                # as well as renames that happened while the sheet was creating
+                if sheet_title != file_title:
+                    rename_sheet.delay(sheet_url, sheet_title)
 
-            transfer_ownership.delay(new_file, template_file_id)
-            add_puzzle_link_to_sheet.delay(puzzle.url, sheet_url)
+                transfer_ownership.delay(new_file, template_file_id)
+                add_puzzle_link_to_sheet.delay(puzzle.url, sheet_url)
 
-            if destination_folder_id:
-                move_drive_file.delay(
-                    file_id=new_file["id"], destination_folder_id=destination_folder_id
-                )
-            else:
-                logging.warning(
-                    f"Cannot move the new puzzle for {puzzle.name} as we can't find a drive folder"
-                )
+                if destination_folder_id:
+                    move_drive_file.delay(
+                        file_id=new_file["id"],
+                        destination_folder_id=destination_folder_id,
+                    )
+                else:
+                    logging.warning(
+                        f"Cannot move the new puzzle for {puzzle.name} as we can't find a drive folder"
+                    )
 
-            if puzzle.chat_room and not puzzle.is_deleted:
-                handle_sheet_created.delay(puzzle_id)
+                if puzzle.chat_room and not puzzle.is_deleted:
+                    handle_sheet_created.delay(puzzle_id)
 
-        # Only run these other tasks if we successfully commit this particular sheet ID
-        # We might not be able to if there's some race condition
-        # (for example, two puzzles claiming the same sheet at the same time)
-        transaction.on_commit(post_create_tasks)
+            # Only run these other tasks if we successfully commit this particular sheet ID
+            # We might not be able to if there's some race condition
+            # (for example, two puzzles claiming the same sheet at the same time)
+            transaction.on_commit(post_create_tasks)
+    except IntegrityError as e:
+        # This can happen when another puzzle claims our sheet id first
+        if existing_file is None:
+            raise
+        raise self.retry(exc=e, countdown=0)
 
 
 def extract_id_from_sheets_url(url) -> str:
