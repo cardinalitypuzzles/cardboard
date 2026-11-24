@@ -145,34 +145,17 @@ function rowClassName(row: PuzzleRow) {
   }
 }
 
-const MetaGroupHeaderRows = React.memo(
-  ({
-    hasSpacerSlot,
-    showSpacer,
-    showHeader,
-    colSpan,
-    color,
-  }: {
-    hasSpacerSlot: boolean;
-    showSpacer: boolean;
-    showHeader: boolean;
-    colSpan: number;
-    color: string;
-  }) => (
-    <>
-      {hasSpacerSlot && (
-        <tr hidden={!showSpacer} style={{ height: "20px" }}></tr>
-      )}
-      <tr hidden={!showHeader}>
-        <td
-          className="table-top-colorbar"
-          colSpan={colSpan}
-          style={{
-            background: `linear-gradient(90deg, ${color}, transparent)`,
-          }}
-        ></td>
-      </tr>
-    </>
+const MetaColorbarRow = React.memo(
+  ({ color, colSpan }: { color: string; colSpan: number }) => (
+    <tr>
+      <td
+        className="table-top-colorbar"
+        colSpan={colSpan}
+        style={{
+          background: `linear-gradient(90deg, ${color}, transparent)`,
+        }}
+      ></td>
+    </tr>
   )
 );
 
@@ -248,6 +231,11 @@ const ROUND_COLORS = [
   "violet",
 ];
 
+// Neutral side-rail color for unassigned puzzles: the round palette is
+// reserved for meta groups. Defined as a CSS var so it flips with dark mode.
+const UNASSIGNED_RAIL_COLOR = "var(--cb-unassigned-rail)";
+
+// Top-level row id that a row belongs to (rows are keyed "<id>.<id>...").
 const topLevelId = (row: PuzzleRow) => parseInt(row.id.split(".")[0], 10);
 
 export const PuzzleTable = React.memo(
@@ -287,7 +275,21 @@ export const PuzzleTable = React.memo(
     );
 
     const visibleRowIds = new Set(visibleRows.map((row) => row.id));
-    const visibleTopLevelIds = new Set(visibleRows.map(topLevelId));
+
+    // A "group" is a top-level meta (plus its feeder rows) or the single
+    // unassigned block. Metas are keyed by their id, unassigned rows by 0.
+    const metaGroupIds = React.useMemo(
+      () =>
+        new Set(
+          tree.rows.filter((row) => row.original.is_meta).map(topLevelId)
+        ),
+      [tree.rows]
+    );
+    const groupOf = (row: PuzzleRow) => {
+      const id = topLevelId(row);
+      return metaGroupIds.has(id) ? id : 0;
+    };
+    const visibleGroupIds = new Set(visibleRows.map(groupOf));
 
     const headerColSpan = 9;
     const language = i18n.resolvedLanguage || "en";
@@ -295,27 +297,33 @@ export const PuzzleTable = React.memo(
     let seenVisibleGroup = false;
 
     tree.flatRows.forEach((row, i) => {
-      const groupId = topLevelId(row);
-      const color = ROUND_COLORS[groupId % ROUND_COLORS.length];
+      const groupId = groupOf(row);
+      const isMetaGroup = groupId !== 0;
+      const color = isMetaGroup
+        ? ROUND_COLORS[groupId % ROUND_COLORS.length]
+        : UNASSIGNED_RAIL_COLOR;
 
-      // Keep one spacer + colorbar header per top-level meta group and toggle
-      // their visibility based on whether any row in the group is visible.
-      if (i == 0 || groupId != topLevelId(tree.flatRows[i - 1])) {
-        const showHeader = visibleTopLevelIds.has(groupId);
-        const showSpacer = showHeader && seenVisibleGroup;
-        if (showHeader) {
+      if (i == 0 || groupId != groupOf(tree.flatRows[i - 1])) {
+        const groupVisible = visibleGroupIds.has(groupId);
+        // Separate groups with a spacer, except before the first visible one.
+        // Unassigned puzzles get no colorbar: they are one continuous block.
+        if (i > 0 && groupVisible && seenVisibleGroup) {
+          rowsList.push(
+            <tr key={`group-spacer-${row.id}`} className="table-group-spacer" />
+          );
+        }
+        if (isMetaGroup && groupVisible) {
+          rowsList.push(
+            <MetaColorbarRow
+              key={`group-colorbar-${groupId}`}
+              color={color}
+              colSpan={headerColSpan}
+            />
+          );
+        }
+        if (groupVisible) {
           seenVisibleGroup = true;
         }
-        rowsList.push(
-          <MetaGroupHeaderRows
-            key={`group-header-${groupId}`}
-            hasSpacerSlot={i > 0}
-            showSpacer={showSpacer}
-            showHeader={showHeader}
-            colSpan={headerColSpan}
-            color={color}
-          />
-        );
       }
 
       rowsList.push(

@@ -34,6 +34,7 @@ body {
 
 /* Dark Mode Overrides */
 .bootstrap {
+  --cb-unassigned-rail: #dee2e6;
   --table-row-success: #c3e6cb;
   --table-row-danger: #f5c6cb;
   --table-row-success-border: #8fd19e;
@@ -43,6 +44,7 @@ body {
 }
 
 .bootstrap[data-bs-theme="dark"] {
+  --cb-unassigned-rail: #495057;
   --table-row-success: #142c15;
   --table-row-danger: #492121;
   --table-row-success-border: #244f2d;
@@ -73,6 +75,12 @@ body {
 
 #app .table.table-sm thead th {
   border-bottom: none;
+}
+
+#app .table-group-spacer {
+  height: 20px;
+  padding: 0rem;
+  border: none;
 }
 
 #app .table-top-colorbar {
