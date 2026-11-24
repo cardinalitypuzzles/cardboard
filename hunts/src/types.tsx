@@ -85,6 +85,10 @@ export interface PuzzleRow {
   depth: number;
   original: Puzzle;
   subRows: PuzzleRow[];
+  // Identity of the visual group this row belongs to:
+  // "meta:<top-level meta id>" for metas and their nested feeder rows,
+  // "unassigned" for top-level non-meta rows and their nested feeder rows.
+  groupKey: string;
 }
 
 // FontAwesome typing requires the 'icon' field to be one from an

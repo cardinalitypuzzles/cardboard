@@ -17,6 +17,13 @@ import { LinkCell } from "./LinkCell";
 import { useStore } from "./store";
 import type { PuzzleRow, PuzzleTableData, PuzzleTag } from "./types";
 
+// Unassigned puzzles (top-level rows that are not metas) form one continuous
+// visual block instead of one group per puzzle. Nested feeder rows inherit
+// their top-level ancestor's group key so they keep the ancestor's palette.
+function topLevelGroupKey(item: PuzzleTableData): string {
+  return item.is_meta ? `meta:${item.id}` : "unassigned";
+}
+
 function buildPuzzleTree(data: PuzzleTableData[]): {
   rows: PuzzleRow[];
   flatRows: PuzzleRow[];
@@ -26,20 +33,24 @@ function buildPuzzleTree(data: PuzzleTableData[]): {
   const _dfsBuild = (
     items: PuzzleTableData[],
     depth: number,
-    parentId?: string
+    parentId?: string,
+    groupKey?: string
   ): PuzzleRow[] =>
     items.map((item) => {
       const id = parentId ? `${parentId}.${item.id}` : item.id.toString();
+      const key =
+        depth === 0 ? topLevelGroupKey(item) : (groupKey as string);
       const row: PuzzleRow = {
         id,
         parentId,
         depth,
         original: item,
         subRows: [],
+        groupKey: key,
       };
       flatRows.push(row);
       if (item.subRows.length > 0) {
-        row.subRows = _dfsBuild(item.subRows, depth + 1, id);
+        row.subRows = _dfsBuild(item.subRows, depth + 1, id, key);
       }
       return row;
     });
@@ -161,7 +172,7 @@ const MetaGroupHeaderRows = React.memo(
   }) => (
     <>
       {hasSpacerSlot && (
-        <tr hidden={!showSpacer} style={{ height: "20px" }}></tr>
+        <tr hidden={!showSpacer} className="table-group-spacer"></tr>
       )}
       <tr hidden={!showHeader}>
         <td
@@ -248,7 +259,17 @@ const ROUND_COLORS = [
   "violet",
 ];
 
-const topLevelId = (row: PuzzleRow) => parseInt(row.id.split(".")[0], 10);
+// Neutral side-rail color for unassigned puzzles: the round palette is
+// reserved for meta groups. Defined as a CSS var so it flips with dark mode.
+const UNASSIGNED_RAIL_COLOR = "var(--cb-unassigned-rail)";
+
+const isMetaGroupKey = (groupKey: string) => groupKey.startsWith("meta:");
+
+// One spacer row for an unassigned run; no colorbar/header. Rendered hidden
+// when the run should not be separated from what precedes it.
+const UnassignedSpacerRow = React.memo(({ hidden }: { hidden: boolean }) => (
+  <tr hidden={hidden} className="table-group-spacer"></tr>
+));
 
 export const PuzzleTable = React.memo(
   ({
@@ -287,35 +308,62 @@ export const PuzzleTable = React.memo(
     );
 
     const visibleRowIds = new Set(visibleRows.map((row) => row.id));
-    const visibleTopLevelIds = new Set(visibleRows.map(topLevelId));
+    const visibleGroupKeys = new Set(visibleRows.map((row) => row.groupKey));
 
     const headerColSpan = 9;
     const language = i18n.resolvedLanguage || "en";
     const rowsList: React.ReactNode[] = [];
     let seenVisibleGroup = false;
+    let lastVisibleGroupWasMeta = false;
+    let prevGroupKey: string | null = null;
 
     tree.flatRows.forEach((row, i) => {
-      const groupId = topLevelId(row);
-      const color = ROUND_COLORS[groupId % ROUND_COLORS.length];
+      const groupKey = row.groupKey;
+      const isMetaGroup = isMetaGroupKey(groupKey);
+      const color = isMetaGroup
+        ? ROUND_COLORS[
+            parseInt(groupKey.slice("meta:".length), 10) %
+              ROUND_COLORS.length
+          ]
+        : UNASSIGNED_RAIL_COLOR;
 
-      // Keep one spacer + colorbar header per top-level meta group and toggle
-      // their visibility based on whether any row in the group is visible.
-      if (i == 0 || groupId != topLevelId(tree.flatRows[i - 1])) {
-        const showHeader = visibleTopLevelIds.has(groupId);
-        const showSpacer = showHeader && seenVisibleGroup;
-        if (showHeader) {
-          seenVisibleGroup = true;
+      if (i == 0 || groupKey != prevGroupKey) {
+        const showHeader = visibleGroupKeys.has(groupKey);
+        if (isMetaGroup) {
+          const showSpacer = showHeader && seenVisibleGroup;
+          if (showHeader) {
+            seenVisibleGroup = true;
+            lastVisibleGroupWasMeta = true;
+          }
+          rowsList.push(
+            <MetaGroupHeaderRows
+              key={`group-header-${groupKey}`}
+              hasSpacerSlot={i > 0}
+              showSpacer={showSpacer}
+              showHeader={showHeader}
+              colSpan={headerColSpan}
+              color={color}
+            />
+          );
+        } else {
+          // Unassigned puzzles are one continuous block: only separate the
+          // run from metas above it. Never a colorbar or heading.
+          const showSpacer =
+            showHeader && seenVisibleGroup && lastVisibleGroupWasMeta;
+          if (showHeader) {
+            seenVisibleGroup = true;
+            lastVisibleGroupWasMeta = false;
+          }
+          if (i > 0) {
+            rowsList.push(
+              <UnassignedSpacerRow
+                key={`group-spacer-${groupKey}-${row.id}`}
+                hidden={!showSpacer}
+              />
+            );
+          }
         }
-        rowsList.push(
-          <MetaGroupHeaderRows
-            key={`group-header-${groupId}`}
-            hasSpacerSlot={i > 0}
-            showSpacer={showSpacer}
-            showHeader={showHeader}
-            colSpan={headerColSpan}
-            color={color}
-          />
-        );
+        prevGroupKey = groupKey;
       }
 
       rowsList.push(
