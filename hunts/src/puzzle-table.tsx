@@ -17,13 +17,6 @@ import { LinkCell } from "./LinkCell";
 import { useStore } from "./store";
 import type { PuzzleRow, PuzzleTableData, PuzzleTag } from "./types";
 
-// Unassigned puzzles (top-level rows that are not metas) form one continuous
-// visual block instead of one group per puzzle. Nested feeder rows inherit
-// their top-level ancestor's group key so they keep the ancestor's palette.
-function topLevelGroupKey(item: PuzzleTableData): string {
-  return item.is_meta ? `meta:${item.id}` : "unassigned";
-}
-
 function buildPuzzleTree(data: PuzzleTableData[]): {
   rows: PuzzleRow[];
   flatRows: PuzzleRow[];
@@ -33,24 +26,20 @@ function buildPuzzleTree(data: PuzzleTableData[]): {
   const _dfsBuild = (
     items: PuzzleTableData[],
     depth: number,
-    parentId?: string,
-    groupKey?: string
+    parentId?: string
   ): PuzzleRow[] =>
     items.map((item) => {
       const id = parentId ? `${parentId}.${item.id}` : item.id.toString();
-      const key =
-        depth === 0 ? topLevelGroupKey(item) : (groupKey as string);
       const row: PuzzleRow = {
         id,
         parentId,
         depth,
         original: item,
         subRows: [],
-        groupKey: key,
       };
       flatRows.push(row);
       if (item.subRows.length > 0) {
-        row.subRows = _dfsBuild(item.subRows, depth + 1, id, key);
+        row.subRows = _dfsBuild(item.subRows, depth + 1, id);
       }
       return row;
     });
@@ -156,34 +145,17 @@ function rowClassName(row: PuzzleRow) {
   }
 }
 
-const MetaGroupHeaderRows = React.memo(
-  ({
-    hasSpacerSlot,
-    showSpacer,
-    showHeader,
-    colSpan,
-    color,
-  }: {
-    hasSpacerSlot: boolean;
-    showSpacer: boolean;
-    showHeader: boolean;
-    colSpan: number;
-    color: string;
-  }) => (
-    <>
-      {hasSpacerSlot && (
-        <tr hidden={!showSpacer} className="table-group-spacer"></tr>
-      )}
-      <tr hidden={!showHeader}>
-        <td
-          className="table-top-colorbar"
-          colSpan={colSpan}
-          style={{
-            background: `linear-gradient(90deg, ${color}, transparent)`,
-          }}
-        ></td>
-      </tr>
-    </>
+const MetaColorbarRow = React.memo(
+  ({ color, colSpan }: { color: string; colSpan: number }) => (
+    <tr>
+      <td
+        className="table-top-colorbar"
+        colSpan={colSpan}
+        style={{
+          background: `linear-gradient(90deg, ${color}, transparent)`,
+        }}
+      ></td>
+    </tr>
   )
 );
 
@@ -263,13 +235,8 @@ const ROUND_COLORS = [
 // reserved for meta groups. Defined as a CSS var so it flips with dark mode.
 const UNASSIGNED_RAIL_COLOR = "var(--cb-unassigned-rail)";
 
-const isMetaGroupKey = (groupKey: string) => groupKey.startsWith("meta:");
-
-// One spacer row for an unassigned run; no colorbar/header. Rendered hidden
-// when the run should not be separated from what precedes it.
-const UnassignedSpacerRow = React.memo(({ hidden }: { hidden: boolean }) => (
-  <tr hidden={hidden} className="table-group-spacer"></tr>
-));
+// Top-level row id that a row belongs to (rows are keyed "<id>.<id>...").
+const topLevelId = (row: PuzzleRow) => parseInt(row.id.split(".")[0], 10);
 
 export const PuzzleTable = React.memo(
   ({
@@ -308,62 +275,55 @@ export const PuzzleTable = React.memo(
     );
 
     const visibleRowIds = new Set(visibleRows.map((row) => row.id));
-    const visibleGroupKeys = new Set(visibleRows.map((row) => row.groupKey));
+
+    // A "group" is a top-level meta (plus its feeder rows) or the single
+    // unassigned block. Metas are keyed by their id, unassigned rows by 0.
+    const metaGroupIds = React.useMemo(
+      () =>
+        new Set(
+          tree.rows.filter((row) => row.original.is_meta).map(topLevelId)
+        ),
+      [tree.rows]
+    );
+    const groupOf = (row: PuzzleRow) => {
+      const id = topLevelId(row);
+      return metaGroupIds.has(id) ? id : 0;
+    };
+    const visibleGroupIds = new Set(visibleRows.map(groupOf));
 
     const headerColSpan = 9;
     const language = i18n.resolvedLanguage || "en";
     const rowsList: React.ReactNode[] = [];
     let seenVisibleGroup = false;
-    let lastVisibleGroupWasMeta = false;
-    let prevGroupKey: string | null = null;
 
     tree.flatRows.forEach((row, i) => {
-      const groupKey = row.groupKey;
-      const isMetaGroup = isMetaGroupKey(groupKey);
+      const groupId = groupOf(row);
+      const isMetaGroup = groupId !== 0;
       const color = isMetaGroup
-        ? ROUND_COLORS[
-            parseInt(groupKey.slice("meta:".length), 10) %
-              ROUND_COLORS.length
-          ]
+        ? ROUND_COLORS[groupId % ROUND_COLORS.length]
         : UNASSIGNED_RAIL_COLOR;
 
-      if (i == 0 || groupKey != prevGroupKey) {
-        const showHeader = visibleGroupKeys.has(groupKey);
-        if (isMetaGroup) {
-          const showSpacer = showHeader && seenVisibleGroup;
-          if (showHeader) {
-            seenVisibleGroup = true;
-            lastVisibleGroupWasMeta = true;
-          }
+      if (i == 0 || groupId != groupOf(tree.flatRows[i - 1])) {
+        const groupVisible = visibleGroupIds.has(groupId);
+        // Separate groups with a spacer, except before the first visible one.
+        // Unassigned puzzles get no colorbar: they are one continuous block.
+        if (i > 0 && groupVisible && seenVisibleGroup) {
           rowsList.push(
-            <MetaGroupHeaderRows
-              key={`group-header-${groupKey}`}
-              hasSpacerSlot={i > 0}
-              showSpacer={showSpacer}
-              showHeader={showHeader}
-              colSpan={headerColSpan}
+            <tr key={`group-spacer-${row.id}`} className="table-group-spacer" />
+          );
+        }
+        if (isMetaGroup && groupVisible) {
+          rowsList.push(
+            <MetaColorbarRow
+              key={`group-colorbar-${groupId}`}
               color={color}
+              colSpan={headerColSpan}
             />
           );
-        } else {
-          // Unassigned puzzles are one continuous block: only separate the
-          // run from metas above it. Never a colorbar or heading.
-          const showSpacer =
-            showHeader && seenVisibleGroup && lastVisibleGroupWasMeta;
-          if (showHeader) {
-            seenVisibleGroup = true;
-            lastVisibleGroupWasMeta = false;
-          }
-          if (i > 0) {
-            rowsList.push(
-              <UnassignedSpacerRow
-                key={`group-spacer-${groupKey}-${row.id}`}
-                hidden={!showSpacer}
-              />
-            );
-          }
         }
-        prevGroupKey = groupKey;
+        if (groupVisible) {
+          seenVisibleGroup = true;
+        }
       }
 
       rowsList.push(
