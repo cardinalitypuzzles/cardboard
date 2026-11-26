@@ -8,11 +8,18 @@ import zh from "javascript-time-ago/locale/zh.json";
 
 import "./i18n";
 import App from "./App";
+import { SheetChatApp } from "./SheetChatApp";
 
 TimeAgo.addLocale(en);
 TimeAgo.addLocale(es);
 TimeAgo.addLocale(zh);
 
-const container = document.getElementById("app")!;
-const root = createRoot(container);
-root.render(<App />);
+const sheetContainer = document.getElementById("sheet-app");
+if (sheetContainer) {
+  const root = createRoot(sheetContainer);
+  root.render(<SheetChatApp />);
+} else {
+  const container = document.getElementById("app")!;
+  const root = createRoot(container);
+  root.render(<App />);
+}
